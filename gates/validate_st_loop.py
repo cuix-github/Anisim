@@ -12,9 +12,9 @@ import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "reference2d"))
-sys.path.insert(0, os.path.join(HERE, "..", "experiments"))
+sys.path.insert(0, os.path.join(HERE, "..", "graphs"))
 from pfflip2d import Sim  # noqa: E402
-from demo3d import run_bifrost3  # noqa: E402
+from loop3d import run_bifrost3  # noqa: E402
 
 NX, NY, DT, SUB = 120, 160, 0.096, 60
 
