@@ -264,6 +264,12 @@
      "portDefault": "7"
     },
     {
+     "portName": "step_offset",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
      "portName": "path_tau",
      "portDirection": "input",
      "portType": "string",
@@ -328,6 +334,116 @@
      "portDirection": "input",
      "portType": "string",
      "portDefault": ""
+    },
+    {
+     "portName": "path_final_velocities",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_velocities",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_mass",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_mass",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_momx",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_momx",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_momy",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_momy",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_momz",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_momz",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_tau",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_tau",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_wt",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_wt",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_wtph",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_wtph",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_scale",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_scale",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_phase",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_phase",
+     "portDirection": "output",
+     "portType": "bool"
     },
     {
      "portName": "dump_every",
@@ -578,6 +694,11 @@
        "portType": "int"
       },
       {
+       "portName": "step_offset",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
        "portName": "tau_in",
        "portDirection": "input",
        "portType": "array<float>"
@@ -743,6 +864,14 @@
       {
        "nodeName": "idx_i",
        "nodeType": "Core::Type_Conversion::to_int"
+      },
+      {
+       "nodeName": "idx_off",
+       "nodeType": "Core::Math::add",
+       "multiInPortNames": [
+        "i",
+        "o"
+       ]
       },
       {
        "nodeName": "dg_pos",
@@ -996,6 +1125,14 @@
       },
       {
        "source": "idx_i.int",
+       "target": "idx_off.first.i"
+      },
+      {
+       "source": ".step_offset",
+       "target": "idx_off.first.o"
+      },
+      {
+       "source": "idx_off.output",
        "target": "step.step_index"
       },
       {
@@ -1501,6 +1638,46 @@
     {
      "nodeName": "r2_obs_max",
      "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "wf_velocities",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_mass",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_momx",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_momy",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_momz",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_tau",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_wt",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_wtph",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_scale",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_phase",
+     "nodeType": "File::NumPy::write_NumPy"
     }
    ],
    "connections": [
@@ -1761,6 +1938,10 @@
      "target": "loop.st_seed"
     },
     {
+     "source": ".step_offset",
+     "target": "loop.step_offset"
+    },
+    {
      "source": ".path_tau",
      "target": "r_tau.file_path"
     },
@@ -1861,6 +2042,126 @@
      "target": "loop.obstacles_max"
     },
     {
+     "source": "loop.velocities_out",
+     "target": "wf_velocities.data"
+    },
+    {
+     "source": ".path_final_velocities",
+     "target": "wf_velocities.file_path"
+    },
+    {
+     "source": "wf_velocities.success",
+     "target": ".ok_final_velocities"
+    },
+    {
+     "source": "loop.mass_out2",
+     "target": "wf_mass.data"
+    },
+    {
+     "source": ".path_final_mass",
+     "target": "wf_mass.file_path"
+    },
+    {
+     "source": "wf_mass.success",
+     "target": ".ok_final_mass"
+    },
+    {
+     "source": "loop.momx_out",
+     "target": "wf_momx.data"
+    },
+    {
+     "source": ".path_final_momx",
+     "target": "wf_momx.file_path"
+    },
+    {
+     "source": "wf_momx.success",
+     "target": ".ok_final_momx"
+    },
+    {
+     "source": "loop.momy_out",
+     "target": "wf_momy.data"
+    },
+    {
+     "source": ".path_final_momy",
+     "target": "wf_momy.file_path"
+    },
+    {
+     "source": "wf_momy.success",
+     "target": ".ok_final_momy"
+    },
+    {
+     "source": "loop.momz_out",
+     "target": "wf_momz.data"
+    },
+    {
+     "source": ".path_final_momz",
+     "target": "wf_momz.file_path"
+    },
+    {
+     "source": "wf_momz.success",
+     "target": ".ok_final_momz"
+    },
+    {
+     "source": "loop.tau_out2",
+     "target": "wf_tau.data"
+    },
+    {
+     "source": ".path_final_tau",
+     "target": "wf_tau.file_path"
+    },
+    {
+     "source": "wf_tau.success",
+     "target": ".ok_final_tau"
+    },
+    {
+     "source": "loop.wt_out2",
+     "target": "wf_wt.data"
+    },
+    {
+     "source": ".path_final_wt",
+     "target": "wf_wt.file_path"
+    },
+    {
+     "source": "wf_wt.success",
+     "target": ".ok_final_wt"
+    },
+    {
+     "source": "loop.wtph_out2",
+     "target": "wf_wtph.data"
+    },
+    {
+     "source": ".path_final_wtph",
+     "target": "wf_wtph.file_path"
+    },
+    {
+     "source": "wf_wtph.success",
+     "target": ".ok_final_wtph"
+    },
+    {
+     "source": "loop.scale_out2",
+     "target": "wf_scale.data"
+    },
+    {
+     "source": ".path_final_scale",
+     "target": "wf_scale.file_path"
+    },
+    {
+     "source": "wf_scale.success",
+     "target": ".ok_final_scale"
+    },
+    {
+     "source": "loop.phase_out2",
+     "target": "wf_phase.data"
+    },
+    {
+     "source": ".path_final_phase",
+     "target": "wf_phase.file_path"
+    },
+    {
+     "source": "wf_phase.success",
+     "target": ".ok_final_phase"
+    },
+    {
      "source": ".dump_every",
      "target": "loop.dump_every"
     }
@@ -1898,6 +2199,106 @@
      "valueName": "zerof.value",
      "valueType": "float",
      "value": "0f"
+    },
+    {
+     "valueName": "wf_velocities.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_velocities.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_mass.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_mass.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_momx.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_momx.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_momy.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_momy.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_momz.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_momz.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_tau.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_tau.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_wt.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_wt.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_wtph.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_wtph.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_scale.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_scale.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_phase.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_phase.create_directories",
+     "valueType": "bool",
+     "value": "true"
     }
    ]
   }
