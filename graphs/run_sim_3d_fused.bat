@@ -1,7 +1,7 @@
 @echo off
 rem Runs the milestone-6 3D simulation-loop graph (sim_3d_fused.json) headlessly: one
 rem bifcmd invocation executes the whole 3D PF-FLIP run (fused-P2G node (one custom scatter pass) + the
-rem multigrid step node inside an iterate). Driven by demo3d.py.
+rem multigrid step node inside an iterate). Driven by loop3d.py.
 
 setlocal
 set "BIFROST=C:\Program Files\Autodesk\Bifrost\Maya2027\3.1.0.8\bifrost"
