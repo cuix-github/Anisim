@@ -9,7 +9,7 @@ computes the reference phi on the same particles with two kernels (the tent kern
 matching the stock kLinearKernel, and the paper's Eq. 6 kernel used by reference2d),
 then renders a comparison figure and prints the agreement numbers.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe compare_phase_field.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe compare_phase_field.py
 """
 import os
 import subprocess

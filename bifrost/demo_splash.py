@@ -11,7 +11,7 @@ trapped air, thin sheets). The same scene runs three ways onto one sheet:
 Rows 1 vs 2 show the algorithm. Rows 2 vs 3 visually validate the Bifrost build on a
 violent scene, not just the tame dam break. Same seeds, same fixed dt, same instants.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe demo_splash.py   (~15 min)
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe demo_splash.py   (~15 min)
 """
 import os
 import sys

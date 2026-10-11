@@ -1,9 +1,9 @@
-"""D2b gate: adaptivity through the full Bifrost loop graph. The 2D plunge at nz=1
+r"""D2b gate: adaptivity through the full Bifrost loop graph. The 2D plunge at nz=1
 with adapt on, against the python adaptive twin from the identical seed: particle
 counts must track, represented volume must hold exactly, and the liquid centre of
 mass must agree.
 
-Run from sim/bifrost:  ..\..\.venv\Scripts\python.exe validate_adaptive_loop.py
+Run from bifrost:  ..\.venv\Scripts\python.exe validate_adaptive_loop.py
 """
 import os
 import sys

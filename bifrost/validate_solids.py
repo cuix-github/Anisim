@@ -2,7 +2,7 @@
 an identical bore-with-block state, identical channels, one step. Penetration must
 be zero on both sides and fields must agree at float rounding.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_solids.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_solids.py
 """
 import os
 import sys

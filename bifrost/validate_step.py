@@ -7,7 +7,7 @@ phase, all float32). The same channel files then drive (a) the step node through
 and (b) the python project/g2p/advect with the same injected channels. Every output is
 compared: face velocities, particle positions and velocities, iteration counts.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_step.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_step.py
 """
 import os
 import subprocess

@@ -13,7 +13,7 @@ Per-substep rates are measured honestly: each pipeline runs twice (20 and
 167 substeps) and the rate is the difference over 147, so graph compile and
 process startup cancel.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe demo_p2g_speed.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe demo_p2g_speed.py
 """
 import json
 import os

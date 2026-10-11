@@ -6,7 +6,7 @@
   dam_break   front curve vs the uniform reference, particle-count compression in
               deep air, and exact conservation of represented volume (sum scale^2)
 
-Run from sim/reference2d:  ..\\..\\.venv\\Scripts\\python.exe adaptive_gate.py
+Run from reference2d:  ..\\.venv\\Scripts\\python.exe adaptive_gate.py
 """
 import numpy as np
 

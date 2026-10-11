@@ -6,9 +6,9 @@ feeding the multigrid step node inside an iterate). Per-substep particle dumps a
 rendered as a shaded point cloud from a three-quarter view and assembled into an mp4
 with ffmpeg.
 
-Run from sim/bifrost:
-  ..\\..\\.venv\\Scripts\\python.exe demo3d.py smoke   # 16x16x8 sanity run
-  ..\\..\\.venv\\Scripts\\python.exe demo3d.py         # the real scene + video
+Run from bifrost:
+  ..\\.venv\\Scripts\\python.exe demo3d.py smoke   # 16x16x8 sanity run
+  ..\\.venv\\Scripts\\python.exe demo3d.py         # the real scene + video
 """
 import os
 import subprocess
