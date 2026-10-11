@@ -1,7 +1,7 @@
 {
     "AminoConfigurations": [
         {
-            "vendorName": "Autodesk",
+            "vendorName": "Anisim",
             "libraryVersion": "${CONFIG_PACK_VERSION}",
             "libraryName": "${CONFIG_PACK_NAME}",
             "sharedLibs": [
