@@ -13,7 +13,7 @@ catch silent implementation errors no visual inspection can.
   D  momentum budget: chained single steps on a 3D collapse, auditing
      d(sum m v_y) against gravity impulse plus wall-pressure impulse each step.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe verify_engineering.py [A|B|C|D]
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe verify_engineering.py [A|B|C|D]
 """
 import os
 import sys

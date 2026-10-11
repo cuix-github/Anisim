@@ -1,5 +1,5 @@
-import sys, numpy as np
-sys.path.insert(0, r"C:\Users\5d149\source\Aniso\sim\reference2d")
+import os, sys, numpy as np
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from pfflip2d import Sim
 
 def fixed_run(sim, dt, steps, cb=None):

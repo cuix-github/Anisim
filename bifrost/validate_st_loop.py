@@ -1,8 +1,8 @@
-"""ST through the full Bifrost loop graph: the 2D plunge at 8x dt against the python
+r"""ST through the full Bifrost loop graph: the 2D plunge at 8x dt against the python
 ST twin from the identical seed, plus a 3D big-step smoke. Peaks must land in the
 same band; the step economics print alongside.
 
-Run from sim/bifrost:  ..\..\.venv\Scripts\python.exe validate_st_loop.py
+Run from bifrost:  ..\.venv\Scripts\python.exe validate_st_loop.py
 """
 import os
 import sys

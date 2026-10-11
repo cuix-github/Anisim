@@ -8,8 +8,8 @@ a glance: droplets orange, bubbles white with a dark ring.
 Per-frame particle states are cached as .npz, so rendering tweaks replay without
 re-simulating:
 
-  ..\\..\\.venv\\Scripts\\python.exe demo_droplets.py            # simulate + render
-  ..\\..\\.venv\\Scripts\\python.exe demo_droplets.py rerender   # render from cache
+  ..\\.venv\\Scripts\\python.exe demo_droplets.py            # simulate + render
+  ..\\.venv\\Scripts\\python.exe demo_droplets.py rerender   # render from cache
 """
 import os
 import subprocess

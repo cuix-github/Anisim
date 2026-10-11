@@ -1,0 +1,7 @@
+# Pinned to the versions every result in this repo was produced with
+# (Python 3.13.5). ninja is the build tool PFFlipSpike/build.bat expects
+# on PATH from this venv.
+numpy==2.5.3
+pillow==12.3.0
+matplotlib==3.11.2
+ninja==1.13.2

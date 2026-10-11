@@ -1,0 +1,23 @@
+# Build output and simulation dumps (bifrost/out/ holds run caches; the
+# canonical profiling state lives there too, untracked by design)
+build/
+out/
+
+# Rendered frame sequences and their state caches: only the encoded videos
+# are committed. Full paths on purpose - a pattern containing a slash is
+# anchored to this file's folder, so the bare "results/..." form silently
+# matched nothing (the bug Aniso carried for these folders).
+reference2d/results/droplet_frames/
+reference2d/results/droplet_states/
+reference2d/results/three_flips_frames/
+bifrost/results/p2g/frames/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Editors
+.vs/
+.vscode/
+*.user

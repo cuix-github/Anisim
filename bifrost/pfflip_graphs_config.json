@@ -1,7 +1,7 @@
 {
     "AminoConfigurations": [
         {
-            "vendorName": "Aniso",
+            "vendorName": "Anisim",
             "libraryVersion": "1.0.0",
             "libraryName": "PFFlipGraphs",
             "jsonLibs": [
