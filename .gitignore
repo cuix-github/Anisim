@@ -1,5 +1,5 @@
-# Build output and simulation dumps (bifrost/out/ holds run caches; the
-# canonical profiling state lives there too, untracked by design)
+# Build output and simulation dumps (the root out/ holds every run's caches;
+# the canonical profiling state lives there too, untracked by design)
 build/
 out/
 
@@ -10,7 +10,7 @@ out/
 reference2d/results/droplet_frames/
 reference2d/results/droplet_states/
 reference2d/results/three_flips_frames/
-bifrost/results/p2g/frames/
+results/p2g/frames/
 
 # Python
 __pycache__/
