@@ -22,7 +22,7 @@ from PIL import Image, ImageDraw, ImageFont
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "reference2d"))
-sys.path.insert(0, os.path.join(HERE, "..", "experiments"))
+sys.path.insert(0, os.path.join(HERE, "..", "graphs"))
 from pfflip2d import Sim  # noqa: E402
 from validate_step import channels  # noqa: E402
 from validate_3d import run_node  # noqa: E402
@@ -150,8 +150,7 @@ def render(pos, typ, escaped, scale=4):
 
 def loop():
     print("=== loop (full plunge through the Bifrost graph, escape on)")
-    from demo3d import run_bifrost3
-    import demo3d
+    from loop3d import run_bifrost3
     sub = 500
     # identical seeding: 2D-style 2x2 per cell at z=0.5, straight from the reference.
     s0 = Sim(NX, NY, escape=True)

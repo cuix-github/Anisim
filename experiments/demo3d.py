@@ -19,74 +19,9 @@ from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RESULTS = os.path.join(HERE, "..", "reference2d", "results", "validation")
-
-
-def seed3d(nx, ny, nz, mask, jitter=0.35, seed=1):
-    rng = np.random.default_rng(seed)
-    cx, cy, cz = np.meshgrid(np.arange(nx), np.arange(ny), np.arange(nz), indexing="ij")
-    ps, ts = [], []
-    for ox in (0.25, 0.75):
-        for oy in (0.25, 0.75):
-            for oz in (0.25, 0.75):
-                p = np.stack([cx + ox, cy + oy, cz + oz], -1).reshape(-1, 3).astype(np.float64)
-                p += rng.uniform(-jitter, jitter, p.shape) * 0.5
-                ps.append(p)
-                ts.append(mask(p[:, 0], p[:, 1], p[:, 2]).astype(np.int32))
-    return np.concatenate(ps), np.concatenate(ts)
-
-
-def lattice(ni, nj, nk):
-    i, j, k = np.meshgrid(np.arange(ni) + 0.5, np.arange(nj) + 0.5, np.arange(nk) + 0.5,
-                          indexing="ij")
-    return np.stack([i.ravel(), j.ravel(), k.ravel()], 1).astype(np.float32)
-
-
-def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
-                 extra_ports=None, seed_fn=None, obstacles=None, fused=False,
-                 dump_every=1):
-    d = os.path.join(HERE, "..", "out", "loop3_" + tag)
-    os.makedirs(d, exist_ok=True)
-    pos, typ = (seed_fn or seed3d)(nx, ny, nz, mask)
-    mass = np.where(typ == 1, rho_l, rho_g).astype(np.float32)
-    zeros = np.zeros(len(pos), np.float32)
-    arrs = {"positions": pos.astype(np.float32), "velocities": np.zeros_like(pos, dtype=np.float32),
-            "particle_phase": typ.astype(np.float32), "mass": mass,
-            "momx": zeros, "momy": zeros, "momz": zeros,
-            "tau": zeros, "wt": np.ones(len(pos), np.float32),
-            "wtph": typ.astype(np.float32),
-            "scale": np.ones(len(pos), np.float32),
-            "phase_st": typ.astype(np.float32),
-            "obs_min": (obstacles[0].astype(np.float32) if obstacles is not None and len(obstacles[0])
-                        else np.array([[-100.0, -100.0, -100.0]], np.float32)),
-            "obs_max": (obstacles[1].astype(np.float32) if obstacles is not None and len(obstacles[1])
-                        else np.array([[-99.0, -99.0, -99.0]], np.float32)),
-            "probes_u": lattice(nx + 1, ny, nz), "probes_v": lattice(nx, ny + 1, nz),
-            "probes_w": lattice(nx, ny, nz + 1)}
-    for k, v in arrs.items():
-        np.save(os.path.join(d, k + ".npy"), v)
-    args = [os.path.join(HERE, "..", "graphs", "run_sim_3d_fused.bat" if fused else "run_sim_3d.bat"),
-            "--set-port", "nx", str(nx), "--set-port", "ny", str(ny),
-            "--set-port", "nz", str(nz), "--set-port", "dt", str(dt),
-            "--set-port", "substeps", str(substeps), "--set-port", "preconditioner", "1",
-            "--set-port", "dump_every", str(dump_every),
-            "--set-port", "rho_liquid", str(rho_l), "--set-port", "rho_air", str(rho_g),
-            "--set-port", "pos_pattern", (d + "/frame.####").replace("\\", "/"),
-            "--set-port", "diag_pattern", (d + "/diag.####").replace("\\", "/"),
-            "--set-port", "path_final_positions", (d + "/final.npy").replace("\\", "/"),
-            *[x for k2, v2 in (extra_ports or {}).items()
-              for x in ("--set-port", k2, str(v2))],
-            "--set-port", "esc_pattern", (d + "/esc.####").replace("\\", "/"),
-            "--set-port", "scl_pattern", (d + "/scl.####").replace("\\", "/"),
-            "--set-port", "ph_pattern", (d + "/ph.####").replace("\\", "/")]
-    for k in arrs:
-        args += ["--set-port", "path_" + k, os.path.join(d, k + ".npy").replace("\\", "/")]
-    res = subprocess.run(args, capture_output=True, text=True)
-    last = ((substeps - 1) // dump_every) * dump_every
-    if res.returncode != 0 or not os.path.exists(os.path.join(d, f"frame.{last:04d}.npy")):
-        sys.stderr.write(res.stdout[-3000:] + res.stderr[-2000:])
-        raise SystemExit(f"bifcmd 3D loop failed for {tag}")
-    diags = np.stack([np.load(os.path.join(d, f"diag.{k:04d}.npy")) for k in range(substeps)])
-    return d, typ, diags
+sys.path.insert(0, os.path.join(HERE, "..", "graphs"))
+# The 3D loop runner lives beside its .bat launchers; re-exported for the experiments.
+from loop3d import seed3d, lattice, run_bifrost3  # noqa: E402,F401
 
 
 def render_frame(pos, typ, nx, ny, nz, scale=11):
