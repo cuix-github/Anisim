@@ -4,7 +4,7 @@ weight sums epsilon-encoded exactly as the graph will deliver them). Merge and
 split decisions sit on float thresholds, so the comparison is multiset-style:
 counts per scale, represented volume, and field agreement on the pre-merge set.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_adaptive_node.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_adaptive_node.py
 """
 import os
 import sys

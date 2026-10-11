@@ -13,7 +13,7 @@ _splat_group: Eq. 6 kernel, base = floor(p' + 0.5) face frames). Three checks:
   permute  x<->z permutation of the 3D state must transpose u<->w channels
            exactly (the axis-bias lesson from verify_engineering check A).
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_p2g.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_p2g.py
 """
 import os
 import subprocess

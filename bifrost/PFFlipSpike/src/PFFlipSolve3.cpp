@@ -10,7 +10,7 @@
 #include <vector>
 
 // Milestone 6: the PF-FLIP step in 3D with a multigrid-preconditioned solve.
-// Same structure as the 2D node (which mirrors sim/reference2d/pfflip2d.py);
+// Same structure as the 2D node (which mirrors reference2d/pfflip2d.py);
 // at nz = 1 the w faces are all walls and this reduces exactly to the 2D
 // method, which validate_3d.py uses as the lockstep bridge. Double precision
 // internally. The multigrid is a geometric V-cycle on the variable-beta

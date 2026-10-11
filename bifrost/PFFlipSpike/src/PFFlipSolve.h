@@ -9,7 +9,7 @@
 // pressure Poisson equation (Jacobi-preconditioned CG), correct, grid-to-
 // particle with the per-phase FLIP blend, and RK2 advection with wall clamps.
 //
-// The executable spec is sim/reference2d/pfflip2d.py: this file mirrors its
+// The executable spec is reference2d/pfflip2d.py: this file mirrors its
 // project(), g2p() and advect() line by line (double precision internally),
 // so the two can be compared in lockstep on identical channel inputs.
 //

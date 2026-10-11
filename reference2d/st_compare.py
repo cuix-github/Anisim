@@ -11,7 +11,7 @@ Outputs: a three-row frame sheet per scene, a cost table (steps, pressure
 iterations, wall-clock per simulated second), and a surface-roughness metric
 that quantifies the aliasing ripples.
 
-Run from sim/reference2d:  ..\\..\\.venv\\Scripts\\python.exe st_compare.py
+Run from reference2d:  ..\\.venv\\Scripts\\python.exe st_compare.py
 """
 import os
 import time

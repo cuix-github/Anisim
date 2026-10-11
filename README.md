@@ -1,6 +1,12 @@
-# The simulation workstream: PF-FLIP in Bifrost
+# Anisim: PF-FLIP and ST-FLIP in Bifrost
 
-This folder implements the core of *Adaptive Phase-Field-FLIP for Very Large Scale Two-Phase Fluid Simulation* (Braun, Bender, Thuerey, SIGGRAPH 2025) inside Maya's Bifrost, using only the public Bifrost SDK and shipped nodes, and couples the result to this repository's Gaussian-splat pipeline: simulate a two-phase air-and-water shot in Bifrost, render the particles as Gaussians with Aniso inside a captured splat scene. The authors released only their grid data structure (MSBG, Apache-2.0), not the solver, so this is an independent implementation from the paper's equations.
+This repository implements the core of *Adaptive Phase-Field-FLIP for Very Large Scale Two-Phase Fluid Simulation* (Braun, Bender, Thuerey, SIGGRAPH 2025) inside Maya's Bifrost, using only the public Bifrost SDK and shipped nodes, and couples the result to the Gaussian-splat renderer [Aniso](https://github.com/cuix-github/Aniso): simulate a two-phase air-and-water shot in Bifrost, render the particles as Gaussians with Aniso inside a captured splat scene. The authors released only their grid data structure (MSBG, Apache-2.0), not the solver, so this is an independent implementation from the paper's equations.
+
+## About this repository
+
+The simulator was born inside Aniso under `sim/` and moved here on 2026-10-11 so each repository has one job: Aniso renders Gaussians, Anisim simulates. Every Aniso commit that touched the simulator came along with its author, date, and message intact (verified tree-for-tree against the originals); each carries an `Aniso-commit:` trailer naming its original hash, and references like `Aniso#38` point at the pull requests where the work was reviewed. The interface between the two repositories is the per-frame particle cache: positions, velocities, phase, escape flags, and particle scale as `.npy` arrays, produced here and consumed by the renderer.
+
+Setup on Windows: `py -3.13 -m venv .venv` and `.venv\Scripts\pip install -r requirements.txt` (versions pinned to the ones every recorded result was produced with), then `bifrost\PFFlipSpike\build.bat` to build the custom Bifrost nodes (Visual Studio 2022 and Bifrost 3.1 for Maya 2027). Gates run from their own folder, for example `cd bifrost` then `..\.venv\Scripts\python.exe validate_p2g.py`. Every validator exits nonzero on failure.
 
 ## Why this paper, in three sentences
 
@@ -13,7 +19,9 @@ PF-FLIP fills air with FLIP particles too, so wind, splashes, spray, and air ent
 - **Public surface only.** Shipped files, public SDK, public docs. The custom node reads and writes plain arrays attached as custom properties, deliberately independent of Bifrost's internal volume layout.
 - **Reference first.** A small pure-Python 2D implementation of the core loop (`reference2d/`) is the executable spec; every Bifrost stage is validated against it and against the paper's own test cases.
 
-## What is in this folder
+These were settled at the start; two were later reversed by measurement, and the milestone log below records both: P2G moved into a custom node (milestone 6.75, after profiling showed the stock splat layer was 94 percent of the cost), and the adaptive pressure solve came back as a staged milestone (6.5a) once the pressure solve became the largest remaining slice.
+
+## What is in this repository
 
 - `bifrost/PFFlipSpike/`: the feasibility spike, a Bifrost SDK operator pack containing the variable-coefficient projection with a built-in 1D two-phase hydrostatic test. Build with `PFFlipSpike\build.bat` (needs Visual Studio 2022 and Bifrost 3.1 installed with Maya 2027); run with `run_hydro_test.bat`.
 - `bifrost/hydro_test.json`: the bifcmd wrapper compound for that test.

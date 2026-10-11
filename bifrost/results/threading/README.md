@@ -136,21 +136,21 @@ output and the exact wrappers used, including the baseline recheck.
 
 To reproduce, build main at `9eb7bc6` in a separate checkout and preserve its
 entire installed `PFFlipSpike-1.0.0` pack, then build this branch with
-`sim/bifrost/PFFlipSpike/build.bat`. Set `$baselinePack` below to that preserved
-pack's `PFFlipSpikePackConfig.json`. Commands run from the Aniso root; each
+`bifrost/PFFlipSpike/build.bat`. Set `$baselinePack` below to that preserved
+pack's `PFFlipSpikePackConfig.json`. Commands run from the Anisim root; each
 label must be new because the driver refuses to reuse output directories.
 The default SDK is Bifrost 3.1.0.8 for Maya 2027; `--bifrost` overrides it.
 
 ```powershell
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode gate --label original_gate --threads 32 --pack $baselinePack
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode gate --label new_gate32 --threads 32 --compare sim/bifrost/out/threading/original_gate/receipt.json
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode flat --label original_flat --threads 32 --pack $baselinePack
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode flat --label new_flat32 --threads 32 --compare sim/bifrost/out/threading/original_flat/receipt.json
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode bench --label original_bench --threads 32 --pack $baselinePack
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode bench --label new_bench32 --threads 32 --compare sim/bifrost/out/threading/original_bench/receipt.json
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode demo3d --label original_demo --threads 32 --pack $baselinePack
-.\.venv\Scripts\python.exe sim/bifrost/threading_experiment.py --mode demo3d --label new_demo --threads 32 --compare sim/bifrost/out/threading/original_demo/receipt.json
-.\.venv\Scripts\python.exe sim/bifrost/render_threading_demo.py sim/bifrost/out/threading/original_demo sim/bifrost/out/threading/new_demo sim/bifrost/out/threading/comparison.mp4
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode gate --label original_gate --threads 32 --pack $baselinePack
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode gate --label new_gate32 --threads 32 --compare bifrost/out/threading/original_gate/receipt.json
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode flat --label original_flat --threads 32 --pack $baselinePack
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode flat --label new_flat32 --threads 32 --compare bifrost/out/threading/original_flat/receipt.json
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode bench --label original_bench --threads 32 --pack $baselinePack
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode bench --label new_bench32 --threads 32 --compare bifrost/out/threading/original_bench/receipt.json
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode demo3d --label original_demo --threads 32 --pack $baselinePack
+.\.venv\Scripts\python.exe bifrost/threading_experiment.py --mode demo3d --label new_demo --threads 32 --compare bifrost/out/threading/original_demo/receipt.json
+.\.venv\Scripts\python.exe bifrost/render_threading_demo.py bifrost/out/threading/original_demo bifrost/out/threading/new_demo bifrost/out/threading/comparison.mp4
 ```
 
 Repeat the gate with 1 and 8 workers and the benchmark with 8 and 16 workers,

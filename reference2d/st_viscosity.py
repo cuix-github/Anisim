@@ -9,7 +9,7 @@ knob: moving to 8x dt while scaling (1-alpha) by 8 restores the same damping.
 
 Also runs the plunge with escape AND st together, which no gate has covered yet.
 
-Run from sim/reference2d:  ..\\..\\.venv\\Scripts\\python.exe st_viscosity.py
+Run from reference2d:  ..\\.venv\\Scripts\\python.exe st_viscosity.py
 """
 import numpy as np
 

@@ -9,7 +9,7 @@ dam break, four panels.
 All runs use substepped advection; the escape treatment is off everywhere so the
 comparison isolates sampling and air. Per-panel wall-clock is stamped on the video.
 
-Run from sim/reference2d:  ..\\..\\.venv\\Scripts\\python.exe demo_three_flips.py  (~12 min)
+Run from reference2d:  ..\\.venv\\Scripts\\python.exe demo_three_flips.py  (~12 min)
 """
 import os
 import subprocess

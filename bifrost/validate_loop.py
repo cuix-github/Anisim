@@ -9,7 +9,7 @@ Scenes:
   rayleigh_taylor 19:1 fingers must grow (two-phase-only physics anchor) + sheet
 
 The python runs use the same fixed dt as the graph, so frame times align exactly.
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_loop.py [scene]
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_loop.py [scene]
 """
 import os
 import subprocess

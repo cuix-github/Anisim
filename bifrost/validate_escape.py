@@ -10,7 +10,7 @@ reference, the same two layers as every other feature.
              dt: droplet/bubble count curves overlaid, plus a two-row video
              (python above, Bifrost below) with the same markers as the 2D demo.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_escape.py [lockstep|loop]
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_escape.py [lockstep|loop]
 """
 import os
 import subprocess

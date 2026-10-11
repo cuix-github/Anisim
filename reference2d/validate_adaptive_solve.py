@@ -18,7 +18,7 @@ Five checks, each against something already trusted:
             adaptive grid, report unknowns saved and how far corrected
             velocities in the fine interface band drift from uniform.
 
-Run from sim/reference2d:  ..\\..\\.venv\\Scripts\\python.exe validate_adaptive_solve.py
+Run from reference2d:  ..\\.venv\\Scripts\\python.exe validate_adaptive_solve.py
 """
 import json
 import os
