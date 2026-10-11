@@ -11,7 +11,7 @@ Three tests, each against something already trusted:
               after the gravity kick the node must return it to rest and reproduce
               the analytic pressure jump, multigrid on.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_3d.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_3d.py
 """
 import os
 import subprocess

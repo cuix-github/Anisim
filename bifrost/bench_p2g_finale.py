@@ -9,7 +9,7 @@ the step node is 5.6 s and the pressure solve 0.9 s. This script re-runs
 the stock 4-substep point as an environment sanity check, then measures the
 fused graph at 4 and 12 substeps.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe bench_p2g_finale.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe bench_p2g_finale.py
 """
 import json
 import os

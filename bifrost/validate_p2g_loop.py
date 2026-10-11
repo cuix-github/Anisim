@@ -12,7 +12,7 @@ gap was 1.9 cells over a full run, from the stock kernel mismatch).
   hydro    two-phase hydrostatic column through the fused graph: after 40
            substeps the max particle speed must be at solver-tolerance level.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_p2g_loop.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_p2g_loop.py
 """
 import os
 import sys

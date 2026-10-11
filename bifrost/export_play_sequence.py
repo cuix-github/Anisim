@@ -4,7 +4,7 @@ graph (phase_field_play.json): per frame, particle positions (N,3, z=0.5) and ph
 convention. The simulation is the same two-phase reference used by the validation
 gate, so what plays in Maya's viewport is literally the python experiment.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe export_play_sequence.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe export_play_sequence.py
 """
 import os
 import sys

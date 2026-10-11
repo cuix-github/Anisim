@@ -11,8 +11,8 @@ Checks: bore front position vs Stoker's analytic wet-bed dam-break speed, kineti
 proxy curves, particle-count compression (C/D), droplet/bubble peaks, zero obstacle
 penetrations. Videos per stage, curves, and a summary verdict file.
 
-  ..\\..\\.venv\\Scripts\\python.exe run_bore_suite.py smoke    # tiny plumbing check
-  ..\\..\\.venv\\Scripts\\python.exe run_bore_suite.py          # the overnight run
+  ..\\.venv\\Scripts\\python.exe run_bore_suite.py smoke    # tiny plumbing check
+  ..\\.venv\\Scripts\\python.exe run_bore_suite.py          # the overnight run
 """
 import json
 import os

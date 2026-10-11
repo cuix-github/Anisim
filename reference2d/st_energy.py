@@ -3,7 +3,7 @@ the family-demo dam break, three ways. Accuracy = how closely a curve hugs the
 trusted reference; aliasing shows as sustained agitation and roughness the
 reference does not have.
 
-Run from sim/reference2d:  ..\\..\\.venv\\Scripts\\python.exe st_energy.py   (~3 min)
+Run from reference2d:  ..\\.venv\\Scripts\\python.exe st_energy.py   (~3 min)
 """
 import os
 

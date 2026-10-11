@@ -4,7 +4,7 @@
 #include <cmath>
 #include <vector>
 
-// Mirrors sim/reference2d/pfflip2d.py exactly; see the header. All grid math is
+// Mirrors reference2d/pfflip2d.py exactly; see the header. All grid math is
 // double precision, as the numpy reference is, so lockstep comparisons on
 // identical inputs agree to float rounding.
 

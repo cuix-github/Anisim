@@ -2,7 +2,7 @@
 identical mid-splash state, with the node's own exported tau draws replayed in
 python, so the comparison is deterministic despite the randomness.
 
-Run from sim/bifrost:  ..\\..\\.venv\\Scripts\\python.exe validate_st_node.py
+Run from bifrost:  ..\\.venv\\Scripts\\python.exe validate_st_node.py
 """
 import os
 import sys
