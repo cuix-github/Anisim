@@ -1,11 +1,11 @@
 # Deterministic transfer threading
 
 On 2026-10-10, threading began under the experiment discipline established
-by the earlier work. The starting point was
-main at `a310f6b`, after the fused P2G and profiling changes. PR #31's withdrawn
-4x claim mattered here: a faster inner loop is not evidence of a faster whole
-simulation, and the old 10.3-second timing is not a substitute for a new
-before/after pair.
+by the earlier work. The starting point was main at `dd22f9c` (Aniso
+`a310f6b`, before the solver moved here), after the fused P2G and profiling
+changes. Aniso PR #31's withdrawn 4x claim mattered here: a faster inner loop
+is not evidence of a faster whole simulation, and the old 10.3-second timing
+is not a substitute for a new before/after pair.
 
 The implementation assigns disjoint slabs of the destination grid to workers.
 Each slab receives a stable list of particles in their original input order;
@@ -134,9 +134,10 @@ separators; full raw maps and arrays remain under ignored `out/threading/`.
 [`validation.txt`](validation.txt) contains the existing tests' complete
 output and the exact wrappers used, including the baseline recheck.
 
-To reproduce, build main at `a310f6b` in a separate checkout and preserve its
-entire installed `PFFlipSpike-1.0.0` pack, then build this branch with
-`nodes/build.bat`. Set `$baselinePack` below to that preserved
+To reproduce, build the baseline from an Aniso checkout at `a310f6b` (its
+`sim/` is the tree of `dd22f9c` here, from before the standalone build) and
+preserve its entire installed `PFFlipSpike-1.0.0` pack, then build this
+branch with `nodes/build.bat`. Set `$baselinePack` below to that preserved
 pack's `PFFlipSpikePackConfig.json`. Commands run from the Anisim root; each
 label must be new because the driver refuses to reuse output directories.
 The default SDK is Bifrost 3.1.0.8 for Maya 2027; `--bifrost` overrides it.
@@ -162,7 +163,7 @@ inspect their saved invariants and identity result rather than describing
 that gate as passed. The renderer can intentionally show an identical pair
 with a failed display audit, but labels the issue and refuses unequal states.
 
-## Scene v2 (2026-10-10, after PR #43's display clamp)
+## Scene v2 (2026-10-10, after Aniso PR #43's display clamp)
 
 Obstacles belong mid-flume where collisions can be observed, not at
 the domain edge. `threading_experiment.py demo3d` now uses its own
