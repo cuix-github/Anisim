@@ -1,0 +1,23 @@
+{
+    "AminoConfigurations": [
+        {
+            "vendorName": "Anisim",
+            "libraryVersion": "1.0.0",
+            "libraryName": "PFFlipGraphs",
+            "jsonLibs": [
+                {
+                    "path": ".",
+                    "files": [
+                        "phase_field_play.json"
+                    ]
+                },
+                {
+                    "path": "../graphs",
+                    "files": [
+                        "phase_field_probe.json"
+                    ]
+                }
+            ]
+        }
+    ]
+}

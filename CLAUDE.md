@@ -33,8 +33,15 @@ current and supersedes anything older.
   be ambiguous ("Anisim PR #N", "Aniso PR #N").
 - Setup and tooling: the repo-local `.venv` is created from `requirements.txt`
   (pinned versions; do not upgrade casually, numerics are compared bit for
-  bit), and `bifrost\PFFlipSpike\build.bat` takes `ninja` from it. Every
-  validator exits nonzero on failure; trust exit codes, then read the output.
+  bit), and `nodes\build.bat` takes `ninja` from it. Every validator exits
+  nonzero on failure; trust exit codes, then read the output.
+- Layout: one folder per job (`reference2d/` the spec, `nodes/` the C++
+  pack, `graphs/` the graphs and their bifcmd launchers, `gates/` the
+  validation ladder, `experiments/` benches and demos, `maya/` the in-Maya
+  playback, `results/` committed evidence), mapped in the README. Every run
+  writes under the root `out/` (ignored). The Bifrost-side scripts find their
+  siblings through paths relative to their own file, so they run from any
+  working directory.
 - Validation before features: the executable spec is
   `reference2d/pfflip2d.py`. Every solver feature ships with its gate —
   unit lockstep against the spec, then a system gate through the real graph,
@@ -49,7 +56,7 @@ current and supersedes anything older.
   pipeline configurations into one ratio; re-measure in the configuration
   being decided about, and say so when a number is an estimate. Before/after
   speed claims use the same machine, same state, same day — the canonical
-  profiling state is the mid-bore dump in `bifrost/out/loop3_D_finale_c1/`
+  profiling state is the mid-bore dump in `out/loop3_D_finale_c1/`
   (untracked, about 400 MB; ask me before regenerating it).
   Serialize timing runs; never overlap benchmarks.
 - Comparison-experiment protocol (rules set 2026-10-11 after a
