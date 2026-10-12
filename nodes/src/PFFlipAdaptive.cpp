@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
+#include <cstdio>
+#include <cstdlib>
 #include <unordered_map>
 #include <utility>
 
@@ -257,7 +259,7 @@ double delta(const Op& op, const Face& f, const Vec& p) {
 }
 
 // variational = false is the reference's stencil = "naive"; true its
-// "variational" stencil, which needs nz = 1 (one lateral axis per junction)
+// "variational" stencil (at nz > 1 with both tangent axes as lateral axes)
 Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3], bool variational) {
     Op op;
     op.cells = std::move(cells);
@@ -276,44 +278,56 @@ Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3], bool vari
         return it == index.end() ? -1 : it->second;
     };
     // Operator's lateral(): the coarse cell K's neighbor in direction latDir
-    // along latAxis, the same level, one coarser, or the aligned pair of its
-    // refined children. Fills (cell, fraction) entries summing to 1 and the
-    // center distance in fine units; false at a wall (no lateral at all).
-    auto lateral = [&](const Cell& K, int latDir, int latAxis, int idx[2], double frac[2],
+    // along latAxis - the same level, one coarser, or the children of the
+    // same-level neighbor that face K (a pair at nz = 1, four in 3D: both
+    // halves along every other subdivided axis). Fills (cell, fraction)
+    // entries summing to 1 and the center distance along latAxis in fine
+    // units; false at a wall (no lateral at all).
+    auto lateral = [&](const Cell& K, int latDir, int latAxis, int idx[4], double frac[4],
                        int& n, double& dist) {
-        int at[3] = {K.i, K.j, K.k};
+        const int kc[3] = {K.i, K.j, K.k};
+        int at[3] = {kc[0], kc[1], kc[2]};
         at[latAxis] += latDir;
         const int same = find(K.l, at);
         if (same >= 0) {
             idx[0] = same, frac[0] = 1.0, n = 1, dist = static_cast<double>(1 << K.l);
             return true;
         }
-        // the shifts keep the reference's floor semantics at -1 (find rejects it)
-        const int up[3] = {at[0] >> 1, at[1] >> 1, K.k};
+        // one coarser, not K's own parent; the shifts keep the reference's
+        // floor semantics at -1 (find rejects it); z stays put when flat
+        int up[3], mine[3];
+        for (int a = 0; a < 3; ++a) {
+            const bool keep = a == 2 && D.flat;
+            up[a] = keep ? at[a] : at[a] >> 1;
+            mine[a] = keep ? kc[a] : kc[a] >> 1;
+        }
         const int coarser = find(K.l + 1, up);
-        if (coarser >= 0 && !(up[0] == K.i >> 1 && up[1] == K.j >> 1)) {
+        if (coarser >= 0 && !(up[0] == mine[0] && up[1] == mine[1] && up[2] == mine[2])) {
             idx[0] = coarser, frac[0] = 1.0, n = 1, dist = 1.5 * (1 << K.l);
             return true;
         }
         const int fl = K.l - 1;
-        if (fl >= 0) {
-            int pa[3], pb[3];
-            if (latAxis == 1) {
-                const int row = latDir > 0 ? 2 * (K.j + latDir) : 2 * K.j - 1;
-                pa[0] = 2 * K.i, pa[1] = row, pb[0] = 2 * K.i + 1, pb[1] = row;
-            } else {
-                const int col = latDir > 0 ? 2 * (K.i + latDir) : 2 * K.i - 1;
-                pa[0] = col, pa[1] = 2 * K.j, pb[0] = col, pb[1] = 2 * K.j + 1;
-            }
-            pa[2] = pb[2] = K.k;
-            const int ca = find(fl, pa), cb = find(fl, pb);
-            if (ca >= 0 && cb >= 0) {
-                idx[0] = ca, idx[1] = cb, frac[0] = frac[1] = 0.5, n = 2;
-                dist = 1.5 * (1 << fl);
-                return true;
-            }
+        if (fl < 0) return false;
+        int base[3], vary[2], nv = 0;
+        for (int a = 0; a < 3; ++a) {
+            if (a == latAxis)
+                base[a] = latDir > 0 ? 2 * (kc[a] + latDir) : 2 * kc[a] - 1;
+            else if (a == 2 && D.flat)
+                base[a] = kc[a];
+            else
+                base[a] = 2 * kc[a], vary[nv++] = a;
         }
-        return false;
+        const int count = 1 << nv;
+        for (int c = 0; c < count; ++c) {
+            int ch[3] = {base[0], base[1], base[2]};
+            for (int v = 0; v < nv; ++v) ch[vary[v]] += (c >> (nv - 1 - v)) & 1;
+            idx[c] = find(fl, ch);
+            if (idx[c] < 0) return false;
+            frac[c] = 1.0 / count;
+        }
+        n = count;
+        dist = 1.5 * (1 << fl);
+        return true;
     };
     for (int me = 0; me < N; ++me) {
         const Cell& C = op.cells[me];
@@ -346,27 +360,38 @@ Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3], bool vari
                 if (side > 0) push(me, o, hi, 1.5 * s);
                 else push(o, me, lo, 1.5 * s);
                 if (!variational) continue;
-                // the variational sample: the coarse side is read s/2 off the
-                // coarse axis, toward the lateral neighbor on the fine cell's
-                // side, so the sample sits where the fine cell's center is
-                // (3/4 coarse + 1/4 a same-level lateral). With no lateral (a
-                // wall) the face stays the plain two-cell one, as the reference
-                const int latAxis = axis == 0 ? 1 : 0;
-                const int ofs = org[latAxis];
-                const int latDir = ((ofs >> (C.l + 1)) << (C.l + 1)) != ofs ? 1 : -1;
-                int li[2];
-                double lf[2], dist = 0.0;
-                int ln = 0;
-                if (!lateral(op.cells[o], latDir, latAxis, li, lf, ln, dist)) continue;
+                // the variational sample: the coarse side is read where the
+                // fine cell's center sits, s/2 off the coarse axis along each
+                // lateral axis (one at nz = 1, both tangents in 3D), toward
+                // the lateral neighbor on the fine cell's side:
+                //   p_K + sum_t w_t (p_lateral_t - p_K),  w_t = (s/2) / D_t
+                // (3/4 coarse + 1/4 a same-level lateral in 2D; 1/2 + 1/4 +
+                // 1/4 in 3D), exact for linear fields without the edge
+                // neighbor. An axis with no lateral (a wall) drops its term;
+                // with none at all the face stays the plain two-cell one, as
+                // the reference
+                int li[2][4], ln[2] = {0, 0}, nt = 0;
+                double lf[2][4], wt[2];
+                for (int t : {ta, tb}) {
+                    if (t == 2 && D.flat) continue;
+                    const int ofs = org[t];
+                    const int latDir = ((ofs >> (C.l + 1)) << (C.l + 1)) != ofs ? 1 : -1;
+                    double dist = 0.0;
+                    if (!lateral(op.cells[o], latDir, t, li[nt], lf[nt], ln[nt], dist)) continue;
+                    wt[nt++] = (static_cast<double>(s) / 2.0) / dist;
+                }
+                if (nt == 0) continue;
+                double wsum = 0.0;
+                for (int q = 0; q < nt; ++q) wsum += wt[q];
                 const double sgn = static_cast<double>(side);
-                const double wl = (static_cast<double>(s) / 2.0) / dist;
                 Face& f = op.faces.back();
                 f.e0 = static_cast<int>(op.entIdx.size());
-                f.en = 2 + ln;
+                f.en = 2;
                 op.entIdx.push_back(me), op.entW.push_back(-sgn);
-                op.entIdx.push_back(o), op.entW.push_back((1.0 - wl) * sgn);
-                for (int e = 0; e < ln; ++e)
-                    op.entIdx.push_back(li[e]), op.entW.push_back(wl * lf[e] * sgn);
+                op.entIdx.push_back(o), op.entW.push_back((1.0 - wsum) * sgn);
+                for (int q = 0; q < nt; ++q)
+                    for (int e = 0; e < ln[q]; ++e, ++f.en)
+                        op.entIdx.push_back(li[q][e]), op.entW.push_back(wt[q] * lf[q][e] * sgn);
             }
         }
     }
@@ -687,13 +712,27 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
     const std::vector<int> target = bandTarget(D, liquidFraction, settings.band, levels);
     std::vector<Cell> cells = buildCells(D, levels, target);
 
-    // the variational stencil handles one lateral axis per junction, so the
-    // cleanup junction is nz = 1 only (the step node falls back otherwise)
-    const bool cleanup = junction == Junction::Cleanup && D.flat;
+    const bool cleanup = junction == Junction::Cleanup;
     const Vec* beta[3] = {&bu, &bv, &bw};
     const int maxLevels = depth - levels + 1;
     const Hierarchy h = buildHierarchy(D, std::move(cells), beta, maxLevels, 64, cleanup);
     const Op& op = h.ops[0];
+    // PFFLIP_ADAPTIVE_DUMP=<path> writes the leaf operator for inspection: one
+    // "C l i j k" line per cell, then one "F axis a b d en [cell weight]..."
+    // line per face (en = 0: Delta = p[b] - p[a]); gates/validate_adaptive_3d.py
+    // checks every face's exactness for linear pressure from it
+    if (const char* path = std::getenv("PFFLIP_ADAPTIVE_DUMP")) {
+        if (FILE* fp = std::fopen(path, "w")) {
+            for (const Cell& c : op.cells) std::fprintf(fp, "C %d %d %d %d\n", c.l, c.i, c.j, c.k);
+            for (const Face& f : op.faces) {
+                std::fprintf(fp, "F %d %d %d %.17g %d", f.axis, f.a, f.b, f.d, f.en);
+                for (int e = f.e0; e < f.e0 + f.en; ++e)
+                    std::fprintf(fp, " %d %.17g", op.entIdx[e], op.entW[e]);
+                std::fprintf(fp, "\n");
+            }
+            std::fclose(fp);
+        }
+    }
 
     const Vec* vel[3] = {&u, &v, &w};
     Result res;
