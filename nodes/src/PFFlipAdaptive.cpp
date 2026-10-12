@@ -1,6 +1,7 @@
 #include "PFFlipAdaptive.h"
 
 #include <algorithm>
+#include <chrono>
 #include <cmath>
 #include <cstdint>
 #include <cstdio>
@@ -708,15 +709,32 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
            (D.flat || nz % (2 << depth) == 0))
         ++depth;
     const int levels = std::clamp(settings.levels, 0, depth);
+    // PFFLIP_PROFILE=1 splits the step node's solve phase (spike 1) into the
+    // adaptive solve's own parts, printed to stderr as a PFPROF_ADAPTIVE line
+    static const bool prof = [] {
+        const char* e = std::getenv("PFFLIP_PROFILE");
+        return e && e[0] == '1';
+    }();
+    using Clock = std::chrono::steady_clock;
+    Clock::time_point mark = Clock::now();
+    double msTree = 0.0, msHier = 0.0, msSolve = 0.0, msGrad = 0.0, msClean = 0.0, msFill = 0.0;
+    auto lap = [&](double& acc) {
+        if (!prof) return;
+        const Clock::time_point now = Clock::now();
+        acc += std::chrono::duration<double, std::milli>(now - mark).count();
+        mark = now;
+    };
 
     const std::vector<int> target = bandTarget(D, liquidFraction, settings.band, levels);
     std::vector<Cell> cells = buildCells(D, levels, target);
+    lap(msTree);
 
     const bool cleanup = junction == Junction::Cleanup;
     const Vec* beta[3] = {&bu, &bv, &bw};
     const int maxLevels = depth - levels + 1;
     const Hierarchy h = buildHierarchy(D, std::move(cells), beta, maxLevels, 64, cleanup);
     const Op& op = h.ops[0];
+    lap(msHier);
     // PFFLIP_ADAPTIVE_DUMP=<path> writes the leaf operator for inspection: one
     // "C l i j k" line per cell, then one "F axis a b d en [cell weight]..."
     // line per face (en = 0: Delta = p[b] - p[a]); gates/validate_adaptive_3d.py
@@ -741,11 +759,13 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
     const Vec b = rhsOf(D, op, vel, dt);
     const Vec p = solve(h, b, settings.tolerance, settings.maxIterations, res.iterations,
                         res.residual);
+    lap(msSolve);
 
     // faces inside coarse cells keep u* until the local fills below
     const Vec uStar = u, vStar = v, wStar = w;
     Vec* out[3] = {&u, &v, &w};
     applyGradient(D, op, p, dt, out, beta);
+    lap(msGrad);
     Vec q;
     if (cleanup) {
         // the variational fluxes balance only in the weighted sense; a second,
@@ -768,6 +788,7 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
             applyGradient(D, h2.ops[0], q, dt, out, beta);
         }
     }
+    lap(msClean);
     const Vec* star[3] = {&uStar, &vStar, &wStar};
     const long long nc = static_cast<long long>(op.size());
 #pragma omp parallel for schedule(dynamic, 16)
@@ -781,6 +802,13 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
             res.pressure[D.ic(i, j, k)] = pn;
         });
     }
+    lap(msFill);
+    if (prof)
+        std::fprintf(stderr,
+                     "PFPROF_ADAPTIVE cells=%zu of %zu levels=%d iters=%d+%d tree=%.1f hier=%.1f "
+                     "solve=%.1f grad=%.1f cleanup=%.1f fill=%.1f\n",
+                     op.size(), D.ncell(), levels, res.iterations, res.cleanupIterations, msTree,
+                     msHier, msSolve, msGrad, msClean, msFill);
     return res;
 }
 
