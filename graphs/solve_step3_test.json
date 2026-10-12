@@ -86,6 +86,24 @@
           "portDefault": "0"
         },
         {
+          "portName": "pressure_solver",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
+          "portName": "adaptive_band",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
+          "portName": "adaptive_levels",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
           "portName": "escape",
           "portDirection": "input",
           "portType": "int",
@@ -805,6 +823,18 @@
         {
           "source": ".preconditioner",
           "target": "step.preconditioner"
+        },
+        {
+          "source": ".pressure_solver",
+          "target": "step.pressure_solver"
+        },
+        {
+          "source": ".adaptive_band",
+          "target": "step.adaptive_band"
+        },
+        {
+          "source": ".adaptive_levels",
+          "target": "step.adaptive_levels"
         },
         {
           "source": ".escape",

@@ -1,4 +1,5 @@
 #include "PFFlipSolve.h"
+#include "PFFlipAdaptive.h"
 #include "PFFlipScatter.h"
 
 #include <algorithm>
@@ -242,7 +243,8 @@ namespace Solve {
 
 void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liquid,
              float rho_air, float alpha_liquid, float alpha_air, int max_iterations,
-             float tolerance, int preconditioner, int escape, float esc_phi,
+             float tolerance, int preconditioner, int pressure_solver,
+             int adaptive_band, int adaptive_levels, int escape, float esc_phi,
              float drag_droplet, float drag_bubble, float buoyancy, float rho0_face,
              int st, int st_seed, int step_index,
              int adapt, float coarse_gain, float ws_epsilon,
@@ -453,74 +455,116 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                                        (w[L.iw(i, j, k + 1)] - w[L.iw(i, j, k)])) / dt;
 
     lap(msAsm);
-    // ---- flexible PCG with Jacobi (0) or multigrid V-cycle (1) preconditioner.
-    std::vector<Level> ls;
-    Vec tmp(L.nc());
-    if (preconditioner == 1) ls = buildHierarchy(std::move(L));
-    Level& F = preconditioner == 1 ? ls[0] : L;
-
-    const size_t ncell = F.nc();
-    Vec p(ncell, 0.0), r = rhs, z(ncell), d(ncell), q(ncell), rPrev(ncell, 0.0);
-    auto precond = [&](const Vec& rr, Vec& zz) {
-        if (preconditioner == 1) {
-            ls[0].b = rr;
-            std::fill(ls[0].x.begin(), ls[0].x.end(), 0.0);
-            vcycle(ls, 0, tmp);
-            zz = ls[0].x;
-        } else {
-            const long long nl = static_cast<long long>(ncell);
-#pragma omp parallel for schedule(static)
-            for (long long c = 0; c < nl; ++c) zz[c] = F.diagInv[c] * rr[c];
-        }
-    };
-    precond(r, z);
-    d = z;
-    double rz = 0.0, rr2 = 0.0;
-    for (size_t c = 0; c < ncell; ++c) { rz += r[c] * z[c]; rr2 += r[c] * r[c]; }
-    double r0 = std::sqrt(rr2);
-    if (r0 == 0.0) r0 = 1.0;
+    const size_t ncell = L.nc();
+    Vec p;
     int it = 0;
-    for (it = 0; it < max_iterations; ++it) {
-        rr2 = 0.0;
-        for (size_t c = 0; c < ncell; ++c) rr2 += r[c] * r[c];
-        if (std::sqrt(rr2) / r0 < tolerance) break;
-        applyA(F, d, q);
-        double dq = 0.0;
-        for (size_t c = 0; c < ncell; ++c) dq += d[c] * q[c];
-        if (dq == 0.0) break;
-        const double a = rz / dq;
-        rPrev = r;
-        const long long ncl = static_cast<long long>(ncell);
-#pragma omp parallel for schedule(static)
-        for (long long c = 0; c < ncl; ++c) { p[c] += a * d[c]; r[c] -= a * q[c]; }
-        precond(r, z);
-        double rzNew = 0.0;   // flexible (Polak-Ribiere) update tolerates the V-cycle
-        for (size_t c = 0; c < ncell; ++c) rzNew += (r[c] - rPrev[c]) * z[c];
-        const double betaCG = std::max(0.0, rzNew / rz);
-#pragma omp parallel for schedule(static)
-        for (long long c = 0; c < ncl; ++c) d[c] = z[c] + betaCG * d[c];
-        rz = 0.0;
-        for (size_t c = 0; c < ncell; ++c) rz += r[c] * z[c];
-        if (rz == 0.0) break;
+    double finalResidual = 0.0;
+    // obstacles are outside the adaptive solve's validated scope so far: the
+    // uniform solve stays in charge when any are present
+    const bool adaptiveSolve = pressure_solver == 1 && nObs == 0;
+    if (pressure_solver == 1 && nObs > 0) {
+        static bool warned = false;
+        if (!warned) {
+            std::fprintf(stderr, "step_3d: the adaptive solve does not handle obstacles "
+                                 "yet; using the uniform solve\n");
+            warned = true;
+        }
     }
+    if (adaptiveSolve) {
+        // ---- the adaptive solve (milestone 6.5a): its refinement input is the
+        // liquid particle count per cell over the seeding count (4 per cell in
+        // 2D, 8 in 3D), as the reference's band_target.
+        Vec liquid(ncell, 0.0);
+        for (size_t pi = 0; pi < np; ++pi) {
+            if (!(pi < particle_phase.size() && particle_phase[pi] > 0.5f)) continue;
+            const int ci = std::clamp(static_cast<int>(std::floor(positions[pi].x)), 0, NX - 1);
+            const int cj = std::clamp(static_cast<int>(std::floor(positions[pi].y)), 0, NY - 1);
+            const int ck = std::clamp(static_cast<int>(std::floor(positions[pi].z)), 0, NZ - 1);
+            liquid[L.ic(ci, cj, ck)] += 1.0;
+        }
+        const double perCell = NZ == 1 ? 4.0 : 8.0;
+        for (double& c : liquid) c /= perCell;
+        Adaptive::Settings as;
+        as.band = adaptive_band > 0 ? adaptive_band : 5;
+        as.levels = adaptive_levels > 0 ? adaptive_levels : 2;
+        as.tolerance = tolerance;
+        as.maxIterations = max_iterations;
+        Adaptive::Result ar = Adaptive::projectNaive(NX, NY, NZ, dt, as, liquid, u, v, w,
+                                                     L.bu, L.bv, L.bw);
+        p = std::move(ar.pressure);
+        it = ar.iterations;
+        finalResidual = ar.residual;
+        lap(msSolve);
+    } else {
+        // ---- flexible PCG with Jacobi (0) or multigrid V-cycle (1) preconditioner.
+        std::vector<Level> ls;
+        Vec tmp(L.nc());
+        if (preconditioner == 1) ls = buildHierarchy(std::move(L));
+        Level& F = preconditioner == 1 ? ls[0] : L;
 
-    lap(msSolve);
-    // ---- velocity correction on interior faces, then walls.
-    for (int i = 1; i < NX; ++i)
-        for (int j = 0; j < NY; ++j)
-            for (int k = 0; k < NZ; ++k)
-                u[F.iu(i, j, k)] -= dt * F.bu[F.iu(i, j, k)] *
-                                    (p[F.ic(i, j, k)] - p[F.ic(i - 1, j, k)]);
-    for (int i = 0; i < NX; ++i)
-        for (int j = 1; j < NY; ++j)
-            for (int k = 0; k < NZ; ++k)
-                v[F.iv(i, j, k)] -= dt * F.bv[F.iv(i, j, k)] *
-                                    (p[F.ic(i, j, k)] - p[F.ic(i, j - 1, k)]);
-    for (int i = 0; i < NX; ++i)
-        for (int j = 0; j < NY; ++j)
-            for (int k = 1; k < NZ; ++k)
-                w[F.iw(i, j, k)] -= dt * F.bw[F.iw(i, j, k)] *
-                                    (p[F.ic(i, j, k)] - p[F.ic(i, j, k - 1)]);
+        p.assign(ncell, 0.0);
+        Vec r = rhs, z(ncell), d(ncell), q(ncell), rPrev(ncell, 0.0);
+        auto precond = [&](const Vec& rr, Vec& zz) {
+            if (preconditioner == 1) {
+                ls[0].b = rr;
+                std::fill(ls[0].x.begin(), ls[0].x.end(), 0.0);
+                vcycle(ls, 0, tmp);
+                zz = ls[0].x;
+            } else {
+                const long long nl = static_cast<long long>(ncell);
+#pragma omp parallel for schedule(static)
+                for (long long c = 0; c < nl; ++c) zz[c] = F.diagInv[c] * rr[c];
+            }
+        };
+        precond(r, z);
+        d = z;
+        double rz = 0.0, rr2 = 0.0;
+        for (size_t c = 0; c < ncell; ++c) { rz += r[c] * z[c]; rr2 += r[c] * r[c]; }
+        double r0 = std::sqrt(rr2);
+        if (r0 == 0.0) r0 = 1.0;
+        for (it = 0; it < max_iterations; ++it) {
+            rr2 = 0.0;
+            for (size_t c = 0; c < ncell; ++c) rr2 += r[c] * r[c];
+            if (std::sqrt(rr2) / r0 < tolerance) break;
+            applyA(F, d, q);
+            double dq = 0.0;
+            for (size_t c = 0; c < ncell; ++c) dq += d[c] * q[c];
+            if (dq == 0.0) break;
+            const double a = rz / dq;
+            rPrev = r;
+            const long long ncl = static_cast<long long>(ncell);
+#pragma omp parallel for schedule(static)
+            for (long long c = 0; c < ncl; ++c) { p[c] += a * d[c]; r[c] -= a * q[c]; }
+            precond(r, z);
+            double rzNew = 0.0;   // flexible (Polak-Ribiere) update tolerates the V-cycle
+            for (size_t c = 0; c < ncell; ++c) rzNew += (r[c] - rPrev[c]) * z[c];
+            const double betaCG = std::max(0.0, rzNew / rz);
+#pragma omp parallel for schedule(static)
+            for (long long c = 0; c < ncl; ++c) d[c] = z[c] + betaCG * d[c];
+            rz = 0.0;
+            for (size_t c = 0; c < ncell; ++c) rz += r[c] * z[c];
+            if (rz == 0.0) break;
+        }
+
+        finalResidual = std::sqrt(rr2) / r0;
+        lap(msSolve);
+        // ---- velocity correction on interior faces, then walls.
+        for (int i = 1; i < NX; ++i)
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k)
+                    u[F.iu(i, j, k)] -= dt * F.bu[F.iu(i, j, k)] *
+                                        (p[F.ic(i, j, k)] - p[F.ic(i - 1, j, k)]);
+        for (int i = 0; i < NX; ++i)
+            for (int j = 1; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k)
+                    v[F.iv(i, j, k)] -= dt * F.bv[F.iv(i, j, k)] *
+                                        (p[F.ic(i, j, k)] - p[F.ic(i, j - 1, k)]);
+        for (int i = 0; i < NX; ++i)
+            for (int j = 0; j < NY; ++j)
+                for (int k = 1; k < NZ; ++k)
+                    w[F.iw(i, j, k)] -= dt * F.bw[F.iw(i, j, k)] *
+                                        (p[F.ic(i, j, k)] - p[F.ic(i, j, k - 1)]);
+    }
     walls(u, v, w);
 
     double maxDiv = 0.0;
@@ -528,9 +572,9 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         for (int j = 0; j < NY; ++j)
             for (int k = 0; k < NZ; ++k)
                 maxDiv = std::max(maxDiv, std::fabs(
-                    (u[F.iu(i + 1, j, k)] - u[F.iu(i, j, k)]) +
-                    (v[F.iv(i, j + 1, k)] - v[F.iv(i, j, k)]) +
-                    (w[F.iw(i, j, k + 1)] - w[F.iw(i, j, k)])));
+                    (u[L.iu(i + 1, j, k)] - u[L.iu(i, j, k)]) +
+                    (v[L.iv(i, j + 1, k)] - v[L.iv(i, j, k)]) +
+                    (w[L.iw(i, j, k + 1)] - w[L.iw(i, j, k)])));
 
     lap(msCorr);
     // ---- particle machinery. Sizes: with adapt on, particles carry a scale
@@ -1035,7 +1079,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     out_wtph = outWtPh.toImmutable();
     out_pos_synced = outSync.toImmutable();
     iterations_used = it;
-    final_residual = static_cast<float>(std::sqrt(rr2) / r0);
+    final_residual = static_cast<float>(finalResidual);
     max_divergence_after = static_cast<float>(maxDiv);
     max_speed = static_cast<float>(maxSpeed);
     lap(msPart);
