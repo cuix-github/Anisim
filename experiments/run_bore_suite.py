@@ -12,7 +12,14 @@ proxy curves, particle-count compression (C/D), droplet/bubble peaks, zero obsta
 penetrations. Videos per stage, curves, and a summary verdict file.
 
   ..\\.venv\\Scripts\\python.exe run_bore_suite.py smoke    # tiny plumbing check
-  ..\\.venv\\Scripts\\python.exe run_bore_suite.py          # the overnight run
+  ..\\.venv\\Scripts\\python.exe run_bore_suite.py          # all stages, one process
+
+The background runner kills tasks near the one-hour mark, so the overnight suite
+runs chunked: each launch runs one chunk and leaves a full-state dump the next
+chunk resumes from, then finalize merges the curves into one verdict and video.
+
+  ..\\.venv\\Scripts\\python.exe run_bore_suite.py stage D_finale 0   # ... 1, 2, 3
+  ..\\.venv\\Scripts\\python.exe run_bore_suite.py finalize D_finale
 """
 import json
 import os
@@ -28,6 +35,7 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "reference2d"))
 from pfflip2d import Sim  # noqa: E402
 from demo3d import run_bifrost3, lattice  # noqa: E402
+from loop3d import load_final_state  # noqa: E402
 
 OUT = os.path.join(HERE, "..", "out", "bore_suite")
 try:
@@ -135,7 +143,33 @@ def render3d(pos, typ, nx, ny, nz, pmin, pmax, scale=None):
     return Image.fromarray(img)
 
 
-def run_stage(tag, nx, ny, nz, dt, substeps, ports, every=4):
+def bore_front(p, ph, h0):
+    """The bore front: the leading edge of ELEVATED liquid, above the undisturbed
+    bed. The bed itself spans the flume from t=0, so the front of all liquid
+    sits at the far wall from the first substep."""
+    el = (ph >= 0.5) & (p[:, 1] > h0 + 1.5)
+    return float(np.percentile(p[el, 0], 99.0)) if el.sum() > 50 else 0.0
+
+
+def verdict(fronts, counts, pen, wall, h1, h0, rx, nx):
+    """Bore speed fitted on the pre-obstacle stretch, against Stoker."""
+    U, _ = stoker_speed(h1, h0)
+    fr = np.array(fronts)
+    selw = (fr[:, 1] > rx + 4) & (fr[:, 1] < 0.52 * nx)
+    slope = (np.polyfit(fr[selw, 0], fr[selw, 1], 1)[0]
+             if selw.sum() > 4 else float("nan"))
+    ok = bool(np.isfinite(slope))
+    return {"wall_s": round(wall, 1),
+            "bore_speed_measured": round(float(slope), 2) if ok else None,
+            "bore_speed_stoker": round(U, 2),
+            "speed_ratio": round(float(slope) / U, 3) if ok else None,
+            "penetrations": pen, "peak_compression": round(1 - min(counts) / max(counts), 3)}
+
+
+def run_stage(tag, nx, ny, nz, dt, substeps, ports, every=4, chunk=None):
+    """chunk: run substeps [chunk*substeps, (chunk+1)*substeps) of a longer stage,
+    resuming from the previous chunk's full-state dump; the caller chains the
+    chunks across launches (the background runner kills tasks near an hour)."""
     mask, pmin, pmax, h1, h0, rx = scene(nx, ny, nz)
     cal = Sim(64, 64, adapt=bool(ports.get("adapt")), st=bool(ports.get("st")))
     cal.seed(lambda x, y: np.ones_like(x, dtype=bool))
@@ -145,11 +179,16 @@ def run_stage(tag, nx, ny, nz, dt, substeps, ports, every=4):
     if ports.get("adapt"):
         ports.setdefault("coarse_gain", cal.coarse_gain)
         ports.setdefault("ws_epsilon", 16)
+    init = None
+    if chunk:
+        init = load_final_state(os.path.join(HERE, "..", "out", f"loop3_{tag}_c{chunk - 1}"))
     t0 = time.time()
     d, typ, diag = run_bifrost3(
-        tag, nx, ny, nz, mask, substeps, dt, extra_ports=ports,
+        tag if chunk is None else f"{tag}_c{chunk}", nx, ny, nz, mask, substeps, dt,
+        extra_ports=ports,
         seed_fn=lambda *_: seed_no_solids(nx, ny, nz, mask, pmin, pmax),
-        obstacles=(pmin, pmax))
+        obstacles=(pmin, pmax), init_arrays=init, final_state=chunk is not None,
+        step_offset=(chunk or 0) * substeps)
     wall = time.time() - t0
     # front curve, penetration audit, compression, render
     fronts, counts, pen = [], [], 0
@@ -164,60 +203,107 @@ def run_stage(tag, nx, ny, nz, dt, substeps, ports, every=4):
         for a, b in zip(pmin, pmax):
             pen += int(((p[:, 0] > a[0]) & (p[:, 0] < b[0]) & (p[:, 1] > a[1]) &
                         (p[:, 1] < b[1]) & (p[:, 2] > a[2]) & (p[:, 2] < b[2])).sum())
-        fronts.append((k * dt, float(np.percentile(p[liq, 0], 99.0))))
+        fronts.append((((chunk or 0) * substeps + k) * dt, bore_front(p, ph, h0)))
         if k % every == 0:
             render3d(p, liq.astype(int), nx, ny, nz, pmin, pmax).save(
                 os.path.join(frames_dir, f"fr{out_i:04d}.png"))
             out_i += 1
-    video = os.path.join(OUT, f"bore_{tag}.mp4")
-    subprocess.run(["ffmpeg", "-y", "-framerate", "16",
-                    "-i", os.path.join(frames_dir, "fr%04d.png"),
-                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "21", video],
-                   check=True, capture_output=True)
+    if chunk is None:
+        encode(frames_dir, tag)
     return {"tag": tag, "wall": wall, "fronts": fronts, "counts": counts, "pen": pen,
             "diag": diag.tolist() if hasattr(diag, "tolist") else diag,
-            "video": video, "h1": h1, "h0": h0, "rx": rx, "nx": nx}
+            "h1": h1, "h0": h0, "rx": rx, "nx": nx}
+
+
+def encode(frames_dir, tag):
+    subprocess.run(["ffmpeg", "-y", "-framerate", "16",
+                    "-i", os.path.join(frames_dir, "fr%04d.png"),
+                    "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "21",
+                    os.path.join(OUT, f"bore_{tag}.mp4")],
+                   check=True, capture_output=True)
+
+
+# tag: grid, dt, substeps, ports, chunks for the overnight runner. The 2026-10-08
+# suite ran A in 5 chunks of 80 substeps and D in 4 of 17; the record of that
+# night is results/bore_suite/summary.json.
+STAGES = {
+    "A_trusted": ((80, 32, 40), 0.015, 400, {"preconditioner": 1, "escape": 1}, 5),
+    "B_st": ((80, 32, 40), 0.12, 50, {"preconditioner": 1, "st": 1, "escape": 1}, 1),
+    "C_production": ((80, 32, 40), 0.12, 50,
+                     {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1}, 1),
+    "D_finale": ((256, 64, 128), 0.12, 68,
+                 {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1}, 4),
+}
+SMOKE = {
+    "A_trusted": ((48, 24, 24), 0.015, 8, {"preconditioner": 1}, 1),
+    "C_production": ((48, 24, 24), 0.12, 4,
+                     {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1}, 1),
+}
+
+
+def record(tag, entry):
+    path = os.path.join(OUT, "summary.json")
+    summary = {}
+    if os.path.exists(path):
+        with open(path) as f:
+            summary = json.load(f)
+    summary[tag] = entry
+    with open(path, "w") as f:
+        json.dump(summary, f, indent=1)
+    print(json.dumps(entry), flush=True)
+
+
+def stage_chunk(tag, chunk):
+    (nx, ny, nz), dt, sub, ports, n_chunks = STAGES[tag]
+    os.makedirs(OUT, exist_ok=True)
+    r = run_stage(tag, nx, ny, nz, dt, sub // n_chunks, ports, chunk=chunk)
+    with open(os.path.join(OUT, f"{tag}_c{chunk}.json"), "w") as f:
+        json.dump({k: r[k] for k in ("wall", "pen", "counts", "fronts", "h1", "h0",
+                                     "rx", "nx")}, f)
+    print(f"CHUNK DONE {tag} {chunk}/{n_chunks - 1}", flush=True)
+
+
+def finalize(tag):
+    """Merge a chunked stage: one front curve, one verdict, one video."""
+    n_chunks = STAGES[tag][4]
+    fronts, counts, pen, wall = [], [], 0, 0.0
+    frames_dir = os.path.join(OUT, tag + "_png")
+    os.makedirs(frames_dir, exist_ok=True)
+    idx = 0
+    for c in range(n_chunks):
+        with open(os.path.join(OUT, f"{tag}_c{c}.json")) as f:
+            j = json.load(f)
+        fronts += j["fronts"]
+        counts += j["counts"]
+        pen += j["pen"]
+        wall += j["wall"]
+        src = os.path.join(HERE, "..", "out", f"loop3_{tag}_c{c}", "png")
+        for f2 in sorted(os.listdir(src)):
+            os.replace(os.path.join(src, f2), os.path.join(frames_dir, f"fr{idx:04d}.png"))
+            idx += 1
+    entry = verdict(fronts, counts, pen, wall, j["h1"], j["h0"], j["rx"], j["nx"])
+    encode(frames_dir, tag)
+    record(tag, dict(entry, video=f"bore_{tag}.mp4"))
+    print("FINALIZED", tag, flush=True)
 
 
 def main():
-    smoke = len(sys.argv) > 1 and sys.argv[1] == "smoke"
+    if len(sys.argv) > 3 and sys.argv[1] == "stage":
+        stage_chunk(sys.argv[2], int(sys.argv[3]))
+        return
+    if len(sys.argv) > 2 and sys.argv[1] == "finalize":
+        finalize(sys.argv[2])
+        return
+    stages = SMOKE if len(sys.argv) > 1 and sys.argv[1] == "smoke" else STAGES
     os.makedirs(OUT, exist_ok=True)
-    summary = {}
-    if smoke:
-        stages = [("A_trusted", 48, 24, 24, 0.015, 8, {"preconditioner": 1}),
-                  ("C_production", 48, 24, 24, 0.12, 4,
-                   {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1})]
-    else:
-        stages = [
-            ("A_trusted", 80, 32, 40, 0.015, 400, {"preconditioner": 1, "escape": 1}),
-            ("B_st", 80, 32, 40, 0.12, 50,
-             {"preconditioner": 1, "st": 1, "escape": 1}),
-            ("C_production", 80, 32, 40, 0.12, 50,
-             {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1}),
-            ("D_finale", 256, 64, 128, 0.12, 67,
-             {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1}),
-        ]
-    for tag, nx, ny, nz, dt, sub, ports in stages:
+    if os.path.exists(os.path.join(OUT, "summary.json")):
+        os.remove(os.path.join(OUT, "summary.json"))
+    for tag, ((nx, ny, nz), dt, sub, ports, _) in stages.items():
         print(f"=== {tag}: {nx}x{ny}x{nz}, dt {dt}, {sub} substeps", flush=True)
         r = run_stage(tag, nx, ny, nz, dt, sub, ports)
-        # Stoker check on the pre-obstacle stretch
-        h1, h0 = r["h1"], r["h0"]
-        U, h2 = stoker_speed(h1, h0)
-        fr = np.array(r["fronts"])
-        selw = (fr[:, 1] > r["rx"] + 4) & (fr[:, 1] < 0.52 * r["nx"])
-        slope = (np.polyfit(fr[selw, 0], fr[selw, 1], 1)[0]
-                 if selw.sum() > 4 else float("nan"))
-        comp = 1 - min(r["counts"]) / max(r["counts"])
-        summary[tag] = {
-            "wall_s": round(r["wall"], 1), "bore_speed_measured": round(float(slope), 2),
-            "bore_speed_stoker": round(U, 2),
-            "speed_ratio": round(float(slope) / U, 3) if np.isfinite(slope) else None,
-            "penetrations": r["pen"], "peak_compression": round(comp, 3),
-            "video": os.path.basename(r["video"]),
-        }
-        print(json.dumps(summary[tag]), flush=True)
-        with open(os.path.join(OUT, "summary.json"), "w") as f:
-            json.dump(summary, f, indent=1)
+        entry = verdict(r["fronts"], r["counts"], r["pen"], r["wall"],
+                        r["h1"], r["h0"], r["rx"], r["nx"])
+        record(tag, dict(entry, video=f"bore_{tag}.mp4"))
     print("SUITE DONE", flush=True)
 
 
