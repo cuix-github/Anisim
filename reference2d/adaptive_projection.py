@@ -12,19 +12,32 @@ Faces between two adaptive cells take the pressure gradient of the adaptive
 face they lie on (Delta / d, the stage-1 interpolated difference over the
 center distance: s for same-level faces, 1.5 s for junction sub-faces), each
 fine face with its own beta, so the fine fluxes sum to the adaptive face's
-flux. Faces strictly inside a coarse cell are the open design question, with
-three candidate corrections, measured by validate_adaptive_projection.py:
+flux. Faces strictly inside a coarse cell get a small fine-level Neumann solve
+per coarse cell, boundary faces fixed: the least-divergence interior field
+compatible with the adaptive boundary fluxes. Cheaper fills (no correction,
+or gradients interpolated linearly across the cell) left divergence of 0.2 to
+0.8 per step inside coarse cells on the gate's dam state, against 1e-6 here.
 
-  none     no pressure correction inside coarse cells (the baseline: what you
-           get if the question is ignored)
-  linear   the pressure gradient varies linearly across the cell, per fine row,
-           between the gradients on the cell's two opposite boundary faces
-  local    a small fine-level Neumann solve inside each coarse cell, with the
-           boundary faces fixed: the interior field is the least-divergence
-           one compatible with the adaptive boundary fluxes; whatever net flux
-           the coarse cell carries (junction faces spread their flux over the
-           interpolation cells, so a coarse cell's fine boundary need not
-           balance exactly) is spread evenly over its fine cells and reported
+Two junction treatments survive validate_adaptive_projection.py, and which one
+production uses is a 3D cost-versus-quality question, left open on purpose:
+
+  naive    the conservative two-cell stencil over the 1.5 s center distance
+           (Losasso et al. 2004, the treatment the PF-FLIP paper adopts): one
+           solve, every face flux leaves one cell and enters the other, but
+           first order at junctions, so a fluid at rest picks up small
+           parasitic currents there (its error is dt g / 3 in hydrostatics)
+  cleanup  the second-order variational solve, whose junction fluxes balance
+           only in a weighted sense (the uniform faces keep a divergence of
+           ~1.8 per step next to junctions), followed by a naive-stencil
+           projection of just that leftover: exact books, and the first-order
+           error now acts on the small leftover instead of on gravity, at the
+           cost of a second solve
+
+Rejected on the way, numbers in the README's stage-3a record: the variational
+solve alone (books do not balance), and moving the leftover junction flux
+across the face the coarse cell shares with its lateral neighbor (balances
+the books without touching the pressure, but is not a projection, so it can
+add energy; the dam break blew up by frame 23).
 """
 import numpy as np
 
@@ -66,12 +79,11 @@ def band_target(sim, band=5, levels=2):
 class AdaptiveProjection:
     """Callable replacement for Sim.project: sim.project = AdaptiveProjection(sim)."""
 
-    def __init__(self, sim, junction="transfer", interior="local", band=5, levels=2,
-                 tol=1e-6, multigrid=True):
-        assert junction in ("variational", "transfer", "naive", "cleanup")
-        assert interior in ("none", "linear", "local")
+    def __init__(self, sim, junction="cleanup", band=5, levels=2, tol=1e-6,
+                 multigrid=True):
+        assert junction in ("naive", "cleanup")
         assert not sim.obstacles, "obstacles: not in the stage-3a scope yet"
-        self.sim, self.junction, self.interior = sim, junction, interior
+        self.sim, self.junction = sim, junction
         self.band, self.levels, self.tol, self.multigrid = band, levels, tol, multigrid
         self.log = []     # per-call: unknowns, iterations, divergence stats
 
@@ -103,26 +115,11 @@ class AdaptiveProjection:
         gu, gv = self._gradient(op, p, s)
         it2 = 0
 
+        # faces inside coarse cells (NaN gradients) stay at u* until the local
+        # solves below fill them
         ustar, vstar = s.u.copy(), s.v.copy()
-        if self.interior == "none":
-            gu = np.nan_to_num(gu)
-            gv = np.nan_to_num(gv)
-        elif self.interior == "linear":
-            for (l, i, j) in cells:
-                if l == 0:
-                    continue
-                sz = 1 << l
-                x0, y0 = i * sz, j * sz
-                for k in range(1, sz):
-                    t = k / sz
-                    gu[x0 + k, y0:y0 + sz] = ((1 - t) * gu[x0, y0:y0 + sz] +
-                                              t * gu[x0 + sz, y0:y0 + sz])
-                    gv[x0:x0 + sz, y0 + k] = ((1 - t) * gv[x0:x0 + sz, y0] +
-                                              t * gv[x0:x0 + sz, y0 + sz])
         s.u -= dt * bu * np.nan_to_num(gu)
         s.v -= dt * bv * np.nan_to_num(gv)
-        if self.junction == "transfer":
-            self._transfer(op, s)
         if self.junction == "cleanup":
             # the variational fluxes balance only in the weighted sense; a
             # second, conservative (naive-stencil) projection of the corrected
@@ -138,15 +135,11 @@ class AdaptiveProjection:
                 g2u, g2v = self._gradient(op2, q, s)
                 s.u -= dt * bu * np.nan_to_num(g2u)
                 s.v -= dt * bv * np.nan_to_num(g2v)
-        cell_net = []
-        if self.interior == "local":
-            # boundary faces of every coarse cell are final now; solve the
-            # interior faces so each fine cell's divergence is as small as the
-            # cell's net boundary flux allows (spread evenly)
-            for (l, i, j) in cells:
-                if l == 0:
-                    continue
-                cell_net.append(self._local(l, i, j, s, bu, bv, ustar, vstar, dt))
+        # boundary faces of every coarse cell are final now; solve the interior
+        # faces so each fine cell's divergence is as small as the cell's net
+        # boundary flux allows (spread evenly)
+        cell_net = [self._local(l, i, j, s, bu, bv, ustar, vstar, dt)
+                    for (l, i, j) in cells if l > 0]
         s._enforce_walls()
 
         div = (s.u[1:, :] - s.u[:-1, :]) + (s.v[:, 1:] - s.v[:, :-1])
@@ -201,52 +194,6 @@ class AdaptiveProjection:
         gu[0, :] = gu[-1, :] = 0.0
         gv[:, 0] = gv[:, -1] = 0.0
         return gu, gv
-
-    @staticmethod
-    def _transfer(op, s):
-        """Make the variational junction flux conservative on the uniform faces.
-
-        The solve balances each cell's WEIGHTED face fluxes: a junction face
-        hands a share w of its flux F to the coarse cell's lateral neighbor
-        (the lateral sample that buys second order), while geometrically the
-        whole F enters the coarse cell. That leaves a dipole: the coarse cell
-        over-filled by w F, the lateral short by the same. Moving exactly that
-        flux across the face the two cells share zeroes both, so every cell's
-        geometric divergence equals its weighted one (zero at convergence)
-        without touching the pressure. The lateral's entry weight times F is
-        the outflow from the coarse cell into that lateral, signs included."""
-        cell = op.cells
-        # every F from the pressure-corrected field first: a lateral that is a
-        # refined pair shares junction faces with the coarse cell, so applying
-        # transfers while reading fluxes would make the result order-dependent
-        jfaces = []
-        for ent, _c, axis, area, kind, fx, fy in op.faces:
-            if kind != "junction" or len(ent) <= 2:
-                continue
-            if axis == 0:
-                F = float(s.u[int(round(fx)),
-                              (fy - area / 2.0 + np.arange(area)).astype(int)].sum())
-            else:
-                F = float(s.v[(fx - area / 2.0 + np.arange(area)).astype(int),
-                              int(round(fy))].sum())
-            jfaces.append((ent, F))
-        for ent, F in jfaces:
-            la, ia, ja = cell[ent[1][0]]
-            ax0, ax1, ay0, ay1 = ia << la, (ia + 1) << la, ja << la, (ja + 1) << la
-            for k, wk in ent[2:]:
-                lb, ib, jb = cell[k]
-                bx0, bx1, by0, by1 = ib << lb, (ib + 1) << lb, jb << lb, (jb + 1) << lb
-                q = wk * F
-                if ay1 == by0 or by1 == ay0:
-                    xs = np.arange(max(ax0, bx0), min(ax1, bx1))
-                    assert len(xs), "lateral not adjacent"
-                    y = ay1 if ay1 == by0 else ay0
-                    s.v[xs, y] += (q if ay1 == by0 else -q) / len(xs)
-                else:
-                    ys = np.arange(max(ay0, by0), min(ay1, by1))
-                    assert len(ys) and (ax1 == bx0 or bx1 == ax0), "lateral not adjacent"
-                    x = ax1 if ax1 == bx0 else ax0
-                    s.u[x, ys] += (q if ax1 == bx0 else -q) / len(ys)
 
     @staticmethod
     def _local(l, i, j, s, bu, bv, ustar, vstar, dt):
