@@ -228,6 +228,30 @@
      "portDefault": ""
     },
     {
+     "portName": "pressure_solver",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "adaptive_band",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "adaptive_levels",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "vel_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
      "portName": "nz",
      "portDirection": "input",
      "portType": "int",
@@ -659,6 +683,26 @@
        "portType": "string"
       },
       {
+       "portName": "pressure_solver",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "adaptive_band",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "adaptive_levels",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "vel_pattern",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
        "portName": "momz_in",
        "portDirection": "input",
        "portType": "array<float>"
@@ -834,7 +878,8 @@
         "q",
         "e",
         "r",
-        "t"
+        "t",
+        "v"
        ]
       },
       {
@@ -859,6 +904,14 @@
       },
       {
        "nodeName": "ok_fs",
+       "nodeType": "Core::Type_Conversion::to_float"
+      },
+      {
+       "nodeName": "w_vel",
+       "nodeType": "File::NumPy::write_NumPy"
+      },
+      {
+       "nodeName": "ok_fv",
        "nodeType": "Core::Type_Conversion::to_float"
       },
       {
@@ -887,6 +940,10 @@
       },
       {
        "nodeName": "dg_ph",
+       "nodeType": "PFFlip::Solve::dump_gate"
+      },
+      {
+       "nodeName": "dg_vel",
        "nodeType": "PFFlip::Solve::dump_gate"
       },
       {
@@ -1100,6 +1157,34 @@
        "target": "ok_acc.first.t"
       },
       {
+       "source": ".pressure_solver",
+       "target": "step.pressure_solver"
+      },
+      {
+       "source": ".adaptive_band",
+       "target": "step.adaptive_band"
+      },
+      {
+       "source": ".adaptive_levels",
+       "target": "step.adaptive_levels"
+      },
+      {
+       "source": "step.out_velocities",
+       "target": "w_vel.data"
+      },
+      {
+       "source": ".current_index",
+       "target": "w_vel.frame"
+      },
+      {
+       "source": "w_vel.success",
+       "target": "ok_fv.from"
+      },
+      {
+       "source": "ok_fv.float",
+       "target": "ok_acc.first.v"
+      },
+      {
        "source": ".nz",
        "target": "step.nz"
       },
@@ -1250,6 +1335,22 @@
       {
        "source": "dg_ph.path_out",
        "target": "w_ph2.file_path"
+      },
+      {
+       "source": "idx_i.int",
+       "target": "dg_vel.step_index"
+      },
+      {
+       "source": ".dump_every",
+       "target": "dg_vel.every"
+      },
+      {
+       "source": ".vel_pattern",
+       "target": "dg_vel.path"
+      },
+      {
+       "source": "dg_vel.path_out",
+       "target": "w_vel.file_path"
       },
       {
        "source": ".nx",
@@ -1480,6 +1581,16 @@
       },
       {
        "valueName": "w_ph2.create_directories",
+       "valueType": "bool",
+       "value": "true"
+      },
+      {
+       "valueName": "w_vel.overwrite",
+       "valueType": "bool",
+       "value": "true"
+      },
+      {
+       "valueName": "w_vel.create_directories",
        "valueType": "bool",
        "value": "true"
       }
@@ -1896,6 +2007,22 @@
     {
      "source": ".ph_pattern",
      "target": "loop.ph_pattern"
+    },
+    {
+     "source": ".pressure_solver",
+     "target": "loop.pressure_solver"
+    },
+    {
+     "source": ".adaptive_band",
+     "target": "loop.adaptive_band"
+    },
+    {
+     "source": ".adaptive_levels",
+     "target": "loop.adaptive_levels"
+    },
+    {
+     "source": ".vel_pattern",
+     "target": "loop.vel_pattern"
     },
     {
      "source": ".nz",
