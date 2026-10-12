@@ -497,9 +497,19 @@ def build3d():
         conns.append({"source": "." + n, "target": "step." + n})
         top["ports"].append(P(n, "input", t, "0" if n == "st" else "7"))
         top["connections"].append({"source": "." + n, "target": "loop." + n})
+    # step_offset shifts the index the ST jitter is seeded from, so a run resumed
+    # from a full-state dump continues the RNG stream instead of replaying it;
+    # the dump frame numbers stay local to the run. 0 = the original wiring.
+    body["compoundNodes"].append({"nodeName": "idx_off", "nodeType": "Core::Math::add",
+                                  "multiInPortNames": ["i", "o"]})
+    body["ports"].append(P("step_offset", "input", "int"))
+    top["ports"].append(P("step_offset", "input", "int", "0"))
+    top["connections"].append({"source": ".step_offset", "target": "loop.step_offset"})
     conns += [
         {"source": ".current_index", "target": "idx_i.from"},
-        {"source": "idx_i.int", "target": "step.step_index"},
+        {"source": "idx_i.int", "target": "idx_off.first.i"},
+        {"source": ".step_offset", "target": "idx_off.first.o"},
+        {"source": "idx_off.output", "target": "step.step_index"},
     ]
     body["ports"] += [
         P("tau_in", "input", "array<float>"), P("tau_out2", "output", "array<float>"),
@@ -711,6 +721,27 @@ def build3d():
             {"source": ".path_" + n, "target": "r2_" + n + ".file_path"},
             {"source": rt + ".output", "target": "r2_" + n + ".type"},
             {"source": "r2_" + n + ".data", "target": "loop." + tgt},
+        ]
+
+    # full-state dumps at the end of the run: with path_final_positions these are
+    # everything a later run needs to resume (chunked runs across the background
+    # runner's time cap). An unset path writes nothing.
+    for name, src in (("velocities", "velocities_out"), ("mass", "mass_out2"),
+                      ("momx", "momx_out"), ("momy", "momy_out"), ("momz", "momz_out"),
+                      ("tau", "tau_out2"), ("wt", "wt_out2"), ("wtph", "wtph_out2"),
+                      ("scale", "scale_out2"), ("phase", "phase_out2")):
+        w = "wf_" + name
+        top["compoundNodes"].append({"nodeName": w, "nodeType": "File::NumPy::write_NumPy"})
+        top["ports"] += [P("path_final_" + name, "input", "string", ""),
+                         P("ok_final_" + name, "output", "bool")]
+        top["connections"] += [
+            {"source": "loop." + src, "target": w + ".data"},
+            {"source": ".path_final_" + name, "target": w + ".file_path"},
+            {"source": w + ".success", "target": ".ok_final_" + name},
+        ]
+        top["values"] += [
+            {"valueName": w + ".overwrite", "valueType": "bool", "value": "true"},
+            {"valueName": w + ".create_directories", "valueType": "bool", "value": "true"},
         ]
 
     g["compounds"][0]["name"] = "User::PFFlip::sim_3d"
