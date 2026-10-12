@@ -102,10 +102,14 @@ def _level_at(index, fi, fj, lmax):
 class Operator:
     """Symmetric graded-grid Poisson operator with Jacobi-PCG."""
 
-    def __init__(self, cells, beta_face):
+    def __init__(self, cells, beta_face, stencil="variational"):
         """beta_face(x, y, axis, span) -> coefficient at a face whose
         midpoint is (x, y), axis 0 for x-faces and 1 for y-faces, spanning
-        `span` unit faces (so array-backed betas can average), fine units."""
+        `span` unit faces (so array-backed betas can average), fine units.
+        stencil="naive" keeps the plain 1.5-distance two-cell stencil (no
+        lateral sample): first order, but every face's flux leaves one cell
+        and enters the other, the comparison arm of stage 3a."""
+        assert stencil in ("variational", "naive")
         self.cells = cells
         self.index = {c: n for n, c in enumerate(cells)}
         n = len(cells)
@@ -164,7 +168,8 @@ class Operator:
                      fx, fy):
             # weights oriented so Delta = p(positive side) - p(negative side)
             nbc = self.index[nbc_key]
-            found = lateral(nbc_key, lat_dir, lat_axis)
+            found = (lateral(nbc_key, lat_dir, lat_axis)
+                     if stencil == "variational" else None)
             ent = [(me, -sgn)]
             if found is not None:
                 lat_ent, D = found
@@ -295,8 +300,9 @@ class Multigrid:
     Smoother and constants mirror the production 3D solver (damped Jacobi
     omega = 0.8, 2+2 sweeps, 40 at the coarsest)."""
 
-    def __init__(self, cells, beta_face, max_levels=12, coarsest=64):
-        self.ops = [Operator(cells, beta_face)]
+    def __init__(self, cells, beta_face, max_levels=12, coarsest=64,
+                 stencil="variational"):
+        self.ops = [Operator(cells, beta_face, stencil)]
         self.parent = []
         level_cells = cells
         while len(self.ops) < max_levels and len(level_cells) > coarsest:
@@ -305,7 +311,7 @@ class Multigrid:
             self.parent.append(np.array(
                 [cmap[(l + 1, i >> 1, j >> 1)] for (l, i, j) in level_cells],
                 np.int64))
-            self.ops.append(Operator(coarse, beta_face))
+            self.ops.append(Operator(coarse, beta_face, stencil))
             level_cells = coarse
 
     def _smooth(self, op, x, b, sweeps):
