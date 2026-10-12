@@ -1,0 +1,377 @@
+{
+ "scene": "dam",
+ "frames": 1000,
+ "frame_s": 0.06,
+ "substeps_per_frame": 4,
+ "seeds": [
+  1,
+  2,
+  3
+ ],
+ "bar": "an arm's seed mean against uniform's, within 2x uniform's seed spread (max - min over seeds) at the same frame window",
+ "arms": {
+  "uniform": {
+   "pressure_solver": 0,
+   "per_seed": {
+    "1": {
+     "mean_iterations_per_substep": 35.19,
+     "air_rms_slope_per_50_frames_last_200": -1.2771,
+     "max_liquid_speed": 178.285,
+     "max_air_speed": 359.117
+    },
+    "2": {
+     "mean_iterations_per_substep": 36.35,
+     "air_rms_slope_per_50_frames_last_200": -0.5014,
+     "max_liquid_speed": 146.797,
+     "max_air_speed": 371.536
+    },
+    "3": {
+     "mean_iterations_per_substep": 36.1,
+     "air_rms_slope_per_50_frames_last_200": -0.8365,
+     "max_liquid_speed": 122.353,
+     "max_air_speed": 336.486
+    }
+   },
+   "at": {
+    "100": {
+     "rms_air": {
+      "per_seed": [
+       7.9452,
+       7.4105,
+       8.7909
+      ],
+      "mean": 8.0488,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 1.3804,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       18.5379,
+       18.5879,
+       18.5315
+      ],
+      "mean": 18.5524,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 0.0564,
+      "within_2x_spread": true
+     }
+    },
+    "200": {
+     "rms_air": {
+      "per_seed": [
+       25.2669,
+       23.6569,
+       25.4142
+      ],
+      "mean": 24.7793,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 1.7573,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       13.0562,
+       13.0065,
+       12.9903
+      ],
+      "mean": 13.0177,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 0.0658,
+      "within_2x_spread": true
+     }
+    },
+    "500": {
+     "rms_air": {
+      "per_seed": [
+       13.9779,
+       12.7428,
+       16.5982
+      ],
+      "mean": 14.4396,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 3.8553,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       6.8098,
+       6.9261,
+       6.5319
+      ],
+      "mean": 6.7559,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 0.3942,
+      "within_2x_spread": true
+     }
+    },
+    "1000": {
+     "rms_air": {
+      "per_seed": [
+       7.7622,
+       9.4009,
+       10.0609
+      ],
+      "mean": 9.0746,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 2.2987,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       2.6487,
+       3.1172,
+       2.4498
+      ],
+      "mean": 2.7385,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 0.6674,
+      "within_2x_spread": true
+     }
+    }
+   }
+  },
+  "naive": {
+   "pressure_solver": 1,
+   "per_seed": {
+    "1": {
+     "mean_iterations_per_substep": 39.03,
+     "air_rms_slope_per_50_frames_last_200": -0.6064,
+     "max_liquid_speed": 111.518,
+     "max_air_speed": 458.093
+    },
+    "2": {
+     "mean_iterations_per_substep": 40.64,
+     "air_rms_slope_per_50_frames_last_200": -0.4881,
+     "max_liquid_speed": 108.858,
+     "max_air_speed": 356.903
+    },
+    "3": {
+     "mean_iterations_per_substep": 40.5,
+     "air_rms_slope_per_50_frames_last_200": -0.5073,
+     "max_liquid_speed": 171.276,
+     "max_air_speed": 348.625
+    }
+   },
+   "at": {
+    "100": {
+     "rms_air": {
+      "per_seed": [
+       8.1258,
+       7.6895,
+       8.048
+      ],
+      "mean": 7.9544,
+      "ratio_to_uniform": 0.988,
+      "uniform_spread": 1.3804,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       18.4969,
+       18.6265,
+       18.5457
+      ],
+      "mean": 18.5564,
+      "ratio_to_uniform": 1.0,
+      "uniform_spread": 0.0564,
+      "within_2x_spread": true
+     }
+    },
+    "200": {
+     "rms_air": {
+      "per_seed": [
+       23.9617,
+       26.2971,
+       25.2046
+      ],
+      "mean": 25.1545,
+      "ratio_to_uniform": 1.015,
+      "uniform_spread": 1.7573,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       13.0987,
+       12.9988,
+       12.806
+      ],
+      "mean": 12.9679,
+      "ratio_to_uniform": 0.996,
+      "uniform_spread": 0.0658,
+      "within_2x_spread": true
+     }
+    },
+    "500": {
+     "rms_air": {
+      "per_seed": [
+       12.6604,
+       12.5526,
+       11.9848
+      ],
+      "mean": 12.3993,
+      "ratio_to_uniform": 0.859,
+      "uniform_spread": 3.8553,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       6.1816,
+       7.0006,
+       6.7917
+      ],
+      "mean": 6.658,
+      "ratio_to_uniform": 0.986,
+      "uniform_spread": 0.3942,
+      "within_2x_spread": true
+     }
+    },
+    "1000": {
+     "rms_air": {
+      "per_seed": [
+       8.4336,
+       7.9829,
+       8.73
+      ],
+      "mean": 8.3822,
+      "ratio_to_uniform": 0.924,
+      "uniform_spread": 2.2987,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       3.1866,
+       3.3148,
+       3.6217
+      ],
+      "mean": 3.3744,
+      "ratio_to_uniform": 1.232,
+      "uniform_spread": 0.6674,
+      "within_2x_spread": true
+     }
+    }
+   }
+  },
+  "cleanup": {
+   "pressure_solver": 2,
+   "per_seed": {
+    "1": {
+     "mean_iterations_per_substep": 60.79,
+     "air_rms_slope_per_50_frames_last_200": -0.7159,
+     "max_liquid_speed": 97.009,
+     "max_air_speed": 408.847
+    },
+    "2": {
+     "mean_iterations_per_substep": 60.24,
+     "air_rms_slope_per_50_frames_last_200": -0.2435,
+     "max_liquid_speed": 132.865,
+     "max_air_speed": 441.814
+    },
+    "3": {
+     "mean_iterations_per_substep": 60.71,
+     "air_rms_slope_per_50_frames_last_200": -0.6606,
+     "max_liquid_speed": 126.839,
+     "max_air_speed": 314.908
+    }
+   },
+   "at": {
+    "100": {
+     "rms_air": {
+      "per_seed": [
+       8.7971,
+       8.5241,
+       9.4719
+      ],
+      "mean": 8.931,
+      "ratio_to_uniform": 1.11,
+      "uniform_spread": 1.3804,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       18.5413,
+       18.576,
+       18.5117
+      ],
+      "mean": 18.543,
+      "ratio_to_uniform": 0.999,
+      "uniform_spread": 0.0564,
+      "within_2x_spread": true
+     }
+    },
+    "200": {
+     "rms_air": {
+      "per_seed": [
+       21.5246,
+       22.598,
+       21.6461
+      ],
+      "mean": 21.9229,
+      "ratio_to_uniform": 0.885,
+      "uniform_spread": 1.7573,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       12.8979,
+       12.9394,
+       12.8549
+      ],
+      "mean": 12.8974,
+      "ratio_to_uniform": 0.991,
+      "uniform_spread": 0.0658,
+      "within_2x_spread": true
+     }
+    },
+    "500": {
+     "rms_air": {
+      "per_seed": [
+       7.32,
+       6.2856,
+       8.3973
+      ],
+      "mean": 7.3343,
+      "ratio_to_uniform": 0.508,
+      "uniform_spread": 3.8553,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       6.3827,
+       6.364,
+       6.8044
+      ],
+      "mean": 6.517,
+      "ratio_to_uniform": 0.965,
+      "uniform_spread": 0.3942,
+      "within_2x_spread": true
+     }
+    },
+    "1000": {
+     "rms_air": {
+      "per_seed": [
+       4.7281,
+       4.3567,
+       6.4821
+      ],
+      "mean": 5.189,
+      "ratio_to_uniform": 0.572,
+      "uniform_spread": 2.2987,
+      "within_2x_spread": true
+     },
+     "rms_liq": {
+      "per_seed": [
+       2.8507,
+       3.2907,
+       3.2863
+      ],
+      "mean": 3.1426,
+      "ratio_to_uniform": 1.148,
+      "uniform_spread": 0.6674,
+      "within_2x_spread": true
+     }
+    }
+   }
+  }
+ }
+}
