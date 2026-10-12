@@ -461,10 +461,20 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     double finalResidual = 0.0;
     // obstacles are outside the adaptive solve's validated scope so far, and
     // the cleanup junction exists at nz = 1 only: the uniform solve stays in
-    // charge in those cases
+    // charge in those cases. Only boxes reaching the domain count: one wholly
+    // outside it (the loop drivers' far placeholder) marks no face and holds
+    // no particle.
+    size_t obsInDomain = 0;
+    for (size_t b = 0; b < nObs; ++b) {
+        const auto& m0 = obstacles_min[b];
+        const auto& m1 = obstacles_max[b];
+        if (m1.x >= 0.0f && m0.x <= NX && m1.y >= 0.0f && m0.y <= NY && m1.z >= 0.0f && m0.z <= NZ)
+            ++obsInDomain;
+    }
     const bool adaptiveAsked = pressure_solver == 1 || pressure_solver == 2;
-    const bool adaptiveSolve = adaptiveAsked && nObs == 0 && !(pressure_solver == 2 && NZ > 1);
-    if (adaptiveAsked && nObs > 0) {
+    const bool adaptiveSolve =
+        adaptiveAsked && obsInDomain == 0 && !(pressure_solver == 2 && NZ > 1);
+    if (adaptiveAsked && obsInDomain > 0) {
         static bool warned = false;
         if (!warned) {
             std::fprintf(stderr, "step_3d: the adaptive solve does not handle obstacles "
