@@ -1,20 +1,28 @@
 """Milestone 6.5a stage-3b gate: the adaptive solve inside step_3d, in nz = 1
 lockstep against the 2D reference.
 
-step_3d with pressure_solver = 1 runs nodes/src/PFFlipAdaptive.cpp, the C++
-port of reference2d/adaptive_projection.py with junction = "naive" (the
-PF-FLIP paper's junction stencil). At nz = 1 its tree is the reference's
-quadtree, so one node step must reproduce one reference step. Three states,
-each giving the solver a different tree:
+step_3d with pressure_solver = 1 or 2 runs nodes/src/PFFlipAdaptive.cpp, the
+C++ port of reference2d/adaptive_projection.py: 1 with junction = "naive"
+(the PF-FLIP paper's junction stencil), 2 with junction = "cleanup" (the
+variational solve, then a naive-stencil projection of its leftover). At
+nz = 1 its tree is the reference's quadtree, so one node step must reproduce
+one reference step, for each junction. Four cases, each giving the solver
+a different tree:
 
-  dam_mid    the validate_3d dam-break mid-state (160x80, frame 12)
-  dam_late   the same dam break at frame 30: a splash, a different tree
-  tank       a half-full 64x64 tank after 10 frames at rest, where the
-             naive stencil's junction error is the only thing moving
+  dam_mid        the validate_3d dam-break mid-state (160x80, frame 12)
+  dam_late       the same dam break at frame 30: a splash, a different tree
+  dam_late_deep  frame 30 again with adaptive_band 1 and adaptive_levels 3:
+                 a three-level tree whose corners put a junction's lateral
+                 neighbor one level coarser (16 such junctions on the leaf
+                 level, 7 on the first multigrid level), the cleanup
+                 stencil's lateral case the default trees never build
+  tank           a half-full 64x64 tank after 10 frames at rest, where the
+                 naive stencil's junction error is the only thing moving
 
 The reference is fed the float32-rounded particle positions the node's ports
 carry, so both sides count the same particles per cell and build the same
-tree. Per state: the same pressure iteration count; corrected faces and
+tree. Per state and junction: the same pressure iteration count (cleanup:
+both solves together, the node's iterations_used); corrected faces and
 particle velocities within 1e-5 and positions within 1e-4 of the reference
 (float32 port rounding is ~1e-6 and ~1e-5 at these magnitudes; validate_3d's
 uniform lockstep allows 1e-3); and the node's divergence after projection at
@@ -74,9 +82,10 @@ def package(sim, indir):
     return ch, pos32.astype(float)
 
 
-def reference_step(sim, ch, pos):
-    """One reference step on the node's inputs, the adaptive naive projection
-    in place of the uniform one (validate_3d.python_step otherwise)."""
+def reference_step(sim, ch, pos, junction, tree):
+    """One reference step on the node's inputs, the adaptive projection with
+    the given junction in place of the uniform one (validate_3d.python_step
+    otherwise)."""
     ref = Sim(sim.nx, sim.ny)
     ref.pos, ref.vel, ref.typ = pos.copy(), sim.vel.copy(), sim.typ.copy()
     um, uo = ch["u_mass"].astype(float), ch["u_mom"].astype(float)
@@ -91,47 +100,64 @@ def reference_step(sim, ch, pos):
     phi_v = np.clip(ch["v_phase"].astype(float), 0, 1)
     ref.mu, ref.mv = np.empty_like(ref.u), np.empty_like(ref.v)
     ref.phase = lambda raw: phi_u if raw is ref.mu else phi_v
-    proj = AdaptiveProjection(ref, junction="naive")
+    proj = AdaptiveProjection(ref, junction=junction, **tree)
     proj(DT)
     ref.g2p(u_star, v_star)
     ref.advect(DT)
     return ref, proj.log[-1]
 
 
-def check(name, sim):
+JUNCTIONS = (("naive", 1), ("cleanup", 2))   # reference junction, pressure_solver
+
+
+def check(name, sim, **ports):
+    """ports: adaptive_band / adaptive_levels for the node (absent: its
+    defaults, the reference's band 5 and levels 2)."""
+    tree = {"band": ports.get("adaptive_band", 5), "levels": ports.get("adaptive_levels", 2)}
     print(f"=== {name} ({sim.nx}x{sim.ny})")
-    indir, outdir = os.path.join(OUT, name + "_in"), os.path.join(OUT, name + "_out")
+    indir = os.path.join(OUT, name + "_in")
     ch, pos = package(sim, indir)
-    ref, log = reference_step(sim, ch, pos)
-    stats = run_node(indir, outdir, nx=sim.nx, ny=sim.ny, nz=1, dt=DT, pressure_solver=1)
     nx, ny = sim.nx, sim.ny
-    bu = np.load(os.path.join(outdir, "out_u.npy")).reshape(nx + 1, ny)
-    bv = np.load(os.path.join(outdir, "out_v.npy")).reshape(nx, ny + 1)
-    bp = np.load(os.path.join(outdir, "out_positions.npy"))[:, :2]
-    bw = np.load(os.path.join(outdir, "out_velocities.npy"))[:, :2]
-    it_node, it_ref = int(stats["iterations_used"]), log["iters"]
-    rows = [("face u", np.abs(bu - ref.u).max(), 1e-5), ("face v", np.abs(bv - ref.v).max(), 1e-5),
-            ("positions", np.abs(bp - ref.pos).max(), 1e-4),
-            ("velocities", np.abs(bw - ref.vel).max(), 1e-5)]
-    print(f"    {log['unknowns']} adaptive cells for {log['uniform']} uniform "
-          f"({1 - log['unknowns'] / log['uniform']:.0%} saved); iterations node {it_node}, "
-          f"reference {it_ref}")
-    ok = it_node == it_ref
-    for what, err, bar in rows:
-        good = err < bar
+    ok = True
+    for junction, solver in JUNCTIONS:
+        outdir = os.path.join(OUT, f"{name}_{junction}_out")
+        ref, log = reference_step(sim, ch, pos, junction, tree)
+        stats = run_node(indir, outdir, nx=nx, ny=ny, nz=1, dt=DT, pressure_solver=solver,
+                         **ports)
+        bu = np.load(os.path.join(outdir, "out_u.npy")).reshape(nx + 1, ny)
+        bv = np.load(os.path.join(outdir, "out_v.npy")).reshape(nx, ny + 1)
+        bp = np.load(os.path.join(outdir, "out_positions.npy"))[:, :2]
+        bw = np.load(os.path.join(outdir, "out_velocities.npy"))[:, :2]
+        it_node, it_ref = int(stats["iterations_used"]), log["iters"] + log["iters_cleanup"]
+        rows = [("face u", np.abs(bu - ref.u).max(), 1e-5), ("face v", np.abs(bv - ref.v).max(), 1e-5),
+                ("positions", np.abs(bp - ref.pos).max(), 1e-4),
+                ("velocities", np.abs(bw - ref.vel).max(), 1e-5)]
+        split = f" ({log['iters']} + {log['iters_cleanup']})" if junction == "cleanup" else ""
+        print(f"  -- {junction} (pressure_solver {solver}): {log['unknowns']} adaptive cells for "
+              f"{log['uniform']} uniform ({1 - log['unknowns'] / log['uniform']:.0%} saved); "
+              f"iterations node {it_node}, reference {it_ref}{split}")
+        good = it_node == it_ref
         ok &= good
-        print(f"    max |diff| {what}: {err:.3e}  {'OK' if good else 'FAIL'}")
-    div = stats["max_divergence_after"]
-    ref_div = max(log["div_fine"], log["div_coarse"])
-    good = div < 1e-4
-    ok &= good
-    print(f"    divergence after: node {div:.2e}, reference {ref_div:.2e}  {'OK' if good else 'FAIL'}")
+        if not good:
+            print("    iteration counts differ  FAIL")
+        for what, err, bar in rows:
+            good = err < bar
+            ok &= good
+            print(f"    max |diff| {what}: {err:.3e}  {'OK' if good else 'FAIL'}")
+        div = stats["max_divergence_after"]
+        ref_div = max(log["div_fine"], log["div_coarse"])
+        good = div < 1e-4
+        ok &= good
+        print(f"    divergence after: node {div:.2e}, reference {ref_div:.2e}  {'OK' if good else 'FAIL'}")
     print(f"{name}:", "PASS" if ok else "FAIL")
     return ok
 
 
 def main():
-    results = [check("dam_mid", dam(12)), check("dam_late", dam(30)), check("tank", tank())]
+    late = dam(30)
+    results = [check("dam_mid", dam(12)), check("dam_late", late),
+               check("dam_late_deep", late, adaptive_band=1, adaptive_levels=3),
+               check("tank", tank())]
     print("ALL PASS" if all(results) else "FAILURES PRESENT")
     sys.exit(0 if all(results) else 1)
 

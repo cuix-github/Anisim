@@ -7,9 +7,9 @@
 #include <utility>
 
 // The structure follows the reference module by module: band_target ->
-// bandTarget, build_cells/_grade -> buildCells/grade, Operator (naive
-// stencil) -> buildOp, Multigrid -> Hierarchy + solve, and
-// AdaptiveProjection.__call__ -> projectNaive. Orders that decide rounding
+// bandTarget, build_cells/_grade -> buildCells/grade, Operator -> buildOp,
+// Multigrid -> Hierarchy + solve, and AdaptiveProjection.__call__ ->
+// project. Orders that decide rounding
 // (cell lists, face enumeration, restriction sums) mirror the reference so
 // the lockstep stays tight; the CSR matvec sums each row in column order,
 // which differs from numpy's scatter only at rounding level.
@@ -196,7 +196,7 @@ std::vector<Cell> buildCells(const Dims& D, int levels, const std::vector<int>& 
     return grade(D, std::move(cells));
 }
 
-// ---- the operator (Operator, stencil = "naive") -----------------------------
+// ---- the operator (Operator) -----------------------------------------------
 
 struct Face {
     int a, b;          // cells on the negative and positive side: Delta = p[b] - p[a]
@@ -206,6 +206,10 @@ struct Face {
     int t1, n1;        // second transverse axis (z, or y for z faces): origin, extent
     double d;          // center distance along the axis: s, or 1.5 s at a junction
     double coef;       // beta * area / d
+    // a variational junction face (en > 0) replaces p[b] - p[a] with the
+    // weighted sum over Op::entIdx/entW[e0, e0 + en), in the reference's
+    // entry order: fine cell, coarse cell, lateral cells
+    int e0 = 0, en = 0;
 };
 
 // visit the uniform faces a face covers, by index into its axis's array
@@ -222,6 +226,8 @@ void forFootprint(const Dims& D, const Face& f, Fn&& fn) {
 struct Op {
     std::vector<Cell> cells;
     std::vector<Face> faces;
+    std::vector<int> entIdx;    // variational junction entries (Face::e0, en)
+    Vec entW;
     std::vector<size_t> start;
     std::vector<int> col;
     Vec val, diag, dinv;
@@ -242,7 +248,17 @@ uint64_t cellKey(const Cell& c) {
            (static_cast<uint64_t>(c.j) << 20) | static_cast<uint64_t>(c.k);
 }
 
-Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3]) {
+// Delta across a face: p[b] - p[a], or a variational junction's weighted sum
+double delta(const Op& op, const Face& f, const Vec& p) {
+    if (f.en == 0) return p[f.b] - p[f.a];
+    double s = 0.0;
+    for (int e = f.e0; e < f.e0 + f.en; ++e) s += op.entW[e] * p[op.entIdx[e]];
+    return s;
+}
+
+// variational = false is the reference's stencil = "naive"; true its
+// "variational" stencil, which needs nz = 1 (one lateral axis per junction)
+Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3], bool variational) {
     Op op;
     op.cells = std::move(cells);
     const int N = static_cast<int>(op.cells.size());
@@ -258,6 +274,46 @@ Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3]) {
         if (at[0] < 0 || at[1] < 0 || at[2] < 0) return -1;
         const auto it = index.find(cellKey({l, at[0], at[1], at[2]}));
         return it == index.end() ? -1 : it->second;
+    };
+    // Operator's lateral(): the coarse cell K's neighbor in direction latDir
+    // along latAxis, the same level, one coarser, or the aligned pair of its
+    // refined children. Fills (cell, fraction) entries summing to 1 and the
+    // center distance in fine units; false at a wall (no lateral at all).
+    auto lateral = [&](const Cell& K, int latDir, int latAxis, int idx[2], double frac[2],
+                       int& n, double& dist) {
+        int at[3] = {K.i, K.j, K.k};
+        at[latAxis] += latDir;
+        const int same = find(K.l, at);
+        if (same >= 0) {
+            idx[0] = same, frac[0] = 1.0, n = 1, dist = static_cast<double>(1 << K.l);
+            return true;
+        }
+        // the shifts keep the reference's floor semantics at -1 (find rejects it)
+        const int up[3] = {at[0] >> 1, at[1] >> 1, K.k};
+        const int coarser = find(K.l + 1, up);
+        if (coarser >= 0 && !(up[0] == K.i >> 1 && up[1] == K.j >> 1)) {
+            idx[0] = coarser, frac[0] = 1.0, n = 1, dist = 1.5 * (1 << K.l);
+            return true;
+        }
+        const int fl = K.l - 1;
+        if (fl >= 0) {
+            int pa[3], pb[3];
+            if (latAxis == 1) {
+                const int row = latDir > 0 ? 2 * (K.j + latDir) : 2 * K.j - 1;
+                pa[0] = 2 * K.i, pa[1] = row, pb[0] = 2 * K.i + 1, pb[1] = row;
+            } else {
+                const int col = latDir > 0 ? 2 * (K.i + latDir) : 2 * K.i - 1;
+                pa[0] = col, pa[1] = 2 * K.j, pb[0] = col, pb[1] = 2 * K.j + 1;
+            }
+            pa[2] = pb[2] = K.k;
+            const int ca = find(fl, pa), cb = find(fl, pb);
+            if (ca >= 0 && cb >= 0) {
+                idx[0] = ca, idx[1] = cb, frac[0] = frac[1] = 0.5, n = 2;
+                dist = 1.5 * (1 << fl);
+                return true;
+            }
+        }
+        return false;
     };
     for (int me = 0; me < N; ++me) {
         const Cell& C = op.cells[me];
@@ -289,6 +345,28 @@ Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3]) {
                 if (o < 0) continue;
                 if (side > 0) push(me, o, hi, 1.5 * s);
                 else push(o, me, lo, 1.5 * s);
+                if (!variational) continue;
+                // the variational sample: the coarse side is read s/2 off the
+                // coarse axis, toward the lateral neighbor on the fine cell's
+                // side, so the sample sits where the fine cell's center is
+                // (3/4 coarse + 1/4 a same-level lateral). With no lateral (a
+                // wall) the face stays the plain two-cell one, as the reference
+                const int latAxis = axis == 0 ? 1 : 0;
+                const int ofs = org[latAxis];
+                const int latDir = ((ofs >> (C.l + 1)) << (C.l + 1)) != ofs ? 1 : -1;
+                int li[2];
+                double lf[2], dist = 0.0;
+                int ln = 0;
+                if (!lateral(op.cells[o], latDir, latAxis, li, lf, ln, dist)) continue;
+                const double sgn = static_cast<double>(side);
+                const double wl = (static_cast<double>(s) / 2.0) / dist;
+                Face& f = op.faces.back();
+                f.e0 = static_cast<int>(op.entIdx.size());
+                f.en = 2 + ln;
+                op.entIdx.push_back(me), op.entW.push_back(-sgn);
+                op.entIdx.push_back(o), op.entW.push_back((1.0 - wl) * sgn);
+                for (int e = 0; e < ln; ++e)
+                    op.entIdx.push_back(li[e]), op.entW.push_back(wl * lf[e] * sgn);
             }
         }
     }
@@ -301,8 +379,16 @@ Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3]) {
         f.coef = (sum / n) * area / f.d;
     }
     // CSR, rows sorted by column, duplicates merged
+    // (a variational face adds coef * w_x * w_y for every entry pair: the
+    // energy coef * Delta^2, so the operator stays symmetric with zero row sums)
     std::vector<std::vector<std::pair<int, double>>> rows(N);
     for (const Face& f : op.faces) {
+        if (f.en > 0) {
+            for (int x = f.e0; x < f.e0 + f.en; ++x)
+                for (int y = f.e0; y < f.e0 + f.en; ++y)
+                    rows[op.entIdx[x]].push_back({op.entIdx[y], f.coef * op.entW[x] * op.entW[y]});
+            continue;
+        }
         rows[f.a].push_back({f.a, f.coef});
         rows[f.a].push_back({f.b, -f.coef});
         rows[f.b].push_back({f.b, f.coef});
@@ -332,7 +418,8 @@ Op buildOp(const Dims& D, std::vector<Cell> cells, const Vec* beta[3]) {
 }
 
 // b = G^T (A u*): each face's flux, area times the mean uniform velocity it
-// covers, leaves its negative-side cell and enters its positive-side cell
+// covers, leaves its negative-side cell and enters its positive-side cell (a
+// variational face spreads it over its entries with the gradient's weights)
 Vec rhsOf(const Dims& D, const Op& op, const Vec* vel[3], double dt) {
     Vec b(op.size(), 0.0);
     for (const Face& f : op.faces) {
@@ -341,6 +428,11 @@ Vec rhsOf(const Dims& D, const Op& op, const Vec* vel[3], double dt) {
         forFootprint(D, f, [&](size_t q) { sum += (*vel[f.axis])[q]; ++n; });
         const double ustar = sum / n;
         const double area = static_cast<double>(f.n0) * f.n1;
+        if (f.en > 0) {
+            for (int e = f.e0; e < f.e0 + f.en; ++e)
+                b[op.entIdx[e]] += area * ustar * op.entW[e] / dt;
+            continue;
+        }
         b[f.a] += area * ustar * -1.0 / dt;
         b[f.b] += area * ustar * 1.0 / dt;
     }
@@ -354,10 +446,11 @@ struct Hierarchy {
     std::vector<std::vector<int>> parent;   // fine index -> coarse index, per level
 };
 
+// every level is assembled with the same stencil, as the reference
 Hierarchy buildHierarchy(const Dims& D, std::vector<Cell> cells, const Vec* beta[3],
-                         int maxLevels, size_t coarsest) {
+                         int maxLevels, size_t coarsest, bool variational) {
     Hierarchy h;
-    h.ops.push_back(buildOp(D, std::move(cells), beta));
+    h.ops.push_back(buildOp(D, std::move(cells), beta, variational));
     while (static_cast<int>(h.ops.size()) < maxLevels && h.ops.back().size() > coarsest) {
         // every cell collapses into its parent, first occurrence keeps the order
         const std::vector<Cell>& fine = h.ops.back().cells;
@@ -376,7 +469,7 @@ Hierarchy buildHierarchy(const Dims& D, std::vector<Cell> cells, const Vec* beta
             parent[n] = it->second;
         }
         h.parent.push_back(std::move(parent));
-        h.ops.push_back(buildOp(D, std::move(coarse), beta));
+        h.ops.push_back(buildOp(D, std::move(coarse), beta, variational));
     }
     return h;
 }
@@ -565,11 +658,23 @@ void localFill(const Dims& D, const Cell& C, double dt, Vec* vel[3], const Vec* 
             }
 }
 
+// faces between adaptive cells take their face's gradient, each uniform face
+// with its own beta (AdaptiveProjection._gradient and the update after it)
+void applyGradient(const Dims& D, const Op& op, const Vec& p, double dt, Vec* out[3],
+                   const Vec* beta[3]) {
+    for (const Face& f : op.faces) {
+        const double g = delta(op, f, p) / f.d;
+        Vec& field = *out[f.axis];
+        const Vec& b = *beta[f.axis];
+        forFootprint(D, f, [&](size_t q) { field[q] -= dt * b[q] * g; });
+    }
+}
+
 } // namespace
 
-Result projectNaive(int nx, int ny, int nz, double dt, const Settings& settings,
-                    const Vec& liquidFraction, Vec& u, Vec& v, Vec& w,
-                    const Vec& bu, const Vec& bv, const Vec& bw) {
+Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junction junction,
+               const Vec& liquidFraction, Vec& u, Vec& v, Vec& w,
+               const Vec& bu, const Vec& bv, const Vec& bw) {
     const Dims D{nx, ny, nz, nz == 1};
     // how many times every coarsened axis halves evenly; leaf levels and the
     // hierarchy depth must fit inside it (the reference asserts divisibility)
@@ -582,26 +687,47 @@ Result projectNaive(int nx, int ny, int nz, double dt, const Settings& settings,
     const std::vector<int> target = bandTarget(D, liquidFraction, settings.band, levels);
     std::vector<Cell> cells = buildCells(D, levels, target);
 
+    // the variational stencil handles one lateral axis per junction, so the
+    // cleanup junction is nz = 1 only (the step node falls back otherwise)
+    const bool cleanup = junction == Junction::Cleanup && D.flat;
     const Vec* beta[3] = {&bu, &bv, &bw};
-    const Hierarchy h = buildHierarchy(D, std::move(cells), beta, depth - levels + 1, 64);
+    const int maxLevels = depth - levels + 1;
+    const Hierarchy h = buildHierarchy(D, std::move(cells), beta, maxLevels, 64, cleanup);
     const Op& op = h.ops[0];
 
     const Vec* vel[3] = {&u, &v, &w};
     Result res;
     res.levels = levels;
     res.unknowns = op.size();
-    const Vec p = solve(h, rhsOf(D, op, vel, dt), settings.tolerance, settings.maxIterations,
-                        res.iterations, res.residual);
+    const Vec b = rhsOf(D, op, vel, dt);
+    const Vec p = solve(h, b, settings.tolerance, settings.maxIterations, res.iterations,
+                        res.residual);
 
-    // faces between adaptive cells take their face's gradient, each uniform
-    // face with its own beta; faces inside coarse cells keep u* for now
+    // faces inside coarse cells keep u* until the local fills below
     const Vec uStar = u, vStar = v, wStar = w;
     Vec* out[3] = {&u, &v, &w};
-    for (const Face& f : op.faces) {
-        const double g = (p[f.b] - p[f.a]) / f.d;
-        Vec& field = *out[f.axis];
-        const Vec& b = *beta[f.axis];
-        forFootprint(D, f, [&](size_t q) { field[q] -= dt * b[q] * g; });
+    applyGradient(D, op, p, dt, out, beta);
+    Vec q;
+    if (cleanup) {
+        // the variational fluxes balance only in the weighted sense; a second,
+        // conservative (naive-stencil) projection of the corrected field removes
+        // the leftover junction dipoles. Its tolerance makes its absolute
+        // residual match the main solve's.
+        double mean = 0.0;
+        for (double x : b) mean += x;
+        mean /= static_cast<double>(b.size());
+        double bnorm = 0.0;
+        for (double x : b) bnorm += (x - mean) * (x - mean);
+        bnorm = std::sqrt(bnorm);
+        const Hierarchy h2 = buildHierarchy(D, op.cells, beta, maxLevels, 64, false);
+        const Vec b2 = rhsOf(D, h2.ops[0], vel, dt);
+        const double b2n = std::sqrt(dot(b2, b2));
+        if (b2n > 0.0) {
+            const double tol2 = std::min(1.0, settings.tolerance * bnorm / b2n);
+            double residual2 = 0.0;
+            q = solve(h2, b2, tol2, settings.maxIterations, res.cleanupIterations, residual2);
+            applyGradient(D, h2.ops[0], q, dt, out, beta);
+        }
     }
     const Vec* star[3] = {&uStar, &vStar, &wStar};
     const long long nc = static_cast<long long>(op.size());
@@ -610,10 +736,12 @@ Result projectNaive(int nx, int ny, int nz, double dt, const Settings& settings,
         if (op.cells[c].l > 0) localFill(D, op.cells[c], dt, out, star, beta);
 
     res.pressure.assign(D.ncell(), 0.0);
-    for (size_t n = 0; n < op.size(); ++n)
+    for (size_t n = 0; n < op.size(); ++n) {
+        const double pn = q.empty() ? p[n] : p[n] + q[n];
         forFootprintCells(D, op.cells[n], [&](int i, int j, int k) {
-            res.pressure[D.ic(i, j, k)] = p[n];
+            res.pressure[D.ic(i, j, k)] = pn;
         });
+    }
     return res;
 }
 

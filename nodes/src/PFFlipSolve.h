@@ -72,13 +72,17 @@ void step_2d(int   nx,
 // multigrid-preconditioned CG solve (preconditioner 0 = Jacobi, 1 = multigrid
 // V-cycle). At nz = 1 the w faces are all walls and the step reduces exactly
 // to the 2D method, which is the lockstep bridge used by validate_3d.py.
-// pressure_solver 1 replaces the uniform solve with the adaptive one
+// pressure_solver 1 and 2 replace the uniform solve with the adaptive one
 // (milestone 6.5a, PFFlipAdaptive.h): a graded tree fine within
 // adaptive_band cells of the liquid interface (0 = 5) and up to
-// adaptive_levels coarser elsewhere (0 = 2), the PF-FLIP paper's naive
-// junction stencil, its own multigrid PCG, and an exact local fill of the
-// uniform faces inside coarse cells. 0 (the default) is the uniform solve,
-// untouched; the preconditioner port then applies.
+// adaptive_levels coarser elsewhere (0 = 2), its own multigrid PCG, and an
+// exact local fill of the uniform faces inside coarse cells. 1 uses the
+// PF-FLIP paper's naive junction stencil (one solve); 2 the cleanup junction
+// (a second-order variational solve, then a naive-stencil projection of its
+// leftover), nz = 1 only so far, and iterations_used then counts both solves.
+// 0 (the default) is the uniform solve, untouched; the preconditioner port
+// then applies, and the uniform solve also stands in whenever obstacles are
+// present or 2 is asked for at nz > 1.
 // Flat layouts, row-major like numpy ravel() on (nx[+1], ny[+1], nz[+1]):
 //   u: (nx+1)*ny*nz   index (i*ny + j)*nz + k
 //   v: nx*(ny+1)*nz   index (i*(ny+1) + j)*nz + k
