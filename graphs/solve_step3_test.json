@@ -559,6 +559,18 @@
           "portDirection": "input",
           "portType": "string",
           "portDefault": ""
+        },
+        {
+          "portName": "solid_mode",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
+          "portName": "path_solid_phi",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
         }
       ],
       "compoundNodes": [
@@ -772,6 +784,10 @@
         },
         {
           "nodeName": "r_obstacles_max",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_solid_phi",
           "nodeType": "File::NumPy::read_NumPy"
         }
       ],
@@ -1499,6 +1515,22 @@
         {
           "source": "r_obstacles_max.data",
           "target": "step.obstacles_max"
+        },
+        {
+          "source": ".solid_mode",
+          "target": "step.solid_mode"
+        },
+        {
+          "source": ".path_solid_phi",
+          "target": "r_solid_phi.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_solid_phi.type"
+        },
+        {
+          "source": "r_solid_phi.data",
+          "target": "step.solid_phi"
         }
       ],
       "values": [

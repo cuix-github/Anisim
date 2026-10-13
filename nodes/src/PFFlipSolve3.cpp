@@ -1,6 +1,7 @@
 #include "PFFlipSolve.h"
 #include "PFFlipAdaptive.h"
 #include "PFFlipScatter.h"
+#include "PFFlipSolids.h"
 
 #include <algorithm>
 #include <chrono>
@@ -251,6 +252,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              const Amino::Array<float>& scale_in,
              const Amino::Array<Bifrost::Math::float3>& obstacles_min,
              const Amino::Array<Bifrost::Math::float3>& obstacles_max,
+             int solid_mode, const Amino::Array<float>& solid_phi,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt, const Amino::Array<float>& v_wt,
              const Amino::Array<float>& w_wt,
@@ -407,6 +409,73 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                         fn(2, i, j, k);
         }
     };
+    // ---- level-set solids: every face's open fraction, 1 open to 0 closed.
+    // solid_mode 1 rounds it by the face centre (closed when the solid covers
+    // the centre, the boxes' rule); 2 keeps the fraction (cut cells).
+    const bool flatGrid = NZ == 1;
+    const size_t nNode = static_cast<size_t>(NX + 1) * (NY + 1) * (NZ + 1);
+    const bool lsOn = solid_mode != 0 && solid_phi.size() == nNode;
+    if (solid_mode != 0 && !lsOn) {
+        static bool warned = false;
+        if (!warned) {
+            std::fprintf(stderr, "step_3d: solid_phi holds %zu values, not the %zu grid "
+                                 "nodes; the level-set solid is ignored\n",
+                         static_cast<size_t>(solid_phi.size()), nNode);
+            warned = true;
+        }
+    }
+    const bool lsCut = lsOn && solid_mode == 2;
+    Vec openU, openV, openW;
+    bool lsTouches = false;
+    if (lsOn) {
+        const size_t sj = static_cast<size_t>(NZ) + 1;
+        const size_t si = (static_cast<size_t>(NY) + 1) * sj;
+        auto P = [&](int i, int j, int k) {
+            return static_cast<double>(solid_phi[i * si + j * sj + k]);
+        };
+        // one face from its corners (a, b along its first tangent, c, d the
+        // same one step along its second): a flat grid takes the 2D
+        // reference's rule on the k = 0 ends, a 3D grid the four-corner area
+        auto open = [&](double a, double b, double c, double d) {
+            if (!lsCut)
+                return flatGrid ? (0.5 * (a + b) > 0 ? 1.0 : 0.0)
+                                : (0.25 * ((a + b) + (c + d)) > 0 ? 1.0 : 0.0);
+            const double f = flatGrid ? Solids::edgeOpen(a, b) : Solids::faceOpen(a, b, c, d);
+            return f < Solids::kMinOpen ? 0.0 : f;
+        };
+        openU.assign(nu, 1.0); openV.assign(nv, 1.0); openW.assign(nw, 1.0);
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i <= NX; ++i)
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k)
+                    openU[L.iu(i, j, k)] = open(P(i, j, k), P(i, j + 1, k),
+                                                P(i, j, k + 1), P(i, j + 1, k + 1));
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < NX; ++i)
+            for (int j = 0; j <= NY; ++j)
+                for (int k = 0; k < NZ; ++k)
+                    openV[L.iv(i, j, k)] = open(P(i, j, k), P(i + 1, j, k),
+                                                P(i, j, k + 1), P(i + 1, j, k + 1));
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < NX; ++i)
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k <= NZ; ++k)
+                    openW[L.iw(i, j, k)] = open(P(i, j, k), P(i + 1, j, k),
+                                                P(i, j + 1, k), P(i + 1, j + 1, k));
+        for (size_t c = 0; c < nu && !lsTouches; ++c) lsTouches = openU[c] < 1.0;
+        for (size_t c = 0; c < nv && !lsTouches; ++c) lsTouches = openV[c] < 1.0;
+        for (size_t c = 0; c < nw && !lsTouches && !flatGrid; ++c) lsTouches = openW[c] < 1.0;
+        // PFFLIP_SOLID_DUMP=<path> writes the three fractions (u, v, w, as
+        // doubles) for gates/validate_level_set_node.py
+        if (const char* path = std::getenv("PFFLIP_SOLID_DUMP")) {
+            if (FILE* fp = std::fopen(path, "wb")) {
+                std::fwrite(openU.data(), sizeof(double), nu, fp);
+                std::fwrite(openV.data(), sizeof(double), nv, fp);
+                std::fwrite(openW.data(), sizeof(double), nw, fp);
+                std::fclose(fp);
+            }
+        }
+    }
     auto walls = [&](Vec& uu, Vec& vv, Vec& ww) {
         for (int j = 0; j < NY; ++j)
             for (int k = 0; k < NZ; ++k) { uu[L.iu(0, j, k)] = 0.0; uu[L.iu(NX, j, k)] = 0.0; }
@@ -419,6 +488,11 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             else if (kind == 1) vv[L.iv(i, j, k)] = 0.0;
             else ww[L.iw(i, j, k)] = 0.0;
         });
+        if (lsOn) {
+            for (size_t c = 0; c < nu; ++c) if (openU[c] <= 0.0) uu[c] = 0.0;
+            for (size_t c = 0; c < nv; ++c) if (openV[c] <= 0.0) vv[c] = 0.0;
+            for (size_t c = 0; c < nw; ++c) if (openW[c] <= 0.0) ww[c] = 0.0;
+        }
     };
     walls(u, v, w);
     Vec uStar = u, vStar = v, wStar = w;
@@ -442,28 +516,46 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     };
     beta(L.bu, chP_u, chW_u); beta(L.bv, chP_v, chW_v); beta(L.bw, chP_w, chW_w);
     walls(L.bu, L.bv, L.bw);
+    // cut cells: flux passes through a face's open part only, so the
+    // operator's coefficients and the divergence take the open fraction; the
+    // velocity update keeps the unweighted beta (the solid is static)
+    Vec betaU, betaV, betaW;
+    if (lsCut) {
+        betaU = L.bu; betaV = L.bv; betaW = L.bw;
+        for (size_t c = 0; c < nu; ++c) L.bu[c] *= openU[c];
+        for (size_t c = 0; c < nv; ++c) L.bv[c] *= openV[c];
+        for (size_t c = 0; c < nw; ++c) L.bw[c] *= openW[c];
+    }
     buildDiag(L);
     L.x.assign(L.nc(), 0.0); L.b.assign(L.nc(), 0.0); L.r.assign(L.nc(), 0.0);
 
-    // ---- right-hand side b = -div(u)/dt.
+    // ---- right-hand side b = -div(u)/dt (cut cells: of the open-weighted u).
     Vec rhs(L.nc());
     for (int i = 0; i < NX; ++i)
         for (int j = 0; j < NY; ++j)
             for (int k = 0; k < NZ; ++k)
-                rhs[L.ic(i, j, k)] = -((u[L.iu(i + 1, j, k)] - u[L.iu(i, j, k)]) +
-                                       (v[L.iv(i, j + 1, k)] - v[L.iv(i, j, k)]) +
-                                       (w[L.iw(i, j, k + 1)] - w[L.iw(i, j, k)])) / dt;
+                rhs[L.ic(i, j, k)] = lsCut
+                    ? -((openU[L.iu(i + 1, j, k)] * u[L.iu(i + 1, j, k)] -
+                         openU[L.iu(i, j, k)] * u[L.iu(i, j, k)]) +
+                        (openV[L.iv(i, j + 1, k)] * v[L.iv(i, j + 1, k)] -
+                         openV[L.iv(i, j, k)] * v[L.iv(i, j, k)]) +
+                        (openW[L.iw(i, j, k + 1)] * w[L.iw(i, j, k + 1)] -
+                         openW[L.iw(i, j, k)] * w[L.iw(i, j, k)])) / dt
+                    : -((u[L.iu(i + 1, j, k)] - u[L.iu(i, j, k)]) +
+                        (v[L.iv(i, j + 1, k)] - v[L.iv(i, j, k)]) +
+                        (w[L.iw(i, j, k + 1)] - w[L.iw(i, j, k)])) / dt;
 
     lap(msAsm);
     const size_t ncell = L.nc();
     Vec p;
     int it = 0;
     double finalResidual = 0.0;
-    // obstacles are outside the adaptive solve's validated scope so far: the
+    // solids are outside the adaptive solve's validated scope so far: the
     // uniform solve stays in charge when any are present. Only boxes reaching
     // the domain count: one wholly outside it (the loop drivers' far
-    // placeholder) marks no face and holds no particle.
-    size_t obsInDomain = 0;
+    // placeholder) marks no face and holds no particle. A level-set solid
+    // counts when it closes or cuts any face.
+    size_t obsInDomain = lsTouches ? 1 : 0;
     for (size_t b = 0; b < nObs; ++b) {
         const auto& m0 = obstacles_min[b];
         const auto& m1 = obstacles_max[b];
@@ -475,7 +567,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     if (adaptiveAsked && obsInDomain > 0) {
         static bool warned = false;
         if (!warned) {
-            std::fprintf(stderr, "step_3d: the adaptive solve does not handle obstacles "
+            std::fprintf(stderr, "step_3d: the adaptive solve does not handle solids "
                                  "yet; using the uniform solve\n");
             warned = true;
         }
@@ -562,32 +654,39 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         finalResidual = std::sqrt(rr2) / r0;
         lap(msSolve);
         // ---- velocity correction on interior faces, then walls.
+        const Vec& cbu = lsCut ? betaU : F.bu;
+        const Vec& cbv = lsCut ? betaV : F.bv;
+        const Vec& cbw = lsCut ? betaW : F.bw;
         for (int i = 1; i < NX; ++i)
             for (int j = 0; j < NY; ++j)
                 for (int k = 0; k < NZ; ++k)
-                    u[F.iu(i, j, k)] -= dt * F.bu[F.iu(i, j, k)] *
+                    u[F.iu(i, j, k)] -= dt * cbu[F.iu(i, j, k)] *
                                         (p[F.ic(i, j, k)] - p[F.ic(i - 1, j, k)]);
         for (int i = 0; i < NX; ++i)
             for (int j = 1; j < NY; ++j)
                 for (int k = 0; k < NZ; ++k)
-                    v[F.iv(i, j, k)] -= dt * F.bv[F.iv(i, j, k)] *
+                    v[F.iv(i, j, k)] -= dt * cbv[F.iv(i, j, k)] *
                                         (p[F.ic(i, j, k)] - p[F.ic(i, j - 1, k)]);
         for (int i = 0; i < NX; ++i)
             for (int j = 0; j < NY; ++j)
                 for (int k = 1; k < NZ; ++k)
-                    w[F.iw(i, j, k)] -= dt * F.bw[F.iw(i, j, k)] *
+                    w[F.iw(i, j, k)] -= dt * cbw[F.iw(i, j, k)] *
                                         (p[F.ic(i, j, k)] - p[F.ic(i, j, k - 1)]);
     }
     walls(u, v, w);
 
+    // the divergence the solve removed (cut cells: of the open-weighted u)
+    auto fu = [&](size_t c) { return lsCut ? openU[c] * u[c] : u[c]; };
+    auto fv = [&](size_t c) { return lsCut ? openV[c] * v[c] : v[c]; };
+    auto fw = [&](size_t c) { return lsCut ? openW[c] * w[c] : w[c]; };
     double maxDiv = 0.0;
     for (int i = 0; i < NX; ++i)
         for (int j = 0; j < NY; ++j)
             for (int k = 0; k < NZ; ++k)
                 maxDiv = std::max(maxDiv, std::fabs(
-                    (u[L.iu(i + 1, j, k)] - u[L.iu(i, j, k)]) +
-                    (v[L.iv(i, j + 1, k)] - v[L.iv(i, j, k)]) +
-                    (w[L.iw(i, j, k + 1)] - w[L.iw(i, j, k)])));
+                    (fu(L.iu(i + 1, j, k)) - fu(L.iu(i, j, k))) +
+                    (fv(L.iv(i, j + 1, k)) - fv(L.iv(i, j, k))) +
+                    (fw(L.iw(i, j, k + 1)) - fw(L.iw(i, j, k)))));
 
     lap(msCorr);
     // ---- particle machinery. Sizes: with adapt on, particles carry a scale
@@ -819,6 +918,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 else { pz = m1.z + 0.01; vz = 0.0; }
             }
         }
+        if (lsOn)
+            Solids::pushOut(solid_phi, NX, NY, NZ, flat, px, py, pz, &vx, &vy, &vz);
         Px[pi] = px; Py[pi] = py; Pz[pi] = pz;
         Vx[pi] = vx; Vy[pi] = vy; Vz[pi] = vz;
         Tau[pi] = tauNew[pi]; Wt[pi] = wtNewV[pi];
@@ -993,6 +1094,14 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             }
         }
     }
+    // the level-set solid's sweep runs only when particles merged or split:
+    // every other particle was pushed out right after its advection above
+    if (lsOn && adOn) {
+#pragma omp parallel for schedule(static)
+        for (long long i = 0; i < static_cast<long long>(Px.size()); ++i)
+            Solids::pushOut(solid_phi, NX, NY, NZ, flat, Px[i], Py[i], Pz[i], &Vx[i], &Vy[i],
+                            &Vz[i]);
+    }
 
     // ---- pack outputs at the final particle count.
     const size_t nf = Px.size();
@@ -1041,6 +1150,9 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 else sz = m1.z + 0.01;
             }
         }
+        // (without a time jitter the display position is the actual one, already out)
+        if (lsOn && sdt != 0.0)
+            Solids::pushOut(solid_phi, NX, NY, NZ, flat, sx, sy, sz, nullptr, nullptr, nullptr);
         (*outSync)[i] = {static_cast<float>(sx), static_cast<float>(sy),
                          static_cast<float>(sz)};
         const double rhoP = Ph01[i] >= 0.5 ? rl : rg;

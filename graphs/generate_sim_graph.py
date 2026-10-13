@@ -722,6 +722,7 @@ def build3d():
         P("phase_in2", "input", "array<float>"), P("phase_out2", "output", "array<float>"),
         P("obstacles_min", "input", "array<Math::float3>"),
         P("obstacles_max", "input", "array<Math::float3>"),
+        P("solid_mode", "input", "int"), P("solid_phi", "input", "array<float>"),
     ]
     conns += [
         {"source": "step.out_mass", "target": ".mass_out2"},
@@ -730,7 +731,13 @@ def build3d():
         {"source": "step.out_phase_state", "target": ".phase_out2"},
         {"source": ".obstacles_min", "target": "step.obstacles_min"},
         {"source": ".obstacles_max", "target": "step.obstacles_max"},
+        {"source": ".solid_mode", "target": "step.solid_mode"},
+        {"source": ".solid_phi", "target": "step.solid_phi"},
     ]
+    # a level-set solid: its distance at the grid nodes, read once per run
+    # (solid_mode 0 = none, 1 binary faces, 2 cut cells)
+    top["ports"].append(P("solid_mode", "input", "int", "0"))
+    top["connections"].append({"source": ".solid_mode", "target": "loop.solid_mode"})
     # particle_phase into the step node now comes from the phase state
     for k in conns:
         if k["source"] == ".particle_phase" and k["target"] == "step.particle_phase":
@@ -741,11 +748,12 @@ def build3d():
         {"portKind": "state", "inputPortName": "phase_in2", "outputPortName": "phase_out2"},
     ]
     for n, rt in (("scale", "t_flt"), ("phase_st", "t_flt"),
-                  ("obs_min", "t_pos"), ("obs_max", "t_pos")):
+                  ("obs_min", "t_pos"), ("obs_max", "t_pos"), ("solid_phi", "t_flt")):
         top["ports"].append(P("path_" + n, "input", "string", ""))
         top["compoundNodes"].append({"nodeName": "r2_" + n, "nodeType": "File::NumPy::read_NumPy"})
         tgt = {"scale": "scale_in2", "phase_st": "phase_in2",
-               "obs_min": "obstacles_min", "obs_max": "obstacles_max"}[n]
+               "obs_min": "obstacles_min", "obs_max": "obstacles_max",
+               "solid_phi": "solid_phi"}[n]
         top["connections"] += [
             {"source": ".path_" + n, "target": "r2_" + n + ".file_path"},
             {"source": rt + ".output", "target": "r2_" + n + ".type"},

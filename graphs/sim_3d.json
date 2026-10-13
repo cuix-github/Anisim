@@ -336,6 +336,12 @@
      "portDefault": "3f"
     },
     {
+     "portName": "solid_mode",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
      "portName": "path_scale",
      "portDirection": "input",
      "portType": "string",
@@ -355,6 +361,12 @@
     },
     {
      "portName": "path_obs_max",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_solid_phi",
      "portDirection": "input",
      "portType": "string",
      "portDefault": ""
@@ -826,6 +838,16 @@
        "portName": "obstacles_max",
        "portDirection": "input",
        "portType": "array<Math::float3>"
+      },
+      {
+       "portName": "solid_mode",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "solid_phi",
+       "portDirection": "input",
+       "portType": "array<float>"
       },
       {
        "portName": "dump_every",
@@ -2753,6 +2775,14 @@
        "target": "step.obstacles_max"
       },
       {
+       "source": ".solid_mode",
+       "target": "step.solid_mode"
+      },
+      {
+       "source": ".solid_phi",
+       "target": "step.solid_phi"
+      },
+      {
        "source": "idx_i.int",
        "target": "dg_pos.step_index"
       },
@@ -4488,6 +4518,10 @@
      "nodeType": "File::NumPy::read_NumPy"
     },
     {
+     "nodeName": "r2_solid_phi",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
      "nodeName": "wf_velocities",
      "nodeType": "File::NumPy::write_NumPy"
     },
@@ -4858,6 +4892,10 @@
      "target": "loop.radius_coarse"
     },
     {
+     "source": ".solid_mode",
+     "target": "loop.solid_mode"
+    },
+    {
      "source": ".path_scale",
      "target": "r2_scale.file_path"
     },
@@ -4904,6 +4942,18 @@
     {
      "source": "r2_obs_max.data",
      "target": "loop.obstacles_max"
+    },
+    {
+     "source": ".path_solid_phi",
+     "target": "r2_solid_phi.file_path"
+    },
+    {
+     "source": "t_flt.output",
+     "target": "r2_solid_phi.type"
+    },
+    {
+     "source": "r2_solid_phi.data",
+     "target": "loop.solid_phi"
     },
     {
      "source": "loop.velocities_out",

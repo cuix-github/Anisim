@@ -24,6 +24,13 @@ from PIL import Image
 
 
 class Sim:
+    # Cut cells close a face less open than this: the solve weights a face by its open
+    # part and barely sees a sliver, so the velocity it leaves there is not pinned down
+    # (found by the node in 3D, where the water surface meets a curved wall: faces
+    # under 1% open came out at up to 3 cells/s from water at rest). The node's
+    # Solids::kMinOpen is the same constant.
+    SOLID_MIN_OPEN = 0.01
+
     def __init__(self, nx, ny, rho_l=1000.0, rho_g=1.0, alpha_l=0.97, alpha_g=0.9, g=-9.8,
                  escape=False, esc_phi=0.3, drag_droplet=1.0, drag_bubble=8.0, buoyancy=2.0,
                  st=False, sub_advect=False, adapt=False, obstacles=None,
@@ -248,7 +255,9 @@ class Sim:
             a_u, b_u = P[:, :-1], P[:, 1:]    # u face (i, j): nodes (i, j) and (i, j+1)
             a_v, b_v = P[:-1, :], P[1:, :]    # v face (i, j): nodes (i, j) and (i+1, j)
             if self.solid_cut:
-                self._open = (self._open_fraction(a_u, b_u), self._open_fraction(a_v, b_v))
+                self._open = tuple(np.where(w < self.SOLID_MIN_OPEN, 0.0, w) for w in
+                                   (self._open_fraction(a_u, b_u),
+                                    self._open_fraction(a_v, b_v)))
             else:
                 self._open = ((0.5 * (a_u + b_u) > 0).astype(float),
                               (0.5 * (a_v + b_v) > 0).astype(float))
