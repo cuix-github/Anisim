@@ -39,7 +39,10 @@ current and supersedes anything older.
   pack, `graphs/` the graphs and their bifcmd launchers, `gates/` the
   validation ladder, `experiments/` benches and demos, `maya/` the in-Maya
   playback, `results/` committed evidence), mapped in the README. Every run
-  writes under the root `out/` (ignored). The Bifrost-side scripts find their
+  writes under the root `out/` (ignored). The repo stores code and small
+  numeric evidence (JSON results, charts); simulation footage - videos,
+  rendered frames, caches - stays in `out/` (rule set 2026-10-13; footage
+  committed before then is still tracked). The Bifrost-side scripts find their
   siblings through paths relative to their own file, so they run from any
   working directory.
 - Validation before features: the executable spec is
