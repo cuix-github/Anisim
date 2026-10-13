@@ -459,14 +459,33 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     Vec p;
     int it = 0;
     double finalResidual = 0.0;
-    // obstacles are outside the adaptive solve's validated scope so far: the
-    // uniform solve stays in charge when any are present
-    const bool adaptiveSolve = pressure_solver == 1 && nObs == 0;
-    if (pressure_solver == 1 && nObs > 0) {
+    // obstacles are outside the adaptive solve's validated scope so far, and
+    // the cleanup junction exists at nz = 1 only: the uniform solve stays in
+    // charge in those cases. Only boxes reaching the domain count: one wholly
+    // outside it (the loop drivers' far placeholder) marks no face and holds
+    // no particle.
+    size_t obsInDomain = 0;
+    for (size_t b = 0; b < nObs; ++b) {
+        const auto& m0 = obstacles_min[b];
+        const auto& m1 = obstacles_max[b];
+        if (m1.x >= 0.0f && m0.x <= NX && m1.y >= 0.0f && m0.y <= NY && m1.z >= 0.0f && m0.z <= NZ)
+            ++obsInDomain;
+    }
+    const bool adaptiveAsked = pressure_solver == 1 || pressure_solver == 2;
+    const bool adaptiveSolve =
+        adaptiveAsked && obsInDomain == 0 && !(pressure_solver == 2 && NZ > 1);
+    if (adaptiveAsked && obsInDomain > 0) {
         static bool warned = false;
         if (!warned) {
             std::fprintf(stderr, "step_3d: the adaptive solve does not handle obstacles "
                                  "yet; using the uniform solve\n");
+            warned = true;
+        }
+    } else if (pressure_solver == 2 && NZ > 1) {
+        static bool warned = false;
+        if (!warned) {
+            std::fprintf(stderr, "step_3d: the cleanup junction (pressure_solver 2) is "
+                                 "nz = 1 only so far; using the uniform solve\n");
             warned = true;
         }
     }
@@ -489,10 +508,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         as.levels = adaptive_levels > 0 ? adaptive_levels : 2;
         as.tolerance = tolerance;
         as.maxIterations = max_iterations;
-        Adaptive::Result ar = Adaptive::projectNaive(NX, NY, NZ, dt, as, liquid, u, v, w,
-                                                     L.bu, L.bv, L.bw);
+        const Adaptive::Junction junction =
+            pressure_solver == 2 ? Adaptive::Junction::Cleanup : Adaptive::Junction::Naive;
+        Adaptive::Result ar = Adaptive::project(NX, NY, NZ, dt, as, junction, liquid, u, v, w,
+                                                L.bu, L.bv, L.bw);
         p = std::move(ar.pressure);
-        it = ar.iterations;
+        // both solves' iterations: the cost the port reports
+        it = ar.iterations + ar.cleanupIterations;
         finalResidual = ar.residual;
         lap(msSolve);
     } else {
