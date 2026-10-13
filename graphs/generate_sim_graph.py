@@ -344,6 +344,35 @@ def build3d():
     body["ports"].append(P("ph_pattern", "input", "string"))
     top["ports"].append(P("ph_pattern", "input", "string", ""))
     top["connections"].append({"source": ".ph_pattern", "target": "loop.ph_pattern"})
+    # the adaptive pressure solve (milestone 6.5a); 0 keeps step_3d's defaults
+    for n in ("pressure_solver", "adaptive_band", "adaptive_levels"):
+        body["ports"].append(P(n, "input", "int"))
+        conns.append({"source": "." + n, "target": "step." + n})
+        top["ports"].append(P(n, "input", "int", "0"))
+        top["connections"].append({"source": "." + n, "target": "loop." + n})
+    # per-substep particle velocities, for per-phase speed measurements; gated
+    # like the other dumps, and an empty pattern writes nothing
+    body["compoundNodes"] += [
+        {"nodeName": "w_vel", "nodeType": "File::NumPy::write_NumPy"},
+        {"nodeName": "ok_fv", "nodeType": "Core::Type_Conversion::to_float"},
+    ]
+    for n2 in body["compoundNodes"]:
+        if n2["nodeName"] == "ok_acc":
+            n2["multiInPortNames"].append("v")
+    conns += [
+        {"source": "step.out_velocities", "target": "w_vel.data"},
+        {"source": ".vel_pattern", "target": "w_vel.file_path"},
+        {"source": ".current_index", "target": "w_vel.frame"},
+        {"source": "w_vel.success", "target": "ok_fv.from"},
+        {"source": "ok_fv.float", "target": "ok_acc.first.v"},
+    ]
+    body["values"] += [
+        {"valueName": "w_vel.overwrite", "valueType": "bool", "value": "true"},
+        {"valueName": "w_vel.create_directories", "valueType": "bool", "value": "true"},
+    ]
+    body["ports"].append(P("vel_pattern", "input", "string"))
+    top["ports"].append(P("vel_pattern", "input", "string", ""))
+    top["connections"].append({"source": ".vel_pattern", "target": "loop.vel_pattern"})
 
     conns += [
         {"source": "set_my.out_geometry", "target": "set_mz.geometry"},
@@ -761,9 +790,9 @@ def gate_dumps(g):
                                "target": "loop.dump_every"})
     pats = [c for c in body["connections"]
             if c["source"] in (".pos_pattern", ".esc_pattern", ".scl_pattern",
-                               ".ph_pattern")
+                               ".ph_pattern", ".vel_pattern")
             and c["target"].endswith(".file_path")]
-    assert len(pats) == 4, pats
+    assert len(pats) == 5, pats
     for c in pats:
         name = "dg_" + c["source"][1:].split("_")[0]
         body["compoundNodes"].append({"nodeName": name,

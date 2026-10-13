@@ -34,6 +34,9 @@ def lattice(ni, nj, nk):
 
 FINAL_STATE = ("velocities", "mass", "momx", "momy", "momz", "tau", "wt", "wtph",
                "scale", "phase")
+# per-substep dumps beside frame.#### (always written): escaped flags, particle
+# scales, phases; "vel" (particle velocities) is opt-in
+DUMPS = ("esc", "scl", "ph")
 
 
 def load_final_state(d):
@@ -47,11 +50,13 @@ def load_final_state(d):
 
 def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
                  extra_ports=None, seed_fn=None, obstacles=None, fused=False,
-                 dump_every=1, init_arrays=None, final_state=False, step_offset=0):
+                 dump_every=1, init_arrays=None, final_state=False, step_offset=0,
+                 dumps=DUMPS):
     """init_arrays resumes from a saved state instead of seeding; final_state also
     writes the whole state at the end (final_<name>.npy beside final.npy); a
     resumed run passes step_offset = substeps already run, so the ST jitter
-    continues its stream rather than restarting it."""
+    continues its stream rather than restarting it. dumps names the
+    per-substep dumps written beside frame.#### (<name>.####)."""
     d = os.path.join(HERE, "..", "out", "loop3_" + tag)
     os.makedirs(d, exist_ok=True)
     if init_arrays is not None:
@@ -94,9 +99,8 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
             *(("--set-port", "step_offset", str(step_offset)) if step_offset else ()),
             *[x for k2, v2 in (extra_ports or {}).items()
               for x in ("--set-port", k2, str(v2))],
-            "--set-port", "esc_pattern", (d + "/esc.####").replace("\\", "/"),
-            "--set-port", "scl_pattern", (d + "/scl.####").replace("\\", "/"),
-            "--set-port", "ph_pattern", (d + "/ph.####").replace("\\", "/")]
+            *[x for nm in dumps
+              for x in ("--set-port", nm + "_pattern", (d + f"/{nm}.####").replace("\\", "/"))]]
     for k in arrs:
         args += ["--set-port", "path_" + k, os.path.join(d, k + ".npy").replace("\\", "/")]
     res = subprocess.run(args, capture_output=True, text=True)
