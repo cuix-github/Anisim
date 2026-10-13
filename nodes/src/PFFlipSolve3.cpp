@@ -459,11 +459,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     Vec p;
     int it = 0;
     double finalResidual = 0.0;
-    // obstacles are outside the adaptive solve's validated scope so far, and
-    // the cleanup junction exists at nz = 1 only: the uniform solve stays in
-    // charge in those cases. Only boxes reaching the domain count: one wholly
-    // outside it (the loop drivers' far placeholder) marks no face and holds
-    // no particle.
+    // obstacles are outside the adaptive solve's validated scope so far: the
+    // uniform solve stays in charge when any are present. Only boxes reaching
+    // the domain count: one wholly outside it (the loop drivers' far
+    // placeholder) marks no face and holds no particle.
     size_t obsInDomain = 0;
     for (size_t b = 0; b < nObs; ++b) {
         const auto& m0 = obstacles_min[b];
@@ -472,20 +471,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             ++obsInDomain;
     }
     const bool adaptiveAsked = pressure_solver == 1 || pressure_solver == 2;
-    const bool adaptiveSolve =
-        adaptiveAsked && obsInDomain == 0 && !(pressure_solver == 2 && NZ > 1);
+    const bool adaptiveSolve = adaptiveAsked && obsInDomain == 0;
     if (adaptiveAsked && obsInDomain > 0) {
         static bool warned = false;
         if (!warned) {
             std::fprintf(stderr, "step_3d: the adaptive solve does not handle obstacles "
                                  "yet; using the uniform solve\n");
-            warned = true;
-        }
-    } else if (pressure_solver == 2 && NZ > 1) {
-        static bool warned = false;
-        if (!warned) {
-            std::fprintf(stderr, "step_3d: the cleanup junction (pressure_solver 2) is "
-                                 "nz = 1 only so far; using the uniform solve\n");
             warned = true;
         }
     }

@@ -19,9 +19,8 @@ using Vec = std::vector<double>;
 //   Naive    the conservative two-cell junction stencil the PF-FLIP paper
 //            adopts: one solve, first order at junctions (stage 3b)
 //   Cleanup  the second-order variational solve, then a naive-stencil
-//            projection of what its junctions leave (stage 3b2). nz = 1
-//            only so far: the variational stencil's lateral sample is
-//            written for one lateral axis, and nz > 1 runs Naive.
+//            projection of what its junctions leave (stage 3b2; in 3D,
+//            stage 3c: the junction sample corrects along both tangents).
 enum class Junction { Naive, Cleanup };
 
 struct Settings {

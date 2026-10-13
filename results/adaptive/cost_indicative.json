@@ -1,0 +1,107 @@
+{
+ "state": "synthetic dam + bed + swirl, no obstacles (indicative; the canonical state has pillars the adaptive solve cannot take yet)",
+ "grid": [
+  256,
+  64,
+  128
+ ],
+ "liquid_particles": 4718592,
+ "repeats": 3,
+ "timer": "PFFLIP_PROFILE inside step_3d; pressure = asm + solve + corr; the adaptive parts (PFPROF_ADAPTIVE) sit inside solve",
+ "rows": {
+  "uniform_tol1e-06": {
+   "iterations": 21,
+   "pressure_ms_median": 611.6,
+   "pressure_ms_min": 593.5,
+   "pressure_ms_max": 626.4,
+   "node_ms_median": 887.7
+  },
+  "naive_tol1e-06": {
+   "iterations": 29,
+   "pressure_ms_median": 2236.9,
+   "pressure_ms_min": 2224.4000000000005,
+   "pressure_ms_max": 2338.3,
+   "node_ms_median": 2515.9,
+   "adaptive_parts_of_median_run": {
+    "cells": 943748,
+    "iterations": [
+     29,
+     0
+    ],
+    "tree_ms": 231.8,
+    "hierarchy_ms": 1225.0,
+    "solve_ms": 543.2,
+    "gradient_ms": 41.1,
+    "cleanup_ms": 0.0,
+    "fill_ms": 39.7
+   }
+  },
+  "cleanup_tol1e-06": {
+   "iterations": 52,
+   "pressure_ms_median": 4335.6,
+   "pressure_ms_min": 4280.6,
+   "pressure_ms_max": 4349.2,
+   "node_ms_median": 4609.1,
+   "adaptive_parts_of_median_run": {
+    "cells": 943748,
+    "iterations": [
+     28,
+     24
+    ],
+    "tree_ms": 206.2,
+    "hierarchy_ms": 1508.4,
+    "solve_ms": 559.4,
+    "gradient_ms": 45.8,
+    "cleanup_ms": 1804.1,
+    "fill_ms": 51.3
+   }
+  },
+  "uniform_tol0.0001": {
+   "iterations": 16,
+   "pressure_ms_median": 501.59999999999997,
+   "pressure_ms_min": 493.3,
+   "pressure_ms_max": 504.3,
+   "node_ms_median": 772.8
+  },
+  "naive_tol0.0001": {
+   "iterations": 24,
+   "pressure_ms_median": 2207.7,
+   "pressure_ms_min": 2025.6999999999998,
+   "pressure_ms_max": 2311.3,
+   "node_ms_median": 2473.6,
+   "adaptive_parts_of_median_run": {
+    "cells": 943748,
+    "iterations": [
+     24,
+     0
+    ],
+    "tree_ms": 209.9,
+    "hierarchy_ms": 1290.7,
+    "solve_ms": 467.9,
+    "gradient_ms": 41.2,
+    "cleanup_ms": 0.0,
+    "fill_ms": 41.0
+   }
+  },
+  "cleanup_tol0.0001": {
+   "iterations": 34,
+   "pressure_ms_median": 3938.6000000000004,
+   "pressure_ms_min": 3840.8,
+   "pressure_ms_max": 3942.2,
+   "node_ms_median": 4219.2,
+   "adaptive_parts_of_median_run": {
+    "cells": 943748,
+    "iterations": [
+     18,
+     16
+    ],
+    "tree_ms": 220.5,
+    "hierarchy_ms": 1456.2,
+    "solve_ms": 387.2,
+    "gradient_ms": 44.5,
+    "cleanup_ms": 1621.5,
+    "fill_ms": 50.4
+   }
+  }
+ }
+}
