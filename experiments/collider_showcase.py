@@ -5,16 +5,22 @@ node, collider_field) once, as solid_phi; the solver sees cut cells.
 
   ..\\.venv\\Scripts\\python.exe collider_showcase.py smoke        # tiny plumbing check, ~2 min
   ..\\.venv\\Scripts\\python.exe collider_showcase.py cost         # 8 substeps with and without the rocks
-  ..\\.venv\\Scripts\\python.exe collider_showcase.py stage 0      # ... 1, 2, 3: ~8 min each
+  ..\\.venv\\Scripts\\python.exe collider_showcase.py stage 0      # ... 1, 2, 3: ~65 min each
   ..\\.venv\\Scripts\\python.exe collider_showcase.py finalize     # verdict, video
   ..\\.venv\\Scripts\\python.exe collider_showcase.py night        # all of the above, in order
 
-The background runner kills tasks near the one-hour mark, so the run goes in chunks
-that resume from full-state dumps (the bore suite's scheme). Each chunk renders its
-frames to PNG and then deletes its particle dumps (about 160 MB a frame), keeping the
-resume state; the video and the numbers land in out/collider_showcase/. Checks: no
-particle inside a boulder in any rendered frame (the field itself is the judge), the
-run's peak speed, particle counts, honest clocks per chunk (startup included, labeled).
+The background runner caps a task at two hours, so the run goes in chunks that resume
+from full-state dumps (the bore suite's scheme), one launch each. Each chunk renders
+its frames to PNG and then deletes its particle dumps (about 160 MB a frame), keeping
+the resume state; the video and the numbers land in out/collider_showcase/. Checks:
+particles inside a boulder in any rendered frame, all and liquid, with the position
+and depth of each one found (the field itself is the judge), the run's peak speed,
+particle counts, honest clocks per chunk (startup included, labeled).
+
+Ran 2026-10-14 (the README's stage-3 record carries the numbers): 20.16 s simulated in
+4.13 h, 85 to 93 s a substep, no particle inside at any chunk's end, 4 of 84 frames
+with one particle inside, the one with its depth recorded 0.00005 cells in; the
+boulders cost nothing measurable (107.2 s against 107.18 s a substep without them).
 """
 import json
 import os
@@ -199,12 +205,21 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
     frames_dir = os.path.join(OUT, f"{tag}_png")
     os.makedirs(frames_dir, exist_ok=True)
     view = View(nx, ny, nz, rocks(nx, ny, nz)) if (render and with_rocks) else None
-    counts, pens, peaks = [], [], []
+    counts, pens, pens_liquid, peaks, offenders = [], [], [], [], []
     for k in range(0, substeps, every):
         p = np.load(os.path.join(d, f"frame.{k:04d}.npy"))
         ph = np.load(os.path.join(d, f"ph.{k:04d}.npy"))
         counts.append(int(len(p)))
-        pens.append(int((phi_at(phi, p.astype(np.float64)) < 0.0).sum()) if phi is not None else 0)
+        # inside a boulder: every particle, and the liquid ones (the rendered ones;
+        # air particles move far faster, past the push-out's 4.5 cells a step)
+        dist = phi_at(phi, p.astype(np.float64)) if phi is not None else np.ones(len(p))
+        ins = dist < 0.0
+        pens.append(int(ins.sum()))
+        pens_liquid.append(int((ins & (ph >= 0.5)).sum()))
+        for i in np.flatnonzero(ins)[:8]:   # the evidence: where and how deep
+            offenders.append({"substep": chunk * substeps + k, "position": p[i].round(3).tolist(),
+                              "depth_cells": round(float(-dist[i]), 4),
+                              "liquid": bool(ph[i] >= 0.5)})
         if view is not None:
             idx = (chunk * substeps + k) // every
             view.frame(p, ph >= 0.5).save(os.path.join(frames_dir, f"fr{idx:04d}.png"))
@@ -217,7 +232,8 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
     entry = {"chunk": chunk, "substeps": substeps, "wall_s": round(wall, 1),
              "wall_per_substep_s": round(wall / substeps, 2),
              "sim_time_s": [round(chunk * substeps * DT, 2), round((chunk + 1) * substeps * DT, 2)],
-             "particles": counts, "inside_a_boulder": pens, "peak_speed": max(peaks),
+             "particles": counts, "inside_a_boulder": pens, "inside_a_boulder_liquid": pens_liquid,
+             "inside_particles": offenders, "peak_speed": max(peaks),
              "iterations_mean": round(float(np.mean(iters)), 1), "with_rocks": with_rocks}
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, f"{tag}_c{chunk}.json"), "w") as f:
@@ -241,6 +257,11 @@ def finalize(tag, n_chunks):
                "wall_s_total": round(sum(c["wall_s"] for c in chunks), 1),
                "wall_per_substep_s": [c["wall_per_substep_s"] for c in chunks],
                "inside_a_boulder_max": max(max(c["inside_a_boulder"]) for c in chunks),
+               "inside_a_boulder_frames": sum(sum(1 for n in c["inside_a_boulder"] if n)
+                                              for c in chunks),
+               # the liquid split exists only for chunks audited after it was added
+               "inside_a_boulder_liquid_max": max(max(c.get("inside_a_boulder_liquid", [0]))
+                                                  for c in chunks),
                "peak_speed_cells_per_s": max(c["peak_speed"] for c in chunks),
                "particles_start_end": [chunks[0]["particles"][0], chunks[-1]["particles"][-1]],
                "iterations_mean": [c["iterations_mean"] for c in chunks],
