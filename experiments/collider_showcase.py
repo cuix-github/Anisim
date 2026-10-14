@@ -12,8 +12,10 @@ node, collider_field) once, as solid_phi; the solver sees cut cells.
 
 The background runner caps a task at two hours, so the run goes in chunks that resume
 from full-state dumps (the bore suite's scheme), one launch each. Each chunk renders
-its frames to PNG and then deletes its particle dumps (about 160 MB a frame), keeping
-the resume state; the video and the numbers land in out/collider_showcase/. Checks:
+its frames to PNG and keeps everything it wrote: the particle dumps (about 240 MB a
+frame with velocities), the Maya play cache (about 70 MB a frame) and the resume
+state; nothing a run writes is deleted, so a run of 168 frames needs about 55 GB.
+The video and the numbers land in out/collider_showcase/. Checks:
 particles inside a boulder in any rendered frame, all and liquid, with the position
 and depth of each one found (the field itself is the judge), the run's peak speed,
 particle counts, honest clocks per chunk (startup included, labeled).
@@ -25,7 +27,6 @@ boulders cost nothing measurable (107.2 s against 107.18 s a substep without the
 """
 import json
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -210,7 +211,7 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
     wall = time.time() - t0
     play_dir = os.path.join(OUT, f"{tag}_play")
     play_liquid = []
-    # audit and render every dumped frame, then drop the dumps (the state stays)
+    # audit and render every dumped frame; the dumps stay, every one (the cache)
     frames_dir = os.path.join(OUT, f"{tag}_png")
     os.makedirs(frames_dir, exist_ok=True)
     view = View(nx, ny, nz, rocks(nx, ny, nz)) if (render and with_rocks) else None
@@ -235,10 +236,6 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
         if render:   # Maya frame idx + 1, the state after substep chunk * substeps + k
             vel = np.load(os.path.join(d, f"vel.{k:04d}.npy"))
             play_liquid.append(write_frame(play_dir, idx + 1, p, vel, ph))
-        for name in ("frame", "esc", "scl", "ph", "vel"):
-            f = os.path.join(d, f"{name}.{k:04d}.npy")
-            if os.path.exists(f):
-                os.remove(f)
     peaks = [float(diag[k][-1]) for k in range(substeps)]
     iters = [float(diag[k][0]) for k in range(substeps)]
     entry = {"chunk": chunk, "substeps": substeps, "wall_s": round(wall, 1),
@@ -319,12 +316,8 @@ def cost(grid, substeps=8):
     res = {}
     for with_rocks in (False, True):
         tag = "cost_rocks" if with_rocks else "cost_plain"
-        for f in os.listdir(OUT) if os.path.exists(OUT) else []:
-            if f.startswith(tag):
-                os.remove(os.path.join(OUT, f))
         e = run_chunk(tag, grid, substeps, 0, 1, with_rocks=with_rocks, render=False)
         res[tag] = e["wall_per_substep_s"]
-        shutil.rmtree(os.path.join(HERE, "..", "out", f"loop3_{tag}_c0"), ignore_errors=True)
     res["ratio"] = round(res["cost_rocks"] / res["cost_plain"], 3)
     with open(os.path.join(OUT, "cost.json"), "w") as f:
         json.dump(dict(res, grid=grid, substeps=substeps), f, indent=1)
