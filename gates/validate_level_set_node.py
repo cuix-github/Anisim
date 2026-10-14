@@ -112,13 +112,13 @@ def load(d, name):
     return np.load(os.path.join(d, name + ".npy"))
 
 
-def node(tag, nx, ny, nz, arrays, **ports):
+def node(tag, nx, ny, nz, arrays, raw=False, **ports):
     """One step_3d call: arrays (name -> array) are written as the node's inputs."""
     d_in, d_out = os.path.join(OUT, tag + "_in"), os.path.join(OUT, tag + "_out")
     for k, v in arrays.items():
-        # the field's port is float32; any other dtype reads as empty and the node
-        # ignores the solid with only a stderr note
-        save(d_in, k, np.asarray(v, np.float32) if k == "solid_phi" else v)
+        # the field's port is float32; any other dtype reads as empty, which the
+        # node refuses (raw=True sends the array as it is, to test that)
+        save(d_in, k, np.asarray(v, np.float32) if k == "solid_phi" and not raw else v)
     extra = tuple(k for k in arrays if k in ("obstacles_min", "obstacles_max", "solid_phi"))
     stats = run_node(d_in, d_out, extra_arrays=extra, nx=nx, ny=ny, nz=nz, dt=DT,
                      preconditioner=1, **ports)

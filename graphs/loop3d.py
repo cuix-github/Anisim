@@ -118,4 +118,10 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
         sys.stderr.write(res.stdout[-3000:] + res.stderr[-2000:])
         raise SystemExit(f"bifcmd 3D loop failed for {tag}")
     diags = np.stack([np.load(os.path.join(d, f"diag.{k:04d}.npy")) for k in range(substeps)])
+    # the node refuses bad inputs (a solid_phi of the wrong size or dtype) with
+    # iterations_used = -1, empty outputs and a "step_3d: error:" line on stderr
+    if (diags[:, 0] < 0).any():
+        errs = [ln for ln in res.stderr.splitlines() if ln.startswith("step_3d: error:")]
+        raise SystemExit(f"step_3d refused its inputs for {tag}: "
+                         + (errs[0] if errs else "see diag"))
     return d, typ, diags

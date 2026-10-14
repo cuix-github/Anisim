@@ -21,6 +21,9 @@ held to exact distances and to the node's own box path. Light: a few minutes.
             0.05 and the step's velocities within 0.05 cells/s. The flow runs into the
             pillar at 25 cells/s, so the step pushes particles out (the count is
             reported), and none is inside afterwards
+  refuse    a field the node cannot use stops it with an error (a float64 .npy, which
+            the float32 port reads as empty; a field one node short), instead of a
+            step without the solid; the right field runs
   loop      still water over a submerged ball, the ball from the graph: as still as
             the plain tank (the stage-2 bar), no particle inside
 
@@ -171,7 +174,7 @@ def check_step():
             fm = node_fractions(TAG + f"pf_m_{mode}", mesh, mode)
             diff = max(np.abs(fa[c] - fm[c]).max() for c in fa)
             ndiff = sum(int((fa[c] != fm[c]).sum()) for c in fa)
-            # the port is float32: a float64 array reads as empty and the solid is ignored
+            # the port is float32: a float64 array reads as empty and the node refuses it
             d_a, _ = node(TAG + f"step_a_{mode}", nx, ny, nz,
                           dict(arr, solid_phi=analytic.astype(np.float32).ravel()), solid_mode=mode)
             d_m, st = node(TAG + f"step_m_{mode}", nx, ny, nz,
@@ -189,6 +192,33 @@ def check_step():
                   f" after the step {pen}  {'OK' if good else 'FAIL'}")
     finally:
         del os.environ["PFFLIP_SOLID_DEBUG"]
+    return ok
+
+
+def check_refuse():
+    """A field the node cannot use must stop it, not leave it running without the
+    solid: a float64 .npy reads as empty through the float32 port, a field of the
+    wrong size would index the wrong grid."""
+    print("=== refuse: a field of the wrong dtype or size stops the node")
+    nx, ny, nz = 40, 24, 32
+    box3 = (18.25, -1.0, 12.25, 24.25, 16.25, 20.25)
+    phi = sdf_box3(*node_grid3(nx, ny, nz), box3)       # float64
+    arr = flow_inputs(nx, ny, nz, f32(phi))
+    field32 = phi.astype(np.float32).ravel()            # (f32() returns float64)
+    cases = (("float64 field, reads as empty", phi.ravel(), True),
+             ("float32 field, one node short", field32[:-1], True),
+             ("float32 field, the right size", field32, False))
+    ok = True
+    for name, field, want in cases:
+        try:
+            _, st = node(TAG + "refuse", nx, ny, nz, dict(arr, solid_phi=field), raw=True,
+                         solid_mode=2)
+            refused, outcome = False, f"ran, {st['iterations_used']:.0f} iterations"
+        except SystemExit as e:
+            refused, outcome = "refused" in str(e), str(e)
+        good = refused == want
+        ok &= good
+        print(f"    {name}: {outcome}  {'OK' if good else 'FAIL'}")
     return ok
 
 
@@ -212,7 +242,7 @@ def check_loop():
 
 
 CHECKS = {"lattice": check_lattice, "field": check_field, "settings": check_settings,
-          "step": check_step, "loop": check_loop}
+          "step": check_step, "refuse": check_refuse, "loop": check_loop}
 
 
 def main():

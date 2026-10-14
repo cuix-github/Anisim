@@ -295,7 +295,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              Amino::Ptr<Amino::Array<float>>& out_wtph,
              Amino::Ptr<Amino::Array<Bifrost::Math::float3>>& out_pos_synced,
              int& iterations_used, float& final_residual, float& max_divergence_after,
-             float& max_speed) {
+             float& max_speed, const Amino::RuntimeServices& services) {
     const int NX = std::max(2, nx), NY = std::max(2, ny), NZ = std::max(1, nz);
     const double dt = dt_in;
     const size_t np = positions.size();
@@ -414,15 +414,34 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // the centre, the boxes' rule); 2 keeps the fraction (cut cells).
     const bool flatGrid = NZ == 1;
     const size_t nNode = static_cast<size_t>(NX + 1) * (NY + 1) * (NZ + 1);
-    const bool lsOn = solid_mode != 0 && solid_phi.size() == nNode;
-    if (solid_mode != 0 && !lsOn) {
-        static bool warned = false;
-        if (!warned) {
-            std::fprintf(stderr, "step_3d: solid_phi holds %zu values, not the %zu grid "
-                                 "nodes; the level-set solid is ignored\n",
-                         static_cast<size_t>(solid_phi.size()), nNode);
-            warned = true;
-        }
+    const bool lsOn = solid_mode != 0;
+    if (lsOn && solid_phi.size() != nNode) {
+        // Refuse rather than simulate without the solid: a .npy of the wrong
+        // dtype, for one, arrives here as an empty array. The error goes to
+        // the graph's own channel (the runtime services) and to stderr, the
+        // outputs stay empty and iterations_used reads -1.
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: solid_phi holds {} values, not the {} grid nodes "
+                          "of {}x{}x{}: one float32 per node, (nx+1)(ny+1)(nz+1); "
+                          "nothing simulated"_amt,
+                          static_cast<size_t>(solid_phi.size()), nNode, NX, NY, NZ);
+        std::fprintf(stderr, "step_3d: error: solid_phi holds %zu values, not the %zu grid "
+                             "nodes of %dx%dx%d: one float32 per node, (nx+1)(ny+1)(nz+1); "
+                             "nothing simulated\n",
+                     static_cast<size_t>(solid_phi.size()), nNode, NX, NY, NZ);
+        std::fflush(stderr);
+        out_positions = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        out_velocities = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        out_pos_synced = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        for (auto* o : {&out_mass, &out_mom_x, &out_mom_y, &out_mom_z, &out_u, &out_v,
+                        &out_w, &pressure, &out_escaped, &tau_out, &scale_out,
+                        &out_phase_state, &out_wt, &out_wtph})
+            *o = Amino::newClassPtr<Amino::Array<float>>();
+        mask_fine = Amino::newClassPtr<Amino::Array<bool>>();
+        mask_coarse = Amino::newClassPtr<Amino::Array<bool>>();
+        iterations_used = -1;
+        final_residual = max_divergence_after = max_speed = 0.0f;
+        return;
     }
     const bool lsCut = lsOn && solid_mode == 2;
     Vec openU, openV, openW;
