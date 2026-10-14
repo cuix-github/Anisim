@@ -28,7 +28,10 @@ def main():
     sim = Sim(NX, NY, escape=True, obstacles=[BOX])
     sim.seed(mask)
     sim.calibrate()
-    for _ in range(75):     # t = 1.5: bore at the block, splash in progress
+    # t = 4.5 s: the bore reaches the block at about 4 s and overtops it from 5 s
+    # (until 2026-10-13 this step was at 1.5 s, with the bore still at x ~ 60, so the
+    # lockstep never pushed a particle out of the block)
+    for _ in range(225):
         sim.step(DT)
     ch = {k: v.astype(np.float32) for k, v in channels(sim).items()}
 

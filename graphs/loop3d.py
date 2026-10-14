@@ -51,12 +51,15 @@ def load_final_state(d):
 def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
                  extra_ports=None, seed_fn=None, obstacles=None, fused=False,
                  dump_every=1, init_arrays=None, final_state=False, step_offset=0,
-                 dumps=DUMPS):
+                 dumps=DUMPS, solid=None):
     """init_arrays resumes from a saved state instead of seeding; final_state also
     writes the whole state at the end (final_<name>.npy beside final.npy); a
     resumed run passes step_offset = substeps already run, so the ST jitter
     continues its stream rather than restarting it. dumps names the
-    per-substep dumps written beside frame.#### (<name>.####)."""
+    per-substep dumps written beside frame.#### (<name>.####). solid is a
+    level-set solid, (distance at the (nx+1, ny+1, nz+1) grid nodes, negative
+    inside; solid_mode 1 binary faces or 2 cut cells); seeding stays the
+    caller's (seed_fn), so particles inside it are the caller's to drop."""
     d = os.path.join(HERE, "..", "out", "loop3_" + tag)
     os.makedirs(d, exist_ok=True)
     if init_arrays is not None:
@@ -77,7 +80,13 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
             "obs_max": (obstacles[1].astype(np.float32) if obstacles is not None and len(obstacles[1])
                         else np.array([[-99.0, -99.0, -99.0]], np.float32)),
             "probes_u": lattice(nx + 1, ny, nz), "probes_v": lattice(nx, ny + 1, nz),
-            "probes_w": lattice(nx, ny, nz + 1)}
+            "probes_w": lattice(nx, ny, nz + 1),
+            # no solid: one value, which the node ignores at solid_mode 0
+            "solid_phi": (np.asarray(solid[0], np.float32).ravel() if solid is not None
+                          else np.ones(1, np.float32))}
+    if solid is not None:
+        assert np.shape(solid[0]) == (nx + 1, ny + 1, nz + 1), np.shape(solid[0])
+        extra_ports = dict(extra_ports or {}, solid_mode=int(solid[1]))
     if init_arrays is not None:
         for k2 in ("velocities", "mass", "momx", "momy", "momz", "tau", "wt", "wtph",
                    "scale", "phase_st"):

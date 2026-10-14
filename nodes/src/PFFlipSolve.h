@@ -82,11 +82,19 @@ void step_2d(int   nx,
 // leftover), and iterations_used then counts both solves. 0 (the default) is
 // the uniform solve, untouched; the preconditioner port then applies, and the
 // uniform solve also stands in whenever obstacles reach the domain.
+// Solids: obstacles_min/max are axis-aligned boxes. solid_phi is any solid as
+// its signed distance at the grid nodes, in cells, negative inside (a mesh
+// collider, through mesh_to_level_set and one sample at the nodes);
+// solid_mode 0 ignores it, 1 closes a face whose centre the solid covers (the
+// boxes' rule), 2 weights each face by its open area (cut cells, Batty,
+// Bertails and Bridson 2007). Particles inside are pushed out along the
+// field's gradient (PFFlipSolids.h). Both kinds keep the uniform solve.
 // Flat layouts, row-major like numpy ravel() on (nx[+1], ny[+1], nz[+1]):
 //   u: (nx+1)*ny*nz   index (i*ny + j)*nz + k
 //   v: nx*(ny+1)*nz   index (i*(ny+1) + j)*nz + k
 //   w: nx*ny*(nz+1)   index (i*ny + j)*(nz+1) + k
 //   p: nx*ny*nz       index (i*ny + j)*nz + k
+//   solid_phi: (nx+1)*(ny+1)*(nz+1)   index (i*(ny+1) + j)*(nz+1) + k
 PF_FLIP_SPIKE_DECL
 void step_3d(int   nx,
              int   ny,
@@ -118,6 +126,8 @@ void step_3d(int   nx,
              const Amino::Array<float>& scale_in,
              const Amino::Array<Bifrost::Math::float3>& obstacles_min,
              const Amino::Array<Bifrost::Math::float3>& obstacles_max,
+             int   solid_mode,
+             const Amino::Array<float>& solid_phi,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt,
              const Amino::Array<float>& v_wt,
