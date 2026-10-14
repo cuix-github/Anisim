@@ -121,7 +121,8 @@ audit failure after saving their receipts, even when the identity comparison
 passes. This remains a separate rendering/collision follow-up; neither the
 coordinates nor the acceptance condition were altered for this PR.
 
-[`threading_sidebyside.mp4`](threading_sidebyside.mp4) plays those original
+The side-by-side video (`threading_sidebyside.mp4`, rendered by the last
+command below and kept locally, since videos stay out of the repo) plays those original
 display positions without hiding the defect and labels it throughout. The
 panels advance at equal simulation time; their compute clocks use each run's
 measured average step cost with startup excluded. They are not literal
@@ -175,5 +176,5 @@ clamp in, the audit both builds failed above now passes: 0 display
 penetrations across all 167 frames, solver penetrations still 0, volumes
 still exact, and serial-vs-32-worker outputs still bit-identical (1,014
 arrays). Demo timing at this scale: 181.0 s serial vs 53.6 s with 32
-workers for the 167-substep run. The committed video was re-rendered from
+workers for the 167-substep run. The side-by-side video was re-rendered from
 this scene.

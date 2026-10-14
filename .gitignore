@@ -3,8 +3,12 @@
 build/
 out/
 
-# Rendered frame sequences and their state caches: only the encoded videos
-# are committed. Full paths on purpose - a pattern containing a slash is
+# Simulation footage stays local: videos are rendered into results/ folders by
+# the demos and gates but never committed (rule set 2026-10-13).
+*.mp4
+
+# Rendered frame sequences and their state caches. Full paths on purpose - a
+# pattern containing a slash is
 # anchored to this file's folder, so the bare "results/..." form silently
 # matched nothing (the bug Aniso carried for these folders).
 reference2d/results/droplet_frames/
