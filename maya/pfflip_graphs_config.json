@@ -14,7 +14,8 @@
                 {
                     "path": "../graphs",
                     "files": [
-                        "phase_field_probe.json"
+                        "phase_field_probe.json",
+                        "collider_field.json"
                     ]
                 }
             ]
