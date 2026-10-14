@@ -1,0 +1,1374 @@
+{
+ "header": {
+  "metadata": [
+   {
+    "metaName": "adskFileFormatVersion",
+    "metaValue": "100L"
+   }
+  ]
+ },
+ "namespaces": [],
+ "types": [],
+ "compounds": [
+  {
+   "name": "User::PFFlip::collider_setup",
+   "ports": [
+    {
+     "portName": "use_b",
+     "portDirection": "input",
+     "portType": "bool",
+     "portDefault": "false"
+    },
+    {
+     "portName": "detail_size",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "offset",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "thickening",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "min_hole_radius",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "nx",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "32"
+    },
+    {
+     "portName": "ny",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "32"
+    },
+    {
+     "portName": "nz",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "32"
+    },
+    {
+     "portName": "cell_size",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "origin_x",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "origin_y",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "origin_z",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "path_solid_phi",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_positions",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "ok_positions",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "node_count",
+     "portDirection": "output",
+     "portType": "long"
+    },
+    {
+     "portName": "path_points",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_face_vertex",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_face_offset",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_points_b",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_face_vertex_b",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_face_offset_b",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    }
+   ],
+   "compounds": [
+    {
+     "name": "collider_field",
+     "ports": [
+      {
+       "portName": "colliders",
+       "portDirection": "input",
+       "portType": "array<Object>"
+      },
+      {
+       "portName": "nx",
+       "portDirection": "input",
+       "portType": "int",
+       "portDefault": "32"
+      },
+      {
+       "portName": "ny",
+       "portDirection": "input",
+       "portType": "int",
+       "portDefault": "32"
+      },
+      {
+       "portName": "nz",
+       "portDirection": "input",
+       "portType": "int",
+       "portDefault": "32"
+      },
+      {
+       "portName": "cell_size",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "1f"
+      },
+      {
+       "portName": "origin",
+       "portDirection": "input",
+       "portType": "Math::float3",
+       "portDefault": {
+        "x": "0f",
+        "y": "0f",
+        "z": "0f"
+       }
+      },
+      {
+       "portName": "solid_phi",
+       "portDirection": "output",
+       "portType": "array<float>"
+      },
+      {
+       "portName": "node_positions",
+       "portDirection": "output",
+       "portType": "array<Math::float3>"
+      },
+      {
+       "portName": "node_count",
+       "portDirection": "output",
+       "portType": "long"
+      }
+     ],
+     "compounds": [
+      {
+       "name": "per_collider",
+       "ports": [
+        {
+         "portName": "colliders",
+         "portDirection": "input",
+         "portType": "array<Object>"
+        },
+        {
+         "portName": "positions",
+         "portDirection": "input",
+         "portType": "array<Math::float3>"
+        },
+        {
+         "portName": "cell_size",
+         "portDirection": "input",
+         "portType": "float"
+        },
+        {
+         "portName": "phi_in",
+         "portDirection": "input",
+         "portType": "array<float>"
+        },
+        {
+         "portName": "phi_out",
+         "portDirection": "output",
+         "portType": "array<float>"
+        },
+        {
+         "portName": "iteration_limit",
+         "portDirection": "input",
+         "portType": "long",
+         "portIterationLimit": "true"
+        },
+        {
+         "portName": "current_index",
+         "portDirection": "input",
+         "portType": "long",
+         "portIterationCounter": "true"
+        }
+       ],
+       "compounds": [],
+       "compoundNodes": [
+        {
+         "nodeName": "col",
+         "nodeType": "Core::Array::get_from_array"
+        },
+        {
+         "nodeName": "obj_t",
+         "valueType": "Object"
+        },
+        {
+         "nodeName": "rmode_t",
+         "valueType": "Geometry::Volume::ResolutionType"
+        },
+        {
+         "nodeName": "vmode_t",
+         "valueType": "Geometry::Converters::VolumeMode"
+        },
+        {
+         "nodeName": "geo_arr",
+         "nodeType": "Core::Array::build_array",
+         "multiInPortNames": [
+          "g"
+         ]
+        },
+        {
+         "nodeName": "vscale",
+         "nodeType": "Geometry::Volume::compute_voxel_scale"
+        },
+        {
+         "nodeName": "detail",
+         "nodeType": "Core::Math::multiply",
+         "multiInPortNames": [
+          "a",
+          "b"
+         ]
+        },
+        {
+         "nodeName": "m2v",
+         "nodeType": "Geometry::Converters::mesh_to_volume"
+        },
+        {
+         "nodeName": "samp",
+         "nodeType": "Geometry::Query::sample_volume"
+        },
+        {
+         "nodeName": "far",
+         "valueType": "float"
+        },
+        {
+         "nodeName": "cells",
+         "nodeType": "Core::Math::divide",
+         "multiInPortNames": [
+          "a",
+          "b"
+         ]
+        },
+        {
+         "nodeName": "mn",
+         "nodeType": "Core::Math::min",
+         "multiInPortNames": [
+          "a",
+          "b"
+         ]
+        },
+        {
+         "nodeName": "sel",
+         "nodeType": "Core::Logic::if"
+        },
+        {
+         "nodeName": "p_geo",
+         "nodeType": "Core::Object::get_property"
+        },
+        {
+         "nodeName": "p_det",
+         "nodeType": "Core::Object::get_property"
+        },
+        {
+         "nodeName": "p_rmode",
+         "nodeType": "Core::Object::get_property"
+        },
+        {
+         "nodeName": "p_off",
+         "nodeType": "Core::Object::get_property"
+        },
+        {
+         "nodeName": "p_thick",
+         "nodeType": "Core::Object::get_property"
+        },
+        {
+         "nodeName": "p_vmode",
+         "nodeType": "Core::Object::get_property"
+        },
+        {
+         "nodeName": "p_hole",
+         "nodeType": "Core::Object::get_property"
+        },
+        {
+         "nodeName": "p_en",
+         "nodeType": "Core::Object::get_property"
+        }
+       ],
+       "connections": [
+        {
+         "source": ".colliders",
+         "target": "col.array"
+        },
+        {
+         "source": ".current_index",
+         "target": "col.index"
+        },
+        {
+         "source": "col.value",
+         "target": "p_geo.object"
+        },
+        {
+         "source": "obj_t.output",
+         "target": "p_geo.default_and_type"
+        },
+        {
+         "source": "col.value",
+         "target": "p_det.object"
+        },
+        {
+         "source": "col.value",
+         "target": "p_rmode.object"
+        },
+        {
+         "source": "rmode_t.output",
+         "target": "p_rmode.default_and_type"
+        },
+        {
+         "source": "col.value",
+         "target": "p_off.object"
+        },
+        {
+         "source": "col.value",
+         "target": "p_thick.object"
+        },
+        {
+         "source": "col.value",
+         "target": "p_vmode.object"
+        },
+        {
+         "source": "vmode_t.output",
+         "target": "p_vmode.default_and_type"
+        },
+        {
+         "source": "col.value",
+         "target": "p_hole.object"
+        },
+        {
+         "source": "col.value",
+         "target": "p_en.object"
+        },
+        {
+         "source": "p_geo.value",
+         "target": "geo_arr.first.g"
+        },
+        {
+         "source": "geo_arr.array",
+         "target": "vscale.geo"
+        },
+        {
+         "source": "p_rmode.value",
+         "target": "vscale.method"
+        },
+        {
+         "source": "p_det.value",
+         "target": "detail.first.a"
+        },
+        {
+         "source": "vscale.voxel_scale",
+         "target": "detail.first.b"
+        },
+        {
+         "source": "p_geo.value",
+         "target": "m2v.mesh"
+        },
+        {
+         "source": "detail.output",
+         "target": "m2v.detail_size"
+        },
+        {
+         "source": "p_off.value",
+         "target": "m2v.offset"
+        },
+        {
+         "source": "p_thick.value",
+         "target": "m2v.thickening"
+        },
+        {
+         "source": "p_vmode.value",
+         "target": "m2v.volume_mode"
+        },
+        {
+         "source": "p_hole.value",
+         "target": "m2v.min_hole_radius"
+        },
+        {
+         "source": "m2v.volume",
+         "target": "samp.volume"
+        },
+        {
+         "source": ".positions",
+         "target": "samp.positions"
+        },
+        {
+         "source": "far.output",
+         "target": "samp.default"
+        },
+        {
+         "source": "samp.sampled_data",
+         "target": "cells.first.a"
+        },
+        {
+         "source": ".cell_size",
+         "target": "cells.first.b"
+        },
+        {
+         "source": ".phi_in",
+         "target": "mn.first.a"
+        },
+        {
+         "source": "cells.output",
+         "target": "mn.first.b"
+        },
+        {
+         "source": "p_en.value",
+         "target": "sel.condition"
+        },
+        {
+         "source": "mn.minimum",
+         "target": "sel.true_case"
+        },
+        {
+         "source": ".phi_in",
+         "target": "sel.false_case"
+        },
+        {
+         "source": "sel.output",
+         "target": ".phi_out"
+        }
+       ],
+       "values": [
+        {
+         "valueName": "obj_t.value",
+         "valueType": "Object",
+         "value": {}
+        },
+        {
+         "valueName": "rmode_t.value",
+         "valueType": "Geometry::Volume::ResolutionType",
+         "value": "Absolute"
+        },
+        {
+         "valueName": "vmode_t.value",
+         "valueType": "Geometry::Converters::VolumeMode",
+         "value": "Solid"
+        },
+        {
+         "valueName": "far.value",
+         "valueType": "float",
+         "value": "1000000000f"
+        },
+        {
+         "valueName": "m2v.store_level_set",
+         "valueType": "bool",
+         "value": "true"
+        },
+        {
+         "valueName": "m2v.store_fog_density",
+         "valueType": "bool",
+         "value": "false"
+        },
+        {
+         "valueName": "m2v.resolution_mode",
+         "valueType": "Geometry::Volume::ResolutionType",
+         "value": "Absolute"
+        },
+        {
+         "valueName": "m2v.properties",
+         "valueType": "string",
+         "value": ""
+        },
+        {
+         "valueName": "samp.property",
+         "valueType": "string",
+         "value": "voxel_signed_distance"
+        },
+        {
+         "valueName": "samp.sampler",
+         "valueType": "Geometry::Query::SamplerType",
+         "value": "kLinear"
+        },
+        {
+         "valueName": "p_geo.key",
+         "valueType": "string",
+         "value": "geo"
+        },
+        {
+         "valueName": "p_det.key",
+         "valueType": "string",
+         "value": "geo_detail_size"
+        },
+        {
+         "valueName": "p_det.default_and_type",
+         "valueType": "float",
+         "value": "0.0500000007f"
+        },
+        {
+         "valueName": "p_rmode.key",
+         "valueType": "string",
+         "value": "resolution_mode"
+        },
+        {
+         "valueName": "p_off.key",
+         "valueType": "string",
+         "value": "volume_offset"
+        },
+        {
+         "valueName": "p_off.default_and_type",
+         "valueType": "float",
+         "value": "0f"
+        },
+        {
+         "valueName": "p_thick.key",
+         "valueType": "string",
+         "value": "volume_thickening"
+        },
+        {
+         "valueName": "p_thick.default_and_type",
+         "valueType": "float",
+         "value": "1f"
+        },
+        {
+         "valueName": "p_vmode.key",
+         "valueType": "string",
+         "value": "volume_mode"
+        },
+        {
+         "valueName": "p_hole.key",
+         "valueType": "string",
+         "value": "min_hole_radius"
+        },
+        {
+         "valueName": "p_hole.default_and_type",
+         "valueType": "float",
+         "value": "0f"
+        },
+        {
+         "valueName": "p_en.key",
+         "valueType": "string",
+         "value": "enable"
+        },
+        {
+         "valueName": "p_en.default_and_type",
+         "valueType": "bool",
+         "value": "true"
+        }
+       ],
+       "iterateCompound": {
+        "ports": [
+         {
+          "portKind": "state",
+          "inputPortName": "phi_in",
+          "outputPortName": "phi_out"
+         }
+        ]
+       }
+      }
+     ],
+     "compoundNodes": [
+      {
+       "nodeName": "one",
+       "valueType": "int"
+      },
+      {
+       "nodeName": "far",
+       "valueType": "float"
+      },
+      {
+       "nodeName": "far_arr",
+       "valueType": "array<float>"
+      },
+      {
+       "nodeName": "nx1",
+       "nodeType": "Core::Math::add",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "ny1",
+       "nodeType": "Core::Math::add",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "nz1",
+       "nodeType": "Core::Math::add",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "nyz",
+       "nodeType": "Core::Math::multiply",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "n",
+       "nodeType": "Core::Math::multiply",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "n_long",
+       "nodeType": "Core::Type_Conversion::to_long"
+      },
+      {
+       "nodeName": "filled",
+       "nodeType": "Core::Array::resize_array"
+      },
+      {
+       "nodeName": "idx",
+       "nodeType": "Core::Array::get_array_indices"
+      },
+      {
+       "nodeName": "nz1_l",
+       "nodeType": "Core::Type_Conversion::to_long"
+      },
+      {
+       "nodeName": "ny1_l",
+       "nodeType": "Core::Type_Conversion::to_long"
+      },
+      {
+       "nodeName": "nyz_l",
+       "nodeType": "Core::Type_Conversion::to_long"
+      },
+      {
+       "nodeName": "k",
+       "nodeType": "Core::Math::modulo"
+      },
+      {
+       "nodeName": "ij",
+       "nodeType": "Core::Math::divide",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "j",
+       "nodeType": "Core::Math::modulo"
+      },
+      {
+       "nodeName": "i",
+       "nodeType": "Core::Math::divide",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "i_f",
+       "nodeType": "Core::Type_Conversion::to_float"
+      },
+      {
+       "nodeName": "j_f",
+       "nodeType": "Core::Type_Conversion::to_float"
+      },
+      {
+       "nodeName": "k_f",
+       "nodeType": "Core::Type_Conversion::to_float"
+      },
+      {
+       "nodeName": "ijk",
+       "nodeType": "Core::Conversion::scalar_to_vector3"
+      },
+      {
+       "nodeName": "scaled",
+       "nodeType": "Core::Math::multiply",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "pos",
+       "nodeType": "Core::Math::add",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "count",
+       "nodeType": "Core::Array::array_size"
+      },
+      {
+       "nodeName": "each",
+       "nodeType": "per_collider"
+      }
+     ],
+     "connections": [
+      {
+       "source": ".nx",
+       "target": "nx1.first.a"
+      },
+      {
+       "source": "one.output",
+       "target": "nx1.first.b"
+      },
+      {
+       "source": ".ny",
+       "target": "ny1.first.a"
+      },
+      {
+       "source": "one.output",
+       "target": "ny1.first.b"
+      },
+      {
+       "source": ".nz",
+       "target": "nz1.first.a"
+      },
+      {
+       "source": "one.output",
+       "target": "nz1.first.b"
+      },
+      {
+       "source": "ny1.output",
+       "target": "nyz.first.a"
+      },
+      {
+       "source": "nz1.output",
+       "target": "nyz.first.b"
+      },
+      {
+       "source": "nx1.output",
+       "target": "n.first.a"
+      },
+      {
+       "source": "nyz.output",
+       "target": "n.first.b"
+      },
+      {
+       "source": "n.output",
+       "target": "n_long.from"
+      },
+      {
+       "source": "far_arr.output",
+       "target": "filled.array"
+      },
+      {
+       "source": "n_long.long",
+       "target": "filled.new_size"
+      },
+      {
+       "source": "far.output",
+       "target": "filled.default"
+      },
+      {
+       "source": "filled.resized",
+       "target": "idx.array"
+      },
+      {
+       "source": "nz1.output",
+       "target": "nz1_l.from"
+      },
+      {
+       "source": "ny1.output",
+       "target": "ny1_l.from"
+      },
+      {
+       "source": "nyz.output",
+       "target": "nyz_l.from"
+      },
+      {
+       "source": "idx.indices",
+       "target": "k.value"
+      },
+      {
+       "source": "nz1_l.long",
+       "target": "k.divisor"
+      },
+      {
+       "source": "idx.indices",
+       "target": "ij.first.a"
+      },
+      {
+       "source": "nz1_l.long",
+       "target": "ij.first.b"
+      },
+      {
+       "source": "ij.output",
+       "target": "j.value"
+      },
+      {
+       "source": "ny1_l.long",
+       "target": "j.divisor"
+      },
+      {
+       "source": "idx.indices",
+       "target": "i.first.a"
+      },
+      {
+       "source": "nyz_l.long",
+       "target": "i.first.b"
+      },
+      {
+       "source": "i.output",
+       "target": "i_f.from"
+      },
+      {
+       "source": "j.remainder",
+       "target": "j_f.from"
+      },
+      {
+       "source": "k.remainder",
+       "target": "k_f.from"
+      },
+      {
+       "source": "i_f.float",
+       "target": "ijk.x"
+      },
+      {
+       "source": "j_f.float",
+       "target": "ijk.y"
+      },
+      {
+       "source": "k_f.float",
+       "target": "ijk.z"
+      },
+      {
+       "source": "ijk.vector3",
+       "target": "scaled.first.a"
+      },
+      {
+       "source": ".cell_size",
+       "target": "scaled.first.b"
+      },
+      {
+       "source": "scaled.output",
+       "target": "pos.first.a"
+      },
+      {
+       "source": ".origin",
+       "target": "pos.first.b"
+      },
+      {
+       "source": "pos.output",
+       "target": ".node_positions"
+      },
+      {
+       "source": "n_long.long",
+       "target": ".node_count"
+      },
+      {
+       "source": ".colliders",
+       "target": "count.array"
+      },
+      {
+       "source": "count.size",
+       "target": "each.iteration_limit"
+      },
+      {
+       "source": ".colliders",
+       "target": "each.colliders"
+      },
+      {
+       "source": "pos.output",
+       "target": "each.positions"
+      },
+      {
+       "source": ".cell_size",
+       "target": "each.cell_size"
+      },
+      {
+       "source": "filled.resized",
+       "target": "each.phi_in"
+      },
+      {
+       "source": "each.phi_out",
+       "target": ".solid_phi"
+      }
+     ],
+     "values": [
+      {
+       "valueName": "one.value",
+       "valueType": "int",
+       "value": "1"
+      },
+      {
+       "valueName": "far.value",
+       "valueType": "float",
+       "value": "1000000000f"
+      },
+      {
+       "valueName": "far_arr.value",
+       "valueType": "array<float>",
+       "value": [
+        "1000000000f"
+       ]
+      }
+     ]
+    }
+   ],
+   "compoundNodes": [
+    {
+     "nodeName": "t_pos",
+     "valueType": "array<Math::float3>"
+    },
+    {
+     "nodeName": "t_long",
+     "valueType": "array<long>"
+    },
+    {
+     "nodeName": "obj_t",
+     "valueType": "Object"
+    },
+    {
+     "nodeName": "one_l",
+     "valueType": "long"
+    },
+    {
+     "nodeName": "two_l",
+     "valueType": "long"
+    },
+    {
+     "nodeName": "geos",
+     "nodeType": "Core::Array::build_array",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "n_geo",
+     "nodeType": "Core::Logic::if"
+    },
+    {
+     "nodeName": "geos_n",
+     "nodeType": "Core::Array::resize_array"
+    },
+    {
+     "nodeName": "collider",
+     "nodeType": "Simulation::Common::collider"
+    },
+    {
+     "nodeName": "field",
+     "nodeType": "collider_field"
+    },
+    {
+     "nodeName": "origin",
+     "nodeType": "Core::Conversion::scalar_to_vector3"
+    },
+    {
+     "nodeName": "w_phi",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "w_pos",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "r_pts",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "r_fv",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "r_fo",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "fv_u",
+     "nodeType": "Core::Type_Conversion::to_unsigned_int"
+    },
+    {
+     "nodeName": "fo_u",
+     "nodeType": "Core::Type_Conversion::to_unsigned_int"
+    },
+    {
+     "nodeName": "mesh",
+     "nodeType": "Geometry::Mesh::construct_mesh"
+    },
+    {
+     "nodeName": "r_pts_b",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "r_fv_b",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "r_fo_b",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "fv_u_b",
+     "nodeType": "Core::Type_Conversion::to_unsigned_int"
+    },
+    {
+     "nodeName": "fo_u_b",
+     "nodeType": "Core::Type_Conversion::to_unsigned_int"
+    },
+    {
+     "nodeName": "mesh_b",
+     "nodeType": "Geometry::Mesh::construct_mesh"
+    }
+   ],
+   "connections": [
+    {
+     "source": "mesh.mesh",
+     "target": "geos.first.a"
+    },
+    {
+     "source": "mesh_b.mesh",
+     "target": "geos.first.b"
+    },
+    {
+     "source": ".use_b",
+     "target": "n_geo.condition"
+    },
+    {
+     "source": "two_l.output",
+     "target": "n_geo.true_case"
+    },
+    {
+     "source": "one_l.output",
+     "target": "n_geo.false_case"
+    },
+    {
+     "source": "geos.array",
+     "target": "geos_n.array"
+    },
+    {
+     "source": "n_geo.output",
+     "target": "geos_n.new_size"
+    },
+    {
+     "source": "obj_t.output",
+     "target": "geos_n.default"
+    },
+    {
+     "source": "geos_n.resized",
+     "target": "collider.geometry"
+    },
+    {
+     "source": ".detail_size",
+     "target": "collider.detail_size"
+    },
+    {
+     "source": ".offset",
+     "target": "collider.offset"
+    },
+    {
+     "source": ".thickening",
+     "target": "collider.thickening"
+    },
+    {
+     "source": ".min_hole_radius",
+     "target": "collider.min_hole_radius"
+    },
+    {
+     "source": "collider.collider",
+     "target": "field.colliders"
+    },
+    {
+     "source": ".nx",
+     "target": "field.nx"
+    },
+    {
+     "source": ".ny",
+     "target": "field.ny"
+    },
+    {
+     "source": ".nz",
+     "target": "field.nz"
+    },
+    {
+     "source": ".cell_size",
+     "target": "field.cell_size"
+    },
+    {
+     "source": ".origin_x",
+     "target": "origin.x"
+    },
+    {
+     "source": ".origin_y",
+     "target": "origin.y"
+    },
+    {
+     "source": ".origin_z",
+     "target": "origin.z"
+    },
+    {
+     "source": "origin.vector3",
+     "target": "field.origin"
+    },
+    {
+     "source": "field.solid_phi",
+     "target": "w_phi.data"
+    },
+    {
+     "source": ".path_solid_phi",
+     "target": "w_phi.file_path"
+    },
+    {
+     "source": "w_phi.success",
+     "target": ".ok"
+    },
+    {
+     "source": "field.node_positions",
+     "target": "w_pos.data"
+    },
+    {
+     "source": ".path_positions",
+     "target": "w_pos.file_path"
+    },
+    {
+     "source": "w_pos.success",
+     "target": ".ok_positions"
+    },
+    {
+     "source": "field.node_count",
+     "target": ".node_count"
+    },
+    {
+     "source": "t_pos.output",
+     "target": "r_pts.type"
+    },
+    {
+     "source": "t_long.output",
+     "target": "r_fv.type"
+    },
+    {
+     "source": "t_long.output",
+     "target": "r_fo.type"
+    },
+    {
+     "source": ".path_points",
+     "target": "r_pts.file_path"
+    },
+    {
+     "source": ".path_face_vertex",
+     "target": "r_fv.file_path"
+    },
+    {
+     "source": ".path_face_offset",
+     "target": "r_fo.file_path"
+    },
+    {
+     "source": "r_fv.data",
+     "target": "fv_u.from"
+    },
+    {
+     "source": "r_fo.data",
+     "target": "fo_u.from"
+    },
+    {
+     "source": "r_pts.data",
+     "target": "mesh.point_position"
+    },
+    {
+     "source": "fv_u.unsigned_int",
+     "target": "mesh.face_vertex"
+    },
+    {
+     "source": "fo_u.unsigned_int",
+     "target": "mesh.face_offset"
+    },
+    {
+     "source": "t_pos.output",
+     "target": "r_pts_b.type"
+    },
+    {
+     "source": "t_long.output",
+     "target": "r_fv_b.type"
+    },
+    {
+     "source": "t_long.output",
+     "target": "r_fo_b.type"
+    },
+    {
+     "source": ".path_points_b",
+     "target": "r_pts_b.file_path"
+    },
+    {
+     "source": ".path_face_vertex_b",
+     "target": "r_fv_b.file_path"
+    },
+    {
+     "source": ".path_face_offset_b",
+     "target": "r_fo_b.file_path"
+    },
+    {
+     "source": "r_fv_b.data",
+     "target": "fv_u_b.from"
+    },
+    {
+     "source": "r_fo_b.data",
+     "target": "fo_u_b.from"
+    },
+    {
+     "source": "r_pts_b.data",
+     "target": "mesh_b.point_position"
+    },
+    {
+     "source": "fv_u_b.unsigned_int",
+     "target": "mesh_b.face_vertex"
+    },
+    {
+     "source": "fo_u_b.unsigned_int",
+     "target": "mesh_b.face_offset"
+    }
+   ],
+   "values": [
+    {
+     "valueName": "t_pos.value",
+     "valueType": "array<Math::float3>",
+     "value": [
+      {
+       "x": "0f",
+       "y": "0f",
+       "z": "0f"
+      }
+     ]
+    },
+    {
+     "valueName": "t_long.value",
+     "valueType": "array<long>",
+     "value": [
+      "0L"
+     ]
+    },
+    {
+     "valueName": "obj_t.value",
+     "valueType": "Object",
+     "value": {}
+    },
+    {
+     "valueName": "one_l.value",
+     "valueType": "long",
+     "value": "1L"
+    },
+    {
+     "valueName": "two_l.value",
+     "valueType": "long",
+     "value": "2L"
+    },
+    {
+     "valueName": "collider.resolution_mode",
+     "valueType": "Geometry::Volume::ResolutionType",
+     "value": "Absolute"
+    },
+    {
+     "valueName": "collider.geo_mode",
+     "valueType": "Geometry::Converters::VolumeMode",
+     "value": "Solid"
+    },
+    {
+     "valueName": "collider.enable",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_phi.enable",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_phi.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_phi.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_phi.frame",
+     "valueType": "long",
+     "value": "0L"
+    },
+    {
+     "valueName": "w_pos.enable",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_pos.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_pos.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_pos.frame",
+     "valueType": "long",
+     "value": "0L"
+    }
+   ]
+  }
+ ]
+}

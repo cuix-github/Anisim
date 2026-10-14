@@ -858,7 +858,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     std::vector<double> Px(np), Py(np), Pz(np), Vx(np), Vy(np), Vz(np);
     std::vector<double> Tau(np), Wt(np), Scl(np), Ph01(np);
     std::vector<char> Esc(np);
-#pragma omp parallel for schedule(dynamic, 1024)
+    // PFFLIP_SOLID_DEBUG=1 reports how many particles the level set pushed out
+    static const bool lsDebug = []() {
+        const char* e = std::getenv("PFFLIP_SOLID_DEBUG");
+        return e && e[0] == '1';
+    }();
+    long long lsPushed = 0;
+#pragma omp parallel for schedule(dynamic, 1024) reduction(+ : lsPushed)
     for (long long pi = 0; pi < lnp; ++pi) {
         double px = positions[pi].x, py = positions[pi].y, pz = positions[pi].z;
         double vx = nvx[pi], vy = nvy[pi], vz = nvz[pi];
@@ -918,14 +924,18 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 else { pz = m1.z + 0.01; vz = 0.0; }
             }
         }
-        if (lsOn)
-            Solids::pushOut(solid_phi, NX, NY, NZ, flat, px, py, pz, &vx, &vy, &vz);
+        if (lsOn && Solids::pushOut(solid_phi, NX, NY, NZ, flat, px, py, pz, &vx, &vy, &vz))
+            ++lsPushed;
         Px[pi] = px; Py[pi] = py; Pz[pi] = pz;
         Vx[pi] = vx; Vy[pi] = vy; Vz[pi] = vz;
         Tau[pi] = tauNew[pi]; Wt[pi] = wtNewV[pi];
         Scl[pi] = scaleOf(pi); Ph01[pi] = liquid ? 1.0 : 0.0;
         Esc[pi] = escFlag[pi];
     }
+
+    if (lsDebug)
+        std::fprintf(stderr, "step_3d: level set %s; pushed %lld of %zu particles out\n",
+                     lsOn ? "on" : "off", lsPushed, np);
 
     if (adOn && np > 0) {
         // fresh liquid-count field at the new positions, as the reference does.

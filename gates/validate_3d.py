@@ -50,6 +50,11 @@ def run_node(indir, outdir, extra_arrays=(), extra_outputs=(), **ports):
         if "Output port '" in line and "ok_" not in line:
             name = line.split("'")[1]
             stats[name] = float(line.rsplit(")", 1)[-1].strip())
+    for line in res.stderr.splitlines():
+        # with PFFLIP_SOLID_DEBUG=1 the node reports its level-set push-out
+        if line.startswith("step_3d: level set"):
+            stats["solid_on"] = " on;" in line
+            stats["pushed"] = int(line.split("pushed")[1].split()[0])
     if res.returncode != 0 or "iterations_used" not in stats:
         sys.stderr.write(res.stdout[-2500:] + res.stderr[-1500:])
         raise SystemExit("bifcmd step_3d failed")
