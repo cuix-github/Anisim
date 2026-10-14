@@ -7,12 +7,15 @@ node, collider_field) once, as solid_phi; the solver sees cut cells.
   ..\\.venv\\Scripts\\python.exe collider_showcase.py cost         # 8 substeps with and without the rocks
   ..\\.venv\\Scripts\\python.exe collider_showcase.py stage 0      # ... 1, 2, 3: ~65 min each
   ..\\.venv\\Scripts\\python.exe collider_showcase.py finalize     # verdict, video
+  ..\\.venv\\Scripts\\python.exe collider_showcase.py play         # Maya play cache from the kept states
   ..\\.venv\\Scripts\\python.exe collider_showcase.py night        # all of the above, in order
 
 The background runner caps a task at two hours, so the run goes in chunks that resume
 from full-state dumps (the bore suite's scheme), one launch each. Each chunk renders
-its frames to PNG and then deletes its particle dumps (about 160 MB a frame), keeping
-the resume state; the video and the numbers land in out/collider_showcase/. Checks:
+its frames to PNG and keeps everything it wrote: the particle dumps (about 240 MB a
+frame with velocities), the Maya play cache (about 70 MB a frame) and the resume
+state; nothing a run writes is deleted, so a run of 168 frames needs about 55 GB.
+The video and the numbers land in out/collider_showcase/. Checks:
 particles inside a boulder in any rendered frame, all and liquid, with the position
 and depth of each one found (the field itself is the judge), the run's peak speed,
 particle counts, honest clocks per chunk (startup included, labeled).
@@ -24,7 +27,6 @@ boulders cost nothing measurable (107.2 s against 107.18 s a substep without the
 """
 import json
 import os
-import shutil
 import subprocess
 import sys
 import time
@@ -37,8 +39,10 @@ sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(HERE, "..", "graphs"))
 sys.path.insert(0, os.path.join(HERE, "..", "gates"))
 sys.path.insert(0, os.path.join(HERE, "..", "reference2d"))
+sys.path.insert(0, os.path.join(HERE, "..", "maya"))
 from pfflip2d import Sim  # noqa: E402
-from loop3d import run_bifrost3, seed3d, load_final_state  # noqa: E402
+from loop3d import DUMPS, run_bifrost3, seed3d, load_final_state  # noqa: E402
+from play_cache import from_states, write_frame, write_index  # noqa: E402
 from colliders import rock_mesh, solid_phi_from_meshes  # noqa: E402
 from run_bore_suite import scene  # noqa: E402
 
@@ -182,6 +186,9 @@ def calibration():
 
 
 def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
+    """With render, every dumped frame also goes into the Maya play cache
+    (<tag>_play/: liquid positions and speeds, about 69 MB a frame at the finale
+    grid), which needs the particle velocities dumped too."""
     nx, ny, nz = grid
     mask, _, _, h1, h0, rx = scene(nx, ny, nz)
     phi = field(tag, nx, ny, nz) if with_rocks else None
@@ -199,9 +206,12 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
     d, typ, diag = run_bifrost3(f"{tag}_c{chunk}", nx, ny, nz, mask, substeps, DT,
                                 extra_ports=ports, seed_fn=seed, init_arrays=init,
                                 final_state=True, step_offset=chunk * substeps,
-                                dump_every=every, solid=(phi, 2) if phi is not None else None)
+                                dump_every=every, solid=(phi, 2) if phi is not None else None,
+                                dumps=DUMPS + (("vel",) if render else ()))
     wall = time.time() - t0
-    # audit and render every dumped frame, then drop the dumps (the state stays)
+    play_dir = os.path.join(OUT, f"{tag}_play")
+    play_liquid = []
+    # audit and render every dumped frame; the dumps stay, every one (the cache)
     frames_dir = os.path.join(OUT, f"{tag}_png")
     os.makedirs(frames_dir, exist_ok=True)
     view = View(nx, ny, nz, rocks(nx, ny, nz)) if (render and with_rocks) else None
@@ -220,20 +230,19 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
             offenders.append({"substep": chunk * substeps + k, "position": p[i].round(3).tolist(),
                               "depth_cells": round(float(-dist[i]), 4),
                               "liquid": bool(ph[i] >= 0.5)})
+        idx = (chunk * substeps + k) // every
         if view is not None:
-            idx = (chunk * substeps + k) // every
             view.frame(p, ph >= 0.5).save(os.path.join(frames_dir, f"fr{idx:04d}.png"))
-        for name in ("frame", "esc", "scl", "ph"):
-            f = os.path.join(d, f"{name}.{k:04d}.npy")
-            if os.path.exists(f):
-                os.remove(f)
+        if render:   # Maya frame idx + 1, the state after substep chunk * substeps + k
+            vel = np.load(os.path.join(d, f"vel.{k:04d}.npy"))
+            play_liquid.append(write_frame(play_dir, idx + 1, p, vel, ph))
     peaks = [float(diag[k][-1]) for k in range(substeps)]
     iters = [float(diag[k][0]) for k in range(substeps)]
     entry = {"chunk": chunk, "substeps": substeps, "wall_s": round(wall, 1),
              "wall_per_substep_s": round(wall / substeps, 2),
              "sim_time_s": [round(chunk * substeps * DT, 2), round((chunk + 1) * substeps * DT, 2)],
              "particles": counts, "inside_a_boulder": pens, "inside_a_boulder_liquid": pens_liquid,
-             "inside_particles": offenders, "peak_speed": max(peaks),
+             "inside_particles": offenders, "play_liquid": play_liquid, "peak_speed": max(peaks),
              "iterations_mean": round(float(np.mean(iters)), 1), "with_rocks": with_rocks}
     os.makedirs(OUT, exist_ok=True)
     with open(os.path.join(OUT, f"{tag}_c{chunk}.json"), "w") as f:
@@ -266,10 +275,39 @@ def finalize(tag, n_chunks):
                "particles_start_end": [chunks[0]["particles"][0], chunks[-1]["particles"][-1]],
                "iterations_mean": [c["iterations_mean"] for c in chunks],
                "video": os.path.basename(video), "frames": len(os.listdir(frames_dir))}
+    play = [n for c in chunks for n in c.get("play_liquid", [])]
+    if play:   # Maya frame f shows the state after substep (f - 1) * dump_every
+        every = chunks[0]["substeps"] // len(chunks[0]["play_liquid"])
+        write_index(os.path.join(OUT, f"{tag}_play"), play, dt_frame_s=round(every * DT, 4),
+                    time_s_first=round(DT, 4), source=tag)
+        summary["play_frames"] = len(play)
     with open(os.path.join(OUT, f"{tag}_summary.json"), "w") as f:
         json.dump(summary, f, indent=1)
     print(json.dumps(summary, indent=1), flush=True)
     print("FINALIZED", tag, flush=True)
+
+
+def write_obj(path, meshes):
+    """Closed meshes (points, face vertices, face offsets) as one Wavefront OBJ."""
+    with open(path, "w") as f:
+        base = 1
+        for k, (pts, fv, fo) in enumerate(meshes):
+            f.write(f"o boulder{k + 1}\n")
+            f.writelines(f"v {x:.5f} {y:.5f} {z:.5f}\n" for x, y, z in pts)
+            for a, b in zip(fo[:-1], fo[1:]):
+                f.write("f " + " ".join(str(base + int(v)) for v in fv[a:b]) + "\n")
+            base += len(pts)
+
+
+def play_states():
+    """A Maya play cache from the run's kept states (each chunk's end, 5 s apart),
+    plus the boulders as an OBJ: something to orbit before a rerun keeps every frame."""
+    grid, sub, n, _ = FULL
+    dirs = [os.path.join(HERE, "..", "out", f"loop3_boulders_c{c}") for c in range(n)]
+    counts = from_states(os.path.join(OUT, "play_states"), dirs,
+                         times=[round((c + 1) * sub * DT, 2) for c in range(n)])
+    write_obj(os.path.join(OUT, "boulders.obj"), rocks(*grid))
+    print("play_states:", counts, "liquid particles; boulders.obj written", flush=True)
 
 
 def cost(grid, substeps=8):
@@ -278,12 +316,8 @@ def cost(grid, substeps=8):
     res = {}
     for with_rocks in (False, True):
         tag = "cost_rocks" if with_rocks else "cost_plain"
-        for f in os.listdir(OUT) if os.path.exists(OUT) else []:
-            if f.startswith(tag):
-                os.remove(os.path.join(OUT, f))
         e = run_chunk(tag, grid, substeps, 0, 1, with_rocks=with_rocks, render=False)
         res[tag] = e["wall_per_substep_s"]
-        shutil.rmtree(os.path.join(HERE, "..", "out", f"loop3_{tag}_c0"), ignore_errors=True)
     res["ratio"] = round(res["cost_rocks"] / res["cost_plain"], 3)
     with open(os.path.join(OUT, "cost.json"), "w") as f:
         json.dump(dict(res, grid=grid, substeps=substeps), f, indent=1)
@@ -305,6 +339,8 @@ def main():
         run_chunk("boulders", grid, sub, int(sys.argv[2]), every)
     elif cmd == "finalize":
         finalize("boulders", FULL[2])
+    elif cmd == "play":
+        play_states()
     elif cmd == "night":
         grid, sub, n, every = FULL
         for c in range(n):
