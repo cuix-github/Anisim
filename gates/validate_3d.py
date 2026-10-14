@@ -50,14 +50,21 @@ def run_node(indir, outdir, extra_arrays=(), extra_outputs=(), **ports):
         if "Output port '" in line and "ok_" not in line:
             name = line.split("'")[1]
             stats[name] = float(line.rsplit(")", 1)[-1].strip())
+    errors = []
     for line in res.stderr.splitlines():
         # with PFFLIP_SOLID_DEBUG=1 the node reports its level-set push-out
         if line.startswith("step_3d: level set"):
             stats["solid_on"] = " on;" in line
             stats["pushed"] = int(line.split("pushed")[1].split()[0])
+        elif line.startswith("step_3d: error:"):
+            errors.append(line)
     if res.returncode != 0 or "iterations_used" not in stats:
         sys.stderr.write(res.stdout[-2500:] + res.stderr[-1500:])
         raise SystemExit("bifcmd step_3d failed")
+    # the node refuses bad inputs (a solid_phi of the wrong size or dtype) with
+    # iterations_used = -1 and empty outputs
+    if stats["iterations_used"] < 0:
+        raise SystemExit("step_3d refused its inputs: " + (errors[0] if errors else "see stderr"))
     return stats
 
 

@@ -27,6 +27,7 @@
 
 #include <Amino/Core/Array.h>
 #include <Amino/Core/Ptr.h>
+#include <Amino/Core/RuntimeServices.h>
 #include <Amino/Core/String.h>
 #include <Amino/Cpp/Annotate.h>
 #include <Bifrost/Math/Types.h>
@@ -89,6 +90,11 @@ void step_2d(int   nx,
 // boxes' rule), 2 weights each face by its open area (cut cells, Batty,
 // Bertails and Bridson 2007). Particles inside are pushed out along the
 // field's gradient (PFFlipSolids.h). Both kinds keep the uniform solve.
+// With solid_mode on, a field that is not one float per grid node (the wrong
+// grid, or a .npy of the wrong dtype, which read_NumPy delivers empty) is an
+// error: the node reports it through the runtime services (the graph's own
+// error channel, and stderr under bifcmd), returns empty arrays and sets
+// iterations_used to -1, rather than simulating without the solid.
 // Flat layouts, row-major like numpy ravel() on (nx[+1], ny[+1], nz[+1]):
 //   u: (nx+1)*ny*nz   index (i*ny + j)*nz + k
 //   v: nx*(ny+1)*nz   index (i*(ny+1) + j)*nz + k
@@ -184,7 +190,8 @@ void step_3d(int   nx,
              int&   iterations_used,
              float& final_residual,
              float& max_divergence_after,
-             float& max_speed)
+             float& max_speed,
+             const Amino::RuntimeServices& services)
     AMINO_ANNOTATE("Amino::Node");
 
 // Fused P2G (milestone 7 prep): one pass over the particles scatters every
