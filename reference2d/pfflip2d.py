@@ -26,7 +26,8 @@ from PIL import Image
 class Sim:
     def __init__(self, nx, ny, rho_l=1000.0, rho_g=1.0, alpha_l=0.97, alpha_g=0.9, g=-9.8,
                  escape=False, esc_phi=0.3, drag_droplet=1.0, drag_bubble=8.0, buoyancy=2.0,
-                 st=False, sub_advect=False, adapt=False, obstacles=None):
+                 st=False, sub_advect=False, adapt=False, obstacles=None,
+                 solid_phi=None, solid_cut=False, solid_support=True):
         self.nx, self.ny, self.dx = nx, ny, 1.0
         self.rho_l, self.rho_g = rho_l, rho_g
         self.alpha = {1: alpha_l, 0: alpha_g}
@@ -60,6 +61,23 @@ class Sim:
         # particles that end up inside are pushed out along the axis of least
         # penetration, losing that velocity component, exactly like the outer walls.
         self.obstacles = [tuple(map(float, o)) for o in (obstacles or [])]
+        # Solids from a signed distance field, a mesh collider voxelized to a level
+        # set: solid_phi holds the distance at the grid nodes (cell corners, shape
+        # (nx+1, ny+1)) in cells, negative inside. Binary faces close when the solid
+        # covers their midpoint, the boxes' rule (phi taken linear along a face, so the
+        # midpoint value is the mean of its two ends). With solid_cut a face is weighted
+        # by its open fraction instead, the variational cut-cell treatment of Batty,
+        # Bertails and Bridson (2007): a slope is a slope, not a staircase. Particles
+        # that end up inside move out along the field's gradient and lose their normal
+        # velocity, as the boxes' least-penetration push does. solid_support reads each
+        # face's phase against the share of its splat reach outside the solid (below).
+        self.solid_phi = None if solid_phi is None else np.asarray(solid_phi, np.float64)
+        if self.solid_phi is not None:
+            assert self.solid_phi.shape == (nx + 1, ny + 1), self.solid_phi.shape
+        self.solid_cut = bool(solid_cut)
+        self._open = None
+        self.solid_support = bool(solid_support)
+        self._support = None
         self.st_rng = np.random.default_rng(7)
         self.tau = np.zeros(0)
         self.u = np.zeros((nx + 1, ny))   # x-velocity on vertical faces
@@ -82,7 +100,7 @@ class Sim:
             ts.append(liquid_mask(p[:, 0], p[:, 1]).astype(np.int32))
         self.pos = np.concatenate(ps)
         self.typ = np.concatenate(ts)
-        if self.obstacles:
+        if self.has_solids:
             keep = ~self._inside_solid(self.pos)
             self.pos, self.typ = self.pos[keep], self.typ[keep]
         self.vel = np.zeros_like(self.pos)
@@ -165,12 +183,76 @@ class Sim:
             self.v = np.where(mv > 0, pv / np.maximum(mv, 1e-300), 0.0)
         self._enforce_walls()
 
+    @property
+    def has_solids(self):
+        return bool(self.obstacles) or self.solid_phi is not None
+
     def _inside_solid(self, pts):
         inside = np.zeros(len(pts), dtype=bool)
         for x0, y0, x1, y1 in self.obstacles:
             inside |= ((pts[:, 0] > x0) & (pts[:, 0] < x1) &
                        (pts[:, 1] > y0) & (pts[:, 1] < y1))
+        if self.solid_phi is not None:
+            inside |= self._phi_at(pts)[0] < 0.0
         return inside
+
+    def _phi_at(self, pts):
+        """The solid's signed distance at points, bilinear over the nodes, and its gradient."""
+        P = self.solid_phi
+        q = np.clip(pts, 0.0, [self.nx, self.ny])
+        b = np.minimum(np.floor(q).astype(np.int64), [self.nx - 1, self.ny - 1])
+        fx, fy = (q - b)[:, 0], (q - b)[:, 1]
+        i, j = b[:, 0], b[:, 1]
+        p00, p10, p01, p11 = P[i, j], P[i + 1, j], P[i, j + 1], P[i + 1, j + 1]
+        phi = ((1 - fx) * (1 - fy) * p00 + fx * (1 - fy) * p10 +
+               (1 - fx) * fy * p01 + fx * fy * p11)
+        gx = (1 - fy) * (p10 - p00) + fy * (p11 - p01)
+        gy = (1 - fx) * (p01 - p00) + fx * (p11 - p10)
+        return phi, np.stack([gx, gy], 1)
+
+    @staticmethod
+    def _open_fraction(a, b):
+        """The part of a face where the solid's distance is positive, the distance
+        linear between the face's two ends a and b."""
+        with np.errstate(divide="ignore", invalid="ignore"):
+            t = a / (a - b)                  # the zero crossing, measured from a
+        return np.where((a > 0) & (b > 0), 1.0,
+                        np.where((a <= 0) & (b <= 0), 0.0, np.where(a > 0, t, 1.0 - t)))
+
+    def _solid_support_share(self):
+        """Per-face share of the splat kernel's reach that lies outside the level-set
+        solid (1 away from it): a fine all-liquid probe of the domain, splatted with and
+        without the solid's interior, as calibrate() measures a full face. The phase
+        reads a face's mass against this share, so a face beside the solid is not taken
+        for air because the solid holds no particles."""
+        if self._support is None:
+            k = 6
+            pts = np.stack(np.meshgrid((np.arange(self.nx * k) + 0.5) / k,
+                                       (np.arange(self.ny * k) + 0.5) / k,
+                                       indexing="ij"), -1).reshape(-1, 2)
+            keep = (self._phi_at(pts)[0] > 0.0).astype(float)
+            out = []
+            for shape, off in ((self.u.shape, (0.0, 0.5)), (self.v.shape, (0.5, 0.0))):
+                q = pts - np.array(off)
+                base = np.floor(q + 0.5).astype(np.int64)
+                acc = [np.zeros(shape), np.zeros(shape)]
+                self._splat_group(acc, shape, (base, q - base), [np.ones(len(pts)), keep], 1.0)
+                out.append(np.where(acc[0] > 0, acc[1] / np.maximum(acc[0], 1e-300), 1.0))
+            self._support = tuple(out)
+        return self._support
+
+    def _solid_open(self):
+        """Open fraction of every u and v face against the level-set solid (1 = open)."""
+        if self._open is None:
+            P = self.solid_phi
+            a_u, b_u = P[:, :-1], P[:, 1:]    # u face (i, j): nodes (i, j) and (i, j+1)
+            a_v, b_v = P[:-1, :], P[1:, :]    # v face (i, j): nodes (i, j) and (i+1, j)
+            if self.solid_cut:
+                self._open = (self._open_fraction(a_u, b_u), self._open_fraction(a_v, b_v))
+            else:
+                self._open = ((0.5 * (a_u + b_u) > 0).astype(float),
+                              (0.5 * (a_v + b_v) > 0).astype(float))
+        return self._open
 
     def _solid_face_masks(self):
         iu, ju = np.meshgrid(np.arange(self.nx + 1), np.arange(self.ny) + 0.5,
@@ -182,6 +264,10 @@ class Sim:
         for x0, y0, x1, y1 in self.obstacles:
             mu |= (iu >= x0) & (iu <= x1) & (ju >= y0) & (ju <= y1)
             mv |= (iv >= x0) & (iv <= x1) & (jv >= y0) & (jv <= y1)
+        if self.solid_phi is not None:
+            wu, wv = self._solid_open()
+            mu |= wu <= 0.0
+            mv |= wv <= 0.0
         return mu, mv
 
     def _push_out(self):
@@ -200,11 +286,29 @@ class Sim:
             vz[side <= 1, 0] = 0.0
             vz[side >= 2, 1] = 0.0
             self.vel[inside] = vz
+        if self.solid_phi is not None:
+            for _ in range(3):
+                phi, grad = self._phi_at(self.pos)
+                inside = phi < 0.0
+                if not inside.any():
+                    break
+                g = grad[inside]
+                g2 = np.maximum((g * g).sum(1), 1e-12)
+                n = g / np.sqrt(g2)[:, None]
+                # a Newton step to phi = +0.01: one unit step on a true distance field,
+                # longer where the bilinear field is no distance (in a corner cell its
+                # slope can be a tenth of one), at most 1.5 cells
+                step = -(phi[inside] - 0.01)[:, None] * g / g2[:, None]
+                ln = np.linalg.norm(step, axis=1)
+                self.pos[inside] += step * np.minimum(1.0, 1.5 / np.maximum(ln, 1e-12))[:, None]
+                vz = self.vel[inside]
+                vz -= (vz * n).sum(1)[:, None] * n
+                self.vel[inside] = vz
 
     def _enforce_walls(self):
         self.u[0, :] = self.u[-1, :] = 0.0
         self.v[:, 0] = self.v[:, -1] = 0.0
-        if self.obstacles:
+        if self.has_solids:
             mu, mv = self._solid_face_masks()
             self.u[mu] = 0.0
             self.v[mv] = 0.0
@@ -253,30 +357,44 @@ class Sim:
             self.coarse_gain = float(np.mean(acc)) / self.rho_l / max(raw2, 1e-9)
 
     def project(self, dt, tol=1e-6, max_iter=4000):
-        phi_u = self.phase(self.mu)
-        phi_v = self.phase(self.mv)
+        if self.solid_phi is not None and self.solid_support:
+            su, sv = self._solid_support_share()
+            phi_u = self.phase(self.mu / np.maximum(su, 0.1))
+            phi_v = self.phase(self.mv / np.maximum(sv, 0.1))
+        else:
+            phi_u = self.phase(self.mu)
+            phi_v = self.phase(self.mv)
         rho_u = self.rho_g + (self.rho_l - self.rho_g) * phi_u
         rho_v = self.rho_g + (self.rho_l - self.rho_g) * phi_v
         bu = 1.0 / rho_u
         bv = 1.0 / rho_v
         bu[0, :] = bu[-1, :] = 0.0     # closed walls
         bv[:, 0] = bv[:, -1] = 0.0
-        if self.obstacles:
+        if self.has_solids:
             mu_s, mv_s = self._solid_face_masks()
             bu[mu_s] = 0.0
             bv[mv_s] = 0.0
 
         div = (self.u[1:, :] - self.u[:-1, :]) + (self.v[:, 1:] - self.v[:, :-1])
+        ba_u, ba_v = bu, bv           # face coefficients of the operator
+        if self.solid_phi is not None and self.solid_cut:
+            # cut cells: flux passes through the open part of a face only, so the
+            # operator's coefficients and the divergence take the open fraction; the
+            # velocity update below does not (the solid is static)
+            wu, wv = self._solid_open()
+            uw, vw = wu * self.u, wv * self.v
+            div = (uw[1:, :] - uw[:-1, :]) + (vw[:, 1:] - vw[:, :-1])
+            ba_u, ba_v = bu * wu, bv * wv
         b = -div / dt
 
         def A(p):
             gpu = np.zeros_like(self.u)
             gpv = np.zeros_like(self.v)
-            gpu[1:-1, :] = (p[1:, :] - p[:-1, :]) * bu[1:-1, :]
-            gpv[:, 1:-1] = (p[:, 1:] - p[:, :-1]) * bv[:, 1:-1]
+            gpu[1:-1, :] = (p[1:, :] - p[:-1, :]) * ba_u[1:-1, :]
+            gpv[:, 1:-1] = (p[:, 1:] - p[:, :-1]) * ba_v[:, 1:-1]
             return -((gpu[1:, :] - gpu[:-1, :]) + (gpv[:, 1:] - gpv[:, :-1]))
 
-        diag = bu[1:, :] + bu[:-1, :] + bv[:, 1:] + bv[:, :-1]
+        diag = ba_u[1:, :] + ba_u[:-1, :] + ba_v[:, 1:] + ba_v[:, :-1]
         inv_diag = np.where(diag > 0, 1.0 / np.maximum(diag, 1e-300), 0.0)
 
         p = np.zeros((self.nx, self.ny))
@@ -387,7 +505,7 @@ class Sim:
             self._advect_st(dt, ballistic=esc)
         else:
             self.advect(dt, ballistic=esc)
-        if self.obstacles:
+        if self.has_solids:
             self._push_out()
         if self.adapt:
             self._adapt_particles()
