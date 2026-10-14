@@ -1,0 +1,600 @@
+{
+ "header": {
+  "metadata": [
+   {
+    "metaName": "adskFileFormatVersion",
+    "metaValue": "100L"
+   }
+  ]
+ },
+ "namespaces": [],
+ "types": [],
+ "compounds": [
+  {
+   "name": "User::PFFlip::particle_play_test",
+   "ports": [
+    {
+     "portName": "liquid_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "speed_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "frame",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "point_size",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.3f"
+    },
+    {
+     "portName": "speed_scale",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "25f"
+    },
+    {
+     "portName": "path_positions",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_colors",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_sizes",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_positions",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "ok_colors",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "ok_sizes",
+     "portDirection": "output",
+     "portType": "bool"
+    }
+   ],
+   "compounds": [
+    {
+     "name": "particle_play",
+     "ports": [
+      {
+       "portName": "liquid_pattern",
+       "portDirection": "input",
+       "portType": "string",
+       "portDefault": ""
+      },
+      {
+       "portName": "speed_pattern",
+       "portDirection": "input",
+       "portType": "string",
+       "portDefault": ""
+      },
+      {
+       "portName": "frame",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "1f"
+      },
+      {
+       "portName": "point_size",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "0.3f"
+      },
+      {
+       "portName": "speed_scale",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "25f"
+      },
+      {
+       "portName": "slow_color",
+       "portDirection": "input",
+       "portType": "Math::float3",
+       "portDefault": {
+        "x": "0.04f",
+        "y": "0.22f",
+        "z": "0.6f"
+       }
+      },
+      {
+       "portName": "fast_color",
+       "portDirection": "input",
+       "portType": "Math::float3",
+       "portDefault": {
+        "x": "0.95f",
+        "y": "0.97f",
+        "z": "1.0f"
+       }
+      },
+      {
+       "portName": "points",
+       "portDirection": "output",
+       "portType": "Object"
+      }
+     ],
+     "compoundNodes": [
+      {
+       "nodeName": "t_pos",
+       "valueType": "array<Math::float3>"
+      },
+      {
+       "nodeName": "t_flt",
+       "valueType": "array<float>"
+      },
+      {
+       "nodeName": "f2i",
+       "nodeType": "Core::Type_Conversion::to_int"
+      },
+      {
+       "nodeName": "rpos",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "rspd",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "cpts",
+       "nodeType": "Geometry::Points::construct_points"
+      },
+      {
+       "nodeName": "frac",
+       "nodeType": "Core::Math::divide",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "one",
+       "valueType": "float"
+      },
+      {
+       "nodeName": "clamp",
+       "nodeType": "Core::Math::min",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "frac3",
+       "nodeType": "Core::Conversion::scalar_to_vector3"
+      },
+      {
+       "nodeName": "minus",
+       "valueType": "float"
+      },
+      {
+       "nodeName": "neg",
+       "nodeType": "Core::Math::multiply",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "delta",
+       "nodeType": "Core::Math::add",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "ramp",
+       "nodeType": "Core::Math::multiply",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "color",
+       "nodeType": "Core::Math::add",
+       "multiInPortNames": [
+        "a",
+        "b"
+       ]
+      },
+      {
+       "nodeName": "s_size",
+       "nodeType": "Geometry::Properties::set_geo_property"
+      },
+      {
+       "nodeName": "s_col",
+       "nodeType": "Geometry::Properties::set_geo_property"
+      }
+     ],
+     "connections": [
+      {
+       "source": ".frame",
+       "target": "f2i.from"
+      },
+      {
+       "source": "t_pos.output",
+       "target": "rpos.type"
+      },
+      {
+       "source": ".liquid_pattern",
+       "target": "rpos.file_path"
+      },
+      {
+       "source": "f2i.int",
+       "target": "rpos.frame"
+      },
+      {
+       "source": "t_flt.output",
+       "target": "rspd.type"
+      },
+      {
+       "source": ".speed_pattern",
+       "target": "rspd.file_path"
+      },
+      {
+       "source": "f2i.int",
+       "target": "rspd.frame"
+      },
+      {
+       "source": "rpos.data",
+       "target": "cpts.point_position"
+      },
+      {
+       "source": "rspd.data",
+       "target": "frac.first.a"
+      },
+      {
+       "source": ".speed_scale",
+       "target": "frac.first.b"
+      },
+      {
+       "source": "frac.output",
+       "target": "clamp.first.a"
+      },
+      {
+       "source": "one.output",
+       "target": "clamp.first.b"
+      },
+      {
+       "source": "clamp.minimum",
+       "target": "frac3.x"
+      },
+      {
+       "source": "clamp.minimum",
+       "target": "frac3.y"
+      },
+      {
+       "source": "clamp.minimum",
+       "target": "frac3.z"
+      },
+      {
+       "source": ".slow_color",
+       "target": "neg.first.a"
+      },
+      {
+       "source": "minus.output",
+       "target": "neg.first.b"
+      },
+      {
+       "source": ".fast_color",
+       "target": "delta.first.a"
+      },
+      {
+       "source": "neg.output",
+       "target": "delta.first.b"
+      },
+      {
+       "source": "frac3.vector3",
+       "target": "ramp.first.a"
+      },
+      {
+       "source": "delta.output",
+       "target": "ramp.first.b"
+      },
+      {
+       "source": ".slow_color",
+       "target": "color.first.a"
+      },
+      {
+       "source": "ramp.output",
+       "target": "color.first.b"
+      },
+      {
+       "source": "cpts.points",
+       "target": "s_size.geometry"
+      },
+      {
+       "source": ".point_size",
+       "target": "s_size.data"
+      },
+      {
+       "source": ".point_size",
+       "target": "s_size.default"
+      },
+      {
+       "source": "s_size.out_geometry",
+       "target": "s_col.geometry"
+      },
+      {
+       "source": "color.output",
+       "target": "s_col.data"
+      },
+      {
+       "source": ".slow_color",
+       "target": "s_col.default"
+      },
+      {
+       "source": "s_col.out_geometry",
+       "target": ".points"
+      }
+     ],
+     "values": [
+      {
+       "valueName": "t_pos.value",
+       "valueType": "array<Math::float3>",
+       "value": [
+        {
+         "x": "0f",
+         "y": "0f",
+         "z": "0f"
+        }
+       ]
+      },
+      {
+       "valueName": "t_flt.value",
+       "valueType": "array<float>",
+       "value": [
+        "0f"
+       ]
+      },
+      {
+       "valueName": "one.value",
+       "valueType": "float",
+       "value": "1f"
+      },
+      {
+       "valueName": "minus.value",
+       "valueType": "float",
+       "value": "-1f"
+      },
+      {
+       "valueName": "s_size.property",
+       "valueType": "string",
+       "value": "point_size"
+      },
+      {
+       "valueName": "s_col.property",
+       "valueType": "string",
+       "value": "point_color"
+      }
+     ]
+    }
+   ],
+   "compoundNodes": [
+    {
+     "nodeName": "play",
+     "nodeType": "particle_play"
+    },
+    {
+     "nodeName": "t_f3",
+     "valueType": "array<Math::float3>"
+    },
+    {
+     "nodeName": "t_flt",
+     "valueType": "array<float>"
+    },
+    {
+     "nodeName": "g_positions",
+     "nodeType": "Geometry::Properties::get_geo_property"
+    },
+    {
+     "nodeName": "w_positions",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "g_colors",
+     "nodeType": "Geometry::Properties::get_geo_property"
+    },
+    {
+     "nodeName": "w_colors",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "g_sizes",
+     "nodeType": "Geometry::Properties::get_geo_property"
+    },
+    {
+     "nodeName": "w_sizes",
+     "nodeType": "File::NumPy::write_NumPy"
+    }
+   ],
+   "connections": [
+    {
+     "source": ".liquid_pattern",
+     "target": "play.liquid_pattern"
+    },
+    {
+     "source": ".speed_pattern",
+     "target": "play.speed_pattern"
+    },
+    {
+     "source": ".frame",
+     "target": "play.frame"
+    },
+    {
+     "source": ".point_size",
+     "target": "play.point_size"
+    },
+    {
+     "source": ".speed_scale",
+     "target": "play.speed_scale"
+    },
+    {
+     "source": "play.points",
+     "target": "g_positions.geometry"
+    },
+    {
+     "source": "t_f3.output",
+     "target": "g_positions.type"
+    },
+    {
+     "source": "g_positions.data",
+     "target": "w_positions.data"
+    },
+    {
+     "source": ".path_positions",
+     "target": "w_positions.file_path"
+    },
+    {
+     "source": "w_positions.success",
+     "target": ".ok_positions"
+    },
+    {
+     "source": "play.points",
+     "target": "g_colors.geometry"
+    },
+    {
+     "source": "t_f3.output",
+     "target": "g_colors.type"
+    },
+    {
+     "source": "g_colors.data",
+     "target": "w_colors.data"
+    },
+    {
+     "source": ".path_colors",
+     "target": "w_colors.file_path"
+    },
+    {
+     "source": "w_colors.success",
+     "target": ".ok_colors"
+    },
+    {
+     "source": "play.points",
+     "target": "g_sizes.geometry"
+    },
+    {
+     "source": "t_flt.output",
+     "target": "g_sizes.type"
+    },
+    {
+     "source": "g_sizes.data",
+     "target": "w_sizes.data"
+    },
+    {
+     "source": ".path_sizes",
+     "target": "w_sizes.file_path"
+    },
+    {
+     "source": "w_sizes.success",
+     "target": ".ok_sizes"
+    }
+   ],
+   "values": [
+    {
+     "valueName": "t_f3.value",
+     "valueType": "array<Math::float3>",
+     "value": [
+      {
+       "x": "0f",
+       "y": "0f",
+       "z": "0f"
+      }
+     ]
+    },
+    {
+     "valueName": "t_flt.value",
+     "valueType": "array<float>",
+     "value": [
+      "0f"
+     ]
+    },
+    {
+     "valueName": "g_positions.property",
+     "valueType": "string",
+     "value": "point_position"
+    },
+    {
+     "valueName": "w_positions.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_positions.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_positions.frame",
+     "valueType": "long",
+     "value": "0L"
+    },
+    {
+     "valueName": "g_colors.property",
+     "valueType": "string",
+     "value": "point_color"
+    },
+    {
+     "valueName": "w_colors.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_colors.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_colors.frame",
+     "valueType": "long",
+     "value": "0L"
+    },
+    {
+     "valueName": "g_sizes.property",
+     "valueType": "string",
+     "value": "point_size"
+    },
+    {
+     "valueName": "w_sizes.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_sizes.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_sizes.frame",
+     "valueType": "long",
+     "value": "0L"
+    }
+   ]
+  }
+ ]
+}
