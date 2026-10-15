@@ -1,29 +1,42 @@
 """Mesh colliders, stage 3's showcase: the finale-class bore (256x64x128, production
 config: ST at 8x dt, adaptive air, escaped droplets) breaking over three boulders that
 exist only as meshes. The boulders go through the stock graph (the shipped collider
-node, collider_field) once, as solid_phi; the solver sees cut cells.
+node, collider_field) once, as solid_phi; the solver sees cut cells. The loop itself
+runs through the fused-P2G graph (milestone 6.75's, about 4 s a substep at the finale
+grid with every core busy) unless --stock asks for the stock-splat one.
 
-  ..\\.venv\\Scripts\\python.exe collider_showcase.py smoke        # tiny plumbing check, ~2 min
+  ..\\.venv\\Scripts\\python.exe collider_showcase.py smoke        # tiny plumbing check, ~1 min
   ..\\.venv\\Scripts\\python.exe collider_showcase.py cost         # 8 substeps with and without the rocks
-  ..\\.venv\\Scripts\\python.exe collider_showcase.py stage 0      # ... 1, 2, 3: ~65 min each
-  ..\\.venv\\Scripts\\python.exe collider_showcase.py finalize     # verdict, video
+  ..\\.venv\\Scripts\\python.exe collider_showcase.py stage 0      # one chunk; 1, 2, ... resume
+  ..\\.venv\\Scripts\\python.exe collider_showcase.py finalize     # verdict, preview video, cache index
   ..\\.venv\\Scripts\\python.exe collider_showcase.py play         # Maya play cache from the kept states
-  ..\\.venv\\Scripts\\python.exe collider_showcase.py night        # all of the above, in order
+  ..\\.venv\\Scripts\\python.exe collider_showcase.py night        # every chunk, then finalize
+
+Options after any command, the finale's values when left out: --grid NX NY NZ
+(256 64 128); --substeps N a chunk (42); --chunks N (4); --every N, dump every Nth
+substep (2); --dt S (0.12, scaled by sqrt(256 / NX) for another grid: a finer grid of
+the same scene is a bigger tank in cells, its speeds in cells per second grow with the
+square root of the size, so the substep shrinks to keep the cells a step); --tag NAME
+(boulders, or boulders<NX> for another grid, so runs never write over each other);
+--stock (the stock-splat graph, which every run before 2026-10-15 used unknowingly).
 
 The background runner caps a task at two hours, so the run goes in chunks that resume
 from full-state dumps (the bore suite's scheme), one launch each. Each chunk renders
 its frames to PNG and keeps everything it wrote: the particle dumps (about 240 MB a
-frame with velocities), the Maya play cache (about 70 MB a frame) and the resume
-state; nothing a run writes is deleted, so a run of 168 frames needs about 55 GB.
-The video and the numbers land in out/collider_showcase/. Checks:
-particles inside a boulder in any rendered frame, all and liquid, with the position
-and depth of each one found (the field itself is the judge), the run's peak speed,
-particle counts, honest clocks per chunk (startup included, labeled).
+dump with velocities at the finale grid, about 2 GB at 512x128x256), the Maya play
+cache (about 70 MB a frame at the finale grid, about 0.55 GB at 512) and the resume
+state; nothing a run writes is deleted. A 512x128x256 run of 240 substeps dumped every
+substep needs about 600 GB. The video and the numbers land in out/collider_showcase/.
+Checks: particles inside a boulder in any rendered frame, all and liquid, with the
+position and depth of each one found (the field itself is the judge), the run's peak
+speed, particle counts, honest clocks per chunk (startup included, labeled).
 
-Ran 2026-10-14 (the README's stage-3 record carries the numbers): 20.16 s simulated in
-4.13 h, 85 to 93 s a substep, no particle inside at any chunk's end, 4 of 84 frames
-with one particle inside, the one with its depth recorded 0.00005 cells in; the
-boulders cost nothing measurable (107.2 s against 107.18 s a substep without them).
+Ran 2026-10-14 (the README's stage-3 record carries the numbers), through the stock
+graph: 20.16 s simulated in 4.13 h, 85 to 93 s a substep, no particle inside at any
+chunk's end, 4 of 84 frames with one particle inside, the one with its depth recorded
+0.00005 cells in; the boulders cost nothing measurable (107.2 s against 107.18 s a
+substep without them). The fused graph agrees with the stock one on the smoke scene
+with the boulders to 0.05 cells over six substeps, no penetrations either way.
 """
 import json
 import os
@@ -48,10 +61,53 @@ from run_bore_suite import scene  # noqa: E402
 
 OUT = os.path.join(HERE, "..", "out", "collider_showcase")
 PORTS = {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1}
-DT = 0.12
+DT = 0.12                              # the finale's substep; other grids scale it
 # the finale grid, 42 substeps a chunk (5 s simulated), four chunks = 20 s
 FULL = ((256, 64, 128), 42, 4, 2)      # grid, substeps per chunk, chunks, dump_every
 SMOKE = ((64, 16, 32), 6, 2, 1)
+
+
+class Run:
+    """One run's shape: grid, chunking, substep, name and graph (see the options)."""
+
+    def __init__(self, grid, substeps, chunks, every, dt=None, tag=None, fused=True):
+        self.grid, self.substeps, self.chunks, self.every = tuple(grid), substeps, chunks, every
+        self.dt = dt if dt is not None else round(DT * (FULL[0][0] / grid[0]) ** 0.5, 4)
+        self.tag = tag or ("boulders" if self.grid == FULL[0] else f"boulders{grid[0]}")
+        self.fused = fused
+
+    def __repr__(self):
+        return (f"Run(grid={self.grid}, substeps={self.substeps}, chunks={self.chunks}, "
+                f"every={self.every}, dt={self.dt}, tag={self.tag!r}, fused={self.fused})")
+
+
+def parse(argv):
+    """The options after the command, over the finale's defaults; returns the run and
+    the positional words (the chunk index of `stage`)."""
+    grid, sub, n, every = FULL
+    dt = tag = None
+    fused, words, i = True, [], 0
+    while i < len(argv):
+        a = argv[i]
+        if a == "--grid":
+            grid, i = tuple(int(v) for v in argv[i + 1:i + 4]), i + 4
+        elif a == "--substeps":
+            sub, i = int(argv[i + 1]), i + 2
+        elif a == "--chunks":
+            n, i = int(argv[i + 1]), i + 2
+        elif a == "--every":
+            every, i = int(argv[i + 1]), i + 2
+        elif a == "--dt":
+            dt, i = float(argv[i + 1]), i + 2
+        elif a == "--tag":
+            tag, i = argv[i + 1], i + 2
+        elif a == "--stock":
+            fused, i = False, i + 1
+        elif a.startswith("--"):
+            raise SystemExit(f"unknown option {a}\n" + __doc__)
+        else:
+            words, i = words + [a], i + 1
+    return Run(grid, sub, n, every, dt, tag, fused), words
 
 
 def rocks(nx, ny, nz):
@@ -63,8 +119,13 @@ def rocks(nx, ny, nz):
     return [rock_mesh(c, r, seed=s) for c, r, s in spec]
 
 
-def phi_at(phi, pts):
-    """The node's trilinear distance at points (clamped like the node)."""
+def phi_at(phi, pts, block=1 << 23):
+    """The node's trilinear distance at points (clamped like the node), in blocks of
+    eight million so a 134M-point seeding does not hold eight copies of itself."""
+    pts = np.asarray(pts)
+    if len(pts) > block:
+        return np.concatenate([phi_at(phi, pts[i:i + block], block)
+                               for i in range(0, len(pts), block)])
     n = np.array(phi.shape) - 1
     q = np.clip(pts, 0.0, n)
     b = np.minimum(np.floor(q).astype(np.int64), n - 1)
@@ -185,11 +246,12 @@ def calibration():
     return dict(PORTS, rho0_face=cal.rho0_face, coarse_gain=cal.coarse_gain, ws_epsilon=16)
 
 
-def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
-    """With render, every dumped frame also goes into the Maya play cache
-    (<tag>_play/: liquid positions and speeds, about 69 MB a frame at the finale
-    grid), which needs the particle velocities dumped too."""
-    nx, ny, nz = grid
+def run_chunk(run, chunk, tag=None, with_rocks=True, render=True):
+    """One chunk of `run` (its tag unless given), resumed from the chunk before. With
+    render, every dumped frame also goes into the Maya play cache (<tag>_play/: liquid
+    positions and speeds), which needs the particle velocities dumped too."""
+    tag = tag or run.tag
+    (nx, ny, nz), substeps, every, dt = run.grid, run.substeps, run.every, run.dt
     mask, _, _, h1, h0, rx = scene(nx, ny, nz)
     phi = field(tag, nx, ny, nz) if with_rocks else None
     ports = calibration()
@@ -202,12 +264,13 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
         return pos, typ
     init = load_final_state(os.path.join(HERE, "..", "out", f"loop3_{tag}_c{chunk - 1}")) \
         if chunk else None
+    print(f"{tag} chunk {chunk}: {run}", flush=True)
     t0 = time.time()
-    d, typ, diag = run_bifrost3(f"{tag}_c{chunk}", nx, ny, nz, mask, substeps, DT,
+    d, typ, diag = run_bifrost3(f"{tag}_c{chunk}", nx, ny, nz, mask, substeps, dt,
                                 extra_ports=ports, seed_fn=seed, init_arrays=init,
                                 final_state=True, step_offset=chunk * substeps,
                                 dump_every=every, solid=(phi, 2) if phi is not None else None,
-                                dumps=DUMPS + (("vel",) if render else ()))
+                                dumps=DUMPS + (("vel",) if render else ()), fused=run.fused)
     wall = time.time() - t0
     play_dir = os.path.join(OUT, f"{tag}_play")
     play_liquid = []
@@ -240,7 +303,8 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
     iters = [float(diag[k][0]) for k in range(substeps)]
     entry = {"chunk": chunk, "substeps": substeps, "wall_s": round(wall, 1),
              "wall_per_substep_s": round(wall / substeps, 2),
-             "sim_time_s": [round(chunk * substeps * DT, 2), round((chunk + 1) * substeps * DT, 2)],
+             "sim_time_s": [round(chunk * substeps * dt, 2), round((chunk + 1) * substeps * dt, 2)],
+             "grid": list(run.grid), "dt": dt, "fused": run.fused,
              "particles": counts, "inside_a_boulder": pens, "inside_a_boulder_liquid": pens_liquid,
              "inside_particles": offenders, "play_liquid": play_liquid, "peak_speed": max(peaks),
              "iterations_mean": round(float(np.mean(iters)), 1), "with_rocks": with_rocks}
@@ -251,18 +315,22 @@ def run_chunk(tag, grid, substeps, chunk, every, with_rocks=True, render=True):
     return entry
 
 
-def finalize(tag, n_chunks):
+def finalize(run):
+    """The verdict over every chunk, the audit frames as a real-time preview video
+    (the painter's frames, not a render) and the play cache's index."""
+    tag, dt = run.tag, run.dt
     chunks = []
-    for c in range(n_chunks):
+    for c in range(run.chunks):
         with open(os.path.join(OUT, f"{tag}_c{c}.json")) as f:
             chunks.append(json.load(f))
     frames_dir = os.path.join(OUT, f"{tag}_png")
     video = os.path.join(OUT, f"{tag}.mp4")
-    subprocess.run(["ffmpeg", "-y", "-framerate", "12", "-i", os.path.join(frames_dir, "fr%04d.png"),
+    fps = max(1, round(1.0 / (run.every * dt)))
+    subprocess.run(["ffmpeg", "-y", "-framerate", str(fps), "-i", os.path.join(frames_dir, "fr%04d.png"),
                     "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "21", video],
                    check=True, capture_output=True)
-    summary = {"tag": tag, "grid": chunks and FULL[0], "dt": DT, "config": PORTS,
-               "simulated_s": round(sum(c["substeps"] for c in chunks) * DT, 2),
+    summary = {"tag": tag, "grid": list(run.grid), "dt": dt, "fused": run.fused, "config": PORTS,
+               "simulated_s": round(sum(c["substeps"] for c in chunks) * dt, 2),
                "wall_s_total": round(sum(c["wall_s"] for c in chunks), 1),
                "wall_per_substep_s": [c["wall_per_substep_s"] for c in chunks],
                "inside_a_boulder_max": max(max(c["inside_a_boulder"]) for c in chunks),
@@ -274,12 +342,13 @@ def finalize(tag, n_chunks):
                "peak_speed_cells_per_s": max(c["peak_speed"] for c in chunks),
                "particles_start_end": [chunks[0]["particles"][0], chunks[-1]["particles"][-1]],
                "iterations_mean": [c["iterations_mean"] for c in chunks],
-               "video": os.path.basename(video), "frames": len(os.listdir(frames_dir))}
+               "video": os.path.basename(video), "video_fps": fps,
+               "frames": len(os.listdir(frames_dir))}
     play = [n for c in chunks for n in c.get("play_liquid", [])]
     if play:   # Maya frame f shows the state after substep (f - 1) * dump_every
         every = chunks[0]["substeps"] // len(chunks[0]["play_liquid"])
-        write_index(os.path.join(OUT, f"{tag}_play"), play, dt_frame_s=round(every * DT, 4),
-                    time_s_first=round(DT, 4), source=tag)
+        write_index(os.path.join(OUT, f"{tag}_play"), play, dt_frame_s=round(every * dt, 4),
+                    time_s_first=round(dt, 4), source=tag, grid=list(run.grid))
         summary["play_frames"] = len(play)
     with open(os.path.join(OUT, f"{tag}_summary.json"), "w") as f:
         json.dump(summary, f, indent=1)
@@ -299,54 +368,55 @@ def write_obj(path, meshes):
             base += len(pts)
 
 
-def play_states():
-    """A Maya play cache from the run's kept states (each chunk's end, 5 s apart),
-    plus the boulders as an OBJ: something to orbit before a rerun keeps every frame."""
-    grid, sub, n, _ = FULL
-    dirs = [os.path.join(HERE, "..", "out", f"loop3_boulders_c{c}") for c in range(n)]
-    counts = from_states(os.path.join(OUT, "play_states"), dirs,
-                         times=[round((c + 1) * sub * DT, 2) for c in range(n)])
-    write_obj(os.path.join(OUT, "boulders.obj"), rocks(*grid))
-    print("play_states:", counts, "liquid particles; boulders.obj written", flush=True)
+def play_states(run):
+    """A Maya play cache from the run's kept states (each chunk's end), plus the
+    boulders as an OBJ: something to orbit from the resume states alone. The finale
+    run's cache keeps its old name, play_states; another run's is <tag>_states."""
+    dirs = [os.path.join(HERE, "..", "out", f"loop3_{run.tag}_c{c}") for c in range(run.chunks)]
+    cache = os.path.join(OUT, "play_states" if run.tag == "boulders" else f"{run.tag}_states")
+    counts = from_states(cache, dirs,
+                         times=[round((c + 1) * run.substeps * run.dt, 2) for c in range(run.chunks)])
+    write_obj(os.path.join(OUT, f"{run.tag}.obj"), rocks(*run.grid))
+    print(f"{os.path.basename(cache)}:", counts, f"liquid particles; {run.tag}.obj written", flush=True)
 
 
-def cost(grid, substeps=8):
+def cost(run, substeps=8):
     """The honest clock: the same bore with and without the boulders, one chunk
     each, no rendering, startup included and the same in both."""
     res = {}
+    short = Run(run.grid, substeps, 1, 1, run.dt, run.tag, run.fused)
     for with_rocks in (False, True):
         tag = "cost_rocks" if with_rocks else "cost_plain"
-        e = run_chunk(tag, grid, substeps, 0, 1, with_rocks=with_rocks, render=False)
+        e = run_chunk(short, 0, tag=tag, with_rocks=with_rocks, render=False)
         res[tag] = e["wall_per_substep_s"]
     res["ratio"] = round(res["cost_rocks"] / res["cost_plain"], 3)
     with open(os.path.join(OUT, "cost.json"), "w") as f:
-        json.dump(dict(res, grid=grid, substeps=substeps), f, indent=1)
+        json.dump(dict(res, grid=list(run.grid), dt=run.dt, fused=run.fused, substeps=substeps),
+                  f, indent=1)
     print(json.dumps(res), flush=True)
 
 
 def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else "smoke"
+    run, words = parse(sys.argv[2:])
     os.makedirs(OUT, exist_ok=True)
-    if cmd == "smoke":
-        grid, sub, n, every = SMOKE
-        for c in range(n):
-            run_chunk("smoke", grid, sub, c, every)
-        finalize("smoke", n)
+    if cmd == "smoke":   # the finale's substep, as every smoke run before the scaling rule
+        run = Run(*SMOKE, dt=DT, tag="smoke", fused=run.fused)
+        for c in range(run.chunks):
+            run_chunk(run, c)
+        finalize(run)
     elif cmd == "cost":
-        cost(FULL[0])
+        cost(run)
     elif cmd == "stage":
-        grid, sub, n, every = FULL
-        run_chunk("boulders", grid, sub, int(sys.argv[2]), every)
+        run_chunk(run, int(words[0]))
     elif cmd == "finalize":
-        finalize("boulders", FULL[2])
+        finalize(run)
     elif cmd == "play":
-        play_states()
+        play_states(run)
     elif cmd == "night":
-        grid, sub, n, every = FULL
-        for c in range(n):
-            run_chunk("boulders", grid, sub, c, every)
-        finalize("boulders", n)
-        cost(grid)
+        for c in range(run.chunks):
+            run_chunk(run, c)
+        finalize(run)
     else:
         raise SystemExit(__doc__)
 
