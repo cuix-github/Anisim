@@ -9,7 +9,9 @@ particle caches. Keep renderer work in Aniso and solver work here. The
 simulator lived under Aniso's `sim/` until 2026-10-11; its full history came
 along (each commit carries an `Aniso-commit:` trailer, and `Aniso#N` in
 messages names the Aniso PR). The current technical state, milestone by
-milestone, lives in `README.md` — read it first; its "Open questions" is kept
+milestone, lives in `README.md` (the front page) and `docs/` (`history.md`
+the full record, `decisions.md`, `open-questions.md`, `evidence.md`,
+`outputs.md`) — read the README first; `docs/open-questions.md` is kept
 current and supersedes anything older.
 
 ## Hard walls
@@ -38,14 +40,14 @@ current and supersedes anything older.
 - Layout: one folder per job (`reference2d/` the spec, `nodes/` the C++
   pack, `graphs/` the graphs and their bifcmd launchers, `gates/` the
   validation ladder, `experiments/` benches and demos, `maya/` the in-Maya
-  playback, `results/` committed evidence), mapped in the README. Every run
-  writes under the root `out/` (ignored). The repo stores code and small
-  numeric evidence (JSON results, charts); simulation footage - videos,
-  rendered frames, caches - stays in `out/` (rule set 2026-10-13; the videos
-  committed before then were untracked the same day and `*.mp4` is ignored;
-  the earlier charts and frame sheets stay). The Bifrost-side scripts find their
-  siblings through paths relative to their own file, so they run from any
-  working directory.
+  playback, `results/` committed evidence, `docs/` the record), mapped in
+  the README. Every run writes under the root `out/` (ignored). The repo
+  stores code and small numeric evidence (JSON results, charts); simulation
+  footage - videos, rendered frames, caches - stays in `out/` (rule set
+  2026-10-13; the videos committed before then were untracked the same day
+  and `*.mp4` is ignored; the earlier charts and frame sheets stay). The
+  Bifrost-side scripts find their siblings through paths relative to their
+  own file, so they run from any working directory.
 - Validation before features: the executable spec is
   `reference2d/pfflip2d.py`. Every solver feature ships with its gate —
   unit lockstep against the spec, then a system gate through the real graph,

@@ -31,7 +31,7 @@ from pfflip2d import Sim  # noqa: E402
 from demo3d import run_bifrost3  # noqa: E402
 
 NX, NY, DT, SUB, SHORT = 160, 80, 0.12, 167, 20
-RES = os.path.join(HERE, "..", "results", "p2g")
+RES = os.path.join(HERE, "..", "results", "3d", "p2g")
 H1, H0, RX = 0.75 * NY, 0.125 * NY, 0.22 * NX
 PILLARS = np.array([[[0.52 * NX, 0.0, -1.0], [0.56 * NX, 0.45 * NY, 2.0]],
                     [[0.68 * NX, 0.0, -1.0], [0.72 * NX, 0.35 * NY, 2.0]]],

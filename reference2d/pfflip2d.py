@@ -10,7 +10,7 @@ coefficients 1/rho(phi), correct velocities, FLIP-update the particles with a pe
 (Eq. 12, which doubles as viscosity via Eq. 13), and advect with RK2 through the grid field.
 
 Scenes (run this file):  python pfflip2d.py [hydrostatic|dam_break|rayleigh_taylor|all]
-Outputs go to results/: a frame-strip PNG per scene plus printed pass/fail style numbers.
+Outputs go to ../results/2d/: a frame-strip PNG per scene plus printed pass/fail style numbers.
 Needs numpy and Pillow only.
 """
 import os
@@ -653,7 +653,7 @@ def save_strip(frames_imgs, path, cols):
 
 # ------------------------------------------------------------------ scenes
 
-RESULTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results")
+RESULTS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results", "2d")
 
 
 def hydrostatic():

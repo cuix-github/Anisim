@@ -31,7 +31,7 @@ sys.path.insert(0, HERE)
 from adaptive_solve import Multigrid, Operator, build_cells  # noqa: E402
 from pfflip2d import Sim  # noqa: E402
 
-RES = os.path.join(HERE, "results", "adaptive")
+RES = os.path.join(HERE, "..", "results", "2d", "adaptive")
 
 
 def uniform_cells(nx, ny):

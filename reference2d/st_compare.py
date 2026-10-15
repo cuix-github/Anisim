@@ -22,7 +22,7 @@ from PIL import Image, ImageDraw, ImageFont
 from pfflip2d import Sim
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "results", "validation")
+OUT = os.path.join(HERE, "..", "results", "2d", "validation")
 try:
     FONT = ImageFont.truetype("arial.ttf", 22)
 except Exception:

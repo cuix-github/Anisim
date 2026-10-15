@@ -42,7 +42,7 @@ from adaptive_projection import AdaptiveProjection  # noqa: E402
 from pfflip2d import Sim  # noqa: E402
 from validate_adaptive_solve import dam_state  # noqa: E402
 
-RES = os.path.join(HERE, "results", "adaptive")
+RES = os.path.join(HERE, "..", "results", "2d", "adaptive")
 ARMS = ("naive", "cleanup")
 SEEDS = (1, 2, 3)
 

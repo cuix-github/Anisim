@@ -11,10 +11,10 @@ out/
 # pattern containing a slash is
 # anchored to this file's folder, so the bare "results/..." form silently
 # matched nothing (the bug Aniso carried for these folders).
-reference2d/results/droplet_frames/
-reference2d/results/droplet_states/
-reference2d/results/three_flips_frames/
-results/p2g/frames/
+results/2d/droplet_frames/
+results/2d/droplet_states/
+results/2d/three_flips_frames/
+results/3d/p2g/frames/
 
 # Python
 __pycache__/

@@ -19,7 +19,7 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "..", "out")
-RESULTS = os.path.join(HERE, "..", "reference2d", "results", "validation")
+RESULTS = os.path.join(HERE, "..", "results", "2d", "validation")
 
 NX = NY = 64
 INTERFACE_Y = 32.0

@@ -18,7 +18,7 @@ import numpy as np
 from PIL import Image, ImageDraw
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RESULTS = os.path.join(HERE, "..", "reference2d", "results", "validation")
+RESULTS = os.path.join(HERE, "..", "results", "3d", "demo3d")
 sys.path.insert(0, os.path.join(HERE, "..", "graphs"))
 # The 3D loop runner lives beside its .bat launchers; re-exported for the experiments.
 from loop3d import seed3d, lattice, run_bifrost3  # noqa: E402,F401

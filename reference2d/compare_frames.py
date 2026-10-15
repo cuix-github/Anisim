@@ -8,7 +8,7 @@ same scene, same seeds, same instants. Three scenes:
               is slowed by air ahead of it, an air film is trapped at impact, the splash lips
               curl over air pockets, and the crater is air-filled instead of a vacuum
 
-  python compare_frames.py [scene ...]   ->  results/validation/compare_<scene>.png
+  python compare_frames.py [scene ...]   ->  ../results/2d/validation/compare_<scene>.png
 """
 import os
 
@@ -18,7 +18,7 @@ from PIL import Image, ImageDraw, ImageFont
 from pfflip2d import Sim
 from validation import SinglePhaseSim
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results", "validation")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results", "2d", "validation")
 try:
     FONT = ImageFont.truetype("arial.ttf", 22)
 except Exception:
