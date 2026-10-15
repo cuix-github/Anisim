@@ -93,6 +93,12 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
             arrs[k2] = init_arrays[k2].astype(np.float32)
     for k, v in arrs.items():
         np.save(os.path.join(d, k + ".npy"), v)
+    paths = {k: os.path.join(d, k + ".npy").replace("\\", "/") for k in arrs}
+    # the arrays live on disk now; a 512x128x256 seeding is 10 GB of them in this
+    # process, and bifcmd needs that memory more than a process that only waits
+    del arrs, pos, mass, zeros
+    import gc
+    gc.collect()
     args = [os.path.join(HERE, "..", "graphs", "run_sim_3d_fused.bat" if fused else "run_sim_3d.bat"),
             "--set-port", "nx", str(nx), "--set-port", "ny", str(ny),
             "--set-port", "nz", str(nz), "--set-port", "dt", str(dt),
@@ -110,8 +116,8 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
               for x in ("--set-port", k2, str(v2))],
             *[x for nm in dumps
               for x in ("--set-port", nm + "_pattern", (d + f"/{nm}.####").replace("\\", "/"))]]
-    for k in arrs:
-        args += ["--set-port", "path_" + k, os.path.join(d, k + ".npy").replace("\\", "/")]
+    for k, path in paths.items():
+        args += ["--set-port", "path_" + k, path]
     res = subprocess.run(args, capture_output=True, text=True)
     last = ((substeps - 1) // dump_every) * dump_every
     if res.returncode != 0 or not os.path.exists(os.path.join(d, f"frame.{last:04d}.npy")):
