@@ -1,6 +1,6 @@
 # The validation gate: are the paper's core claims true?
 
-Before any Bifrost engineering, we tested PF-FLIP's central claims in the smallest setups that could falsify them, comparing against the obvious alternatives. Run everything with `python validation.py` (about 80 seconds); images and plots land in `results/validation/`. Verdicts below are from the run of 2026-09-30.
+Before any Bifrost engineering, we tested PF-FLIP's central claims in the smallest setups that could falsify them, comparing against the obvious alternatives. Run everything with `python validation.py` (about 80 seconds); images and plots land in `../results/2d/validation/`. Verdicts below are from the run of 2026-09-30.
 
 ## 1. Two-phase captures what single-phase FLIP structurally cannot — SUPPORTED, decisively
 

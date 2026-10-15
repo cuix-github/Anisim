@@ -33,7 +33,7 @@ NX, NY, NZ, DT = 256, 64, 128, 0.02
 RHO_L, RHO_G = 1000.0, 1.0
 REPEATS = 3
 OUT = os.path.join(ROOT, "out", "adaptive_cost")
-RESULTS = os.path.join(ROOT, "results", "adaptive")
+RESULTS = os.path.join(ROOT, "results", "3d", "adaptive")
 NAMES = ("u_mass", "u_mom", "u_phase", "v_mass", "v_mom", "v_phase", "w_mass", "w_mom",
          "w_phase", "particle_phase", "positions", "velocities")
 OUTS = ("out_u", "out_v", "out_w", "pressure", "out_positions", "out_velocities", "out_escaped")

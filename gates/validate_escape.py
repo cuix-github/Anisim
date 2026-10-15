@@ -27,7 +27,7 @@ from pfflip2d import Sim  # noqa: E402
 from validate_step import channels  # noqa: E402
 from validate_3d import run_node  # noqa: E402
 
-RESULTS = os.path.join(HERE, "..", "reference2d", "results", "validation")
+RESULTS = os.path.join(HERE, "..", "results", "2d", "validation")
 NX, NY, DT = 120, 160, 0.012
 ESC = {"escape": 1, "esc_phi": 0.3, "drag_droplet": 1.0, "drag_bubble": 8.0, "buoyancy": 2.0}
 try:

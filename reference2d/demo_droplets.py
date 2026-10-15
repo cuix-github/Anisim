@@ -21,9 +21,9 @@ from PIL import Image, ImageDraw, ImageFont
 from pfflip2d import Sim
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "results", "validation")
-CACHE = os.path.join(HERE, "results", "droplet_states")
-FRAMES_DIR = os.path.join(HERE, "results", "droplet_frames")
+OUT = os.path.join(HERE, "..", "results", "2d", "validation")
+CACHE = os.path.join(HERE, "..", "results", "2d", "droplet_states")
+FRAMES_DIR = os.path.join(HERE, "..", "results", "2d", "droplet_frames")
 NX, NY, FRAMES, DT_FRAME = 120, 160, 140, 0.05
 try:
     FONT = ImageFont.truetype("arial.ttf", 24)

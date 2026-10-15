@@ -1,6 +1,6 @@
 # History: the milestones and their records
 
-Every finding, number and lesson from the milestone log, in order, with the stage markers as headings. Nothing was shortened; the front page summarizes, this file keeps the record.
+Every finding, number and lesson from the milestone log, in order, with the stage markers as headings. Nothing was shortened; the front page summarizes, this file keeps the record. Paths named in the record are as they were at the time; the evidence has since moved under `results/2d` and `results/3d` (see [evidence.md](evidence.md)).
 
 ## Milestone 1. The spike landed
 
@@ -156,7 +156,7 @@ In short: both open gates closed by forensics, not by loosening thresholds. The 
 
 The old "passing" 76/106 was that inconsistency partially cancelling a second defect: the validator forwarded only rho0_face while the graph's escape-parameter defaults are all zero, so the two sides had run different escape physics since the test was born (its bubble ratio sat at 0.41 against a 0.4 bar from day one). With parameters matched, the corrected solver scores its best agreement ever: droplets 99 vs 94, bubbles 237 vs 259 - seed ensembles on both sides confirm the old gap was systematic and the new agreement is not luck. validate_escape's loop check was the same disease in a different organ: its hand-rolled bifcmd invocation predated the #35 graph and never supplied the phase state, which initialized empty and read every particle as air; routed through run_bifrost3 it returns exactly to its birth band (91 vs 102 droplets, 153 vs 140 bubbles).
 
-And the reason all of this hid for five days: ten of twelve validators printed FAIL while exiting zero - every one now carries a real exit code. The experiment, phase breakdown, receipts, labeled comparison video and validation details are in [the threading record](../results/threading/README.md).
+And the reason all of this hid for five days: ten of twelve validators printed FAIL while exiting zero - every one now carries a real exit code. The experiment, phase breakdown, receipts, labeled comparison video and validation details are in [the threading record](../results/3d/threading/README.md).
 
 ## Mesh colliders and the showcases (opened 2026-10-13)
 

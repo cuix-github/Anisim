@@ -23,8 +23,8 @@ from validation import SinglePhaseSim
 from st_compare import sync_pos
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "results", "validation")
-FRAMES_DIR = os.path.join(HERE, "results", "three_flips_frames")
+OUT = os.path.join(HERE, "..", "results", "2d", "validation")
+FRAMES_DIR = os.path.join(HERE, "..", "results", "2d", "three_flips_frames")
 NX, NY = 160, 96
 DT_SMALL, DT_BIG = 0.012, 0.096
 TOTAL_T, FRAME_T = 3.5, 0.048

@@ -48,13 +48,13 @@ Every run writes under `out\` at the root, which is ignored; the repository keep
 
 One folder per job.
 
-- `reference2d/`: the executable spec, a pure-Python 2D implementation every Bifrost stage is validated against, with its scenes, gates and figures. Start with its [README](reference2d/README.md) and [VALIDATION.md](reference2d/VALIDATION.md).
+- `reference2d/`: the executable spec, a pure-Python 2D implementation every Bifrost stage is validated against, with its scenes and gates. Start with its [README](reference2d/README.md) and [VALIDATION.md](reference2d/VALIDATION.md).
 - `nodes/`: the custom Bifrost SDK operator pack. `PFFlipSolve3.cpp` is the 3D step with its multigrid solve, `PFFlipP2G.cpp` the fused transfer, `PFFlipAdaptive.cpp` the adaptive pressure solve, `PFFlipSolids.h` the level-set solids.
 - `graphs/`: the Bifrost graphs, their generators, and the `.bat` launchers that run them headlessly through bifcmd. `loop3d.py` is the 3D loop runner the gates and experiments share; `colliders.py` turns meshes into a solid field.
 - `gates/`: the validation ladder, one `validate_*.py` per feature, each exiting nonzero on failure.
 - `experiments/`: the showcase (`collider_showcase.py`), the overnight bore suite, the speed receipts and the studies that settled the open questions.
 - `maya/`: playback and rendering in Maya: the play cache, the Bifrost compounds, the scene builders and the one-click launchers.
-- `results/`: committed evidence per campaign, charts and receipts; the videos they describe stay local.
+- `results/`: the committed evidence, charts and receipts: `2d/` for the two-dimensional runs (the Python reference and the 2D Bifrost loop), `3d/` for the 3D node and graphs; the videos they describe stay local.
 - `docs/`: the history, the decisions, the open questions, the evidence gallery and the output layout.
 
 ## About this repository

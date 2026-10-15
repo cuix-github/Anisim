@@ -12,7 +12,7 @@ falsify it? Four experiments against the claims of PF-FLIP (see VALIDATION.md fo
 
   python validation.py [air_pocket|transport|viscosity|mixing|all]
 
-Outputs to results/validation/. Needs numpy, Pillow, matplotlib.
+Outputs to ../results/2d/validation/. Needs numpy, Pillow, matplotlib.
 """
 import os
 import sys
@@ -26,7 +26,7 @@ from PIL import Image
 
 from pfflip2d import Sim, draw, save_strip
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "results", "validation")
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results", "2d", "validation")
 
 
 # ---------------------------------------------------------------- single-phase baseline

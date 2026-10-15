@@ -22,7 +22,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "reference2d"))
 from pfflip2d import Sim  # noqa: E402
 
-RESULTS = os.path.join(HERE, "..", "reference2d", "results", "validation")
+RESULTS = os.path.join(HERE, "..", "results", "2d", "validation")
 try:
     FONT = ImageFont.truetype("arial.ttf", 22)
 except Exception:

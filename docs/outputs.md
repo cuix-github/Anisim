@@ -19,7 +19,7 @@ Everything a script writes lands under `out\` at the repository root, which git 
 | `out\threading`, `out\level_set_node`, `out\adaptive_long`, `out\play_gate`, `out\surface_gate` | Each gate's or study's working folder | under 1 GB |
 | loose files at `out\` root | Logs and sweep scripts from the first weeks (`taskb_*.log`, `*_sweep.py`), stray `.npy` | small |
 
-Videos rendered by the demos sit beside their receipts: the fused-transfer side-by-side in `results\p2g\`, the threading demo in `results\threading\`, the 3D demo in `reference2d\results\validation\`; all ignored by `*.mp4`.
+Videos rendered by the demos sit beside their receipts under `results\3d\` (the fused-transfer side-by-side in `p2g\`, the threading demo in `threading\`, the 3D demo in `demo3d\`), and the 2D demos' videos and frame caches under `results\2d\validation\`; all ignored.
 
 ## Leftovers that can go
 

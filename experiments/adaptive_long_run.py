@@ -62,7 +62,7 @@ SCENES = {
 CHUNK = 250                       # frames per bifcmd run
 DUMPS = ("ph", "vel")             # beside frame.####; escape and scale are off
 OUT = os.path.join(ROOT, "out", "adaptive_long")
-RESULTS = os.path.join(ROOT, "results", "adaptive")
+RESULTS = os.path.join(ROOT, "results", "3d", "adaptive")
 
 
 def seeded(scene, seed):

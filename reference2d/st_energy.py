@@ -14,7 +14,7 @@ from pfflip2d import Sim
 from st_compare import surface_roughness
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "results", "validation")
+OUT = os.path.join(HERE, "..", "results", "2d", "validation")
 NX, NY, TOTAL_T, SAMPLE_T = 160, 96, 20.0, 0.1
 try:
     FONT = ImageFont.truetype("arial.ttf", 20)
