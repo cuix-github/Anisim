@@ -98,7 +98,7 @@ The physics anchors: the air cushion and 19:1 Rayleigh-Taylor growing textbook m
 
 ![P2G speed chart](../results/3d/p2g/p2g_speed_chart.png)
 
-`experiments/demo_p2g_speed.py`, receipts in [p2g_speed_summary.json](../results/3d/p2g/p2g_speed_summary.json): the same 20-second bore through the stock-splat graph and the fused node. At finale scale, 96.4 s a substep to 10.22 s, 9.4x (`experiments/bench_p2g_finale.py`); 8.8x on the 2D demo. The side-by-side video with live clocks is local.
+`experiments/archive/demo_p2g_speed.py`, receipts in [p2g_speed_summary.json](../results/3d/p2g/p2g_speed_summary.json): the same 20-second bore through the stock-splat graph and the fused node. At finale scale, 96.4 s a substep to 10.22 s, 9.4x (`experiments/bench_p2g_finale.py`); 8.8x on the 2D demo. The side-by-side video with live clocks is local.
 
 ## 7. Threading (2026-10-10)
 
@@ -112,13 +112,13 @@ Gates: [stage1_gate.json](../results/2d/adaptive/stage1_gate.json) and [stage3a_
 
 ![Long run, resting tank](../results/3d/adaptive/long_run_tank_chart.png)
 
-`experiments/adaptive_long_run.py`, [long_run_tank.json](../results/3d/adaptive/long_run_tank.json): a half-full tank at rest for 100 s under the uniform, naive and cleanup solves, three seeds each. Cleanup is indistinguishable from uniform; naive's air stirring grows without levelling off, 1.49 cells per second at frame 2000, 430x uniform's.
+`experiments/archive/adaptive_long_run.py`, [long_run_tank.json](../results/3d/adaptive/long_run_tank.json): a half-full tank at rest for 100 s under the uniform, naive and cleanup solves, three seeds each. Cleanup is indistinguishable from uniform; naive's air stirring grows without levelling off, 1.49 cells per second at frame 2000, 430x uniform's.
 
 ![Long run, dam break](../results/3d/adaptive/long_run_dam_chart.png)
 
 [long_run_dam.json](../results/3d/adaptive/long_run_dam.json): the dam break for 60 s. Every arm inside the uniform seed bar at every checkpoint; iterations per substep 36 uniform, 40 naive, 60 cleanup.
 
-[cost_indicative.json](../results/3d/adaptive/cost_indicative.json), `experiments/adaptive_cost.py`: one finale-size step, no obstacles. The pressure phase costs 612 ms uniform, 2237 naive and 4336 cleanup at 1e-6; most of it is setup rebuilt every step.
+[cost_indicative.json](../results/3d/adaptive/cost_indicative.json), `experiments/archive/adaptive_cost.py`: one finale-size step, no obstacles. The pressure phase costs 612 ms uniform, 2237 naive and 4336 cleanup at 1e-6; most of it is setup rebuilt every step.
 
 ## 9. The bore suite (milestone 6, 2026-10-08)
 

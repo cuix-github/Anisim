@@ -16,7 +16,7 @@ import sys
 import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.join(HERE, "..", "gates"))
+sys.path.insert(0, os.path.join(HERE, "..", "..", "gates"))
 from validate_level_set_node import (OUT, flow_inputs, node_grid3, save,  # noqa: E402
                                      sdf_box3)
 
@@ -39,7 +39,7 @@ def main():
                               {"solid_mode": 1}),
             "field, cut cells": ({"solid_phi": phi.astype(np.float32).ravel()},
                                  {"solid_mode": 2})}
-    bat = os.path.join(HERE, "..", "graphs", "run_solve_step3.bat")
+    bat = os.path.join(HERE, "..", "..", "graphs", "run_solve_step3.bat")
     env = dict(os.environ, PFFLIP_PROFILE="1")
     print(f"  {'arm':18s} {'assembly':>9s} {'solve':>8s} {'correct':>8s} {'particles':>10s}"
           f" {'total':>8s}  iterations (ms)")

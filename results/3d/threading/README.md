@@ -152,7 +152,7 @@ The default SDK is Bifrost 3.1.0.8 for Maya 2027; `--bifrost` overrides it.
 .\.venv\Scripts\python.exe experiments/threading_experiment.py --mode bench --label new_bench32 --threads 32 --compare out/threading/original_bench/receipt.json
 .\.venv\Scripts\python.exe experiments/threading_experiment.py --mode demo3d --label original_demo --threads 32 --pack $baselinePack
 .\.venv\Scripts\python.exe experiments/threading_experiment.py --mode demo3d --label new_demo --threads 32 --compare out/threading/original_demo/receipt.json
-.\.venv\Scripts\python.exe experiments/render_threading_demo.py out/threading/original_demo out/threading/new_demo out/threading/comparison.mp4
+.\.venv\Scripts\python.exe experiments/archive/render_threading_demo.py out/threading/original_demo out/threading/new_demo out/threading/comparison.mp4
 ```
 
 Repeat the gate with 1 and 8 workers and the benchmark with 8 and 16 workers,

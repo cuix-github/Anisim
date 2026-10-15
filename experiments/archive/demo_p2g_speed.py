@@ -25,13 +25,13 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, HERE)
-sys.path.insert(0, os.path.join(HERE, "..", "reference2d"))
+sys.path.insert(0, os.path.join(HERE, ".."))          # demo3d, the loop runner re-export
+sys.path.insert(0, os.path.join(HERE, "..", "..", "reference2d"))
 from pfflip2d import Sim  # noqa: E402
 from demo3d import run_bifrost3  # noqa: E402
 
 NX, NY, DT, SUB, SHORT = 160, 80, 0.12, 167, 20
-RES = os.path.join(HERE, "..", "results", "3d", "p2g")
+RES = os.path.join(HERE, "..", "..", "results", "3d", "p2g")
 H1, H0, RX = 0.75 * NY, 0.125 * NY, 0.22 * NX
 PILLARS = np.array([[[0.52 * NX, 0.0, -1.0], [0.56 * NX, 0.45 * NY, 2.0]],
                     [[0.68 * NX, 0.0, -1.0], [0.72 * NX, 0.35 * NY, 2.0]]],
@@ -156,7 +156,7 @@ def main():
                "substeps": SUB, "sim_seconds": round(SUB * DT, 2),
                "walls": walls, "centroid_drift_cells": round(drift, 3),
                "video": os.path.basename(video)}
-    bench = os.path.join(HERE, "..", "out", "bench_p2g_finale.json")
+    bench = os.path.join(HERE, "..", "..", "out", "bench_p2g_finale.json")
     if os.path.exists(bench):
         summary["finale"] = json.load(open(bench))
     with open(os.path.join(RES, "p2g_speed_summary.json"), "w") as f:
