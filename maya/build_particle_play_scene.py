@@ -7,6 +7,8 @@ timeline set to the cache's frames.
   "C:\\Program Files\\Autodesk\\Maya2027\\bin\\mayapy.exe" build_particle_play_scene.py
       <cache_dir> <scene.ma> [--obj <file.obj>] [--box nx ny nz] [--fps 24]
 
+The box and the frame rate come from the cache's index (its grid and fps, when the
+writer recorded them) unless given here; a cache without either gets no box and 24.
 The scene references the compound by name, so Maya must start with
 BIFROST_LIB_CONFIG_FILES pointing at pfflip_graphs_config.json (the play_*.bat
 launchers do this). In the graph, point_size and speed_scale (the speed drawn white)
@@ -27,7 +29,7 @@ FPS_UNITS = {24: "film", 25: "pal", 30: "ntsc", 48: "show", 50: "palf", 60: "nts
 
 
 def parse(argv):
-    cache, scene, opts = argv[0], argv[1], {"obj": None, "box": None, "fps": 24}
+    cache, scene, opts = argv[0], argv[1], {"obj": None, "box": None, "fps": None}
     i = 2
     while i < len(argv):
         if argv[i] == "--obj":
@@ -55,7 +57,10 @@ def aim(cmds, cam, eye, target):
 def main():
     cache, scene, opts = parse(sys.argv[1:])
     with open(os.path.join(cache, "cache.json")) as f:
-        frames = json.load(f)["frames"]
+        index = json.load(f)
+    frames = index["frames"]
+    opts["box"] = opts["box"] or index.get("grid")
+    opts["fps"] = opts["fps"] or index.get("fps", 24)
     import maya.standalone
     try:
         maya.standalone.initialize(name="python")
