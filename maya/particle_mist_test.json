@@ -1,0 +1,508 @@
+{
+ "header": {
+  "metadata": [
+   {
+    "metaName": "adskFileFormatVersion",
+    "metaValue": "100L"
+   }
+  ]
+ },
+ "namespaces": [],
+ "types": [],
+ "compounds": [
+  {
+   "name": "User::PFFlip::particle_mist_test",
+   "ports": [
+    {
+     "portName": "liquid_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "frame",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "surface_radius",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.5f"
+    },
+    {
+     "portName": "surface_detail",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.5f"
+    },
+    {
+     "portName": "smooth_iterations",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "1L"
+    },
+    {
+     "portName": "mist_threshold",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "mist_radius",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1.5f"
+    },
+    {
+     "portName": "mist_detail",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "mist_density",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "path_positions",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_positions",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_depth",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_depth",
+     "portDirection": "output",
+     "portType": "bool"
+    }
+   ],
+   "compounds": [
+    {
+     "name": "particle_mist",
+     "ports": [
+      {
+       "portName": "liquid_pattern",
+       "portDirection": "input",
+       "portType": "string",
+       "portDefault": ""
+      },
+      {
+       "portName": "frame",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "1f"
+      },
+      {
+       "portName": "surface_radius",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "0.5f"
+      },
+      {
+       "portName": "surface_detail",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "0.5f"
+      },
+      {
+       "portName": "smooth_iterations",
+       "portDirection": "input",
+       "portType": "int",
+       "portDefault": "1L"
+      },
+      {
+       "portName": "mist_threshold",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "0f"
+      },
+      {
+       "portName": "mist_radius",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "1.5f"
+      },
+      {
+       "portName": "mist_detail",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "1f"
+      },
+      {
+       "portName": "mist_density",
+       "portDirection": "input",
+       "portType": "float",
+       "portDefault": "1f"
+      },
+      {
+       "portName": "mist",
+       "portDirection": "output",
+       "portType": "Object"
+      },
+      {
+       "portName": "mist_positions",
+       "portDirection": "output",
+       "portType": "array<Math::float3>"
+      },
+      {
+       "portName": "depth",
+       "portDirection": "output",
+       "portType": "array<float>"
+      }
+     ],
+     "compoundNodes": [
+      {
+       "nodeName": "t_pos",
+       "valueType": "array<Math::float3>"
+      },
+      {
+       "nodeName": "f2i",
+       "nodeType": "Core::Type_Conversion::to_int"
+      },
+      {
+       "nodeName": "rpos",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "c_pts",
+       "nodeType": "Geometry::Points::construct_points"
+      },
+      {
+       "nodeName": "c_size",
+       "nodeType": "Geometry::Properties::set_geo_property"
+      },
+      {
+       "nodeName": "p2v_c",
+       "nodeType": "Geometry::Converters::points_to_volume"
+      },
+      {
+       "nodeName": "sm",
+       "nodeType": "Geometry::Volume::smooth_level_set_property"
+      },
+      {
+       "nodeName": "far",
+       "valueType": "float"
+      },
+      {
+       "nodeName": "smp",
+       "nodeType": "Geometry::Query::sample_volume"
+      },
+      {
+       "nodeName": "thin",
+       "nodeType": "Core::Logic::greater"
+      },
+      {
+       "nodeName": "pick",
+       "nodeType": "Core::Array::filter_array"
+      },
+      {
+       "nodeName": "m_pts",
+       "nodeType": "Geometry::Points::construct_points"
+      },
+      {
+       "nodeName": "m_size",
+       "nodeType": "Geometry::Properties::set_geo_property"
+      },
+      {
+       "nodeName": "p2v_m",
+       "nodeType": "Geometry::Converters::points_to_volume"
+      }
+     ],
+     "connections": [
+      {
+       "source": ".frame",
+       "target": "f2i.from"
+      },
+      {
+       "source": "t_pos.output",
+       "target": "rpos.type"
+      },
+      {
+       "source": ".liquid_pattern",
+       "target": "rpos.file_path"
+      },
+      {
+       "source": "f2i.int",
+       "target": "rpos.frame"
+      },
+      {
+       "source": "rpos.data",
+       "target": "c_pts.point_position"
+      },
+      {
+       "source": "c_pts.points",
+       "target": "c_size.geometry"
+      },
+      {
+       "source": ".surface_radius",
+       "target": "c_size.data"
+      },
+      {
+       "source": ".surface_radius",
+       "target": "c_size.default"
+      },
+      {
+       "source": "c_size.out_geometry",
+       "target": "p2v_c.points"
+      },
+      {
+       "source": ".surface_detail",
+       "target": "p2v_c.detail_size"
+      },
+      {
+       "source": "p2v_c.volume",
+       "target": "sm.volume"
+      },
+      {
+       "source": ".smooth_iterations",
+       "target": "sm.iterations"
+      },
+      {
+       "source": "sm.out_volume",
+       "target": "smp.volume"
+      },
+      {
+       "source": "rpos.data",
+       "target": "smp.positions"
+      },
+      {
+       "source": "far.output",
+       "target": "smp.default"
+      },
+      {
+       "source": "smp.sampled_data",
+       "target": ".depth"
+      },
+      {
+       "source": "smp.sampled_data",
+       "target": "thin.first"
+      },
+      {
+       "source": ".mist_threshold",
+       "target": "thin.second"
+      },
+      {
+       "source": "rpos.data",
+       "target": "pick.array"
+      },
+      {
+       "source": "thin.output",
+       "target": "pick.boolean_array"
+      },
+      {
+       "source": "pick.filtered_array",
+       "target": ".mist_positions"
+      },
+      {
+       "source": "pick.filtered_array",
+       "target": "m_pts.point_position"
+      },
+      {
+       "source": "m_pts.points",
+       "target": "m_size.geometry"
+      },
+      {
+       "source": ".mist_radius",
+       "target": "m_size.data"
+      },
+      {
+       "source": ".mist_radius",
+       "target": "m_size.default"
+      },
+      {
+       "source": "m_size.out_geometry",
+       "target": "p2v_m.points"
+      },
+      {
+       "source": ".mist_detail",
+       "target": "p2v_m.detail_size"
+      },
+      {
+       "source": ".mist_density",
+       "target": "p2v_m.fog_density"
+      },
+      {
+       "source": "p2v_m.volume",
+       "target": ".mist"
+      }
+     ],
+     "values": [
+      {
+       "valueName": "t_pos.value",
+       "valueType": "array<Math::float3>",
+       "value": [
+        {
+         "x": "0f",
+         "y": "0f",
+         "z": "0f"
+        }
+       ]
+      },
+      {
+       "valueName": "c_size.property",
+       "valueType": "string",
+       "value": "point_size"
+      },
+      {
+       "valueName": "p2v_c.store_level_set",
+       "valueType": "bool",
+       "value": "true"
+      },
+      {
+       "valueName": "p2v_c.store_fog_density",
+       "valueType": "bool",
+       "value": "false"
+      },
+      {
+       "valueName": "far.value",
+       "valueType": "float",
+       "value": "10f"
+      },
+      {
+       "valueName": "smp.property",
+       "valueType": "string",
+       "value": "voxel_signed_distance"
+      },
+      {
+       "valueName": "m_size.property",
+       "valueType": "string",
+       "value": "point_size"
+      },
+      {
+       "valueName": "p2v_m.store_level_set",
+       "valueType": "bool",
+       "value": "false"
+      },
+      {
+       "valueName": "p2v_m.store_fog_density",
+       "valueType": "bool",
+       "value": "true"
+      }
+     ]
+    }
+   ],
+   "compoundNodes": [
+    {
+     "nodeName": "mist",
+     "nodeType": "particle_mist"
+    },
+    {
+     "nodeName": "w_positions",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "w_depth",
+     "nodeType": "File::NumPy::write_NumPy"
+    }
+   ],
+   "connections": [
+    {
+     "source": ".liquid_pattern",
+     "target": "mist.liquid_pattern"
+    },
+    {
+     "source": ".frame",
+     "target": "mist.frame"
+    },
+    {
+     "source": ".surface_radius",
+     "target": "mist.surface_radius"
+    },
+    {
+     "source": ".surface_detail",
+     "target": "mist.surface_detail"
+    },
+    {
+     "source": ".smooth_iterations",
+     "target": "mist.smooth_iterations"
+    },
+    {
+     "source": ".mist_threshold",
+     "target": "mist.mist_threshold"
+    },
+    {
+     "source": ".mist_radius",
+     "target": "mist.mist_radius"
+    },
+    {
+     "source": ".mist_detail",
+     "target": "mist.mist_detail"
+    },
+    {
+     "source": ".mist_density",
+     "target": "mist.mist_density"
+    },
+    {
+     "source": "mist.mist_positions",
+     "target": "w_positions.data"
+    },
+    {
+     "source": ".path_positions",
+     "target": "w_positions.file_path"
+    },
+    {
+     "source": "w_positions.success",
+     "target": ".ok_positions"
+    },
+    {
+     "source": "mist.depth",
+     "target": "w_depth.data"
+    },
+    {
+     "source": ".path_depth",
+     "target": "w_depth.file_path"
+    },
+    {
+     "source": "w_depth.success",
+     "target": ".ok_depth"
+    }
+   ],
+   "values": [
+    {
+     "valueName": "w_positions.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_positions.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_positions.frame",
+     "valueType": "long",
+     "value": "0L"
+    },
+    {
+     "valueName": "w_depth.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_depth.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "w_depth.frame",
+     "valueType": "long",
+     "value": "0L"
+    }
+   ]
+  }
+ ]
+}
