@@ -51,7 +51,7 @@ def load_final_state(d):
 def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
                  extra_ports=None, seed_fn=None, obstacles=None, fused=False,
                  dump_every=1, init_arrays=None, final_state=False, step_offset=0,
-                 dumps=DUMPS, solid=None):
+                 dumps=DUMPS, solid=None, out_dir=None):
     """init_arrays resumes from a saved state instead of seeding; final_state also
     writes the whole state at the end (final_<name>.npy beside final.npy); a
     resumed run passes step_offset = substeps already run, so the ST jitter
@@ -59,8 +59,10 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
     per-substep dumps written beside frame.#### (<name>.####). solid is a
     level-set solid, (distance at the (nx+1, ny+1, nz+1) grid nodes, negative
     inside; solid_mode 1 binary faces or 2 cut cells); seeding stays the
-    caller's (seed_fn), so particles inside it are the caller's to drop."""
-    d = os.path.join(HERE, "..", "out", "loop3_" + tag)
+    caller's (seed_fn), so particles inside it are the caller's to drop. out_dir is
+    where everything is written (a run's dumps/c<N>, see runs.py); without it, the
+    gates' out/loop3_<tag>."""
+    d = out_dir or os.path.join(HERE, "..", "out", "loop3_" + tag)
     os.makedirs(d, exist_ok=True)
     if init_arrays is not None:
         pos, typ = init_arrays["positions"], init_arrays["particle_phase"].astype(np.int32)

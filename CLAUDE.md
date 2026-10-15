@@ -41,7 +41,10 @@ current and supersedes anything older.
   pack, `graphs/` the graphs and their bifcmd launchers, `gates/` the
   validation ladder, `experiments/` benches and demos, `maya/` the in-Maya
   playback, `results/` committed evidence, `docs/` the record), mapped in
-  the README. Every run writes under the root `out/` (ignored). The repo
+  the README. Every run writes under the root `out/` (ignored), one folder per
+  run at `out/runs/<tag>/`; `graphs/runs.py` is the one place that knows the
+  layout, finds the runs made before it where they lie, and `runs.py report`
+  lists what is on disk. The repo
   stores code and small numeric evidence (JSON results, charts); simulation
   footage - videos, rendered frames, caches - stays in `out/` (rule set
   2026-10-13; the videos committed before then were untracked the same day

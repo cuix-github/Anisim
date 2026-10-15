@@ -10,6 +10,7 @@ grid with every core busy) unless --stock asks for the stock-splat one.
   ..\\.venv\\Scripts\\python.exe collider_showcase.py stage 0      # one chunk; 1, 2, ... resume
   ..\\.venv\\Scripts\\python.exe collider_showcase.py finalize     # verdict, preview video, cache index
   ..\\.venv\\Scripts\\python.exe collider_showcase.py play         # Maya play cache from the kept states
+  ..\\.venv\\Scripts\\python.exe collider_showcase.py blend        # the 24 fps play cache blended from the dumps
   ..\\.venv\\Scripts\\python.exe collider_showcase.py night        # every chunk, then finalize
 
 Options after any command, the finale's values when left out: --grid NX NY NZ
@@ -18,7 +19,10 @@ substep (2); --dt S (0.12, scaled by sqrt(256 / NX) for another grid: a finer gr
 the same scene is a bigger tank in cells, its speeds in cells per second grow with the
 square root of the size, so the substep shrinks to keep the cells a step); --tag NAME
 (boulders, or boulders<NX> for another grid, so runs never write over each other);
---stock (the stock-splat graph, which every run before 2026-10-15 used unknowingly).
+--stock (the stock-splat graph, which every run before 2026-10-15 used unknowingly);
+--fps N (24, the blend's frame rate); --force (blend: rewrite a cache that exists). A run
+named by --tag alone takes its shape (grid, chunking, substep, graph) from its receipts,
+so `play --tag boulders512` and `blend --tag boulders512` need nothing else.
 
 The background runner caps a task at two hours, so the run goes in chunks that resume
 from full-state dumps (the bore suite's scheme), one launch each. Each chunk renders
@@ -26,7 +30,9 @@ its frames to PNG and keeps everything it wrote: the particle dumps (about 240 M
 dump with velocities at the finale grid, about 2 GB at 512x128x256), the Maya play
 cache (about 70 MB a frame at the finale grid, about 0.55 GB at 512) and the resume
 state; nothing a run writes is deleted. A 512x128x256 run of 240 substeps dumped every
-substep needs about 600 GB. The video and the numbers land in out/collider_showcase/.
+substep needs about 600 GB. Everything a run writes lands under out/runs/<tag>/ (dumps,
+caches, inputs, receipts, renders, scenes; graphs/runs.py knows the layout and still finds
+the runs made before it, which lie in out/loop3_<tag>_c<N> and out/collider_showcase/).
 Checks: particles inside a boulder in any rendered frame, all and liquid, with the
 position and depth of each one found (the field itself is the judge), the run's peak
 speed, particle counts, honest clocks per chunk (startup included, labeled).
@@ -55,11 +61,11 @@ sys.path.insert(0, os.path.join(HERE, "..", "reference2d"))
 sys.path.insert(0, os.path.join(HERE, "..", "maya"))
 from pfflip2d import Sim  # noqa: E402
 from loop3d import DUMPS, run_bifrost3, seed3d, load_final_state  # noqa: E402
-from play_cache import from_states, write_frame, write_index  # noqa: E402
+from play_cache import blend, from_states, write_frame, write_index  # noqa: E402
 from colliders import rock_mesh, solid_phi_from_meshes  # noqa: E402
 from run_bore_suite import scene  # noqa: E402
+from runs import RunPaths, prepare  # noqa: E402
 
-OUT = os.path.join(HERE, "..", "out", "collider_showcase")
 PORTS = {"preconditioner": 1, "st": 1, "escape": 1, "adapt": 1}
 DT = 0.12                              # the finale's substep; other grids scale it
 # the finale grid, 42 substeps a chunk (5 s simulated), four chunks = 20 s
@@ -70,11 +76,12 @@ SMOKE = ((64, 16, 32), 6, 2, 1)
 class Run:
     """One run's shape: grid, chunking, substep, name and graph (see the options)."""
 
-    def __init__(self, grid, substeps, chunks, every, dt=None, tag=None, fused=True):
+    def __init__(self, grid, substeps, chunks, every, dt=None, tag=None, fused=True, fps=24,
+                 force=False, given=()):
         self.grid, self.substeps, self.chunks, self.every = tuple(grid), substeps, chunks, every
         self.dt = dt if dt is not None else round(DT * (FULL[0][0] / grid[0]) ** 0.5, 4)
         self.tag = tag or ("boulders" if self.grid == FULL[0] else f"boulders{grid[0]}")
-        self.fused = fused
+        self.fused, self.fps, self.force, self.given = fused, fps, force, set(given)
 
     def __repr__(self):
         return (f"Run(grid={self.grid}, substeps={self.substeps}, chunks={self.chunks}, "
@@ -82,13 +89,16 @@ class Run:
 
 
 def parse(argv):
-    """The options after the command, over the finale's defaults; returns the run and
-    the positional words (the chunk index of `stage`)."""
+    """The options after the command, over the finale's defaults, or over the receipts
+    of a run named by --tag alone; returns the run and the positional words (the chunk
+    index of `stage`)."""
     grid, sub, n, every = FULL
     dt = tag = None
-    fused, words, i = True, [], 0
+    fused, fps, force, words, given, i = True, 24, False, [], set(), 0
     while i < len(argv):
         a = argv[i]
+        if a.startswith("--"):
+            given.add(a[2:])
         if a == "--grid":
             grid, i = tuple(int(v) for v in argv[i + 1:i + 4]), i + 4
         elif a == "--substeps":
@@ -103,11 +113,33 @@ def parse(argv):
             tag, i = argv[i + 1], i + 2
         elif a == "--stock":
             fused, i = False, i + 1
+        elif a == "--fps":
+            fps, i = int(argv[i + 1]), i + 2
+        elif a == "--force":
+            force, i = True, i + 1
         elif a.startswith("--"):
             raise SystemExit(f"unknown option {a}\n" + __doc__)
         else:
             words, i = words + [a], i + 1
-    return Run(grid, sub, n, every, dt, tag, fused), words
+    if tag and not given & {"grid", "substeps", "chunks", "every", "dt"}:
+        known = from_receipts(tag)
+        if known is not None:
+            grid, sub, n, every, dt = known["grid"], known["substeps"], known["chunks"], known["every"], known["dt"]
+            fused = known["fused"] and "stock" not in given
+    return Run(grid, sub, n, every, dt, tag, fused, fps, force, given), words
+
+
+def from_receipts(tag):
+    """A run's shape from its chunk receipts (c<N>.json): grid, substeps a chunk, dump
+    stride, substep, chunk count and graph; None when the run has no receipts."""
+    paths = RunPaths(tag)
+    found = [c for c in range(256) if os.path.exists(paths.receipt(f"c{c}.json"))]
+    if not found:
+        return None
+    with open(paths.receipt(f"c{found[0]}.json")) as f:
+        e = json.load(f)
+    return {"grid": tuple(e["grid"]), "substeps": e["substeps"], "chunks": max(found) + 1,
+            "every": e["substeps"] // len(e["particles"]), "dt": e["dt"], "fused": e.get("fused", False)}
 
 
 def rocks(nx, ny, nz):
@@ -141,20 +173,22 @@ def phi_at(phi, pts, block=1 << 23):
 
 
 def field(tag, nx, ny, nz):
-    """The boulders' solid_phi through the graph, cached beside the run."""
-    path = os.path.join(OUT, f"solid_phi_{tag}.npy")
+    """The boulders' solid_phi through the graph, kept with the run's inputs."""
+    paths = RunPaths(tag)
+    path = paths.input("solid_phi.npy")
     if os.path.exists(path):
         return np.load(path)
     meshes = rocks(nx, ny, nz)
     t0 = time.time()
     # the setup graph takes two meshes a run: the third goes through as a second run
     # and the fields meet in a minimum, exactly what the adapter does for N colliders
-    phi = np.minimum(solid_phi_from_meshes(f"{tag}_ab", meshes[:2], nx, ny, nz),
-                     solid_phi_from_meshes(f"{tag}_c", meshes[2:], nx, ny, nz))
+    phi = np.minimum(solid_phi_from_meshes(f"{tag}_ab", meshes[:2], nx, ny, nz,
+                                           out_dir=paths.input("collider_ab")),
+                     solid_phi_from_meshes(f"{tag}_c", meshes[2:], nx, ny, nz,
+                                           out_dir=paths.input("collider_c")))
     wall = time.time() - t0
-    os.makedirs(OUT, exist_ok=True)
-    np.save(path, phi)
-    with open(os.path.join(OUT, f"field_{tag}.json"), "w") as f:
+    np.save(prepare(path), phi)
+    with open(prepare(paths.receipt("field.json")), "w") as f:
         json.dump({"nodes": int(phi.size), "wall_s": round(wall, 1),
                    "inside_nodes": int((phi < 0).sum()),
                    "meshes": [{"points": int(len(m[0])), "faces": int(len(m[2]) - 1)}
@@ -248,9 +282,10 @@ def calibration():
 
 def run_chunk(run, chunk, tag=None, with_rocks=True, render=True):
     """One chunk of `run` (its tag unless given), resumed from the chunk before. With
-    render, every dumped frame also goes into the Maya play cache (<tag>_play/: liquid
+    render, every dumped frame also goes into the Maya play cache (cache/full: liquid
     positions and speeds), which needs the particle velocities dumped too."""
     tag = tag or run.tag
+    paths = RunPaths(tag)
     (nx, ny, nz), substeps, every, dt = run.grid, run.substeps, run.every, run.dt
     mask, _, _, h1, h0, rx = scene(nx, ny, nz)
     phi = field(tag, nx, ny, nz) if with_rocks else None
@@ -262,20 +297,20 @@ def run_chunk(run, chunk, tag=None, with_rocks=True, render=True):
             keep = phi_at(phi, pos) >= 0.0
             pos, typ = pos[keep], typ[keep]
         return pos, typ
-    init = load_final_state(os.path.join(HERE, "..", "out", f"loop3_{tag}_c{chunk - 1}")) \
-        if chunk else None
+    init = load_final_state(paths.dumps(chunk - 1)) if chunk else None
     print(f"{tag} chunk {chunk}: {run}", flush=True)
     t0 = time.time()
     d, typ, diag = run_bifrost3(f"{tag}_c{chunk}", nx, ny, nz, mask, substeps, dt,
                                 extra_ports=ports, seed_fn=seed, init_arrays=init,
                                 final_state=True, step_offset=chunk * substeps,
                                 dump_every=every, solid=(phi, 2) if phi is not None else None,
-                                dumps=DUMPS + (("vel",) if render else ()), fused=run.fused)
+                                dumps=DUMPS + (("vel",) if render else ()), fused=run.fused,
+                                out_dir=paths.dumps(chunk))
     wall = time.time() - t0
-    play_dir = os.path.join(OUT, f"{tag}_play")
+    play_dir = paths.cache("full")
     play_liquid = []
     # audit and render every dumped frame; the dumps stay, every one (the cache)
-    frames_dir = os.path.join(OUT, f"{tag}_png")
+    frames_dir = paths.renders("audit")
     os.makedirs(frames_dir, exist_ok=True)
     view = View(nx, ny, nz, rocks(nx, ny, nz)) if (render and with_rocks) else None
     counts, pens, pens_liquid, peaks, offenders = [], [], [], [], []
@@ -308,8 +343,7 @@ def run_chunk(run, chunk, tag=None, with_rocks=True, render=True):
              "particles": counts, "inside_a_boulder": pens, "inside_a_boulder_liquid": pens_liquid,
              "inside_particles": offenders, "play_liquid": play_liquid, "peak_speed": max(peaks),
              "iterations_mean": round(float(np.mean(iters)), 1), "with_rocks": with_rocks}
-    os.makedirs(OUT, exist_ok=True)
-    with open(os.path.join(OUT, f"{tag}_c{chunk}.json"), "w") as f:
+    with open(prepare(paths.receipt(f"c{chunk}.json")), "w") as f:
         json.dump(entry, f, indent=1)
     print(json.dumps(entry), flush=True)
     return entry
@@ -319,12 +353,13 @@ def finalize(run):
     """The verdict over every chunk, the audit frames as a real-time preview video
     (the painter's frames, not a render) and the play cache's index."""
     tag, dt = run.tag, run.dt
+    paths = RunPaths(tag)
     chunks = []
     for c in range(run.chunks):
-        with open(os.path.join(OUT, f"{tag}_c{c}.json")) as f:
+        with open(paths.receipt(f"c{c}.json")) as f:
             chunks.append(json.load(f))
-    frames_dir = os.path.join(OUT, f"{tag}_png")
-    video = os.path.join(OUT, f"{tag}.mp4")
+    frames_dir = paths.renders("audit")
+    video = prepare(paths.video("audit"))
     fps = max(1, round(1.0 / (run.every * dt)))
     subprocess.run(["ffmpeg", "-y", "-framerate", str(fps), "-i", os.path.join(frames_dir, "fr%04d.png"),
                     "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "21", video],
@@ -347,10 +382,10 @@ def finalize(run):
     play = [n for c in chunks for n in c.get("play_liquid", [])]
     if play:   # Maya frame f shows the state after substep (f - 1) * dump_every
         every = chunks[0]["substeps"] // len(chunks[0]["play_liquid"])
-        write_index(os.path.join(OUT, f"{tag}_play"), play, dt_frame_s=round(every * dt, 4),
+        write_index(paths.cache("full"), play, dt_frame_s=round(every * dt, 4),
                     time_s_first=round(dt, 4), source=tag, grid=list(run.grid))
         summary["play_frames"] = len(play)
-    with open(os.path.join(OUT, f"{tag}_summary.json"), "w") as f:
+    with open(prepare(paths.receipt("summary.json")), "w") as f:
         json.dump(summary, f, indent=1)
     print(json.dumps(summary, indent=1), flush=True)
     print("FINALIZED", tag, flush=True)
@@ -370,14 +405,31 @@ def write_obj(path, meshes):
 
 def play_states(run):
     """A Maya play cache from the run's kept states (each chunk's end), plus the
-    boulders as an OBJ: something to orbit from the resume states alone. The finale
-    run's cache keeps its old name, play_states; another run's is <tag>_states."""
-    dirs = [os.path.join(HERE, "..", "out", f"loop3_{run.tag}_c{c}") for c in range(run.chunks)]
-    cache = os.path.join(OUT, "play_states" if run.tag == "boulders" else f"{run.tag}_states")
-    counts = from_states(cache, dirs,
+    boulders as an OBJ: something to orbit from the resume states alone (cache/states
+    and inputs/colliders.obj; the finale run's older cache is still found as play_states)."""
+    paths = RunPaths(run.tag)
+    dirs = [paths.dumps(c) for c in range(run.chunks)]
+    cache = paths.cache("states")
+    counts = from_states(cache, dirs, grid=list(run.grid),
                          times=[round((c + 1) * run.substeps * run.dt, 2) for c in range(run.chunks)])
-    write_obj(os.path.join(OUT, f"{run.tag}.obj"), rocks(*run.grid))
-    print(f"{os.path.basename(cache)}:", counts, f"liquid particles; {run.tag}.obj written", flush=True)
+    obj = prepare(paths.input("colliders.obj"))
+    write_obj(obj, rocks(*run.grid))
+    print(f"{cache}:", counts, f"liquid particles; {obj} written", flush=True)
+
+
+def blend_cache(run):
+    """The video-rate Maya play cache of the run, blended from its dumps (maya/play_cache.py
+    blend; the dumps need the velocities, which every rendered chunk writes), into
+    cache/blend<fps>. A cache that exists is not rewritten without --force."""
+    paths = RunPaths(run.tag)
+    cache = paths.cache(f"blend{run.fps}")
+    if os.path.exists(os.path.join(cache, "cache.json")) and not run.force:
+        raise SystemExit(f"{cache} exists; pass --force to write it again")
+    dirs = [paths.dumps(c) for c in range(run.chunks)]
+    t0 = time.time()
+    counts = blend(cache, dirs, run.substeps, run.every, run.dt, run.fps, grid=list(run.grid), source=run.tag)
+    print(f"{cache}: {len(counts)} frames at {run.fps} fps from {len(dirs)} chunks, "
+          f"{time.time() - t0:.0f} s", flush=True)
 
 
 def cost(run, substeps=8):
@@ -390,7 +442,7 @@ def cost(run, substeps=8):
         e = run_chunk(short, 0, tag=tag, with_rocks=with_rocks, render=False)
         res[tag] = e["wall_per_substep_s"]
     res["ratio"] = round(res["cost_rocks"] / res["cost_plain"], 3)
-    with open(os.path.join(OUT, "cost.json"), "w") as f:
+    with open(prepare(RunPaths(run.tag).receipt("cost.json")), "w") as f:
         json.dump(dict(res, grid=list(run.grid), dt=run.dt, fused=run.fused, substeps=substeps),
                   f, indent=1)
     print(json.dumps(res), flush=True)
@@ -399,9 +451,8 @@ def cost(run, substeps=8):
 def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else "smoke"
     run, words = parse(sys.argv[2:])
-    os.makedirs(OUT, exist_ok=True)
     if cmd == "smoke":   # the finale's substep, as every smoke run before the scaling rule
-        run = Run(*SMOKE, dt=DT, tag="smoke", fused=run.fused)
+        run = Run(*SMOKE, dt=DT, tag=run.tag if "tag" in run.given else "smoke", fused=run.fused)
         for c in range(run.chunks):
             run_chunk(run, c)
         finalize(run)
@@ -413,6 +464,8 @@ def main():
         finalize(run)
     elif cmd == "play":
         play_states(run)
+    elif cmd == "blend":
+        blend_cache(run)
     elif cmd == "night":
         for c in range(run.chunks):
             run_chunk(run, c)

@@ -5,7 +5,8 @@ be exactly what the run wrote. Light: a minute, plus a few seconds per real fram
           the liquid particles' positions bit for bit, in order; their colours follow
           slow + min(speed / speed_scale, 1) * (fast - slow) to float rounding; their
           sizes are point_size; changing speed_scale and point_size moves both
-  cache   a real play cache (default out/collider_showcase/play_states, written by
+  cache   a real play cache (default the finale run's states cache, found by graphs/runs.py in
+          either layout: out/runs/boulders/cache/states or the older play_states, written by
           `collider_showcase.py play` from the run's kept states): the last frame
           through the compound, the same comparison, and the wall per frame
 
@@ -21,7 +22,9 @@ import numpy as np
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "maya"))
+sys.path.insert(0, os.path.join(HERE, "..", "graphs"))
 from play_cache import write_frame  # noqa: E402
+from runs import RunPaths  # noqa: E402
 
 OUT = os.path.join(HERE, "..", "out", "play_gate")
 BAT = os.path.join(HERE, "..", "maya", "run_particle_play_test.bat")
@@ -89,7 +92,7 @@ def check_small():
 
 
 def check_cache(cache=None):
-    cache = cache or os.path.join(HERE, "..", "out", "collider_showcase", "play_states")
+    cache = cache or RunPaths("boulders").cache("states")
     print(f"=== cache: the last frame of {os.path.normpath(cache)}")
     if not os.path.exists(os.path.join(cache, "cache.json")):
         print("    no cache there (write one first, e.g. collider_showcase.py play)  FAIL")
