@@ -222,9 +222,26 @@ Disk, nothing deleted: 457 GB of dumps (about 2 GB a substep, every particle wit
 
 ## Milestone 7. The shot
 
-In short: the scene was chosen 2026-10-13, and the next piece, after the render route and the repository consolidation, is a breaking-wave ocean driven by a piston wavemaker, which needs moving colliders.
+In short: the scene was chosen 2026-10-13; the first breaker came 2026-10-16 as a solitary wave onto a plane beach (below), and the next piece is a breaking-wave ocean driven by a piston wavemaker, which needs moving colliders.
 
 **The shot.** A tsunami into a coastline corner of a production scene captured as splats, colliders taken from the scene's own geometry, one violent release, particles exported per frame and rendered as Gaussians by Aniso inside the splat scene, whitewater coloured from the phase field. Scene chosen 2026-10-13. The original plan's box colliders aligned by hand cannot build a coastline, so the shot needs mesh colliders first (open questions). The scene is licensed: its geometry and every output built on it stay on the local machine.
+
+### The solitary wave, 2026-10-16
+
+The cheapest way to see a breaker at ocean scale, before any wavemaker: a tsunami near shore is one long hump of water, and the hump has an exact enough description, the solitary wave of shallow-water theory. Over still water of depth h, a hump of height H has the profile eta = H sech^2(k (x - x0)) with k = sqrt(3H / 4h^3), travels unchanged at c = sqrt(g (h + H)), and carries the depth-averaged velocity u = c eta / (h + eta), with w = -y du/dx from continuity. Seed the particles with eta as the surface and (u, w) on the liquid and the solver has to move the hump at c and keep its height. `reference2d/solitary_wave.py` does this in the 2D reference at one-metre cells (receipts and frame strips in `results/2d/solitary_wave/`), as the control for the 3D runs, one variable at a time.
+
+*Flat bed, 400 x 48 cells, h = 20 m, H = 6 m, 11 s:* the crest runs at 0.966 c and keeps its height (5.88 to 5.80 m); nothing is left behind. *The same hump at rest:* it splits into two half-height waves, 2.96 m each at mid-run, running apart, the textbook result and the way the check can fail. *A plane beach, 1:15 from x = 160 m to the shoreline at 460 m, as a cut-cell level-set solid:* the wave shoals and its front face steepens. Two marks are read off the face, from the liquid's front in one-metre bands above still water (a band's front being the x with a cell's worth of particles beyond it, so a stray particle does not move it and a long band is not read short; a percentile front was biased by the band's length and had to go): the face is steep when three bands rise more than 2.5 m per metre of advance under a crest shoaled to 1.1 H, and the wave has turned over when a band's front exceeds a lower band's by more than 1.5 m. Against these, Grilli, Svendsen and Subramanya (1997) put a solitary wave's breaking, the front face vertical, at H_b / h_b = 0.841 exp(6.421 S0) with S0 = 1.521 s / sqrt(H/h); S0 = 0.185 for this slope, a plunging breaker, H_b / h_b about 2.8, roughly 2.6 m of water.
+
+| Arm | Face steep, depth under the crest | Lip overhangs 1.5 m, depth | Crest at the overhang |
+| --- | --- | --- | --- |
+| 2D reference, plain, 1 m cells | 4.16 m | 3.17 m | 7.1 m |
+| 2D reference, plain, 0.5 m cells | 4.24 m | 3.13 m | 7.4 m |
+| 2D reference, production settings (ST, escaped particles, adaptive air, 0.1 s substeps), 1 m cells | 4.50 m | 3.77 m | 7.4 m |
+| Bifrost node, production settings, 520 x 56 x 8 (an 8 m slice), 1 m cells | 2.84 m | 1.73 m | 8.3 m |
+| Bifrost node, production settings, 520 x 56 x 1 | 2.88 m | 1.75 m | 8.3 m |
+| Grilli et al. 1997, the face vertical | about 2.6 m | | |
+
+The node (the 3D runs are in the next record) makes a proper plunging breaker at one-metre cells, a steep face, a lip, then the jet, close to the published depth, in 147 s for 26 s of wave on eight threads (1.9 M particles, 0.55 s a substep, 2.3 GB of dumps at every fifth substep). The reference turns over about 1.5 s earlier, in a metre and a half more water, with a lower crest; halving its cells does not move it, and its pressure solve converges (about 920 iterations against a cap of 4000). The one-cell-wide node run shows the disagreement is reference against node, not 2D against 3D. Recorded as an open question with the receipts: the gates compared the two at single instants on short scenes, never over a 26-second run on a cut-cell slope.
 
 ## Records behind the decisions
 

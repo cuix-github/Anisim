@@ -1,0 +1,169 @@
+{
+ "beach_fine": {
+  "label": "beach_fine",
+  "cells_per_metre": 2,
+  "grid": [
+   1040,
+   112
+  ],
+  "h_m": 20.0,
+  "H_m": 6.0,
+  "x0_m": 80.0,
+  "toe_m": 160.0,
+  "slope": "1:15",
+  "shoreline_m": 460.0,
+  "wall_s": 1728.9,
+  "config": {},
+  "dt_frame": 0.1,
+  "cfl": 0.5,
+  "particles": 396815,
+  "frames_run": 224,
+  "steep_front": {
+   "t": 20.4,
+   "crest_x": 396.41,
+   "crest_height": 7.6,
+   "depth_under_crest": 4.24,
+   "face_steepness": 2.72,
+   "overhang_m": 0.0
+  },
+  "turned_over": {
+   "t": 21.4,
+   "crest_x": 413.1,
+   "crest_height": 7.41,
+   "depth_under_crest": 3.13,
+   "face_steepness": 99.0,
+   "overhang_m": 1.69
+  },
+  "crest_at_toe_passage": {
+   "t": 5.0,
+   "crest_x": 160.89,
+   "crest_height": 6.02,
+   "depth_under_crest": 19.94,
+   "face_steepness": 0.36,
+   "overhang_m": 0.0
+  },
+  "grilli": {
+   "S0": 0.185,
+   "Hb_over_hb": 2.76,
+   "breaker": "plunging",
+   "measured_Hb_over_hb_at_steep": 1.79,
+   "measured_Hb_over_hb_turned_over": 2.37
+  },
+  "zoom_times": [
+   20.9,
+   21.1,
+   21.3,
+   21.5,
+   21.7,
+   21.9,
+   22.1,
+   22.3
+  ],
+  "log_every_2s": [
+   {
+    "t": 0.1,
+    "crest_x": 83.08,
+    "crest_height": 5.91,
+    "depth_under_crest": 20.0,
+    "face_steepness": 0.44,
+    "overhang_m": 0.07
+   },
+   {
+    "t": 2.1,
+    "crest_x": 114.7,
+    "crest_height": 5.91,
+    "depth_under_crest": 20.0,
+    "face_steepness": 0.46,
+    "overhang_m": 0.07
+   },
+   {
+    "t": 4.1,
+    "crest_x": 145.76,
+    "crest_height": 6.02,
+    "depth_under_crest": 20.0,
+    "face_steepness": 0.47,
+    "overhang_m": 0.14
+   },
+   {
+    "t": 6.1,
+    "crest_x": 179.24,
+    "crest_height": 6.04,
+    "depth_under_crest": 18.72,
+    "face_steepness": 0.32,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 8.1,
+    "crest_x": 202.42,
+    "crest_height": 6.06,
+    "depth_under_crest": 17.17,
+    "face_steepness": 1.3,
+    "overhang_m": 0.39
+   },
+   {
+    "t": 10.1,
+    "crest_x": 234.74,
+    "crest_height": 6.1,
+    "depth_under_crest": 15.02,
+    "face_steepness": 0.56,
+    "overhang_m": 0.03
+   },
+   {
+    "t": 12.1,
+    "crest_x": 268.33,
+    "crest_height": 6.38,
+    "depth_under_crest": 12.78,
+    "face_steepness": 0.28,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 14.1,
+    "crest_x": 295.89,
+    "crest_height": 6.34,
+    "depth_under_crest": 10.94,
+    "face_steepness": 0.27,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 16.1,
+    "crest_x": 330.83,
+    "crest_height": 6.72,
+    "depth_under_crest": 8.61,
+    "face_steepness": 0.27,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 18.1,
+    "crest_x": 364.53,
+    "crest_height": 7.15,
+    "depth_under_crest": 6.36,
+    "face_steepness": 0.51,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 20.1,
+    "crest_x": 393.6,
+    "crest_height": 7.49,
+    "depth_under_crest": 4.43,
+    "face_steepness": 1.25,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 22.1,
+    "crest_x": 419.77,
+    "crest_height": 6.09,
+    "depth_under_crest": 2.68,
+    "face_steepness": 99.0,
+    "overhang_m": 5.46
+   },
+   {
+    "t": 22.4,
+    "crest_x": 422.98,
+    "crest_height": 5.73,
+    "depth_under_crest": 2.47,
+    "face_steepness": 0.75,
+    "overhang_m": 0.0
+   }
+  ]
+ }
+}
