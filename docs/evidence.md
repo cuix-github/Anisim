@@ -134,3 +134,23 @@ Gates: [stage1_gate.json](../results/2d/adaptive/stage1_gate.json) and [stage3a_
 ## 10. The showcases (2026-10-14 and 2026-10-15)
 
 Numbers only, in `out/collider_showcase/*_summary.json` locally: the 256 bore over three mesh boulders (4.13 h on the stock graph, no penetrations), and the 512 run (2.40 h on the fused graph, 134 M particles seeded, 52 M at the end, 20.38 s simulated). The frames and videos are described in [outputs](outputs.md).
+
+## 11. The solitary wave (2026-10-16)
+
+`reference2d/solitary_wave.py`, the 2D control for the beach runs; receipts in [receipt.json](../results/2d/solitary_wave/receipt.json), [receipt_production.json](../results/2d/solitary_wave/receipt_production.json) and [receipt_fine.json](../results/2d/solitary_wave/receipt_fine.json). Cells of one metre; the strips are drawn at two pixels a cell, liquid blue, air grey.
+
+![Solitary wave on a flat bed](../results/2d/solitary_wave/flat.png)
+
+The hump with its velocity field, 400 x 48 cells, h = 20 m, H = 6 m: it runs at 0.966 of the analytic speed and keeps its height, 5.88 to 5.80 m over 11 s.
+
+![The same hump at rest](../results/2d/solitary_wave/rest.png)
+
+The negative control: seeded without its velocity it splits into two half-height waves, 2.96 m each at mid-run.
+
+![The beach](../results/2d/solitary_wave/beach.png)
+
+The wave onto the 1:15 beach (toe at 160 m, shoreline at 460 m), the last eight frames before it turns over.
+
+![The beach, close up](../results/2d/solitary_wave/beach_zoom.png)
+
+The last two seconds around the crest, six pixels a cell: the face goes steep at 4.16 m of water and the lip overhangs 1.5 m at 3.17 m. Grilli's vertical face for this slope is at about 2.6 m; the Bifrost node reaches it (the next entry). The production settings ([beach_production_zoom.png](../results/2d/solitary_wave/beach_production_zoom.png)) and half-metre cells ([beach_fine_zoom.png](../results/2d/solitary_wave/beach_fine_zoom.png)) change the reference's marks by less than a metre of depth.

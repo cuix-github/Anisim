@@ -1,0 +1,125 @@
+{
+ "beach_production": {
+  "label": "beach_production",
+  "cells_per_metre": 1,
+  "grid": [
+   520,
+   56
+  ],
+  "h_m": 20.0,
+  "H_m": 6.0,
+  "x0_m": 80.0,
+  "toe_m": 160.0,
+  "slope": "1:15",
+  "shoreline_m": 460.0,
+  "wall_s": 68.1,
+  "config": {
+   "st": true,
+   "escape": true,
+   "adapt": true
+  },
+  "dt_frame": 0.2,
+  "cfl": 10.0,
+  "particles": 49043,
+  "frames_run": 111,
+  "steep_front": {
+   "t": 20.4,
+   "crest_x": 392.55,
+   "crest_height": 7.38,
+   "depth_under_crest": 4.5,
+   "face_steepness": 4.15,
+   "overhang_m": 0.25
+  },
+  "turned_over": {
+   "t": 21.2,
+   "crest_x": 403.47,
+   "crest_height": 7.4,
+   "depth_under_crest": 3.77,
+   "face_steepness": 99.0,
+   "overhang_m": 1.66
+  },
+  "crest_at_toe_passage": {
+   "t": 5.2,
+   "crest_x": 160.2,
+   "crest_height": 5.82,
+   "depth_under_crest": 19.99,
+   "face_steepness": 0.47,
+   "overhang_m": 0.55
+  },
+  "grilli": {
+   "S0": 0.185,
+   "Hb_over_hb": 2.76,
+   "breaker": "plunging",
+   "measured_Hb_over_hb_at_steep": 1.64,
+   "measured_Hb_over_hb_turned_over": 1.96
+  },
+  "zoom_times": [
+   19.2,
+   19.6,
+   20.0,
+   20.4,
+   20.8,
+   21.2,
+   21.6,
+   22.0
+  ],
+  "log_every_2s": [
+   {
+    "t": 0.2,
+    "crest_x": 84.84,
+    "crest_height": 5.86,
+    "depth_under_crest": 20.0,
+    "face_steepness": 0.42,
+    "overhang_m": 0.2
+   },
+   {
+    "t": 4.2,
+    "crest_x": 144.38,
+    "crest_height": 5.86,
+    "depth_under_crest": 20.0,
+    "face_steepness": 0.53,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 8.2,
+    "crest_x": 205.76,
+    "crest_height": 5.98,
+    "depth_under_crest": 16.95,
+    "face_steepness": 0.36,
+    "overhang_m": 0.11
+   },
+   {
+    "t": 12.2,
+    "crest_x": 268.13,
+    "crest_height": 6.09,
+    "depth_under_crest": 12.79,
+    "face_steepness": 0.24,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 16.2,
+    "crest_x": 318.22,
+    "crest_height": 6.0,
+    "depth_under_crest": 9.45,
+    "face_steepness": 0.28,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 20.2,
+    "crest_x": 389.02,
+    "crest_height": 7.07,
+    "depth_under_crest": 4.73,
+    "face_steepness": 2.26,
+    "overhang_m": 0.0
+   },
+   {
+    "t": 22.2,
+    "crest_x": 419.26,
+    "crest_height": 7.0,
+    "depth_under_crest": 2.72,
+    "face_steepness": 99.0,
+    "overhang_m": 3.44
+   }
+  ]
+ }
+}
