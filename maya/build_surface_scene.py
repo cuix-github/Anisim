@@ -10,7 +10,9 @@ matte grey; a ground plane; the camera framing the domain; Arnold set as the
 renderer. Reads the environment render_surface_preview.ps1 sets (SURF_CACHE,
 SURF_SCENE, SURF_GRID, SURF_OBJ, SURF_CAMERA, SURF_POINT_SIZE, SURF_DETAIL,
 SURF_SMOOTH_ITERS, SURF_MESH_SMOOTH, SURF_MIST_RADIUS, SURF_MIST_DETAIL,
-SURF_MIST_DENSITY, SURF_MIST_THRESHOLD; see the .ps1) and saves SURF_SCENE. Built
+SURF_MIST_DENSITY, SURF_MIST_THRESHOLD, SURF_LOOK, SURF_WATER_DEPTH,
+SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR;
+see the .ps1) and saves SURF_SCENE. Built
 here rather than in the GUI session
 because a script run at GUI startup sees the compound library before Bifrost's own
 libraries are loaded (its ports come back as unknown types); a saved scene opens
@@ -97,9 +99,15 @@ def build(cmds):
 
     # water: glass at the index of water, tinted with depth; foam: white, matte;
     # mixed by convex curvature (the papers render high-curvature areas foam-like)
+    # SURF_LOOK=ocean: the breaking-wave stills of the PF-FLIP paper, dark water that
+    # absorbs within metres, a near-black sky, the sun low behind the spray (backlit,
+    # toward a camera on the -z side), a dark floor; the default look is unchanged
+    ocean = E.get("SURF_LOOK", "") == "ocean"
     water = shader(cmds, "aiStandardSurface", "water", base=0.0, specular=1.0,
                    specularRoughness=0.03, specularIOR=1.33, transmission=1.0,
-                   transmissionColor=(0.7, 0.88, 0.94), transmissionDepth=60.0)
+                   transmissionColor=tuple(float(v) for v in E.get("SURF_WATER_COLOR", "").split())
+                   or ((0.22, 0.42, 0.46) if ocean else (0.7, 0.88, 0.94)),
+                   transmissionDepth=env("SURF_WATER_DEPTH", 6.0 if ocean else 60.0))
     foam = shader(cmds, "aiStandardSurface", "foam", base=1.0, baseColor=(0.94, 0.96, 0.98),
                   specular=0.25, specularRoughness=0.55)
     curv = cmds.shadingNode("aiCurvature", asTexture=True, name="foamCurvature")
@@ -128,22 +136,32 @@ def build(cmds):
         cmds.file(os.path.abspath(E["SURF_OBJ"]), i=True, type="OBJ", ignoreVersion=True,
                   options="mo=1", namespace="obj")
         meshes = sorted(set(cmds.ls(assemblies=True)) - before)
-        rock = shader(cmds, "aiStandardSurface", "rock", base=1.0, baseColor=(0.36, 0.32, 0.28),
+        rock = shader(cmds, "aiStandardSurface", "rock", base=1.0,
+                      baseColor=(0.08, 0.075, 0.07) if ocean else (0.36, 0.32, 0.28),
                       specular=0.2, specularRoughness=0.7)
         assign(cmds, rock, meshes, "rockSG")
         cmds.group(meshes, name="colliders")
     ground = cmds.polyPlane(w=nx * 6, h=nz * 6, sx=1, sy=1, name="ground")[0]
     cmds.setAttr(ground + ".translate", nx / 2, -1.0, nz / 2)
-    sand = shader(cmds, "aiStandardSurface", "sand", base=1.0, baseColor=(0.52, 0.47, 0.4),
+    sand = shader(cmds, "aiStandardSurface", "sand", base=1.0,
+                  baseColor=(0.04, 0.04, 0.045) if ocean else (0.52, 0.47, 0.4),
                   specular=0.1, specularRoughness=0.8)
     assign(cmds, sand, ground, "sandSG")
 
     # light: a sky dome (seen by the camera as the background) and a warm sun
     sky = cmds.shadingNode("aiSkyDomeLight", asLight=True, name="sky")
-    cmds.setAttr(sky + ".color", 0.5, 0.66, 0.9, type="double3")
-    cmds.setAttr(sky + ".intensity", 1.0)
-    sun = cmds.directionalLight(name="sun", intensity=3.0)
-    cmds.setAttr(cmds.listRelatives(sun, parent=True)[0] + ".rotate", -48.0, 28.0, 0.0)
+    if ocean:
+        cmds.setAttr(sky + ".color", 0.03, 0.035, 0.045, type="double3")
+        cmds.setAttr(sky + ".intensity", env("SURF_SKY_INTENSITY", 1.0))
+        # the sky lights and reflects but the camera sees black behind the water
+        cmds.setAttr(sky + ".camera", env("SURF_SKY_VISIBLE", 0.0))
+    else:
+        cmds.setAttr(sky + ".color", 0.5, 0.66, 0.9, type="double3")
+        cmds.setAttr(sky + ".intensity", env("SURF_SKY_INTENSITY", 1.0))
+    sun = cmds.directionalLight(name="sun", intensity=env("SURF_SUN_INTENSITY", 4.0 if ocean else 3.0))
+    rot = [float(v) for v in E.get("SURF_SUN_ROTATE", "").split()] or ([-18.0, 15.0, 0.0] if ocean
+                                                                      else [-48.0, 28.0, 0.0])
+    cmds.setAttr(cmds.listRelatives(sun, parent=True)[0] + ".rotate", *rot)
     cmds.setAttr(sun + ".color", 1.0, 0.95, 0.86, type="double3")
     cmds.setAttr(sun + ".aiAngle", 1.5)
 
