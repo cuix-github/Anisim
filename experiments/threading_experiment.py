@@ -21,7 +21,7 @@ import time
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-for _d in ("reference2d", "gates", "graphs"):
+for _d in ("reference2d", "gates", "graphs", "experiments/archive"):   # the archive: the demo scene
     sys.path.insert(0, str(HERE.parent / _d))
 from pfflip2d import Sim
 from demo3d import lattice
