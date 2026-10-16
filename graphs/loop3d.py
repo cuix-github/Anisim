@@ -33,17 +33,23 @@ def lattice(ni, nj, nk):
 
 
 FINAL_STATE = ("velocities", "mass", "momx", "momy", "momz", "tau", "wt", "wtph",
-               "scale", "phase")
+               "scale", "phase", "radius")
 # per-substep dumps beside frame.#### (always written): escaped flags, particle
-# scales, phases; "vel" (particle velocities) is opt-in
-DUMPS = ("esc", "scl", "ph")
+# scales, phases, droplet radii in metres (0 without the droplet model); "vel"
+# (particle velocities) is opt-in
+DUMPS = ("esc", "scl", "ph", "rad")
 
 
 def load_final_state(d):
     """The full particle state a run left in d (final_state=True), as init_arrays."""
     st = {"positions": np.load(os.path.join(d, "final.npy"))}
     for nm in FINAL_STATE:
-        st["phase_st" if nm == "phase" else nm] = np.load(os.path.join(d, f"final_{nm}.npy"))
+        f = os.path.join(d, f"final_{nm}.npy")
+        if nm == "radius" and not os.path.exists(f):
+            # a state saved before droplet radii existed: no droplet has one
+            st[nm] = np.zeros(len(st["positions"]), np.float32)
+            continue
+        st["phase_st" if nm == "phase" else nm] = np.load(f)
     st["particle_phase"] = st["phase_st"]
     return st
 
@@ -76,6 +82,7 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
             "tau": zeros, "wt": np.ones(len(pos), np.float32),
             "wtph": typ.astype(np.float32),
             "scale": np.ones(len(pos), np.float32),
+            "radius": zeros,
             "phase_st": typ.astype(np.float32),
             "obs_min": (obstacles[0].astype(np.float32) if obstacles is not None and len(obstacles[0])
                         else np.array([[-100.0, -100.0, -100.0]], np.float32)),
@@ -91,7 +98,7 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
         extra_ports = dict(extra_ports or {}, solid_mode=int(solid[1]))
     if init_arrays is not None:
         for k2 in ("velocities", "mass", "momx", "momy", "momz", "tau", "wt", "wtph",
-                   "scale", "phase_st"):
+                   "scale", "phase_st", "radius"):
             arrs[k2] = init_arrays[k2].astype(np.float32)
     for k, v in arrs.items():
         np.save(os.path.join(d, k + ".npy"), v)

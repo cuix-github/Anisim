@@ -597,6 +597,65 @@
           "portDefault": "0f"
         },
         {
+          "portName": "droplet_model",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
+          "portName": "droplet_r_median",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0.0001f"
+        },
+        {
+          "portName": "droplet_r_sigma",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0.7f"
+        },
+        {
+          "portName": "droplet_evap_k",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0.000000001f"
+        },
+        {
+          "portName": "droplet_r_min",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0.000001f"
+        },
+        {
+          "portName": "metres_per_cell",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "1f"
+        },
+        {
+          "portName": "air_nu",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0.000015f"
+        },
+        {
+          "portName": "path_radius_in",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "path_radius_out",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "ok_radius_out",
+          "portDirection": "output",
+          "portType": "bool"
+        },
+        {
           "portName": "piston_top",
           "portDirection": "input",
           "portType": "float",
@@ -683,6 +742,14 @@
         {
           "nodeName": "r_w_ws",
           "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_radius_in",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "w_radius_out",
+          "nodeType": "File::NumPy::write_NumPy"
         },
         {
           "nodeName": "r_scale_in",
@@ -1579,6 +1646,58 @@
           "target": "step.piston_width"
         },
         {
+          "source": ".droplet_model",
+          "target": "step.droplet_model"
+        },
+        {
+          "source": ".droplet_r_median",
+          "target": "step.droplet_r_median"
+        },
+        {
+          "source": ".droplet_r_sigma",
+          "target": "step.droplet_r_sigma"
+        },
+        {
+          "source": ".droplet_evap_k",
+          "target": "step.droplet_evap_k"
+        },
+        {
+          "source": ".droplet_r_min",
+          "target": "step.droplet_r_min"
+        },
+        {
+          "source": ".metres_per_cell",
+          "target": "step.metres_per_cell"
+        },
+        {
+          "source": ".air_nu",
+          "target": "step.air_nu"
+        },
+        {
+          "source": ".path_radius_in",
+          "target": "r_radius_in.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_radius_in.type"
+        },
+        {
+          "source": "r_radius_in.data",
+          "target": "step.radius_in"
+        },
+        {
+          "source": ".path_radius_out",
+          "target": "w_radius_out.file_path"
+        },
+        {
+          "source": "step.radius_out",
+          "target": "w_radius_out.data"
+        },
+        {
+          "source": "w_radius_out.success",
+          "target": ".ok_radius_out"
+        },
+        {
           "source": ".piston_top",
           "target": "step.piston_top"
         }
@@ -1679,6 +1798,16 @@
         },
         {
           "valueName": "w_out_wtph.create_directories",
+          "valueType": "bool",
+          "value": "true"
+        },
+        {
+          "valueName": "w_radius_out.overwrite",
+          "valueType": "bool",
+          "value": "true"
+        },
+        {
+          "valueName": "w_radius_out.create_directories",
           "valueType": "bool",
           "value": "true"
         },

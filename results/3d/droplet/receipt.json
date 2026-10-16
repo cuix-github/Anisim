@@ -1,0 +1,55 @@
+{
+ "off": {
+  "grid": 7.07880993218446e-07,
+  "positions": 3.815702669385246e-06,
+  "velocities": 6.753253533747783e-07,
+  "escape_mismatches": 0,
+  "droplets": 0,
+  "radius_rel": 0.0,
+  "count": 19200,
+  "escaped_planted": 60,
+  "unset_identical": true,
+  "radius_all_zero": true
+ },
+ "lockstep": {
+  "grid": 5.608959485314813e-06,
+  "positions": 3.85816069581324e-06,
+  "velocities": 4.678798882551405e-06,
+  "escape_mismatches": 0,
+  "droplets": 55,
+  "radius_rel": 9.819509654224339e-08,
+  "count": 19195,
+  "deleted": 5,
+  "new_radii": 25,
+  "iterations": 10.0
+ },
+ "anchors": {
+  "d2_law_rel": 5.37667398159468e-15,
+  "normal": {
+   "mean": -0.0021793610579496016,
+   "std": 0.9999480052252077,
+   "median_um": 99.8809036286663,
+   "ln_std": 0.6999635917373362
+  },
+  "stokes": {
+   "tau_ms": 5.925926075627411,
+   "max_err": 0.00833564782376428
+  },
+  "terminal": {
+   "v": 7.701023105069004,
+   "closed_form": 7.706746355884525,
+   "re": 1026.8031066150954
+  }
+ },
+ "loop": {
+  "count_first": 102391,
+  "count_last": 102102,
+  "droplets_first": 449,
+  "droplets_last": 137,
+  "placed": true,
+  "final_equals_last": true,
+  "resumed_droplets": 133,
+  "off_all_zero": true,
+  "off_count": 102400
+ }
+}

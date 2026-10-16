@@ -19,6 +19,7 @@ python pfflip2d.py dam_break  # one scene
 
 - **solitary_wave.py**: the solitary wave of shallow-water theory, flat and onto a 1:15 beach, the control for the 3D beach runs (`../results/2d/solitary_wave/`).
 - **validate_piston.py**: the piston wavemaker, a plate sliding in the tank (`Sim(piston=...)`): at rest the static solid bit for bit, a wave train against the linear dispersion relation and the piston transfer function, and the train onto the beach (`../results/2d/piston/`). Its docstring records why the wave checks read the surface from the liquid's count per column.
+- **droplet radii** (`Sim(droplet=...)`, PF-FLIP Section 7): an escaped liquid particle carries its own radius in metres, drawn from a log-normal by a hash of (step, index), shrunk by the d^2 law of evaporation, deleted below a threshold, its drag the sphere's own with the Schiller-Naumann C_d(Re). Gated from `../gates/validate_droplet_node.py`, which runs the law's anchors on this spec (the d^2 law exactly, the hash normal's statistics, Stokes' relaxation, a 1 mm drop's terminal speed) and the node in lockstep against it.
 
 ## Deliberate omissions, for later milestones
 
