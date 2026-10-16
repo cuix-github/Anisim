@@ -113,6 +113,20 @@ void step_2d(int   nx,
 // leaves the step as it was. Seed nothing inside the plate (as the reference's seed
 // drops what lies inside a solid): a particle left there is pushed out of its front
 // face into the water on the first step.
+// Droplet radii (2026-10-16, PF-FLIP Section 7): with droplet_model 1 (and
+// escape on) a liquid particle the escape flag marks is a droplet carrying its
+// own radius in metres (radius_in / radius_out, 0 = none): drawn once from a
+// log-normal of median droplet_r_median and ln-spread droplet_r_sigma by a hash
+// of (step_index, index), the same number the reference draws; shrunk every step
+// by the d^2 law of evaporation, r^2 falling by droplet_evap_k / 4 per second;
+// deleted below droplet_r_min (the particle leaves, every output shorter by it).
+// Its drag is then the sphere's own: the relaxation rate (3/8)(rho_air /
+// rho_liquid)(C_d / r)|v_rel|, Schiller-Naumann C_d(Re) below Re 1000 and 0.44
+// above, Re from air_nu (air's kinematic viscosity) and metres_per_cell, applied
+// implicitly; drag_droplet is then unused. Rejoining the water resets the radius
+// to 0. Bubbles are untouched. droplet_model 0, the default, leaves the step as
+// it was (radius_out = 0 for every particle). The reference's Sim(droplet=...)
+// is the spec and gates/validate_droplet_node.py the lockstep.
 PF_FLIP_SPIKE_DECL
 void step_3d(int   nx,
              int   ny,
@@ -151,6 +165,14 @@ void step_3d(int   nx,
              float piston_x0,
              float piston_width,
              float piston_top,
+             int   droplet_model,
+             float droplet_r_median,
+             float droplet_r_sigma,
+             float droplet_evap_k,
+             float droplet_r_min,
+             float metres_per_cell,
+             float air_nu,
+             const Amino::Array<float>& radius_in,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt,
              const Amino::Array<float>& v_wt,
@@ -198,6 +220,7 @@ void step_3d(int   nx,
              Amino::Ptr<Amino::Array<float>>& out_escaped,
              Amino::Ptr<Amino::Array<float>>& tau_out,
              Amino::Ptr<Amino::Array<float>>& scale_out,
+             Amino::Ptr<Amino::Array<float>>& radius_out,
              Amino::Ptr<Amino::Array<bool>>& mask_fine,
              Amino::Ptr<Amino::Array<bool>>& mask_coarse,
              Amino::Ptr<Amino::Array<float>>& out_phase_state,

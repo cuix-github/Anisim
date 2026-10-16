@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cstdio>
+#include <cstdint>
 #include <cstdlib>
 #include <random>
 #include <cmath>
@@ -237,6 +238,24 @@ double wtNorm(double xi) {
     return std::max(z, 1e-9);
 }
 
+// Droplet radii (PF-FLIP Section 7): a standard normal from a hash of (step,
+// index), the reference's Sim.droplet_normal up to the libm calls: splitmix64 at
+// (step + 1) * golden + index and at the next state, the two outputs' top 53 bits
+// as uniforms (the first on (0, 1], the second on [0, 1)), Box-Muller.
+inline uint64_t splitmix64(uint64_t s) {
+    uint64_t z = s + 0x9E3779B97F4A7C15ULL;
+    z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ULL;
+    z = (z ^ (z >> 27)) * 0x94D049BB133111EBULL;
+    return z ^ (z >> 31);
+}
+
+inline double dropletNormal(int step_index, uint64_t index) {
+    const uint64_t s = static_cast<uint64_t>(step_index + 1) * 0x9E3779B97F4A7C15ULL + index;
+    const double u1 = (static_cast<double>(splitmix64(s) >> 11) + 1.0) * 0x1.0p-53;
+    const double u2 = static_cast<double>(splitmix64(s + 1) >> 11) * 0x1.0p-53;
+    return std::sqrt(-2.0 * std::log(u1)) * std::cos(6.283185307179586 * u2);
+}
+
 } // namespace
 
 namespace PFFlip {
@@ -255,6 +274,9 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              int solid_mode, const Amino::Array<float>& solid_phi,
              float piston_stroke, float piston_period, float piston_x0,
              float piston_width, float piston_top,
+             int droplet_model, float droplet_r_median, float droplet_r_sigma,
+             float droplet_evap_k, float droplet_r_min, float metres_per_cell,
+             float air_nu, const Amino::Array<float>& radius_in,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt, const Amino::Array<float>& v_wt,
              const Amino::Array<float>& w_wt,
@@ -290,6 +312,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              Amino::Ptr<Amino::Array<float>>& out_escaped,
              Amino::Ptr<Amino::Array<float>>& tau_out,
              Amino::Ptr<Amino::Array<float>>& scale_out,
+             Amino::Ptr<Amino::Array<float>>& radius_out,
              Amino::Ptr<Amino::Array<bool>>& mask_fine,
              Amino::Ptr<Amino::Array<bool>>& mask_coarse,
              Amino::Ptr<Amino::Array<float>>& out_phase_state,
@@ -441,7 +464,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         out_pos_synced = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
         for (auto* o : {&out_mass, &out_mom_x, &out_mom_y, &out_mom_z, &out_u, &out_v,
                         &out_w, &pressure, &out_escaped, &tau_out, &scale_out,
-                        &out_phase_state, &out_wt, &out_wtph})
+                        &out_phase_state, &out_wt, &out_wtph, &radius_out})
             *o = Amino::newClassPtr<Amino::Array<float>>();
         mask_fine = Amino::newClassPtr<Amino::Array<bool>>();
         mask_coarse = Amino::newClassPtr<Amino::Array<bool>>();
@@ -911,6 +934,31 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const double lo = 0.51, hx = NX - 0.51, hy = NY - 0.51, hz = NZ - 0.51;
     const long long lnp = static_cast<long long>(np);
 
+    // droplet radii (PF-FLIP Section 7; the reference's _droplet_radii): a liquid
+    // particle the escape flag marks is a droplet; new, it draws its radius; every
+    // step it evaporates by the d^2 law; below droplet_r_min it is gone (dropped
+    // after the advection below). Rejoined, its radius returns to 0.
+    const bool dropOn = droplet_model != 0;
+    std::vector<double> radNew(np, 0.0);
+    std::vector<char> gone(np, 0);
+    if (dropOn) {
+        const double rmed = droplet_r_median, rsig = droplet_r_sigma;
+        const double evap = 0.25 * static_cast<double>(droplet_evap_k) * dt;
+#pragma omp parallel for schedule(static)
+        for (long long pi = 0; pi < lnp; ++pi) {
+            const bool liquid = (static_cast<size_t>(pi) < particle_phase.size()
+                                 ? particle_phase[pi] : 0.0f) >= 0.5f;
+            if (!escFlag[pi] || !liquid) continue;
+            double r = static_cast<size_t>(pi) < radius_in.size()
+                ? static_cast<double>(radius_in[pi]) : 0.0;
+            if (r <= 0.0)
+                r = rmed * std::exp(rsig * dropletNormal(step_index, static_cast<uint64_t>(pi)));
+            r = std::sqrt(std::max(r * r - evap, 0.0));
+            radNew[pi] = r;
+            gone[pi] = r < static_cast<double>(droplet_r_min) ? 1 : 0;
+        }
+    }
+
     std::vector<double> nvx(np), nvy(np), nvz(np);
 #pragma omp parallel for schedule(static)
     for (long long pi = 0; pi < lnp; ++pi) {
@@ -932,11 +980,29 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         } else {
             const double gx = sU(u, px, py, pz), gy = sV(v, px, py, pz);
             const double gz = flat ? 0.0 : sW(w, px, py, pz);
-            const double drag = liquid ? drag_droplet : drag_bubble;
             vy += (liquid ? gravity : buoyancy * std::fabs(gravity)) * dt;
-            vx += drag * dt * (gx - vx);
-            vy += drag * dt * (gy - vy);
-            vz = flat ? 0.0 : vz + drag * dt * (gz - vz);
+            if (dropOn && liquid) {
+                // the droplet's own drag (the reference's _droplet_drag): the sphere's
+                // relaxation rate (3/8)(rho_air/rho_liquid)(C_d/r)|v_rel|, Schiller-
+                // Naumann C_d(Re) below Re 1000 and 0.44 above, implicit in the rate
+                const double r = std::max(radNew[pi], static_cast<double>(droplet_r_min));
+                const double mpc = metres_per_cell, nu = air_nu;
+                const double rx = (gx - vx) * mpc, ry = (gy - vy) * mpc;
+                const double rz = flat ? 0.0 : (gz - vz) * mpc;
+                const double speed = std::sqrt(rx * rx + ry * ry + rz * rz);
+                const double re = 2.0 * r * speed / nu;
+                const double cdv = re <= 1000.0
+                    ? 12.0 * nu / r * (1.0 + 0.15 * std::pow(re, 0.687)) : 0.44 * speed;
+                const double k = 0.375 * (static_cast<double>(rho_air) / rho_liquid) * cdv / r * dt;
+                vx = (vx + k * gx) / (1.0 + k);
+                vy = (vy + k * gy) / (1.0 + k);
+                vz = flat ? 0.0 : (vz + k * gz) / (1.0 + k);
+            } else {
+                const double drag = liquid ? drag_droplet : drag_bubble;
+                vx += drag * dt * (gx - vx);
+                vy += drag * dt * (gy - vy);
+                vz = flat ? 0.0 : vz + drag * dt * (gz - vz);
+            }
         }
         nvx[pi] = vx; nvy[pi] = vy; nvz[pi] = vz;
     }
@@ -966,6 +1032,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     std::vector<double> Px(np), Py(np), Pz(np), Vx(np), Vy(np), Vz(np);
     std::vector<double> Tau(np), Wt(np), Scl(np), Ph01(np);
     std::vector<char> Esc(np);
+    std::vector<double> Rad(np);
     // PFFLIP_SOLID_DEBUG=1 reports how many particles the level set pushed out
     static const bool lsDebug = []() {
         const char* e = std::getenv("PFFLIP_SOLID_DEBUG");
@@ -1038,12 +1105,31 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         Vx[pi] = vx; Vy[pi] = vy; Vz[pi] = vz;
         Tau[pi] = tauNew[pi]; Wt[pi] = wtNewV[pi];
         Scl[pi] = scaleOf(pi); Ph01[pi] = liquid ? 1.0 : 0.0;
-        Esc[pi] = escFlag[pi];
+        Esc[pi] = escFlag[pi]; Rad[pi] = radNew[pi];
     }
 
     if (lsDebug)
         std::fprintf(stderr, "step_3d: level set %s; pushed %lld of %zu particles out\n",
                      lsOn ? "on" : "off", lsPushed, np);
+
+    if (dropOn) {
+        // droplets evaporated below droplet_r_min leave the simulation here, before
+        // the adaptive merge and split see the particle set
+        bool any = false;
+        for (size_t i = 0; i < np; ++i) if (gone[i]) { any = true; break; }
+        if (any) {
+            auto dropGone = [&](auto& vec) {
+                size_t wr = 0;
+                for (size_t i = 0; i < gone.size(); ++i)
+                    if (!gone[i]) vec[wr++] = vec[i];
+                vec.resize(wr);
+            };
+            dropGone(Px); dropGone(Py); dropGone(Pz);
+            dropGone(Vx); dropGone(Vy); dropGone(Vz);
+            dropGone(Tau); dropGone(Wt); dropGone(Scl); dropGone(Ph01);
+            dropGone(Rad); dropGone(Esc);
+        }
+    }
 
     if (adOn && np > 0) {
         // fresh liquid-count field at the new positions, as the reference does.
@@ -1092,6 +1178,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             keepFilter(Px); keepFilter(Py); keepFilter(Pz);
             keepFilter(Vx); keepFilter(Vy); keepFilter(Vz);
             keepFilter(Tau); keepFilter(Wt); keepFilter(Scl); keepFilter(Ph01);
+                keepFilter(Rad);
             {
                 size_t wr = 0;
                 for (size_t i = 0; i < drop.size(); ++i)
@@ -1110,6 +1197,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     Tau.push_back(tas[m2]);
                     Wt.push_back(wtKernel(tas[m2]) / wtNorm(1.0));
                     Scl.push_back(1.0); Ph01.push_back(phs[m2]); Esc.push_back(0);
+                    Rad.push_back(0.0);
                 }
             }
         }
@@ -1170,6 +1258,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 keepFilter(Px); keepFilter(Py); keepFilter(Pz);
                 keepFilter(Vx); keepFilter(Vy); keepFilter(Vz);
                 keepFilter(Tau); keepFilter(Wt); keepFilter(Scl); keepFilter(Ph01);
+                keepFilter(Rad);
                 {
                     size_t wr = 0;
                     for (size_t k2 = 0; k2 < drop.size(); ++k2)
@@ -1182,6 +1271,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     Tau.push_back(mta[m2]);
                     Wt.push_back(wtKernel(mta[m2]) / wtNorm(1.0));
                     Scl.push_back(2.0); Ph01.push_back(0.0); Esc.push_back(0);
+                    Rad.push_back(0.0);
                 }
             }
         }
@@ -1235,6 +1325,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     auto outWt = Amino::newMutablePtr<Amino::Array<float>>(nf);
     auto outWtPh = Amino::newMutablePtr<Amino::Array<float>>(nf);
     auto outEsc = Amino::newMutablePtr<Amino::Array<float>>(nf);
+    auto outRad = Amino::newMutablePtr<Amino::Array<float>>(nf);
     auto outMF = Amino::newMutablePtr<Amino::Array<bool>>(nf);
     auto outMC = Amino::newMutablePtr<Amino::Array<bool>>(nf);
     double maxSpeed = 0.0;
@@ -1286,6 +1377,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         (*outWt)[i] = static_cast<float>(wp);
         (*outWtPh)[i] = static_cast<float>(wp * Ph01[i]);
         (*outEsc)[i] = Esc[i] ? 1.0f : 0.0f;
+        (*outRad)[i] = static_cast<float>(Rad[i]);
         (*outMF)[i] = Scl[i] < 1.5;
         (*outMC)[i] = Scl[i] >= 1.5;
         maxSpeed = std::max({maxSpeed, std::fabs(Vx[i]), std::fabs(Vy[i]),
@@ -1312,6 +1404,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     out_w = outW.toImmutable();
     pressure = outP.toImmutable();
     out_escaped = outEsc.toImmutable();
+    radius_out = outRad.toImmutable();
     tau_out = outTau.toImmutable();
     scale_out = outScl.toImmutable();
     mask_fine = outMF.toImmutable();
