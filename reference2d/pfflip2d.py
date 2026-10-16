@@ -30,11 +30,21 @@ class Sim:
     # under 1% open came out at up to 3 cells/s from water at rest). The node's
     # Solids::kMinOpen is the same constant.
     SOLID_MIN_OPEN = 0.01
+    # Droplet radii (PF-FLIP Section 7), the defaults in SI: the log-normal's median
+    # radius and the spread of ln r (Babinsky and Sojka 2002 review the form; a
+    # 100 um median with sigma 0.7 spans the 30 to 300 um of spume drops over
+    # breaking waves), the d^2-law evaporation constant of a water drop in air
+    # (Sirignano 2010; about 1e-9 m^2/s at room temperature in dry air, slower in
+    # humid marine air), the radius below which a drop is deleted, the metres one
+    # cell spans, and air's kinematic viscosity for the drag's Reynolds number.
+    DROPLET_DEFAULTS = dict(r_median=1e-4, r_sigma=0.7, evap_k=1e-9, r_min=1e-6,
+                            metres_per_cell=1.0, air_nu=1.5e-5)
 
     def __init__(self, nx, ny, rho_l=1000.0, rho_g=1.0, alpha_l=0.97, alpha_g=0.9, g=-9.8,
                  escape=False, esc_phi=0.3, drag_droplet=1.0, drag_bubble=8.0, buoyancy=2.0,
                  st=False, sub_advect=False, adapt=False, obstacles=None,
-                 solid_phi=None, solid_cut=False, solid_support=True, piston=None):
+                 solid_phi=None, solid_cut=False, solid_support=True, piston=None,
+                 droplet=None):
         self.nx, self.ny, self.dx = nx, ny, 1.0
         self.rho_l, self.rho_g = rho_l, rho_g
         self.alpha = {1: alpha_l, 0: alpha_g}
@@ -47,6 +57,22 @@ class Sim:
         self.escape, self.esc_phi = escape, esc_phi
         self.drag_droplet, self.drag_bubble, self.buoyancy = drag_droplet, drag_bubble, buoyancy
         self.escaped = np.zeros(0, dtype=bool)
+        # Droplet radii (PF-FLIP Section 7), OFF by default: with droplet=dict(...)
+        # (keys of DROPLET_DEFAULTS, any subset) an escaped liquid particle becomes a
+        # droplet with its own radius in metres, drawn once from the log-normal by a
+        # hash of (step, index) so the node draws the same number (droplet_normal),
+        # shrunk every step by the d^2 law (r^2 falls by evap_k / 4 per second) and
+        # deleted below r_min. Its drag then follows its size: a sphere's relaxation
+        # rate (3/8)(rho_a / rho_l)(C_d / r)|v_rel| with the Schiller-Naumann C_d(Re),
+        # applied implicitly (a 10 um drop relaxes thousands of times a second), in
+        # place of the constant drag_droplet. Rejoining the water resets the radius to
+        # 0, a FLIP particle again. Bubbles are untouched. Needs escape=True.
+        self.droplet = None if droplet is None else dict(self.DROPLET_DEFAULTS, **droplet)
+        if self.droplet is not None:
+            assert escape, "droplet radii need escape=True"
+            assert set(self.droplet) == set(self.DROPLET_DEFAULTS), self.droplet
+        self.radius = np.zeros(0)
+        self.nstep = 0
         # ST-FLIP (Braun et al. 2026) spatiotemporal sampling, OFF by default. Each
         # particle carries a time jitter tau in (-1/2, 1/2] slab units; splats are
         # weighted by the paper's one-sided temporal poly6 kernel (peak at +1/2), and
@@ -142,6 +168,65 @@ class Sim:
         self.scale = np.ones(len(self.pos))
         self.tau = np.zeros(len(self.pos))      # particles start synchronized
         self.xi = np.ones(len(self.pos))        # per-particle jitter strength
+        self.radius = np.zeros(len(self.pos))   # droplet radius in metres, 0 = none
+
+    @staticmethod
+    def _splitmix(s):
+        """splitmix64's output for the uint64 state array s."""
+        z = s + np.uint64(0x9E3779B97F4A7C15)
+        z = (z ^ (z >> np.uint64(30))) * np.uint64(0xBF58476D1CE4E5B9)
+        z = (z ^ (z >> np.uint64(27))) * np.uint64(0x94D049BB133111EB)
+        return z ^ (z >> np.uint64(31))
+
+    @staticmethod
+    def droplet_normal(step_index, idx):
+        """A standard normal per particle from a hash of (step, index), the same in the
+        node: splitmix64 at (step + 1) * golden + index and at the next state, the two
+        outputs' top 53 bits as uniforms (the first on (0, 1], the second on [0, 1)),
+        Box-Muller."""
+        with np.errstate(over="ignore"):
+            s = (np.uint64(step_index + 1) * np.uint64(0x9E3779B97F4A7C15)
+                 + np.asarray(idx, np.uint64))
+            z1 = Sim._splitmix(s)
+            z2 = Sim._splitmix(s + np.uint64(1))
+        u1 = ((z1 >> np.uint64(11)).astype(np.float64) + 1.0) * 2.0 ** -53
+        u2 = (z2 >> np.uint64(11)).astype(np.float64) * 2.0 ** -53
+        return np.sqrt(-2.0 * np.log(u1)) * np.cos(2.0 * np.pi * u2)
+
+    def _droplet_radii(self, drop, dt):
+        """The radius bookkeeping of one step: rejoined droplets back to 0, new ones
+        drawn, every droplet evaporated; returns the mask of those gone below r_min."""
+        D, r = self.droplet, self.radius
+        new = drop & (r <= 0.0)
+        r[~drop] = 0.0
+        if new.any():
+            idx = np.flatnonzero(new)
+            r[idx] = D["r_median"] * np.exp(D["r_sigma"] * self.droplet_normal(self.nstep, idx))
+        if drop.any():
+            r[drop] = np.sqrt(np.maximum(r[drop] ** 2 - 0.25 * D["evap_k"] * dt, 0.0))
+        return drop & (r < D["r_min"])
+
+    def _droplet_drag(self, d, vg, dt):
+        """Size-dependent drag on the droplets d toward the air velocity vg (cells per
+        second), implicit in the relaxation rate."""
+        D = self.droplet
+        r = np.maximum(self.radius[d], D["r_min"])
+        rel = (vg[d] - self.vel[d]) * D["metres_per_cell"]
+        speed = np.sqrt((rel ** 2).sum(1))
+        re = 2.0 * r * speed / D["air_nu"]
+        # C_d |v_rel|: Schiller-Naumann below Re 1000 (12 nu / r (1 + 0.15 Re^0.687),
+        # Stokes' 12 nu / r at the limit), the constant 0.44 above
+        cdv = np.where(re <= 1000.0, 12.0 * D["air_nu"] / r * (1.0 + 0.15 * re ** 0.687),
+                       0.44 * speed)
+        k = (0.375 * (self.rho_g / self.rho_l) * cdv / r * dt)[:, None]
+        self.vel[d] = (self.vel[d] + k * vg[d]) / (1.0 + k)
+
+    def _delete(self, keep):
+        n = len(keep)
+        for name in ("pos", "vel", "typ", "scale", "tau", "xi", "radius", "escaped"):
+            a = getattr(self, name, None)       # xi exists only once seeded
+            if a is not None and len(a) == n:
+                setattr(self, name, a[keep])
 
     @staticmethod
     def plate_phi(nx, ny, x_left, width, top):
@@ -611,11 +696,17 @@ class Sim:
             esc = drop | bub
             self.escaped = esc
         self.g2p(u_star, v_star, skip=esc)
+        gone = None
+        if self.droplet is not None and esc is not None:
+            gone = self._droplet_radii(drop, dt)
         if esc is not None and esc.any():
             vg = self.sample_velocity(self.pos)
             d = drop
             self.vel[d, 1] += self.g * dt
-            self.vel[d] += self.drag_droplet * dt * (vg[d] - self.vel[d])
+            if self.droplet is None:
+                self.vel[d] += self.drag_droplet * dt * (vg[d] - self.vel[d])
+            elif d.any():
+                self._droplet_drag(d, vg, dt)
             b = bub
             self.vel[b, 1] += self.buoyancy * abs(self.g) * dt
             self.vel[b] += self.drag_bubble * dt * (vg[b] - self.vel[b])
@@ -625,9 +716,12 @@ class Sim:
             self.advect(dt, ballistic=esc)
         if self.has_solids:
             self._push_out()
+        if gone is not None and gone.any():
+            self._delete(~gone)
         if self.adapt:
             self._adapt_particles()
         self.t += dt
+        self.nstep += 1
 
     def _liq_frac(self):
         ones_liq = (self.typ == 1).astype(float) * self.scale ** 2
@@ -654,6 +748,7 @@ class Sim:
             self.typ = np.concatenate([self.typ[keep], np.repeat(self.typ[to_split], 4)])
             self.scale = np.concatenate([self.scale[keep], np.ones(len(new_pos))])
             self.tau = np.concatenate([self.tau[keep], np.repeat(self.tau[to_split], 4)])
+            self.radius = np.concatenate([self.radius[keep], np.zeros(len(new_pos))])
             self.xi = np.concatenate([self.xi[keep] if len(self.xi) == len(keep) else
                                       np.ones(keep.sum()), np.ones(len(new_pos))])
             lf = np.concatenate([lf[keep], np.full(len(new_pos), 1.0)])  # keep them fine this step
@@ -685,6 +780,7 @@ class Sim:
                                            np.zeros(len(new_p), dtype=np.int32)])
                 self.scale = np.concatenate([self.scale[keep], np.full(len(new_p), 2.0)])
                 self.tau = np.concatenate([self.tau[keep], np.array(new_tau)])
+                self.radius = np.concatenate([self.radius[keep], np.zeros(len(new_p))])
                 self.xi = np.concatenate([self.xi[keep] if len(self.xi) == len(keep) else
                                           np.ones(int(keep.sum())), np.ones(len(new_p))])
 

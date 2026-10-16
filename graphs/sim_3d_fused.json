@@ -216,6 +216,12 @@
      "portDefault": ""
     },
     {
+     "portName": "rad_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
      "portName": "scl_pattern",
      "portDirection": "input",
      "portType": "string",
@@ -366,6 +372,48 @@
      "portDefault": "0f"
     },
     {
+     "portName": "droplet_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "droplet_r_median",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.0001f"
+    },
+    {
+     "portName": "droplet_r_sigma",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.7f"
+    },
+    {
+     "portName": "droplet_evap_k",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.000000001f"
+    },
+    {
+     "portName": "droplet_r_min",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.000001f"
+    },
+    {
+     "portName": "metres_per_cell",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "air_nu",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.000015f"
+    },
+    {
      "portName": "solid_mode",
      "portDirection": "input",
      "portType": "int",
@@ -379,6 +427,12 @@
     },
     {
      "portName": "path_phase_st",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_radius",
      "portDirection": "input",
      "portType": "string",
      "portDefault": ""
@@ -508,6 +562,17 @@
     },
     {
      "portName": "ok_final_phase",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_radius",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_radius",
      "portDirection": "output",
      "portType": "bool"
     },
@@ -715,6 +780,11 @@
        "portType": "string"
       },
       {
+       "portName": "rad_pattern",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
        "portName": "scl_pattern",
        "portDirection": "input",
        "portType": "string"
@@ -860,6 +930,41 @@
        "portType": "float"
       },
       {
+       "portName": "droplet_model",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "droplet_r_median",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "droplet_r_sigma",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "droplet_evap_k",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "droplet_r_min",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "metres_per_cell",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "air_nu",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
        "portName": "mass_out2",
        "portDirection": "output",
        "portType": "array<float>"
@@ -902,6 +1007,16 @@
       {
        "portName": "solid_phi",
        "portDirection": "input",
+       "portType": "array<float>"
+      },
+      {
+       "portName": "radius_in2",
+       "portDirection": "input",
+       "portType": "array<float>"
+      },
+      {
+       "portName": "radius_out2",
+       "portDirection": "output",
        "portType": "array<float>"
       },
       {
@@ -956,6 +1071,7 @@
         "e",
         "r",
         "t",
+        "u",
         "v"
        ]
       },
@@ -972,6 +1088,10 @@
        "nodeType": "File::NumPy::write_NumPy"
       },
       {
+       "nodeName": "w_rad",
+       "nodeType": "File::NumPy::write_NumPy"
+      },
+      {
        "nodeName": "ok_fp2",
        "nodeType": "Core::Type_Conversion::to_float"
       },
@@ -981,6 +1101,10 @@
       },
       {
        "nodeName": "ok_fs",
+       "nodeType": "Core::Type_Conversion::to_float"
+      },
+      {
+       "nodeName": "ok_fr",
        "nodeType": "Core::Type_Conversion::to_float"
       },
       {
@@ -1017,6 +1141,10 @@
       },
       {
        "nodeName": "dg_ph",
+       "nodeType": "PFFlip::Solve::dump_gate"
+      },
+      {
+       "nodeName": "dg_rad",
        "nodeType": "PFFlip::Solve::dump_gate"
       },
       {
@@ -1234,6 +1362,22 @@
        "target": "ok_acc.first.t"
       },
       {
+       "source": "step.radius_out",
+       "target": "w_rad.data"
+      },
+      {
+       "source": ".current_index",
+       "target": "w_rad.frame"
+      },
+      {
+       "source": "w_rad.success",
+       "target": "ok_fr.from"
+      },
+      {
+       "source": "ok_fr.float",
+       "target": "ok_acc.first.u"
+      },
+      {
        "source": ".pressure_solver",
        "target": "step.pressure_solver"
       },
@@ -1346,6 +1490,34 @@
        "target": "step.piston_top"
       },
       {
+       "source": ".droplet_model",
+       "target": "step.droplet_model"
+      },
+      {
+       "source": ".droplet_r_median",
+       "target": "step.droplet_r_median"
+      },
+      {
+       "source": ".droplet_r_sigma",
+       "target": "step.droplet_r_sigma"
+      },
+      {
+       "source": ".droplet_evap_k",
+       "target": "step.droplet_evap_k"
+      },
+      {
+       "source": ".droplet_r_min",
+       "target": "step.droplet_r_min"
+      },
+      {
+       "source": ".metres_per_cell",
+       "target": "step.metres_per_cell"
+      },
+      {
+       "source": ".air_nu",
+       "target": "step.air_nu"
+      },
+      {
        "source": "step.out_mass",
        "target": ".mass_out2"
       },
@@ -1376,6 +1548,14 @@
       {
        "source": ".solid_phi",
        "target": "step.solid_phi"
+      },
+      {
+       "source": ".radius_in2",
+       "target": "step.radius_in"
+      },
+      {
+       "source": "step.radius_out",
+       "target": ".radius_out2"
       },
       {
        "source": "idx_i.int",
@@ -1440,6 +1620,22 @@
       {
        "source": "dg_ph.path_out",
        "target": "w_ph2.file_path"
+      },
+      {
+       "source": "idx_i.int",
+       "target": "dg_rad.step_index"
+      },
+      {
+       "source": ".dump_every",
+       "target": "dg_rad.every"
+      },
+      {
+       "source": ".rad_pattern",
+       "target": "dg_rad.path"
+      },
+      {
+       "source": "dg_rad.path_out",
+       "target": "w_rad.file_path"
       },
       {
        "source": "idx_i.int",
@@ -1690,6 +1886,16 @@
        "value": "true"
       },
       {
+       "valueName": "w_rad.overwrite",
+       "valueType": "bool",
+       "value": "true"
+      },
+      {
+       "valueName": "w_rad.create_directories",
+       "valueType": "bool",
+       "value": "true"
+      },
+      {
        "valueName": "w_vel.overwrite",
        "valueType": "bool",
        "value": "true"
@@ -1761,6 +1967,11 @@
         "portKind": "state",
         "inputPortName": "phase_in2",
         "outputPortName": "phase_out2"
+       },
+       {
+        "portKind": "state",
+        "inputPortName": "radius_in2",
+        "outputPortName": "radius_out2"
        }
       ]
      }
@@ -1848,6 +2059,10 @@
      "nodeType": "File::NumPy::read_NumPy"
     },
     {
+     "nodeName": "r2_radius",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
      "nodeName": "r2_obs_min",
      "nodeType": "File::NumPy::read_NumPy"
     },
@@ -1897,6 +2112,10 @@
     },
     {
      "nodeName": "wf_phase",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_radius",
      "nodeType": "File::NumPy::write_NumPy"
     }
    ],
@@ -2110,6 +2329,10 @@
      "target": "loop.esc_pattern"
     },
     {
+     "source": ".rad_pattern",
+     "target": "loop.rad_pattern"
+    },
+    {
      "source": ".scl_pattern",
      "target": "loop.scl_pattern"
     },
@@ -2250,6 +2473,34 @@
      "target": "loop.piston_top"
     },
     {
+     "source": ".droplet_model",
+     "target": "loop.droplet_model"
+    },
+    {
+     "source": ".droplet_r_median",
+     "target": "loop.droplet_r_median"
+    },
+    {
+     "source": ".droplet_r_sigma",
+     "target": "loop.droplet_r_sigma"
+    },
+    {
+     "source": ".droplet_evap_k",
+     "target": "loop.droplet_evap_k"
+    },
+    {
+     "source": ".droplet_r_min",
+     "target": "loop.droplet_r_min"
+    },
+    {
+     "source": ".metres_per_cell",
+     "target": "loop.metres_per_cell"
+    },
+    {
+     "source": ".air_nu",
+     "target": "loop.air_nu"
+    },
+    {
      "source": ".solid_mode",
      "target": "loop.solid_mode"
     },
@@ -2276,6 +2527,18 @@
     {
      "source": "r2_phase_st.data",
      "target": "loop.phase_in2"
+    },
+    {
+     "source": ".path_radius",
+     "target": "r2_radius.file_path"
+    },
+    {
+     "source": "t_flt.output",
+     "target": "r2_radius.type"
+    },
+    {
+     "source": "r2_radius.data",
+     "target": "loop.radius_in2"
     },
     {
      "source": ".path_obs_min",
@@ -2434,6 +2697,18 @@
      "target": ".ok_final_phase"
     },
     {
+     "source": "loop.radius_out2",
+     "target": "wf_radius.data"
+    },
+    {
+     "source": ".path_final_radius",
+     "target": "wf_radius.file_path"
+    },
+    {
+     "source": "wf_radius.success",
+     "target": ".ok_final_radius"
+    },
+    {
      "source": ".dump_every",
      "target": "loop.dump_every"
     }
@@ -2569,6 +2844,16 @@
     },
     {
      "valueName": "wf_phase.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_radius.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_radius.create_directories",
      "valueType": "bool",
      "value": "true"
     }

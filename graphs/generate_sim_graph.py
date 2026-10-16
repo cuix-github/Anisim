@@ -303,13 +303,15 @@ def build3d():
         {"nodeName": "w_esc", "nodeType": "File::NumPy::write_NumPy"},
         {"nodeName": "w_scl", "nodeType": "File::NumPy::write_NumPy"},
         {"nodeName": "w_ph2", "nodeType": "File::NumPy::write_NumPy"},
+        {"nodeName": "w_rad", "nodeType": "File::NumPy::write_NumPy"},
         {"nodeName": "ok_fp2", "nodeType": "Core::Type_Conversion::to_float"},
         {"nodeName": "ok_fe", "nodeType": "Core::Type_Conversion::to_float"},
         {"nodeName": "ok_fs", "nodeType": "Core::Type_Conversion::to_float"},
+        {"nodeName": "ok_fr", "nodeType": "Core::Type_Conversion::to_float"},
     ]
     for n2 in body["compoundNodes"]:
         if n2["nodeName"] == "ok_acc":
-            n2["multiInPortNames"] = ["s", "p", "q", "e", "r", "t"]
+            n2["multiInPortNames"] = ["s", "p", "q", "e", "r", "t", "u"]
     conns += [
         {"source": "step.out_escaped", "target": "w_esc.data"},
         {"source": ".esc_pattern", "target": "w_esc.file_path"},
@@ -326,6 +328,12 @@ def build3d():
         {"source": ".current_index", "target": "w_ph2.frame"},
         {"source": "w_ph2.success", "target": "ok_fp2.from"},
         {"source": "ok_fp2.float", "target": "ok_acc.first.t"},
+        # the droplet radii beside the escaped flags
+        {"source": "step.radius_out", "target": "w_rad.data"},
+        {"source": ".rad_pattern", "target": "w_rad.file_path"},
+        {"source": ".current_index", "target": "w_rad.frame"},
+        {"source": "w_rad.success", "target": "ok_fr.from"},
+        {"source": "ok_fr.float", "target": "ok_acc.first.u"},
     ]
     body["values"] += [
         {"valueName": "w_esc.overwrite", "valueType": "bool", "value": "true"},
@@ -338,6 +346,13 @@ def build3d():
     body["ports"].append(P("esc_pattern", "input", "string"))
     top["ports"].append(P("esc_pattern", "input", "string", ""))
     top["connections"].append({"source": ".esc_pattern", "target": "loop.esc_pattern"})
+    body["values"] += [
+        {"valueName": "w_rad.overwrite", "valueType": "bool", "value": "true"},
+        {"valueName": "w_rad.create_directories", "valueType": "bool", "value": "true"},
+    ]
+    body["ports"].append(P("rad_pattern", "input", "string"))
+    top["ports"].append(P("rad_pattern", "input", "string", ""))
+    top["connections"].append({"source": ".rad_pattern", "target": "loop.rad_pattern"})
     body["ports"].append(P("scl_pattern", "input", "string"))
     top["ports"].append(P("scl_pattern", "input", "string", ""))
     top["connections"].append({"source": ".scl_pattern", "target": "loop.scl_pattern"})
@@ -712,7 +727,13 @@ def build3d():
                      ("ws_epsilon", "float", "16f"), ("radius_coarse", "float", "3f"),
                      ("piston_stroke", "float", "0f"), ("piston_period", "float", "0f"),
                      ("piston_x0", "float", "0f"), ("piston_width", "float", "0f"),
-                     ("piston_top", "float", "0f")):
+                     ("piston_top", "float", "0f"),
+                     # droplet radii (model 0 = none; see step_3d), SI units
+                     ("droplet_model", "int", "0"), ("droplet_r_median", "float", "0.0001f"),
+                     ("droplet_r_sigma", "float", "0.7f"),
+                     ("droplet_evap_k", "float", "0.000000001f"),
+                     ("droplet_r_min", "float", "0.000001f"), ("metres_per_cell", "float", "1f"),
+                     ("air_nu", "float", "0.000015f")):
         if n != "radius_coarse":
             body["ports"].append(P(n, "input", t))
             conns.append({"source": "." + n, "target": "step." + n})
@@ -750,12 +771,18 @@ def build3d():
         {"portKind": "state", "inputPortName": "mass_in", "outputPortName": "mass_out2"},
         {"portKind": "state", "inputPortName": "scale_in2", "outputPortName": "scale_out2"},
         {"portKind": "state", "inputPortName": "phase_in2", "outputPortName": "phase_out2"},
+        {"portKind": "state", "inputPortName": "radius_in2", "outputPortName": "radius_out2"},
     ]
-    for n, rt in (("scale", "t_flt"), ("phase_st", "t_flt"),
+    # the droplet radius as loop state (0 for every particle without the model)
+    body["ports"] += [P("radius_in2", "input", "array<float>"),
+                      P("radius_out2", "output", "array<float>")]
+    conns += [{"source": ".radius_in2", "target": "step.radius_in"},
+              {"source": "step.radius_out", "target": ".radius_out2"}]
+    for n, rt in (("scale", "t_flt"), ("phase_st", "t_flt"), ("radius", "t_flt"),
                   ("obs_min", "t_pos"), ("obs_max", "t_pos"), ("solid_phi", "t_flt")):
         top["ports"].append(P("path_" + n, "input", "string", ""))
         top["compoundNodes"].append({"nodeName": "r2_" + n, "nodeType": "File::NumPy::read_NumPy"})
-        tgt = {"scale": "scale_in2", "phase_st": "phase_in2",
+        tgt = {"scale": "scale_in2", "phase_st": "phase_in2", "radius": "radius_in2",
                "obs_min": "obstacles_min", "obs_max": "obstacles_max",
                "solid_phi": "solid_phi"}[n]
         top["connections"] += [
@@ -770,7 +797,8 @@ def build3d():
     for name, src in (("velocities", "velocities_out"), ("mass", "mass_out2"),
                       ("momx", "momx_out"), ("momy", "momy_out"), ("momz", "momz_out"),
                       ("tau", "tau_out2"), ("wt", "wt_out2"), ("wtph", "wtph_out2"),
-                      ("scale", "scale_out2"), ("phase", "phase_out2")):
+                      ("scale", "scale_out2"), ("phase", "phase_out2"),
+                      ("radius", "radius_out2")):
         w = "wf_" + name
         top["compoundNodes"].append({"nodeName": w, "nodeType": "File::NumPy::write_NumPy"})
         top["ports"] += [P("path_final_" + name, "input", "string", ""),
@@ -802,9 +830,9 @@ def gate_dumps(g):
                                "target": "loop.dump_every"})
     pats = [c for c in body["connections"]
             if c["source"] in (".pos_pattern", ".esc_pattern", ".scl_pattern",
-                               ".ph_pattern", ".vel_pattern")
+                               ".ph_pattern", ".vel_pattern", ".rad_pattern")
             and c["target"].endswith(".file_path")]
-    assert len(pats) == 5, pats
+    assert len(pats) == 6, pats
     for c in pats:
         name = "dg_" + c["source"][1:].split("_")[0]
         body["compoundNodes"].append({"nodeName": name,
