@@ -154,3 +154,11 @@ The wave onto the 1:15 beach (toe at 160 m, shoreline at 460 m), the last eight 
 ![The beach, close up](../results/2d/solitary_wave/beach_zoom.png)
 
 The last two seconds around the crest, six pixels a cell: the face goes steep at 4.16 m of water and the lip overhangs 1.5 m at 3.17 m. Grilli's vertical face for this slope is at about 2.6 m; the Bifrost node reaches it (the next entry). The production settings ([beach_production_zoom.png](../results/2d/solitary_wave/beach_production_zoom.png)) and half-metre cells ([beach_fine_zoom.png](../results/2d/solitary_wave/beach_fine_zoom.png)) change the reference's marks by less than a metre of depth.
+
+## 12. The piston wavemaker (2026-10-16)
+
+`reference2d/validate_piston.py`, the moving solid in the 2D reference; receipt in [receipt.json](../results/2d/piston/receipt.json). A plate 2 m thick on the floor of a 600 x 40 channel 20 m deep, 8 m from the wall, air behind it, sliding 2 m at a period of 8 s; one-metre cells, two pixels a cell, liquid blue, air grey, a frame every 5 s from 5 to 50 s.
+
+![The wave train](../results/2d/piston/dispersion.png)
+
+The train runs out along the channel; at 50 s, between 100 and 350 m from the paddle, its wavelength is 84.3 m against linear theory's 88.7 (0.95) and its height 2.73 m against the transfer function's 2.66 (1.02). The whole surface sinks over the run (2.6 m in the window by 50 s, with the paddle at rest just the same), the reference's own resting-tank drift recorded in the open questions; the profile is read against its own line.
