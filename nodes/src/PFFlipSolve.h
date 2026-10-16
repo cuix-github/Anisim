@@ -101,6 +101,18 @@ void step_2d(int   nx,
 //   w: nx*ny*(nz+1)   index (i*ny + j)*(nz+1) + k
 //   p: nx*ny*nz       index (i*ny + j)*nz + k
 //   solid_phi: (nx+1)*(ny+1)*(nz+1)   index (i*(ny+1) + j)*(nz+1) + k
+// A piston wavemaker (2026-10-16): with piston_period > 0 and piston_width > 0 a
+// plate stands on the floor, the whole depth in z, from x to x + piston_width up
+// to y = piston_top (cells), its x moving as piston_x0 + S/2 (1 - cos 2 pi t / T)
+// with S = piston_stroke (cells) and T = piston_period (seconds), t = step_index
+// * dt. The plate is a cut-cell solid folded with solid_phi (if any) and moving
+// at the step's mean speed: on the faces it closes, in the divergence of the cut
+// faces it covers, in the push-out (the normal velocity relative to the plate's).
+// The reference's Sim(piston=...) is the spec (validate_piston.py) and
+// gates/validate_piston_node.py the lockstep. Period 0, every port's default,
+// leaves the step as it was. Seed nothing inside the plate (as the reference's seed
+// drops what lies inside a solid): a particle left there is pushed out of its front
+// face into the water on the first step.
 PF_FLIP_SPIKE_DECL
 void step_3d(int   nx,
              int   ny,
@@ -134,6 +146,11 @@ void step_3d(int   nx,
              const Amino::Array<Bifrost::Math::float3>& obstacles_max,
              int   solid_mode,
              const Amino::Array<float>& solid_phi,
+             float piston_stroke,
+             float piston_period,
+             float piston_x0,
+             float piston_width,
+             float piston_top,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt,
              const Amino::Array<float>& v_wt,

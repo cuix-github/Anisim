@@ -336,6 +336,36 @@
      "portDefault": "3f"
     },
     {
+     "portName": "piston_stroke",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "piston_period",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "piston_x0",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "piston_width",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "piston_top",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
      "portName": "solid_mode",
      "portDirection": "input",
      "portType": "int",
@@ -801,6 +831,31 @@
       },
       {
        "portName": "radius_coarse",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "piston_stroke",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "piston_period",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "piston_x0",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "piston_width",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "piston_top",
        "portDirection": "input",
        "portType": "float"
       },
@@ -2749,6 +2804,26 @@
       {
        "source": ".ws_epsilon",
        "target": "step.ws_epsilon"
+      },
+      {
+       "source": ".piston_stroke",
+       "target": "step.piston_stroke"
+      },
+      {
+       "source": ".piston_period",
+       "target": "step.piston_period"
+      },
+      {
+       "source": ".piston_x0",
+       "target": "step.piston_x0"
+      },
+      {
+       "source": ".piston_width",
+       "target": "step.piston_width"
+      },
+      {
+       "source": ".piston_top",
+       "target": "step.piston_top"
       },
       {
        "source": "step.out_mass",
@@ -4890,6 +4965,26 @@
     {
      "source": ".radius_coarse",
      "target": "loop.radius_coarse"
+    },
+    {
+     "source": ".piston_stroke",
+     "target": "loop.piston_stroke"
+    },
+    {
+     "source": ".piston_period",
+     "target": "loop.piston_period"
+    },
+    {
+     "source": ".piston_x0",
+     "target": "loop.piston_x0"
+    },
+    {
+     "source": ".piston_width",
+     "target": "loop.piston_width"
+    },
+    {
+     "source": ".piston_top",
+     "target": "loop.piston_top"
     },
     {
      "source": ".solid_mode",

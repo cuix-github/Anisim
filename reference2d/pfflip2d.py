@@ -397,14 +397,14 @@ class Sim:
                 # slope can be a tenth of one), at most 1.5 cells
                 step = -(phi[inside] - 0.01)[:, None] * g / g2[:, None]
                 ln = np.linalg.norm(step, axis=1)
-                self.pos[inside] += step * np.minimum(1.0, 1.5 / np.maximum(ln, 1e-12))[:, None]
-                vz = self.vel[inside]
                 vs = self.solid_vel
                 if self.piston is not None and self.static_phi is not None:
                     # the plate's speed for a particle inside the plate, none inside a
-                    # static solid
+                    # static solid; read before the move (after it the particle is out)
                     in_plate = self._phi_at(self.pos[inside], self._plate_phi)[0] < 0.0
                     vs = self.solid_vel[None, :] * in_plate[:, None]
+                self.pos[inside] += step * np.minimum(1.0, 1.5 / np.maximum(ln, 1e-12))[:, None]
+                vz = self.vel[inside]
                 vz -= ((vz - vs) * n).sum(1)[:, None] * n
                 self.vel[inside] = vz
 

@@ -571,6 +571,36 @@
           "portDirection": "input",
           "portType": "string",
           "portDefault": ""
+        },
+        {
+          "portName": "piston_stroke",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
+          "portName": "piston_period",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
+          "portName": "piston_x0",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
+          "portName": "piston_width",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
+          "portName": "piston_top",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
         }
       ],
       "compoundNodes": [
@@ -1531,6 +1561,26 @@
         {
           "source": "r_solid_phi.data",
           "target": "step.solid_phi"
+        },
+        {
+          "source": ".piston_stroke",
+          "target": "step.piston_stroke"
+        },
+        {
+          "source": ".piston_period",
+          "target": "step.piston_period"
+        },
+        {
+          "source": ".piston_x0",
+          "target": "step.piston_x0"
+        },
+        {
+          "source": ".piston_width",
+          "target": "step.piston_width"
+        },
+        {
+          "source": ".piston_top",
+          "target": "step.piston_top"
         }
       ],
       "values": [

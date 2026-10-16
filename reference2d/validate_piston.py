@@ -5,7 +5,7 @@ stays below the ceiling so the air it displaces flows over it: a whole wall swee
 the sealed tank of incompressible fluid has no pressure solution (the divergence sums to
 the swept rate), which is how the first version of this gate spun for hours on its first
 frame. Behind the plate is air down to the floor (a dry-back paddle); in front, the water.
-Two checks, cells of one metre, g = 9.8:
+Three checks, cells of one metre, g = 9.8:
 
   rest        a plate with no stroke is the static solid of the same shape: the dam break
               of pfflip2d.py run 100 steps with piston=(0, 1, 8, 2, 56.5) and with that
@@ -21,6 +21,13 @@ Two checks, cells of one metre, g = 9.8:
               wavelength within 10 percent of L; the height within 30 percent of the
               piston transfer function of Dean and Dalrymple, H / S = 2 (cosh 2kh - 1) /
               (sinh 2kh + 2kh) = 1.33, so 2.66 m; at least two waves in the window.
+  fast        the hard case: a 4 m stroke at a period of 4 s (the plate up to 3.1 m/s,
+              sweeping water four times as hard as the dispersion check) in a 200 x 60
+              channel 20 m deep, the plate's top at 50 m, 12 s. After every frame: no
+              liquid particle inside the plate, none behind it below its top (water can
+              only get behind by going over), the fastest liquid particle under 30 m/s (the
+              air squeezed over the plate's top runs faster and is reported), and the
+              liquid count unchanged.
 
 The surface is the highest liquid particle per one-metre column, smoothed over five
 (solitary_wave.surface). At the default FLIP blend the reference's resting water is not
@@ -36,9 +43,9 @@ surface is that mixing layer and no mark read off it means anything; the periodi
 breaker is the node's test, whose tank stays quiet.
 
 Receipts in results/2d/piston/ (receipt.json, the strip dispersion.png). Run from
-reference2d:  ..\\.venv\\Scripts\\python.exe validate_piston.py [rest|dispersion]
+reference2d:  ..\\.venv\\Scripts\\python.exe validate_piston.py [rest|dispersion|fast]
 [--alpha a]; --alpha runs the dispersion check at another FLIP blend (both phases) with
-the suffix _alpha<a> on the files. About seven minutes on one core, a line every five
+the suffix _alpha<a> on the files. About nine minutes on one core, a line every five
 simulated seconds. Exits nonzero on failure.
 """
 import json
@@ -182,6 +189,36 @@ def check_dispersion():
                 "surface_every_5m": {f"{t:.0f}s": [round(float(v), 3) for v in e[::5]] for t, e in series}}
 
 
+def check_fast():
+    print("=== fast: a 4 m stroke at 4 s, nothing leaks through the plate", flush=True)
+    nx, ny, h, S, T, top = 200, 60, 20.0, 4.0, 4.0, 50.0
+    front = PLATE_X0 + PLATE_W
+    sim = Sim(nx, ny, piston=(S, T, PLATE_X0, PLATE_W, top))
+    sim.seed(lambda x, y: (x > front) & (y < h))
+    sim.calibrate()
+    n_liq = int((sim.typ == 1).sum())
+    worst = {"inside": 0, "behind": 0, "speed": 0.0, "air_speed": 0.0, "lost": 0}
+    t0 = time.time()
+
+    def cb(f, s):
+        progress(s, f, 0.1, t0)
+        liq = s.typ == 1
+        p = s.pos[liq]
+        inside = int((s._phi_at(p, s._plate_phi)[0] < 0.0).sum())
+        behind = int(((p[:, 0] < s.piston_x) & (p[:, 1] < top)).sum())
+        worst["inside"] = max(worst["inside"], inside)
+        worst["behind"] = max(worst["behind"], behind)
+        worst["speed"] = max(worst["speed"], float(np.linalg.norm(s.vel[liq], axis=1).max()))
+        worst["air_speed"] = max(worst["air_speed"], float(np.linalg.norm(s.vel[~liq], axis=1).max()))
+        worst["lost"] = max(worst["lost"], abs(int(liq.sum()) - n_liq))
+    sim.run(120, 0.1, on_frame=cb)
+    ok = worst["inside"] == 0 and worst["behind"] == 0 and worst["speed"] < 30.0 and worst["lost"] == 0
+    print(f"    12 s, worst frame: liquid inside the plate {worst['inside']}, behind it {worst['behind']}, "
+          f"fastest liquid {worst['speed']:.1f} m/s (air {worst['air_speed']:.1f}), liquid count change {worst['lost']}; "
+          f"{n_liq:,} liquid particles, {time.time() - t0:.0f} s  " + ("OK" if ok else "FAIL"), flush=True)
+    return ok, dict(worst, grid=[nx, ny], S=S, T=T, top=top, liquid=n_liq)
+
+
 def main(argv):
     global SIM_KW, SUFFIX
     args = list(argv)
@@ -194,7 +231,7 @@ def main(argv):
     which = args[0] if args else "all"
     os.makedirs(RESULTS, exist_ok=True)
     results, ok = {}, True
-    for name, fn in (("rest", check_rest), ("dispersion", check_dispersion)):
+    for name, fn in (("rest", check_rest), ("dispersion", check_dispersion), ("fast", check_fast)):
         if which in ("all", name):
             good, rec = fn()
             ok &= good

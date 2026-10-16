@@ -253,6 +253,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              const Amino::Array<Bifrost::Math::float3>& obstacles_min,
              const Amino::Array<Bifrost::Math::float3>& obstacles_max,
              int solid_mode, const Amino::Array<float>& solid_phi,
+             float piston_stroke, float piston_period, float piston_x0,
+             float piston_width, float piston_top,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt, const Amino::Array<float>& v_wt,
              const Amino::Array<float>& w_wt,
@@ -414,8 +416,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // the centre, the boxes' rule); 2 keeps the fraction (cut cells).
     const bool flatGrid = NZ == 1;
     const size_t nNode = static_cast<size_t>(NX + 1) * (NY + 1) * (NZ + 1);
-    const bool lsOn = solid_mode != 0;
-    if (lsOn && solid_phi.size() != nNode) {
+    // the piston wavemaker (PFFlipSolve.h): a plate that moves, folded with the
+    // static solid; it makes the solve cut-cell, as the reference's piston does
+    const bool pistonOn = piston_period > 0.0f && piston_width > 0.0f;
+    const bool staticOn = solid_mode != 0;
+    const bool lsOn = staticOn || pistonOn;
+    if (staticOn && solid_phi.size() != nNode) {
         // Refuse rather than simulate without the solid: a .npy of the wrong
         // dtype, for one, arrives here as an empty array. The error goes to
         // the graph's own channel (the runtime services) and to stderr, the
@@ -443,13 +449,45 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         final_residual = max_divergence_after = max_speed = 0.0f;
         return;
     }
-    const bool lsCut = lsOn && solid_mode == 2;
+    const bool lsCut = pistonOn || (staticOn && solid_mode == 2);
+    // the plate at this step: its left face's x at t = step_index * dt, the
+    // step's mean speed towards t + dt, its distance at the nodes, and the
+    // distance of everything solid (the plate folded with the static solid)
+    double pistonX = 0.0, pistonVx = 0.0;
+    std::vector<double> phiPlate, phiAll;
+    if (pistonOn) {
+        const double S = piston_stroke, T = piston_period, x0 = piston_x0;
+        const double wd = piston_width, top = piston_top;
+        const double twoPi = 2.0 * 3.14159265358979323846;
+        auto xLeft = [&](double tt) { return x0 + 0.5 * S * (1.0 - std::cos(twoPi * tt / T)); };
+        const double t = static_cast<double>(step_index) * dt;
+        pistonX = xLeft(t);
+        pistonVx = dt > 0.0 ? (xLeft(t + dt) - pistonX) / dt : 0.0;
+        phiPlate.resize(nNode);
+        phiAll.resize(nNode);
+        const size_t sj = static_cast<size_t>(NZ) + 1;
+        const size_t si = (static_cast<size_t>(NY) + 1) * sj;
+        for (int i = 0; i <= NX; ++i)
+            for (int j = 0; j <= NY; ++j)
+                for (int k = 0; k <= NZ; ++k) {
+                    const size_t o = i * si + j * sj + k;
+                    const double X = i, Y = j;
+                    const double pp = std::max(std::max(pistonX - X, X - (pistonX + wd)), Y - top);
+                    phiPlate[o] = pp;
+                    phiAll[o] = staticOn ? std::min(pp, static_cast<double>(solid_phi[o])) : pp;
+                }
+    }
     Vec openU, openV, openW;
+    Vec openSU, openSV, openSW;   // open against the static solid alone (piston only)
     bool lsTouches = false;
     if (lsOn) {
         const size_t sj = static_cast<size_t>(NZ) + 1;
         const size_t si = (static_cast<size_t>(NY) + 1) * sj;
         auto P = [&](int i, int j, int k) {
+            return pistonOn ? phiAll[i * si + j * sj + k]
+                            : static_cast<double>(solid_phi[i * si + j * sj + k]);
+        };
+        auto PS = [&](int i, int j, int k) {
             return static_cast<double>(solid_phi[i * si + j * sj + k]);
         };
         // one face from its corners (a, b along its first tangent, c, d the
@@ -481,6 +519,29 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 for (int k = 0; k <= NZ; ++k)
                     openW[L.iw(i, j, k)] = open(P(i, j, k), P(i + 1, j, k),
                                                 P(i, j + 1, k), P(i + 1, j + 1, k));
+        if (pistonOn) {
+            openSU.assign(nu, 1.0); openSV.assign(nv, 1.0); openSW.assign(nw, 1.0);
+            if (staticOn) {
+#pragma omp parallel for schedule(static)
+                for (int i = 0; i <= NX; ++i)
+                    for (int j = 0; j < NY; ++j)
+                        for (int k = 0; k < NZ; ++k)
+                            openSU[L.iu(i, j, k)] = open(PS(i, j, k), PS(i, j + 1, k),
+                                                         PS(i, j, k + 1), PS(i, j + 1, k + 1));
+#pragma omp parallel for schedule(static)
+                for (int i = 0; i < NX; ++i)
+                    for (int j = 0; j <= NY; ++j)
+                        for (int k = 0; k < NZ; ++k)
+                            openSV[L.iv(i, j, k)] = open(PS(i, j, k), PS(i + 1, j, k),
+                                                         PS(i, j, k + 1), PS(i + 1, j, k + 1));
+#pragma omp parallel for schedule(static)
+                for (int i = 0; i < NX; ++i)
+                    for (int j = 0; j < NY; ++j)
+                        for (int k = 0; k <= NZ; ++k)
+                            openSW[L.iw(i, j, k)] = open(PS(i, j, k), PS(i + 1, j, k),
+                                                         PS(i, j + 1, k), PS(i + 1, j + 1, k));
+            }
+        }
         for (size_t c = 0; c < nu && !lsTouches; ++c) lsTouches = openU[c] < 1.0;
         for (size_t c = 0; c < nv && !lsTouches; ++c) lsTouches = openV[c] < 1.0;
         for (size_t c = 0; c < nw && !lsTouches && !flatGrid; ++c) lsTouches = openW[c] < 1.0;
@@ -495,7 +556,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             }
         }
     }
-    auto walls = [&](Vec& uu, Vec& vv, Vec& ww) {
+    // vel: velocities (the plate's faces take its speed), not the coefficients
+    auto walls = [&](Vec& uu, Vec& vv, Vec& ww, bool vel) {
         for (int j = 0; j < NY; ++j)
             for (int k = 0; k < NZ; ++k) { uu[L.iu(0, j, k)] = 0.0; uu[L.iu(NX, j, k)] = 0.0; }
         for (int i = 0; i < NX; ++i)
@@ -511,14 +573,18 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             for (size_t c = 0; c < nu; ++c) if (openU[c] <= 0.0) uu[c] = 0.0;
             for (size_t c = 0; c < nv; ++c) if (openV[c] <= 0.0) vv[c] = 0.0;
             for (size_t c = 0; c < nw; ++c) if (openW[c] <= 0.0) ww[c] = 0.0;
+            // the faces the plate closes move with it (y and z: its speed is 0)
+            if (vel && pistonOn)
+                for (size_t c = 0; c < nu; ++c)
+                    if (openU[c] <= 0.0 && openSU[c] > 0.0) uu[c] = pistonVx;
         }
     };
-    walls(u, v, w);
+    walls(u, v, w, true);
     Vec uStar = u, vStar = v, wStar = w;
 
     // ---- gravity on y faces, then walls.
     for (size_t c = 0; c < nv; ++c) v[c] += gravity * dt;
-    walls(u, v, w);
+    walls(u, v, w, true);
 
     // ---- face coefficients beta = 1/rho(phi), walls zero.
     L.bu.assign(nu, 0.0); L.bv.assign(nv, 0.0); L.bw.assign(nw, 0.0);
@@ -534,7 +600,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         }
     };
     beta(L.bu, chP_u, chW_u); beta(L.bv, chP_v, chW_v); beta(L.bw, chP_w, chW_w);
-    walls(L.bu, L.bv, L.bw);
+    walls(L.bu, L.bv, L.bw, false);
     // cut cells: flux passes through a face's open part only, so the
     // operator's coefficients and the divergence take the open fraction; the
     // velocity update keeps the unweighted beta (the solid is static)
@@ -553,7 +619,18 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     for (int i = 0; i < NX; ++i)
         for (int j = 0; j < NY; ++j)
             for (int k = 0; k < NZ; ++k)
-                rhs[L.ic(i, j, k)] = lsCut
+                rhs[L.ic(i, j, k)] = pistonOn
+                    // the part of a face the plate covers moves at its speed
+                    // (open against the static solid, closed against all)
+                    ? -(((openU[L.iu(i + 1, j, k)] * u[L.iu(i + 1, j, k)] +
+                          (openSU[L.iu(i + 1, j, k)] - openU[L.iu(i + 1, j, k)]) * pistonVx) -
+                         (openU[L.iu(i, j, k)] * u[L.iu(i, j, k)] +
+                          (openSU[L.iu(i, j, k)] - openU[L.iu(i, j, k)]) * pistonVx)) +
+                        (openV[L.iv(i, j + 1, k)] * v[L.iv(i, j + 1, k)] -
+                         openV[L.iv(i, j, k)] * v[L.iv(i, j, k)]) +
+                        (openW[L.iw(i, j, k + 1)] * w[L.iw(i, j, k + 1)] -
+                         openW[L.iw(i, j, k)] * w[L.iw(i, j, k)])) / dt
+                    : lsCut
                     ? -((openU[L.iu(i + 1, j, k)] * u[L.iu(i + 1, j, k)] -
                          openU[L.iu(i, j, k)] * u[L.iu(i, j, k)]) +
                         (openV[L.iv(i, j + 1, k)] * v[L.iv(i, j + 1, k)] -
@@ -692,10 +769,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     w[F.iw(i, j, k)] -= dt * cbw[F.iw(i, j, k)] *
                                         (p[F.ic(i, j, k)] - p[F.ic(i, j, k - 1)]);
     }
-    walls(u, v, w);
+    walls(u, v, w, true);
 
     // the divergence the solve removed (cut cells: of the open-weighted u)
-    auto fu = [&](size_t c) { return lsCut ? openU[c] * u[c] : u[c]; };
+    auto fu = [&](size_t c) {
+        return pistonOn ? openU[c] * u[c] + (openSU[c] - openU[c]) * pistonVx
+                        : (lsCut ? openU[c] * u[c] : u[c]);
+    };
     auto fv = [&](size_t c) { return lsCut ? openV[c] * v[c] : v[c]; };
     auto fw = [&](size_t c) { return lsCut ? openW[c] * w[c] : w[c]; };
     double maxDiv = 0.0;
@@ -714,6 +794,15 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // air merges 4-to-1 (8-to-1 in 3D) and coarse splits near the interface or
     // walls, mirroring the 2D reference's rules.
     const bool flat = NZ == 1;
+    // a particle inside a solid back out: the static field as before, or with the
+    // piston the folded field and the plate's speed
+    const std::vector<double>* plateOnly = staticOn ? &phiPlate : nullptr;
+    auto pushP = [&](double& x, double& y, double& z, double* vx, double* vy, double* vz) {
+        if (pistonOn)
+            return Solids::pushOutMoving(phiAll, plateOnly, pistonVx, NX, NY, NZ, flat, x, y, z,
+                                         vx, vy, vz);
+        return Solids::pushOut(solid_phi, NX, NY, NZ, flat, x, y, z, vx, vy, vz);
+    };
     const bool stOn = st != 0;
     const bool adOn = adapt != 0;
     const double dExp = flat ? 2.0 : 3.0;
@@ -943,7 +1032,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 else { pz = m1.z + 0.01; vz = 0.0; }
             }
         }
-        if (lsOn && Solids::pushOut(solid_phi, NX, NY, NZ, flat, px, py, pz, &vx, &vy, &vz))
+        if (lsOn && pushP(px, py, pz, &vx, &vy, &vz))
             ++lsPushed;
         Px[pi] = px; Py[pi] = py; Pz[pi] = pz;
         Vx[pi] = vx; Vy[pi] = vy; Vz[pi] = vz;
@@ -1128,8 +1217,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     if (lsOn && adOn) {
 #pragma omp parallel for schedule(static)
         for (long long i = 0; i < static_cast<long long>(Px.size()); ++i)
-            Solids::pushOut(solid_phi, NX, NY, NZ, flat, Px[i], Py[i], Pz[i], &Vx[i], &Vy[i],
-                            &Vz[i]);
+            pushP(Px[i], Py[i], Pz[i], &Vx[i], &Vy[i], &Vz[i]);
     }
 
     // ---- pack outputs at the final particle count.
@@ -1181,7 +1269,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         }
         // (without a time jitter the display position is the actual one, already out)
         if (lsOn && sdt != 0.0)
-            Solids::pushOut(solid_phi, NX, NY, NZ, flat, sx, sy, sz, nullptr, nullptr, nullptr);
+            pushP(sx, sy, sz, nullptr, nullptr, nullptr);
         (*outSync)[i] = {static_cast<float>(sx), static_cast<float>(sy),
                          static_cast<float>(sz)};
         const double rhoP = Ph01[i] >= 0.5 ? rl : rg;
