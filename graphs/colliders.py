@@ -85,16 +85,16 @@ def _save_mesh(d, suffix, mesh):
 
 def solid_phi_from_meshes(tag, meshes, nx, ny, nz, cell_size=1.0, origin=(0.0, 0.0, 0.0),
                           detail_size=None, offset=0.0, thickening=0.0, min_hole_radius=0.0,
-                          positions=False):
+                          positions=False, out_dir=None):
     """The solid's signed distance at the (nx+1, ny+1, nz+1) grid nodes, in cells,
     negative inside, from one or two closed meshes given in world units: the grid node
     (i, j, k) sits at origin + (i, j, k) * cell_size. detail_size (world units) is the
     level set's voxel size, default one cell; offset grows the solid by that many world
     units; thickening by that many voxels (the shipped node's defaults are 0 and 1).
-    Runs under out/collider_<tag>/. With positions, also returns the node positions
+    Runs under out_dir, or out/collider_<tag>/. With positions, also returns the node positions
     the graph built."""
     assert 1 <= len(meshes) <= 2, "the setup graph takes one or two meshes"
-    d = os.path.join(HERE, "..", "out", "collider_" + tag)
+    d = out_dir or os.path.join(HERE, "..", "out", "collider_" + tag)
     os.makedirs(d, exist_ok=True)
     ports = {"use_b": "true" if len(meshes) == 2 else "false",
              "detail_size": cell_size if detail_size is None else detail_size,

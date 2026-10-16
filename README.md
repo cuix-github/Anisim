@@ -41,8 +41,9 @@ Then, from the repository root:
 | Run the boulder showcase, a chunk at a time | `.venv\Scripts\python.exe experiments\collider_showcase.py stage 0 --grid 256 64 128` |
 | Play a run in Maya as particles | `maya\play_showcase_in_maya.bat blend boulders512` |
 | Render that playback to a video | `maya\render_play_scene.bat out\play_boulders512_blend.ma out\collider_showcase\boulders512_render boulders512` |
+| See every run on disk, its size, and what can be rebuilt from what | `.venv\Scripts\python.exe graphs\runs.py report` |
 
-Every run writes under `out\` at the root, which is ignored; the repository keeps code and small numeric evidence only.
+Every run writes under `out\runs\<tag>\` at the root, which is ignored (the layout is in [docs/outputs.md](docs/outputs.md)); the repository keeps code and small numeric evidence only.
 
 ## The map
 
@@ -50,7 +51,7 @@ One folder per job.
 
 - `reference2d/`: the executable spec, a pure-Python 2D implementation every Bifrost stage is validated against, with its scenes and gates. Start with its [README](reference2d/README.md) and [VALIDATION.md](reference2d/VALIDATION.md).
 - `nodes/`: the custom Bifrost SDK operator pack. `PFFlipSolve3.cpp` is the 3D step with its multigrid solve, `PFFlipP2G.cpp` the fused transfer, `PFFlipAdaptive.cpp` the adaptive pressure solve, `PFFlipSolids.h` the level-set solids.
-- `graphs/`: the Bifrost graphs, their generators, and the `.bat` launchers that run them headlessly through bifcmd. `loop3d.py` is the 3D loop runner the gates and experiments share; `colliders.py` turns meshes into a solid field.
+- `graphs/`: the Bifrost graphs, their generators, and the `.bat` launchers that run them headlessly through bifcmd. `loop3d.py` is the 3D loop runner the gates and experiments share; `colliders.py` turns meshes into a solid field; `runs.py` says where a run's files live under `out/` and reports what is there.
 - `gates/`: the validation ladder, one `validate_*.py` per feature, each exiting nonzero on failure.
 - `experiments/`: the showcase (`collider_showcase.py`), the overnight bore suite, the speed receipts and the threading experiment; `archive/` holds the one-off studies that settled a question, with an index.
 - `maya/`: playback and rendering in Maya: the play cache, the Bifrost compounds, the scene builders and the one-click launchers.
