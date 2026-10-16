@@ -1,0 +1,65 @@
+{
+ "rest": {
+  "max_diff": 0.0
+ },
+ "lockstep": {
+  "channel": {
+   "plate_x": 8.8436,
+   "plate_speed": 1.5551,
+   "in_plate": 40,
+   "in_beach": 0,
+   "iterations": 15.0
+  },
+  "channel and beach": {
+   "plate_x": 8.8436,
+   "plate_speed": 1.5551,
+   "in_plate": 40,
+   "in_beach": 40,
+   "iterations": 15.0
+  }
+ },
+ "train": {
+  "grid": [
+   600,
+   40,
+   2
+  ],
+  "S": 2.0,
+  "T": 8.0,
+  "dt": 0.05,
+  "L": 88.23,
+  "L_ratio": 0.9944,
+  "H": 2.786,
+  "H_ratio": 1.046,
+  "waves": 2,
+  "level_drift_m": [
+   -0.113,
+   -0.108,
+   -0.09,
+   -0.064,
+   0.017,
+   0.096,
+   -0.208,
+   -0.065,
+   -0.121,
+   0.005
+  ],
+  "inside": 0,
+  "behind": 0,
+  "wall_s": 358.9
+ },
+ "fast": {
+  "grid": [
+   200,
+   60,
+   4
+  ],
+  "crossed": 0,
+  "over_the_top": 31,
+  "inside_max": 2,
+  "liquid": 121600,
+  "highest_liquid": 59.62,
+  "peak_speed": 184.4,
+  "wall_s": 98.8
+ }
+}

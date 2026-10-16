@@ -707,8 +707,12 @@ def build3d():
         if k["source"].endswith(".output2"):
             k["source"] = k["source"].replace(".output2", ".output")
     # node scalar/state plumbing
+    # the piston wavemaker's five scalars (period 0 = none; see step_3d)
     for n, t, dv in (("adapt", "int", "0"), ("coarse_gain", "float", "1f"),
-                     ("ws_epsilon", "float", "16f"), ("radius_coarse", "float", "3f")):
+                     ("ws_epsilon", "float", "16f"), ("radius_coarse", "float", "3f"),
+                     ("piston_stroke", "float", "0f"), ("piston_period", "float", "0f"),
+                     ("piston_x0", "float", "0f"), ("piston_width", "float", "0f"),
+                     ("piston_top", "float", "0f")):
         if n != "radius_coarse":
             body["ports"].append(P(n, "input", t))
             conns.append({"source": "." + n, "target": "step." + n})

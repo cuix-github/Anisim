@@ -180,6 +180,46 @@ inline bool pushOut(const Arr& P, int nx, int ny, int nz, bool flat, double& px,
     return moved;
 }
 
+// pushOut beside a solid that moves at (svx, 0, 0): the velocity loses its
+// normal component relative to the solid's. With plate given (a static solid
+// folded in), the plate's speed applies only where the point sits inside the
+// plate before the pass moves it; inside the static part the solid is at rest.
+// The reference's _push_out with a piston, operation for operation at nz = 1.
+template <class Arr, class Arr2>
+inline bool pushOutMoving(const Arr& P, const Arr2* plate, double svx, int nx, int ny,
+                          int nz, bool flat, double& px, double& py, double& pz,
+                          double* vx, double* vy, double* vz) {
+    if (!(phiValue(P, nx, ny, nz, flat, px, py, pz) < 0.0)) return false;
+    bool moved = false;
+    for (int pass = 0; pass < 3; ++pass) {
+        double gx, gy, gz;
+        const double phi = phiAt(P, nx, ny, nz, flat, px, py, pz, gx, gy, gz);
+        if (!(phi < 0.0)) break;
+        moved = true;
+        const double g2 = std::max(flat ? gx * gx + gy * gy : gx * gx + gy * gy + gz * gz,
+                                   1e-12);
+        const double rg = std::sqrt(g2);
+        const double nxv = gx / rg, nyv = gy / rg, nzv = gz / rg;
+        const double c = -(phi - 0.01);
+        const double sx = c * gx / g2, sy = c * gy / g2, sz = flat ? 0.0 : c * gz / g2;
+        const double ln = std::sqrt(flat ? sx * sx + sy * sy : sx * sx + sy * sy + sz * sz);
+        const double f = std::min(1.0, 1.5 / std::max(ln, 1e-12));
+        const double vsx = (!plate || phiValue(*plate, nx, ny, nz, flat, px, py, pz) < 0.0)
+                               ? svx : 0.0;
+        px += sx * f;
+        py += sy * f;
+        if (!flat) pz += sz * f;
+        if (vx) {
+            const double vn = flat ? (*vx - vsx) * nxv + *vy * nyv
+                                   : (*vx - vsx) * nxv + *vy * nyv + *vz * nzv;
+            *vx -= vn * nxv;
+            *vy -= vn * nyv;
+            if (!flat) *vz -= vn * nzv;
+        }
+    }
+    return moved;
+}
+
 } // namespace Solids
 } // namespace PFFlip
 
