@@ -34,7 +34,7 @@ class Sim:
     def __init__(self, nx, ny, rho_l=1000.0, rho_g=1.0, alpha_l=0.97, alpha_g=0.9, g=-9.8,
                  escape=False, esc_phi=0.3, drag_droplet=1.0, drag_bubble=8.0, buoyancy=2.0,
                  st=False, sub_advect=False, adapt=False, obstacles=None,
-                 solid_phi=None, solid_cut=False, solid_support=True):
+                 solid_phi=None, solid_cut=False, solid_support=True, piston=None):
         self.nx, self.ny, self.dx = nx, ny, 1.0
         self.rho_l, self.rho_g = rho_l, rho_g
         self.alpha = {1: alpha_l, 0: alpha_g}
@@ -85,6 +85,34 @@ class Sim:
         self._open = None
         self.solid_support = bool(solid_support)
         self._support = None
+        # A piston wavemaker (2026-10-16): the paddle of a wave flume, a plate standing
+        # on the floor that slides along x. piston = (S, T, x0, width, top): the plate's
+        # left face at x0 + S/2 (1 - cos 2 pi t / T), its thickness width, its top at
+        # y = top, below the ceiling so the air it displaces flows over it. (A whole
+        # wall sweeping into the sealed tank of incompressible fluid has no pressure
+        # solution: the divergence sums to the swept rate, the solve spins to its cap
+        # and the velocities blow up. A plate sweeps nothing net.) Every step rebuilds
+        # the level set, folded with the static solid_phi given here if any, as a
+        # cut-cell solid moving at the step's mean speed: the faces it closes carry
+        # that speed, its part of a cut face carries the speed into the divergence
+        # (the variational form), a pushed-out particle keeps the plate's speed, and
+        # the support share is re-probed within three cells of the plate only. At rest
+        # (S = 0) every path is the static solid's, bit for bit (validate_piston.py).
+        self.piston = None
+        if piston is not None:
+            given = tuple(map(float, piston))
+            self.piston = given + (8.0, 2.0, 0.7 * ny)[len(given) - 2:]
+        self.t = 0.0
+        self.static_phi = self.solid_phi
+        self.piston_x = 0.0
+        self.solid_vel = np.zeros(2)
+        self.support_band = None
+        self._support_static = None
+        self._open_static = None
+        self._plate_phi = None
+        if self.piston is not None:
+            self.solid_cut, self.solid_support = True, True
+            self._move_piston(0.0, 0.0)
         self.st_rng = np.random.default_rng(7)
         self.tau = np.zeros(0)
         self.u = np.zeros((nx + 1, ny))   # x-velocity on vertical faces
@@ -114,6 +142,26 @@ class Sim:
         self.scale = np.ones(len(self.pos))
         self.tau = np.zeros(len(self.pos))      # particles start synchronized
         self.xi = np.ones(len(self.pos))        # per-particle jitter strength
+
+    @staticmethod
+    def plate_phi(nx, ny, x_left, width, top):
+        """The node distances of a plate on the floor: x_left to x_left + width, up to top."""
+        X, Y = np.meshgrid(np.arange(nx + 1, dtype=float), np.arange(ny + 1, dtype=float),
+                           indexing="ij")
+        return np.maximum(np.maximum(x_left - X, X - (x_left + width)), Y - top)
+
+    def _move_piston(self, t, dt):
+        """The plate at time t, moving at the step's mean speed towards t + dt."""
+        S, T, x0, width, top = self.piston
+        x_left = lambda tt: x0 + 0.5 * S * (1.0 - np.cos(2.0 * np.pi * tt / T))   # noqa: E731
+        xl = float(x_left(t))
+        self.piston_x = xl
+        self.solid_vel = np.array([(float(x_left(t + dt)) - xl) / dt if dt > 0 else 0.0, 0.0])
+        phi = self.plate_phi(self.nx, self.ny, xl, width, top)
+        self._plate_phi = phi
+        self.solid_phi = phi if self.static_phi is None else np.minimum(phi, self.static_phi)
+        self._open = self._support = None
+        self.support_band = (xl - 3.0, xl + width + 3.0)
 
     def masses(self):
         m = np.where(self.typ == 1, self.rho_l, self.rho_g)
@@ -203,9 +251,9 @@ class Sim:
             inside |= self._phi_at(pts)[0] < 0.0
         return inside
 
-    def _phi_at(self, pts):
+    def _phi_at(self, pts, P=None):
         """The solid's signed distance at points, bilinear over the nodes, and its gradient."""
-        P = self.solid_phi
+        P = self.solid_phi if P is None else P
         q = np.clip(pts, 0.0, [self.nx, self.ny])
         b = np.minimum(np.floor(q).astype(np.int64), [self.nx - 1, self.ny - 1])
         fx, fy = (q - b)[:, 0], (q - b)[:, 1]
@@ -233,20 +281,47 @@ class Sim:
         reads a face's mass against this share, so a face beside the solid is not taken
         for air because the solid holds no particles."""
         if self._support is None:
-            k = 6
-            pts = np.stack(np.meshgrid((np.arange(self.nx * k) + 0.5) / k,
-                                       (np.arange(self.ny * k) + 0.5) / k,
-                                       indexing="ij"), -1).reshape(-1, 2)
-            keep = (self._phi_at(pts)[0] > 0.0).astype(float)
-            out = []
-            for shape, off in ((self.u.shape, (0.0, 0.5)), (self.v.shape, (0.5, 0.0))):
-                q = pts - np.array(off)
-                base = np.floor(q + 0.5).astype(np.int64)
-                acc = [np.zeros(shape), np.zeros(shape)]
-                self._splat_group(acc, shape, (base, q - base), [np.ones(len(pts)), keep], 1.0)
-                out.append(np.where(acc[0] > 0, acc[1] / np.maximum(acc[0], 1e-300), 1.0))
-            self._support = tuple(out)
+            if self.piston is None:
+                self._support = self._probe_share(None, self.solid_phi)
+            else:
+                # the static solids once over the whole domain; the plate's
+                # neighbourhood every step, written over the faces whose kernel reach
+                # (one cell) lies inside the probed band
+                if self._support_static is None:
+                    self._support_static = self._probe_share(None, self.static_phi)
+                lo, hi = self.support_band
+                band = self._probe_share((lo, hi), self.solid_phi)
+                su, sv = (a.copy() for a in self._support_static)
+                xu = np.arange(self.nx + 1, dtype=float)
+                xv = np.arange(self.nx, dtype=float) + 0.5
+                cu = (xu >= lo + 1.0) & (xu <= hi - 1.0)
+                cv = (xv >= lo + 1.0) & (xv <= hi - 1.0)
+                su[cu, :] = band[0][cu, :]
+                sv[cv, :] = band[1][cv, :]
+                self._support = (su, sv)
         return self._support
+
+    def _probe_share(self, band, P):
+        """The share for every face from a fine all-liquid probe of the domain (of the
+        columns between band's bounds when given), splatted with and without the
+        interior of the solid whose node distances are P; all ones when P is None."""
+        if P is None:
+            return np.ones(self.u.shape), np.ones(self.v.shape)
+        k = 6
+        pts = np.stack(np.meshgrid((np.arange(self.nx * k) + 0.5) / k,
+                                   (np.arange(self.ny * k) + 0.5) / k,
+                                   indexing="ij"), -1).reshape(-1, 2)
+        if band is not None:
+            pts = pts[(pts[:, 0] >= band[0]) & (pts[:, 0] <= band[1])]
+        keep = (self._phi_at(pts, P)[0] > 0.0).astype(float)
+        out = []
+        for shape, off in ((self.u.shape, (0.0, 0.5)), (self.v.shape, (0.5, 0.0))):
+            q = pts - np.array(off)
+            base = np.floor(q + 0.5).astype(np.int64)
+            acc = [np.zeros(shape), np.zeros(shape)]
+            self._splat_group(acc, shape, (base, q - base), [np.ones(len(pts)), keep], 1.0)
+            out.append(np.where(acc[0] > 0, acc[1] / np.maximum(acc[0], 1e-300), 1.0))
+        return tuple(out)
 
     def _solid_open(self):
         """Open fraction of every u and v face against the level-set solid (1 = open)."""
@@ -262,6 +337,19 @@ class Sim:
                 self._open = ((0.5 * (a_u + b_u) > 0).astype(float),
                               (0.5 * (a_v + b_v) > 0).astype(float))
         return self._open
+
+    def _static_open(self):
+        """Open fraction of every face against the static solids alone (all open without
+        any): what the moving plate covers of a face is this less the combined fraction."""
+        if self._open_static is None:
+            if self.static_phi is None:
+                self._open_static = (np.ones(self.u.shape), np.ones(self.v.shape))
+            else:
+                P = self.static_phi
+                self._open_static = tuple(np.where(w < self.SOLID_MIN_OPEN, 0.0, w) for w in
+                                          (self._open_fraction(P[:, :-1], P[:, 1:]),
+                                           self._open_fraction(P[:-1, :], P[1:, :])))
+        return self._open_static
 
     def _solid_face_masks(self):
         iu, ju = np.meshgrid(np.arange(self.nx + 1), np.arange(self.ny) + 0.5,
@@ -311,7 +399,13 @@ class Sim:
                 ln = np.linalg.norm(step, axis=1)
                 self.pos[inside] += step * np.minimum(1.0, 1.5 / np.maximum(ln, 1e-12))[:, None]
                 vz = self.vel[inside]
-                vz -= (vz * n).sum(1)[:, None] * n
+                vs = self.solid_vel
+                if self.piston is not None and self.static_phi is not None:
+                    # the plate's speed for a particle inside the plate, none inside a
+                    # static solid
+                    in_plate = self._phi_at(self.pos[inside], self._plate_phi)[0] < 0.0
+                    vs = self.solid_vel[None, :] * in_plate[:, None]
+                vz -= ((vz - vs) * n).sum(1)[:, None] * n
                 self.vel[inside] = vz
 
     def _enforce_walls(self):
@@ -321,6 +415,11 @@ class Sim:
             mu, mv = self._solid_face_masks()
             self.u[mu] = 0.0
             self.v[mv] = 0.0
+            if self.piston is not None:          # the faces the plate closes move with it
+                wu, wv = self._solid_open()
+                ou, ov = self._static_open()
+                self.u[(wu <= 0.0) & (ou > 0.0)] = self.solid_vel[0]
+                self.v[(wv <= 0.0) & (ov > 0.0)] = self.solid_vel[1]
 
     # --- Eq. 7: the phase field from raw splatted face mass
     def phase(self, raw):
@@ -389,9 +488,17 @@ class Sim:
         if self.solid_phi is not None and self.solid_cut:
             # cut cells: flux passes through the open part of a face only, so the
             # operator's coefficients and the divergence take the open fraction; the
-            # velocity update below does not (the solid is static)
+            # velocity update below does not. A moving solid's part of a face carries
+            # the solid's speed into the divergence (Batty, Bertails, Bridson 2007).
             wu, wv = self._solid_open()
             uw, vw = wu * self.u, wv * self.v
+            if self.piston is not None:
+                # the part of a face the plate covers (open against the static solids,
+                # closed against all) moves at the plate's speed; a static solid's part
+                # does not
+                ou, ov = self._static_open()
+                uw = uw + (ou - wu) * self.solid_vel[0]
+                vw = vw + (ov - wv) * self.solid_vel[1]
             div = (uw[1:, :] - uw[:-1, :]) + (vw[:, 1:] - vw[:, :-1])
             ba_u, ba_v = bu * wu, bv * wv
         b = -div / dt
@@ -475,6 +582,8 @@ class Sim:
             self.vel[below | above, k] = 0.0
 
     def step(self, dt):
+        if self.piston is not None:
+            self._move_piston(self.t, dt)
         self.p2g()
         u_star, v_star = self.u.copy(), self.v.copy()
         self.v += self.g * dt          # gravity on y-faces
@@ -518,6 +627,7 @@ class Sim:
             self._push_out()
         if self.adapt:
             self._adapt_particles()
+        self.t += dt
 
     def _liq_frac(self):
         ones_liq = (self.typ == 1).astype(float) * self.scale ** 2
@@ -615,11 +725,16 @@ class Sim:
             self.pos[:, k] = np.clip(self.pos[:, k], lo, hi)
             self.vel[below | above, k] = 0.0
 
-    def run(self, frames, dt_frame, cfl=0.5, on_frame=None):
+    def run(self, frames, dt_frame, cfl=0.5, on_frame=None, blowup=1e3):
+        """Frames of dt_frame, each in CFL substeps. A particle faster than blowup cells
+        per frame aborts the run (a solve gone wrong makes picosecond substeps that
+        never end); None disables the check."""
         for f in range(frames):
             remaining = dt_frame
             while remaining > 1e-9:
                 vmax = max(1e-6, float(np.abs(self.vel).max()))
+                if blowup is not None and vmax > blowup * self.dx / dt_frame:
+                    raise RuntimeError(f"velocity blew up: {vmax:.3g} cells/s at t {self.t:.3f} s, frame {f}")
                 dt = min(remaining, cfl * self.dx / vmax, dt_frame / 2)
                 self.step(dt)
                 remaining -= dt
