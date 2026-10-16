@@ -16,6 +16,13 @@ showcase (ST, escaped particles, adaptive air, multigrid, the fused transfer).
   ..\\.venv\\Scripts\\python.exe piston_beach.py measure [--cpm M]
       the leading crest's log over every dump of the 3D run so far, its marks, audit frames.
   ..\\.venv\\Scripts\\python.exe piston_beach.py cache T0 T1 [--cpm M]
+
+--droplets (chunk, measure, cache) runs the droplet model of step_3d (each escaped
+liquid particle its own radius, evaporating; metres_per_cell from the cells) under the
+tag with a d appended, so the plain run's dumps stay; chunk --from TAG resumes from
+another run's previous chunk (pistonbeach4d chunk 4 --from pistonbeach4: the breaker's
+last three seconds with droplet radii, from the plain run's state at 21 s). The cache
+then carries radius.####.npy beside the positions.
       the play cache (liquid and speed) for the dumps between T0 and T1 seconds, for the
       surface render (maya/render_surface_preview.bat), and the beach as an OBJ beside
       the run's inputs.
@@ -49,11 +56,11 @@ SHORE = TOE + H / SLOPE
 
 
 class Run:
-    def __init__(self, cpm=4.0, flat=False):
-        self.cpm = cpm
+    def __init__(self, cpm=4.0, flat=False, droplets=False):
+        self.cpm, self.droplets = cpm, droplets
         self.grid = (int(LX * cpm), int(LY * cpm), 1 if flat else int(LZ * cpm))
         self.dt = 0.1 / cpm
-        self.tag = f"pistonbeach{cpm:g}" + ("x1" if flat else "")
+        self.tag = f"pistonbeach{cpm:g}" + ("x1" if flat else "") + ("d" if droplets else "")
 
 
 def scene(run):
@@ -63,8 +70,11 @@ def scene(run):
 
 
 def ports(run, sc):
+    # the droplet model's constants stay at the node's SI defaults; only the cell size
+    # is the scene's
+    droplets = {"droplet_model": 1, "metres_per_cell": 1.0 / run.cpm} if run.droplets else {}
     return dict(calibration(), gravity=-sc["g"], piston_stroke=S * sc["m"], piston_period=T,
-                piston_x0=sc["x0"], piston_width=sc["w"], piston_top=sc["top"])
+                piston_x0=sc["x0"], piston_width=sc["w"], piston_top=sc["top"], **droplets)
 
 
 def beach_phi(run, sc):
@@ -136,14 +146,15 @@ def marks(log):
 
 
 def dumps_of(run, paths):
-    """Every dump of the run so far: (time, directory, index), from the chunk receipts."""
-    out, offset, c = [], 0, 0
-    while os.path.exists(paths.receipt(f"c{c}.json")):
+    """Every dump of the run so far: (time, directory, index), from the chunk receipts
+    (each knows its substep offset, so a run that starts at a later chunk reads too)."""
+    out = []
+    for c in paths.chunks():
+        if not os.path.exists(paths.receipt(f"c{c}.json")):
+            continue
         r = json.load(open(paths.receipt(f"c{c}.json")))
         d = paths.dumps(c)
-        out += [((offset + k + 1) * run.dt, d, k) for k in range(0, r["substeps"], r["every"])]
-        offset += r["substeps"]
-        c += 1
+        out += [((r["offset"] + k + 1) * run.dt, d, k) for k in range(0, r["substeps"], r["every"])]
     return out
 
 
@@ -233,6 +244,7 @@ def opt(argv, name, default, cast=float):
 def main(argv):
     cmd = argv[0] if argv else ""
     cpm = opt(argv, "--cpm", 4.0)
+    droplets = "--droplets" in argv
     if cmd == "preview":
         run = Run(cpm, flat=True)
         sc = scene(run)
@@ -240,19 +252,20 @@ def main(argv):
         run_chunk(run, 0, seconds, 0.1, 0, seed(run, sc))
         report(run, sc, RunPaths(run.tag), dumps_of(run, RunPaths(run.tag)))
     elif cmd == "chunk":
-        run = Run(cpm)
+        run = Run(cpm, droplets=droplets)
         sc = scene(run)
         c = int(argv[1])
         plan = [tuple(float(v) for v in p.split(":")) for p in opt(argv, "--plan", "", str).split(",")]
-        paths = RunPaths(run.tag)
         offset = sum(int(round(s / run.dt)) for s, _ in plan[:c])
-        init = load_final_state(paths.dumps(c - 1)) if c else seed(run, sc)
+        # the previous chunk's state, this run's or another's (--from)
+        src = RunPaths(opt(argv, "--from", run.tag, str))
+        init = load_final_state(src.dumps(c - 1)) if c else seed(run, sc)
         run_chunk(run, c, plan[c][0], plan[c][1], offset, init)
     elif cmd == "measure":
-        run = Run(cpm)
+        run = Run(cpm, droplets=droplets)
         report(run, scene(run), RunPaths(run.tag), dumps_of(run, RunPaths(run.tag)))
     elif cmd == "cache":
-        run = Run(cpm, flat="--flat" in argv)
+        run = Run(cpm, flat="--flat" in argv, droplets=droplets)
         paths = RunPaths(run.tag)
         t0, t1 = float(argv[1]), float(argv[2])
         cache = paths.cache("full")
@@ -260,9 +273,11 @@ def main(argv):
         counts, times = [], []
         for t, d, k in dumps_of(run, paths):
             if t0 - 1e-9 <= t <= t1 + 1e-9:
+                rad = os.path.join(d, f"rad.{k:04d}.npy")      # droplet radii, when dumped
                 counts.append(write_frame(cache, len(counts) + 1, np.load(os.path.join(d, f"frame.{k:04d}.npy")),
                                           np.load(os.path.join(d, f"vel.{k:04d}.npy")),
-                                          np.load(os.path.join(d, f"ph.{k:04d}.npy"))))
+                                          np.load(os.path.join(d, f"ph.{k:04d}.npy")),
+                                          radius=np.load(rad) if os.path.exists(rad) else None))
                 times.append(round(t, 3))
         write_index(cache, counts, grid=list(run.grid), times_s=times, source=run.tag)
         write_beach_obj(prepare(paths.input("beach.obj")), run, scene(run))

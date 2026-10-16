@@ -11,8 +11,12 @@
 #     SURF_WIDTH/HEIGHT (1920x1080), SURF_SAMPLES (4), SURF_THREADS (0 = all),
 #     SURF_GPU (1), SURF_CAMERA ("x y z tx ty tz"), SURF_POINT_SIZE (0.5, the sphere
 #     radius in cells), SURF_DETAIL (0.5), SURF_SMOOTH_ITERS (1), SURF_MESH_SMOOTH (0.1),
-#     SURF_MIST_RADIUS (1.5), SURF_MIST_DETAIL (1.0), SURF_MIST_DENSITY (0.08 per cell),
-#     SURF_MIST_THRESHOLD (0: particles the smoothed surface leaves out are mist),
+#     SURF_MIST_RADIUS (1.0, each mist particle's droplet cloud in cells),
+#     SURF_MIST_DETAIL (0.5, the spray grid's voxel in cells), SURF_MIST_DENSITY (1:
+#     the parcel's whole water drawn as droplets of its radius; less is a fraction),
+#     SURF_METRES_PER_CELL (1), SURF_DEFAULT_RADIUS (0.0001 m, for a mist particle
+#     without a droplet radius), SURF_MIST_THRESHOLD (0: particles the smoothed
+#     surface leaves out are mist),
 #     SURF_GI_VOLUME_DEPTH (3 scattering bounces in the mist), SURF_VOLUME_SAMPLES (2).
 #     SURF_LOOK (ocean: dark absorbing water, near-black sky, the sun low behind the spray),
 #     SURF_WATER_DEPTH (transmission depth, cells), SURF_SKY_INTENSITY, SURF_SUN_INTENSITY,

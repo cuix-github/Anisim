@@ -54,23 +54,33 @@ def surface(cache, frame, tag, **ports):
     return np.load(os.path.join(o, "pos.npy")), wall
 
 
-def mist_pass(cache, frame, tag, **ports):
-    """The mist compound at one frame: the mist positions, every particle's depth, wall."""
+def mist_pass(cache, frame, tag, probes=None, **ports):
+    """The mist compound at one frame: the mist positions, every particle's depth, the
+    wall, the mist particles' weights, and the spray density sampled at `probes`
+    (an (N, 3) array of positions in cells; None samples the origin alone)."""
     c = os.path.abspath(cache).replace("\\", "/")
     o = os.path.abspath(os.path.join(OUT, tag)).replace("\\", "/")
     os.makedirs(o, exist_ok=True)
+    np.save(os.path.join(o, "probes.npy"),
+            np.zeros((1, 3), np.float32) if probes is None else np.asarray(probes, np.float32))
     args = [MIST_BAT, "--set-port", "liquid_pattern", c + "/liquid.####",
+            "--set-port", "radius_pattern", c + "/radius.####",
             "--set-port", "frame", str(frame), "--set-port", "path_positions", o + "/mist.npy",
-            "--set-port", "path_depth", o + "/depth.npy"]
+            "--set-port", "path_depth", o + "/depth.npy", "--set-port", "path_weights", o + "/weights.npy",
+            "--set-port", "path_probes", o + "/probes.npy", "--set-port", "path_samples", o + "/samples.npy"]
     for k, v in ports.items():
         args += ["--set-port", k, str(v)]
     t0 = time.time()
     res = subprocess.run(args, capture_output=True, text=True)
     wall = time.time() - t0
-    if res.returncode != 0 or "'ok_depth': (bool) true" not in res.stdout:
+    if res.returncode != 0 or "'ok_samples': (bool) true" not in res.stdout:
         sys.stderr.write(res.stdout[-2000:] + res.stderr[-2000:])
         raise SystemExit(f"bifcmd particle_mist failed for {tag}")
-    return np.load(os.path.join(o, "mist.npy")), np.load(os.path.join(o, "depth.npy")), wall
+    return (np.load(os.path.join(o, "mist.npy")), np.load(os.path.join(o, "depth.npy")), wall,
+            np.load(os.path.join(o, "weights.npy")), np.load(os.path.join(o, "samples.npy")))
+
+
+DROPLET_R, DX, CLOUD_R, SPRAY_EPS = 1e-4, 0.25, 1.0, 1e4   # the spray checks' constants
 
 
 def small_cache():
@@ -81,9 +91,13 @@ def small_cache():
     pos = np.stack(np.meshgrid(*axes, indexing="ij"), -1).reshape(-1, 3)
     ys, zs = np.meshgrid(axes[1][:8], axes[2], indexing="ij")
     sheet = np.stack([np.full(ys.size, SHEET_X, np.float32), ys.ravel(), zs.ravel()], -1)
+    n_block = len(pos)
     pos = np.vstack([pos, DROPLET[None], sheet])
     vel = np.zeros_like(pos)
-    write_frame(cache, 2, pos, vel, np.ones(len(pos), np.float32))
+    # the droplet alone has a droplet radius (DROPLET_R); the rest are water
+    radius = np.zeros(len(pos), np.float32)
+    radius[n_block] = DROPLET_R
+    write_frame(cache, 2, pos, vel, np.ones(len(pos), np.float32), radius=radius)
     return cache, len(pos)
 
 
@@ -117,7 +131,13 @@ def check_small():
     print(f"    offset 0.5: the far side moves out by {grown:.2f} cells  "
           f"{'OK' if good_off else 'FAIL'}")
     pos = np.load(os.path.join(cache, "liquid.0002.npy"))
-    mist, depth, mwall = mist_pass(cache, 2, "small_mist")
+    # the spray density sampled on a lattice of quarter cells around the droplet, for
+    # the integral below
+    ax = np.arange(-CLOUD_R - 1.0, CLOUD_R + 1.0 + 1e-6, 0.25, dtype=np.float32)
+    probes = DROPLET + np.stack(np.meshgrid(ax, ax, ax, indexing="ij"), -1).reshape(-1, 3)
+    mist, depth, mwall, weights, samples = mist_pass(
+        cache, 2, "small_mist", probes=probes, metres_per_cell=DX, cloud_radius=CLOUD_R,
+        spray_detail=0.5, mist_density=1.0, default_radius=2 * DROPLET_R, spray_epsilon=SPRAY_EPS)
     in_block, in_droplet, in_sheet = parts(pos)
     m_block, m_droplet, m_sheet = parts(mist)
     faces = np.stack([pos[:, i] < 1.25 for i in range(3)]
@@ -132,7 +152,20 @@ def check_small():
           f" the sheet {m_sheet.sum()} of {in_sheet.sum()}; the block {m_block.sum()}"
           f" ({100 * share:.1f} percent, all on its edges {edges_only})  "
           f"{'OK' if good_mist else 'FAIL'}")
-    return good and good_off and good_mist
+    # the spray drawing: a parcel of dx^3 / 8 of water as drops of radius r has a
+    # cross-section of 1.5 V_p / r, in cells 1.5 dx / (8 r); the droplet's cloud must
+    # integrate to it (the stored channel is the sum over spray_epsilon), and its
+    # weight must be twice a radius-less mist particle's (default_radius 2 r)
+    w_drop = float(weights[m_droplet][0]) if m_droplet.any() else 0.0
+    w_rest = float(np.median(weights[~m_droplet])) if (~m_droplet).any() else 0.0
+    integral = float(samples.sum()) * 0.25 ** 3 * SPRAY_EPS
+    expect = 1.5 * DX / (8.0 * DROPLET_R)
+    ratio = integral / expect
+    good_spray = abs(ratio - 1.0) < 0.1 and abs(w_drop / max(w_rest, 1e-30) - 2.0) < 1e-3
+    print(f"    spray: the droplet's cloud integrates to {integral:.1f} cells^2 against its"
+          f" cross-section {expect:.1f} ({ratio:.3f}); its weight {w_drop:.1f}, a radius-less"
+          f" mist particle's {w_rest:.1f}  {'OK' if good_spray else 'FAIL'}")
+    return good and good_off and good_mist and good_spray
 
 
 def check_cache(cache=None):
