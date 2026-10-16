@@ -53,7 +53,7 @@ One folder per job.
 - `nodes/`: the custom Bifrost SDK operator pack. `PFFlipSolve3.cpp` is the 3D step with its multigrid solve, `PFFlipP2G.cpp` the fused transfer, `PFFlipAdaptive.cpp` the adaptive pressure solve, `PFFlipSolids.h` the level-set solids.
 - `graphs/`: the Bifrost graphs, their generators, and the `.bat` launchers that run them headlessly through bifcmd. `loop3d.py` is the 3D loop runner the gates and experiments share; `colliders.py` turns meshes into a solid field; `runs.py` says where a run's files live under `out/` and reports what is there.
 - `gates/`: the validation ladder, one `validate_*.py` per feature, each exiting nonzero on failure.
-- `experiments/`: the showcase (`collider_showcase.py`), the solitary wave onto the beach through the node (`solitary_beach.py`), the overnight bore suite, the speed receipts and the threading experiment; `archive/` holds the one-off studies that settled a question, with an index.
+- `experiments/`: the showcase (`collider_showcase.py`), the solitary wave onto the beach through the node (`solitary_beach.py`), the first breaker from the wavemaker (`piston_beach.py`), the overnight bore suite, the speed receipts and the threading experiment; `archive/` holds the one-off studies that settled a question, with an index.
 - `maya/`: playback and rendering in Maya: the play cache, the Bifrost compounds, the scene builders and the one-click launchers.
 - `results/`: the committed evidence, charts and receipts: `2d/` for the two-dimensional runs (the Python reference and the 2D Bifrost loop), `3d/` for the 3D node and graphs; the videos they describe stay local.
 - `docs/`: the history, the decisions, the open questions, the evidence gallery and the output layout.

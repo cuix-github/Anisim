@@ -14,6 +14,11 @@
 #     SURF_MIST_RADIUS (1.5), SURF_MIST_DETAIL (1.0), SURF_MIST_DENSITY (0.08 per cell),
 #     SURF_MIST_THRESHOLD (0: particles the smoothed surface leaves out are mist),
 #     SURF_GI_VOLUME_DEPTH (3 scattering bounces in the mist), SURF_VOLUME_SAMPLES (2).
+#     SURF_LOOK (ocean: dark absorbing water, near-black sky, the sun low behind the spray),
+#     SURF_WATER_DEPTH (transmission depth, cells), SURF_SKY_INTENSITY, SURF_SUN_INTENSITY,
+#     SURF_SUN_ROTATE ("x y z" degrees; the light shines down its -Z).
+#     SURF_SKY_VISIBLE (ocean: 0, the sky dome hidden from the camera), SURF_WATER_COLOR ("r g b"
+#     transmission colour).
 # Refuses to start while another Maya is open or with less than 20 GB free (the
 # machine is shared: a 35 M point surface needs the headroom).
 param(

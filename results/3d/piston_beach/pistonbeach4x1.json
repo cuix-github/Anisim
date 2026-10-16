@@ -1,0 +1,2242 @@
+{
+ "tag": "pistonbeach4x1",
+ "grid": [
+  688,
+  96,
+  1
+ ],
+ "cells_per_metre": 4.0,
+ "dt": 0.025,
+ "scene_m": {
+  "h": 12.0,
+  "plate": [
+   2.0,
+   1.0,
+   18.0
+  ],
+  "stroke": 4.0,
+  "period": 8.0,
+  "toe": 36.0,
+  "slope": 0.1,
+  "shore": 156.0,
+  "domain": [
+   172.0,
+   24.0,
+   16.0
+  ]
+ },
+ "steep_front": null,
+ "turned_over": {
+  "t": 21.425,
+  "spray_particles": 47,
+  "liquid": 142867,
+  "crest_x_m": 113.12,
+  "crest_height_m": 3.61,
+  "depth_under_crest_m": 4.29,
+  "face_steepness": 0.07,
+  "overhang_m": 1.85
+ },
+ "breaker_closeups": "pistonbeach4x1_breaker.png",
+ "log": [
+  {
+   "t": 0.025,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.125,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.225,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.325,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.425,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.525,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.625,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.725,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 0.825,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 0.925,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.025,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.125,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.225,
+   "spray_particles": 2,
+   "liquid": 142867
+  },
+  {
+   "t": 1.325,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.425,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.525,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.625,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.725,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.825,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 1.925,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 2.025,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 2.125,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 2.225,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 2.325,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 2.425,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 2.525,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 2.625,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 2.725,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 2.825,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 2.925,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.025,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.125,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 3.225,
+   "spray_particles": 1,
+   "liquid": 142867
+  },
+  {
+   "t": 3.325,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.425,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.525,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.625,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.725,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.825,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 3.925,
+   "spray_particles": 0,
+   "liquid": 142867
+  },
+  {
+   "t": 4.025,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 22.12,
+   "crest_height_m": 1.87,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.125,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 22.12,
+   "crest_height_m": 1.87,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.225,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 22.38,
+   "crest_height_m": 1.85,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.325,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 22.62,
+   "crest_height_m": 1.81,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.425,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 23.88,
+   "crest_height_m": 1.79,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.525,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 25.38,
+   "crest_height_m": 1.78,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.625,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 27.12,
+   "crest_height_m": 1.76,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.725,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 28.12,
+   "crest_height_m": 1.75,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.825,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 29.38,
+   "crest_height_m": 1.74,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 4.925,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 29.62,
+   "crest_height_m": 1.75,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.025,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 29.62,
+   "crest_height_m": 1.74,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.125,
+   "spray_particles": 4,
+   "liquid": 142867,
+   "crest_x_m": 31.88,
+   "crest_height_m": 1.7,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.225,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 32.62,
+   "crest_height_m": 1.65,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.325,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 32.38,
+   "crest_height_m": 1.65,
+   "depth_under_crest_m": 12.0,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.425,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 36.62,
+   "crest_height_m": 1.63,
+   "depth_under_crest_m": 11.94,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.525,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 36.62,
+   "crest_height_m": 1.63,
+   "depth_under_crest_m": 11.94,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.625,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 36.88,
+   "crest_height_m": 1.62,
+   "depth_under_crest_m": 11.91,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.725,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 39.38,
+   "crest_height_m": 1.6,
+   "depth_under_crest_m": 11.66,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.825,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 39.62,
+   "crest_height_m": 1.6,
+   "depth_under_crest_m": 11.64,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 5.925,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 39.62,
+   "crest_height_m": 1.59,
+   "depth_under_crest_m": 11.64,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.025,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 39.88,
+   "crest_height_m": 1.57,
+   "depth_under_crest_m": 11.61,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.125,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 44.38,
+   "crest_height_m": 1.54,
+   "depth_under_crest_m": 11.16,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.225,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 43.88,
+   "crest_height_m": 1.57,
+   "depth_under_crest_m": 11.21,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.325,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 45.38,
+   "crest_height_m": 1.51,
+   "depth_under_crest_m": 11.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.425,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 44.12,
+   "crest_height_m": 1.55,
+   "depth_under_crest_m": 11.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.525,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 47.62,
+   "crest_height_m": 1.52,
+   "depth_under_crest_m": 10.84,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.625,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 49.12,
+   "crest_height_m": 1.5,
+   "depth_under_crest_m": 10.69,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.725,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 47.62,
+   "crest_height_m": 1.53,
+   "depth_under_crest_m": 10.84,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.825,
+   "spray_particles": 4,
+   "liquid": 142867,
+   "crest_x_m": 50.62,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 10.54,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 6.925,
+   "spray_particles": 4,
+   "liquid": 142867,
+   "crest_x_m": 51.38,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 10.46,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.025,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 51.62,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 10.44,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.125,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 57.12,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 9.89,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.225,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 57.12,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 9.89,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.325,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 57.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 9.86,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.425,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 57.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 9.86,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.525,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 57.12,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 9.89,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.625,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 60.88,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 9.51,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.725,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 60.88,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 9.51,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.825,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 63.88,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 9.21,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 7.925,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 63.88,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 9.21,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.025,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 69.12,
+   "crest_height_m": 1.25,
+   "depth_under_crest_m": 8.69,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.125,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 64.12,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 9.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.225,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 64.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 9.16,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.325,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 66.62,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 8.94,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.425,
+   "spray_particles": 0,
+   "liquid": 142867,
+   "crest_x_m": 73.12,
+   "crest_height_m": 1.24,
+   "depth_under_crest_m": 8.29,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.525,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 73.12,
+   "crest_height_m": 1.27,
+   "depth_under_crest_m": 8.29,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.625,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 71.38,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 8.46,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.725,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 71.88,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 8.41,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.825,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 71.88,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 8.41,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 8.925,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 74.12,
+   "crest_height_m": 1.36,
+   "depth_under_crest_m": 8.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.025,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 74.12,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 8.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.125,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 76.12,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 7.99,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.225,
+   "spray_particles": 9,
+   "liquid": 142867,
+   "crest_x_m": 76.38,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 7.96,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.325,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 76.62,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 7.94,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.425,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 77.38,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 7.86,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.525,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 77.62,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 7.84,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.625,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 80.62,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 7.54,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.725,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 80.88,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 7.51,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.825,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 80.88,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 7.51,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 9.925,
+   "spray_particles": 4,
+   "liquid": 142867,
+   "crest_x_m": 81.38,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 7.46,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.025,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 84.88,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 7.11,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.125,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 84.88,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 7.11,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.225,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 85.12,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 7.09,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.325,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 85.12,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 7.09,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.425,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 87.38,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 6.86,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.525,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 87.62,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 6.84,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.625,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 89.38,
+   "crest_height_m": 1.36,
+   "depth_under_crest_m": 6.66,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.725,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 91.12,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 6.49,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.825,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 91.12,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 6.49,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 10.925,
+   "spray_particles": 9,
+   "liquid": 142867,
+   "crest_x_m": 91.38,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 6.46,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.025,
+   "spray_particles": 9,
+   "liquid": 142867,
+   "crest_x_m": 93.12,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 6.29,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.125,
+   "spray_particles": 11,
+   "liquid": 142867,
+   "crest_x_m": 93.88,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 6.21,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.225,
+   "spray_particles": 20,
+   "liquid": 142867,
+   "crest_x_m": 94.12,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 6.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.325,
+   "spray_particles": 9,
+   "liquid": 142867,
+   "crest_x_m": 94.12,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 6.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.425,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 96.88,
+   "crest_height_m": 1.36,
+   "depth_under_crest_m": 5.91,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.525,
+   "spray_particles": 14,
+   "liquid": 142867,
+   "crest_x_m": 97.12,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 5.89,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.625,
+   "spray_particles": 14,
+   "liquid": 142867,
+   "crest_x_m": 97.12,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 5.89,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.725,
+   "spray_particles": 23,
+   "liquid": 142867,
+   "crest_x_m": 98.88,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 5.71,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.825,
+   "spray_particles": 18,
+   "liquid": 142867,
+   "crest_x_m": 100.88,
+   "crest_height_m": 1.38,
+   "depth_under_crest_m": 5.51,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 11.925,
+   "spray_particles": 18,
+   "liquid": 142867,
+   "crest_x_m": 101.12,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 5.49,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.025,
+   "spray_particles": 17,
+   "liquid": 142867,
+   "crest_x_m": 103.12,
+   "crest_height_m": 1.37,
+   "depth_under_crest_m": 5.29,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.125,
+   "spray_particles": 18,
+   "liquid": 142867,
+   "crest_x_m": 103.12,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 5.29,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.225,
+   "spray_particles": 19,
+   "liquid": 142867,
+   "crest_x_m": 105.12,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 5.09,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.325,
+   "spray_particles": 22,
+   "liquid": 142867,
+   "crest_x_m": 105.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 5.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.425,
+   "spray_particles": 12,
+   "liquid": 142867,
+   "crest_x_m": 105.38,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 5.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.525,
+   "spray_particles": 16,
+   "liquid": 142867,
+   "crest_x_m": 105.62,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 5.04,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.625,
+   "spray_particles": 16,
+   "liquid": 142867,
+   "crest_x_m": 105.88,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 5.01,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.725,
+   "spray_particles": 12,
+   "liquid": 142867,
+   "crest_x_m": 108.12,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 4.79,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.825,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 110.12,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 4.59,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 12.925,
+   "spray_particles": 4,
+   "liquid": 142867,
+   "crest_x_m": 110.12,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 4.59,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.025,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 110.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 4.56,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.125,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 110.38,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 4.56,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.225,
+   "spray_particles": 10,
+   "liquid": 142867,
+   "crest_x_m": 112.62,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 4.34,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.325,
+   "spray_particles": 13,
+   "liquid": 142867,
+   "crest_x_m": 112.88,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 4.31,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.425,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 114.88,
+   "crest_height_m": 1.39,
+   "depth_under_crest_m": 4.11,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.525,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 114.88,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 4.11,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.625,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 115.38,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 4.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.725,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 115.38,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 4.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.825,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 118.88,
+   "crest_height_m": 1.4,
+   "depth_under_crest_m": 3.71,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 13.925,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 119.12,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 3.69,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.025,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 119.12,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 3.69,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.125,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 119.38,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 3.66,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.225,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 119.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 3.66,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.325,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 121.62,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 3.44,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.425,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 121.62,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 3.44,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.525,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 125.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 3.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.625,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 125.38,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 3.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.725,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 124.88,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 3.11,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.825,
+   "spray_particles": 9,
+   "liquid": 142867,
+   "crest_x_m": 124.88,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 3.11,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 14.925,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 125.38,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 3.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.025,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 128.38,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 2.76,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.125,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 128.62,
+   "crest_height_m": 1.44,
+   "depth_under_crest_m": 2.74,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.225,
+   "spray_particles": 11,
+   "liquid": 142867,
+   "crest_x_m": 128.88,
+   "crest_height_m": 1.45,
+   "depth_under_crest_m": 2.71,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.325,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 129.62,
+   "crest_height_m": 1.46,
+   "depth_under_crest_m": 2.64,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.425,
+   "spray_particles": 16,
+   "liquid": 142867,
+   "crest_x_m": 129.88,
+   "crest_height_m": 1.47,
+   "depth_under_crest_m": 2.61,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.525,
+   "spray_particles": 16,
+   "liquid": 142867,
+   "crest_x_m": 130.12,
+   "crest_height_m": 1.47,
+   "depth_under_crest_m": 2.59,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.625,
+   "spray_particles": 10,
+   "liquid": 142867,
+   "crest_x_m": 130.38,
+   "crest_height_m": 1.47,
+   "depth_under_crest_m": 2.56,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.725,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 132.38,
+   "crest_height_m": 1.46,
+   "depth_under_crest_m": 2.36,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.825,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 132.62,
+   "crest_height_m": 1.48,
+   "depth_under_crest_m": 2.34,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 15.925,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 132.88,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 2.31,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.025,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 133.12,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 2.29,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.125,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 133.38,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 2.26,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.225,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 133.62,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 2.24,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.325,
+   "spray_particles": 10,
+   "liquid": 142867,
+   "crest_x_m": 133.88,
+   "crest_height_m": 1.48,
+   "depth_under_crest_m": 2.21,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.425,
+   "spray_particles": 4,
+   "liquid": 142867,
+   "crest_x_m": 137.62,
+   "crest_height_m": 1.46,
+   "depth_under_crest_m": 1.84,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.525,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 138.88,
+   "crest_height_m": 1.49,
+   "depth_under_crest_m": 1.71,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.625,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 139.12,
+   "crest_height_m": 1.51,
+   "depth_under_crest_m": 1.69,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.725,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 139.38,
+   "crest_height_m": 1.52,
+   "depth_under_crest_m": 1.66,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.825,
+   "spray_particles": 3,
+   "liquid": 142867,
+   "crest_x_m": 139.62,
+   "crest_height_m": 1.53,
+   "depth_under_crest_m": 1.64,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 16.925,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 139.88,
+   "crest_height_m": 1.53,
+   "depth_under_crest_m": 1.61,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.025,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 140.12,
+   "crest_height_m": 1.52,
+   "depth_under_crest_m": 1.59,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.125,
+   "spray_particles": 7,
+   "liquid": 142867,
+   "crest_x_m": 143.88,
+   "crest_height_m": 1.5,
+   "depth_under_crest_m": 1.21,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.225,
+   "spray_particles": 12,
+   "liquid": 142867,
+   "crest_x_m": 144.12,
+   "crest_height_m": 1.5,
+   "depth_under_crest_m": 1.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.325,
+   "spray_particles": 11,
+   "liquid": 142867,
+   "crest_x_m": 143.62,
+   "crest_height_m": 1.51,
+   "depth_under_crest_m": 1.24,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.425,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 143.88,
+   "crest_height_m": 1.52,
+   "depth_under_crest_m": 1.21,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.525,
+   "spray_particles": 12,
+   "liquid": 142867,
+   "crest_x_m": 144.12,
+   "crest_height_m": 1.53,
+   "depth_under_crest_m": 1.19,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.625,
+   "spray_particles": 18,
+   "liquid": 142867,
+   "crest_x_m": 146.38,
+   "crest_height_m": 1.52,
+   "depth_under_crest_m": 0.96,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.725,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 146.88,
+   "crest_height_m": 1.51,
+   "depth_under_crest_m": 0.91,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.825,
+   "spray_particles": 1,
+   "liquid": 142867,
+   "crest_x_m": 144.88,
+   "crest_height_m": 1.46,
+   "depth_under_crest_m": 1.11,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 17.925,
+   "spray_particles": 5,
+   "liquid": 142867,
+   "crest_x_m": 80.62,
+   "crest_height_m": 3.32,
+   "depth_under_crest_m": 7.54,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.025,
+   "spray_particles": 11,
+   "liquid": 142867,
+   "crest_x_m": 80.88,
+   "crest_height_m": 3.39,
+   "depth_under_crest_m": 7.51,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.125,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 82.38,
+   "crest_height_m": 3.42,
+   "depth_under_crest_m": 7.36,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.225,
+   "spray_particles": 6,
+   "liquid": 142867,
+   "crest_x_m": 148.88,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 0.71,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.325,
+   "spray_particles": 11,
+   "liquid": 142867,
+   "crest_x_m": 149.38,
+   "crest_height_m": 1.43,
+   "depth_under_crest_m": 0.66,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.425,
+   "spray_particles": 17,
+   "liquid": 142867,
+   "crest_x_m": 149.62,
+   "crest_height_m": 1.42,
+   "depth_under_crest_m": 0.64,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.525,
+   "spray_particles": 17,
+   "liquid": 142867,
+   "crest_x_m": 148.62,
+   "crest_height_m": 1.41,
+   "depth_under_crest_m": 0.74,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.625,
+   "spray_particles": 15,
+   "liquid": 142867,
+   "crest_x_m": 86.38,
+   "crest_height_m": 3.48,
+   "depth_under_crest_m": 6.96,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.725,
+   "spray_particles": 20,
+   "liquid": 142867,
+   "crest_x_m": 86.62,
+   "crest_height_m": 3.51,
+   "depth_under_crest_m": 6.94,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.825,
+   "spray_particles": 30,
+   "liquid": 142867,
+   "crest_x_m": 88.62,
+   "crest_height_m": 3.54,
+   "depth_under_crest_m": 6.74,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 18.925,
+   "spray_particles": 24,
+   "liquid": 142867,
+   "crest_x_m": 88.88,
+   "crest_height_m": 3.57,
+   "depth_under_crest_m": 6.71,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.025,
+   "spray_particles": 22,
+   "liquid": 142867,
+   "crest_x_m": 89.88,
+   "crest_height_m": 3.61,
+   "depth_under_crest_m": 6.61,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.125,
+   "spray_particles": 25,
+   "liquid": 142867,
+   "crest_x_m": 90.62,
+   "crest_height_m": 3.6,
+   "depth_under_crest_m": 6.54,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.225,
+   "spray_particles": 27,
+   "liquid": 142867,
+   "crest_x_m": 147.62,
+   "crest_height_m": 1.18,
+   "depth_under_crest_m": 0.84,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.325,
+   "spray_particles": 10,
+   "liquid": 142867,
+   "crest_x_m": 92.12,
+   "crest_height_m": 3.67,
+   "depth_under_crest_m": 6.39,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.425,
+   "spray_particles": 26,
+   "liquid": 142867,
+   "crest_x_m": 147.12,
+   "crest_height_m": 1.18,
+   "depth_under_crest_m": 0.89,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.525,
+   "spray_particles": 2,
+   "liquid": 142867,
+   "crest_x_m": 147.12,
+   "crest_height_m": 1.16,
+   "depth_under_crest_m": 0.89,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.625,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 148.12,
+   "crest_height_m": 1.14,
+   "depth_under_crest_m": 0.79,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.725,
+   "spray_particles": 12,
+   "liquid": 142867,
+   "crest_x_m": 148.38,
+   "crest_height_m": 1.15,
+   "depth_under_crest_m": 0.76,
+   "face_steepness": 0.0,
+   "overhang_m": 0.44
+  },
+  {
+   "t": 19.825,
+   "spray_particles": 12,
+   "liquid": 142867,
+   "crest_x_m": 96.62,
+   "crest_height_m": 3.79,
+   "depth_under_crest_m": 5.94,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 19.925,
+   "spray_particles": 4,
+   "liquid": 142867,
+   "crest_x_m": 98.12,
+   "crest_height_m": 3.88,
+   "depth_under_crest_m": 5.79,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.025,
+   "spray_particles": 12,
+   "liquid": 142867,
+   "crest_x_m": 98.88,
+   "crest_height_m": 3.99,
+   "depth_under_crest_m": 5.71,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.125,
+   "spray_particles": 8,
+   "liquid": 142867,
+   "crest_x_m": 99.38,
+   "crest_height_m": 4.03,
+   "depth_under_crest_m": 5.66,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.225,
+   "spray_particles": 14,
+   "liquid": 142867,
+   "crest_x_m": 100.88,
+   "crest_height_m": 4.09,
+   "depth_under_crest_m": 5.51,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.325,
+   "spray_particles": 26,
+   "liquid": 142867,
+   "crest_x_m": 101.62,
+   "crest_height_m": 4.2,
+   "depth_under_crest_m": 5.44,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.425,
+   "spray_particles": 28,
+   "liquid": 142867,
+   "crest_x_m": 102.62,
+   "crest_height_m": 4.26,
+   "depth_under_crest_m": 5.34,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.525,
+   "spray_particles": 22,
+   "liquid": 142867,
+   "crest_x_m": 103.88,
+   "crest_height_m": 4.35,
+   "depth_under_crest_m": 5.21,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.625,
+   "spray_particles": 27,
+   "liquid": 142867,
+   "crest_x_m": 104.62,
+   "crest_height_m": 4.76,
+   "depth_under_crest_m": 5.14,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.725,
+   "spray_particles": 21,
+   "liquid": 142867,
+   "crest_x_m": 105.12,
+   "crest_height_m": 4.73,
+   "depth_under_crest_m": 5.09,
+   "face_steepness": 0.08,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 20.825,
+   "spray_particles": 27,
+   "liquid": 142867,
+   "crest_x_m": 105.62,
+   "crest_height_m": 4.59,
+   "depth_under_crest_m": 5.04,
+   "face_steepness": 0.08,
+   "overhang_m": 0.11
+  },
+  {
+   "t": 20.925,
+   "spray_particles": 21,
+   "liquid": 142867,
+   "crest_x_m": 106.38,
+   "crest_height_m": 4.33,
+   "depth_under_crest_m": 4.96,
+   "face_steepness": 0.08,
+   "overhang_m": 0.33
+  },
+  {
+   "t": 21.025,
+   "spray_particles": 16,
+   "liquid": 142867,
+   "crest_x_m": 108.88,
+   "crest_height_m": 4.16,
+   "depth_under_crest_m": 4.71,
+   "face_steepness": 0.08,
+   "overhang_m": 0.55
+  },
+  {
+   "t": 21.125,
+   "spray_particles": 11,
+   "liquid": 142867,
+   "crest_x_m": 110.12,
+   "crest_height_m": 4.14,
+   "depth_under_crest_m": 4.59,
+   "face_steepness": 0.08,
+   "overhang_m": 0.75
+  },
+  {
+   "t": 21.225,
+   "spray_particles": 28,
+   "liquid": 142867,
+   "crest_x_m": 111.38,
+   "crest_height_m": 4.08,
+   "depth_under_crest_m": 4.46,
+   "face_steepness": 0.07,
+   "overhang_m": 1.05
+  },
+  {
+   "t": 21.325,
+   "spray_particles": 35,
+   "liquid": 142867,
+   "crest_x_m": 112.12,
+   "crest_height_m": 4.11,
+   "depth_under_crest_m": 4.39,
+   "face_steepness": 0.08,
+   "overhang_m": 1.23
+  },
+  {
+   "t": 21.425,
+   "spray_particles": 47,
+   "liquid": 142867,
+   "crest_x_m": 113.12,
+   "crest_height_m": 3.61,
+   "depth_under_crest_m": 4.29,
+   "face_steepness": 0.07,
+   "overhang_m": 1.85
+  },
+  {
+   "t": 21.525,
+   "spray_particles": 30,
+   "liquid": 142867,
+   "crest_x_m": 112.12,
+   "crest_height_m": 3.37,
+   "depth_under_crest_m": 4.39,
+   "face_steepness": 0.0,
+   "overhang_m": 2.35
+  },
+  {
+   "t": 21.625,
+   "spray_particles": 50,
+   "liquid": 142867,
+   "crest_x_m": 111.62,
+   "crest_height_m": 3.28,
+   "depth_under_crest_m": 4.44,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 21.725,
+   "spray_particles": 39,
+   "liquid": 142867,
+   "crest_x_m": 112.38,
+   "crest_height_m": 3.23,
+   "depth_under_crest_m": 4.36,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 21.825,
+   "spray_particles": 54,
+   "liquid": 142867,
+   "crest_x_m": 114.38,
+   "crest_height_m": 3.17,
+   "depth_under_crest_m": 4.16,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 21.925,
+   "spray_particles": 91,
+   "liquid": 142867,
+   "crest_x_m": 113.62,
+   "crest_height_m": 3.09,
+   "depth_under_crest_m": 4.24,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 22.025,
+   "spray_particles": 81,
+   "liquid": 142867,
+   "crest_x_m": 114.62,
+   "crest_height_m": 3.04,
+   "depth_under_crest_m": 4.14,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 22.125,
+   "spray_particles": 56,
+   "liquid": 142867,
+   "crest_x_m": 115.38,
+   "crest_height_m": 3.02,
+   "depth_under_crest_m": 4.06,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 22.225,
+   "spray_particles": 57,
+   "liquid": 142867,
+   "crest_x_m": 116.12,
+   "crest_height_m": 2.99,
+   "depth_under_crest_m": 3.99,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 22.325,
+   "spray_particles": 55,
+   "liquid": 142867,
+   "crest_x_m": 116.62,
+   "crest_height_m": 2.97,
+   "depth_under_crest_m": 3.94,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 22.425,
+   "spray_particles": 58,
+   "liquid": 142867,
+   "crest_x_m": 117.38,
+   "crest_height_m": 2.94,
+   "depth_under_crest_m": 3.86,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 22.525,
+   "spray_particles": 50,
+   "liquid": 142867,
+   "crest_x_m": 117.88,
+   "crest_height_m": 2.91,
+   "depth_under_crest_m": 3.81,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0
+  },
+  {
+   "t": 22.625,
+   "spray_particles": 66,
+   "liquid": 142867,
+   "crest_x_m": 126.38,
+   "crest_height_m": 1.88,
+   "depth_under_crest_m": 2.96,
+   "face_steepness": 0.0,
+   "overhang_m": 1.84
+  },
+  {
+   "t": 22.725,
+   "spray_particles": 88,
+   "liquid": 142867,
+   "crest_x_m": 127.12,
+   "crest_height_m": 2.04,
+   "depth_under_crest_m": 2.89,
+   "face_steepness": 0.0,
+   "overhang_m": 2.58
+  },
+  {
+   "t": 22.825,
+   "spray_particles": 108,
+   "liquid": 142867,
+   "crest_x_m": 127.88,
+   "crest_height_m": 2.23,
+   "depth_under_crest_m": 2.81,
+   "face_steepness": 0.0,
+   "overhang_m": 3.25
+  },
+  {
+   "t": 22.925,
+   "spray_particles": 116,
+   "liquid": 142867,
+   "crest_x_m": 129.88,
+   "crest_height_m": 2.29,
+   "depth_under_crest_m": 2.61,
+   "face_steepness": 0.0,
+   "overhang_m": 5.23
+  },
+  {
+   "t": 23.025,
+   "spray_particles": 147,
+   "liquid": 142867,
+   "crest_x_m": 131.12,
+   "crest_height_m": 2.41,
+   "depth_under_crest_m": 2.49,
+   "face_steepness": 0.0,
+   "overhang_m": 6.6
+  },
+  {
+   "t": 23.125,
+   "spray_particles": 178,
+   "liquid": 142867,
+   "crest_x_m": 132.38,
+   "crest_height_m": 2.44,
+   "depth_under_crest_m": 2.36,
+   "face_steepness": 0.0,
+   "overhang_m": 7.34
+  },
+  {
+   "t": 23.225,
+   "spray_particles": 181,
+   "liquid": 142867,
+   "crest_x_m": 133.62,
+   "crest_height_m": 2.39,
+   "depth_under_crest_m": 2.24,
+   "face_steepness": 0.0,
+   "overhang_m": 7.34
+  },
+  {
+   "t": 23.325,
+   "spray_particles": 197,
+   "liquid": 142867,
+   "crest_x_m": 127.12,
+   "crest_height_m": 3.16,
+   "depth_under_crest_m": 2.89,
+   "face_steepness": 0.0,
+   "overhang_m": 2.51
+  },
+  {
+   "t": 23.425,
+   "spray_particles": 163,
+   "liquid": 142867,
+   "crest_x_m": 127.62,
+   "crest_height_m": 3.15,
+   "depth_under_crest_m": 2.84,
+   "face_steepness": 0.0,
+   "overhang_m": 3.16
+  },
+  {
+   "t": 23.525,
+   "spray_particles": 179,
+   "liquid": 142867,
+   "crest_x_m": 127.88,
+   "crest_height_m": 3.1,
+   "depth_under_crest_m": 2.81,
+   "face_steepness": 0.0,
+   "overhang_m": 3.51
+  },
+  {
+   "t": 23.625,
+   "spray_particles": 147,
+   "liquid": 142867,
+   "crest_x_m": 128.38,
+   "crest_height_m": 3.03,
+   "depth_under_crest_m": 2.76,
+   "face_steepness": 0.0,
+   "overhang_m": 3.99
+  },
+  {
+   "t": 23.725,
+   "spray_particles": 146,
+   "liquid": 142867,
+   "crest_x_m": 128.12,
+   "crest_height_m": 3.04,
+   "depth_under_crest_m": 2.79,
+   "face_steepness": 0.0,
+   "overhang_m": 3.78
+  },
+  {
+   "t": 23.825,
+   "spray_particles": 166,
+   "liquid": 142867,
+   "crest_x_m": 128.62,
+   "crest_height_m": 3.0,
+   "depth_under_crest_m": 2.74,
+   "face_steepness": 0.0,
+   "overhang_m": 4.2
+  },
+  {
+   "t": 23.925,
+   "spray_particles": 171,
+   "liquid": 142867,
+   "crest_x_m": 130.12,
+   "crest_height_m": 2.66,
+   "depth_under_crest_m": 2.59,
+   "face_steepness": 0.0,
+   "overhang_m": 5.58
+  }
+ ]
+}
