@@ -1,0 +1,220 @@
+{
+ "header": {
+  "metadata": [
+   {
+    "metaName": "adskFileFormatVersion",
+    "metaValue": "100L"
+   }
+  ]
+ },
+ "namespaces": [],
+ "types": [],
+ "compounds": [
+  {
+   "name": "User::PFFlip::particle_surface",
+   "ports": [
+    {
+     "portName": "liquid_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "frame",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "point_size",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.5f"
+    },
+    {
+     "portName": "detail_size",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.5f"
+    },
+    {
+     "portName": "offset",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "smooth_iterations",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "1L"
+    },
+    {
+     "portName": "smoothing",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.1f"
+    },
+    {
+     "portName": "mesh",
+     "portDirection": "output",
+     "portType": "Object"
+    }
+   ],
+   "compoundNodes": [
+    {
+     "nodeName": "t_pos",
+     "valueType": "array<Math::float3>"
+    },
+    {
+     "nodeName": "f2i",
+     "nodeType": "Core::Type_Conversion::to_int"
+    },
+    {
+     "nodeName": "rpos",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "s_pts",
+     "nodeType": "Geometry::Points::construct_points"
+    },
+    {
+     "nodeName": "s_size",
+     "nodeType": "Geometry::Properties::set_geo_property"
+    },
+    {
+     "nodeName": "p2v",
+     "nodeType": "Geometry::Converters::points_to_volume"
+    },
+    {
+     "nodeName": "sm",
+     "nodeType": "Geometry::Volume::smooth_level_set_property"
+    },
+    {
+     "nodeName": "v2m",
+     "nodeType": "Geometry::Converters::volume_to_mesh",
+     "fanInPortNames": {
+      "volumes": [
+       "vol"
+      ]
+     }
+    },
+    {
+     "nodeName": "zero",
+     "valueType": "long"
+    },
+    {
+     "nodeName": "first",
+     "nodeType": "Core::Array::get_from_array"
+    }
+   ],
+   "connections": [
+    {
+     "source": ".frame",
+     "target": "f2i.from"
+    },
+    {
+     "source": "t_pos.output",
+     "target": "rpos.type"
+    },
+    {
+     "source": ".liquid_pattern",
+     "target": "rpos.file_path"
+    },
+    {
+     "source": "f2i.int",
+     "target": "rpos.frame"
+    },
+    {
+     "source": "rpos.data",
+     "target": "s_pts.point_position"
+    },
+    {
+     "source": "s_pts.points",
+     "target": "s_size.geometry"
+    },
+    {
+     "source": ".point_size",
+     "target": "s_size.data"
+    },
+    {
+     "source": ".point_size",
+     "target": "s_size.default"
+    },
+    {
+     "source": "s_size.out_geometry",
+     "target": "p2v.points"
+    },
+    {
+     "source": ".detail_size",
+     "target": "p2v.detail_size"
+    },
+    {
+     "source": ".offset",
+     "target": "p2v.offset"
+    },
+    {
+     "source": "p2v.volume",
+     "target": "sm.volume"
+    },
+    {
+     "source": ".smooth_iterations",
+     "target": "sm.iterations"
+    },
+    {
+     "source": "sm.out_volume",
+     "target": "v2m.volumes.vol"
+    },
+    {
+     "source": ".smoothing",
+     "target": "v2m.smoothing"
+    },
+    {
+     "source": "v2m.meshes",
+     "target": "first.array"
+    },
+    {
+     "source": "zero.output",
+     "target": "first.index"
+    },
+    {
+     "source": "first.value",
+     "target": ".mesh"
+    }
+   ],
+   "values": [
+    {
+     "valueName": "t_pos.value",
+     "valueType": "array<Math::float3>",
+     "value": [
+      {
+       "x": "0f",
+       "y": "0f",
+       "z": "0f"
+      }
+     ]
+    },
+    {
+     "valueName": "s_size.property",
+     "valueType": "string",
+     "value": "point_size"
+    },
+    {
+     "valueName": "p2v.store_level_set",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "p2v.store_fog_density",
+     "valueType": "bool",
+     "value": "false"
+    },
+    {
+     "valueName": "zero.value",
+     "valueType": "long",
+     "value": "0L"
+    }
+   ]
+  }
+ ]
+}
