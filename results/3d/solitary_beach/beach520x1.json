@@ -1,0 +1,189 @@
+{
+ "tag": "beach520x1",
+ "grid": [
+  520,
+  56,
+  1
+ ],
+ "dt": 0.1,
+ "every": 5,
+ "fused": true,
+ "config": {
+  "preconditioner": 1,
+  "st": 1,
+  "escape": 1,
+  "adapt": 1
+ },
+ "cells_per_metre": 1.0,
+ "simulated_s": 26.0,
+ "wall_s_total": 30.2,
+ "wall_per_substep_s": [
+  0.12,
+  0.12,
+  0.11,
+  0.12
+ ],
+ "peak_speed_cells_per_s": 59.0,
+ "iterations_mean": [
+  14.0,
+  13.9,
+  13.2,
+  14.3
+ ],
+ "steep_front": {
+  "t": 22.1,
+  "crest_x_m": 416.8,
+  "crest_height_m": 8.79,
+  "depth_under_crest_m": 2.88,
+  "face_steepness": 3.59,
+  "overhang_m": 0.0,
+  "liquid": 53534
+ },
+ "turned_over": {
+  "t": 23.1,
+  "crest_x_m": 433.74,
+  "crest_height_m": 8.3,
+  "depth_under_crest_m": 1.75,
+  "face_steepness": 99.0,
+  "overhang_m": 2.21,
+  "liquid": 53534
+ },
+ "grilli": {
+  "S0": 0.185,
+  "Hb_over_hb": 2.76
+ },
+ "video": "beach520x1.mp4",
+ "video_fps": 2,
+ "play_frames": 52,
+ "log_every_2s": [
+  {
+   "t": 0.1,
+   "crest_x_m": 83.12,
+   "crest_height_m": 5.91,
+   "depth_under_crest_m": 20.0,
+   "face_steepness": 0.32,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 2.1,
+   "crest_x_m": 110.83,
+   "crest_height_m": 5.83,
+   "depth_under_crest_m": 20.0,
+   "face_steepness": 0.52,
+   "overhang_m": 0.45,
+   "liquid": 53534
+  },
+  {
+   "t": 4.1,
+   "crest_x_m": 143.61,
+   "crest_height_m": 5.9,
+   "depth_under_crest_m": 20.0,
+   "face_steepness": 0.49,
+   "overhang_m": 0.33,
+   "liquid": 53534
+  },
+  {
+   "t": 6.1,
+   "crest_x_m": 175.76,
+   "crest_height_m": 5.91,
+   "depth_under_crest_m": 18.95,
+   "face_steepness": 0.45,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 8.1,
+   "crest_x_m": 200.73,
+   "crest_height_m": 6.16,
+   "depth_under_crest_m": 17.28,
+   "face_steepness": 3.07,
+   "overhang_m": 0.96,
+   "liquid": 53534
+  },
+  {
+   "t": 10.1,
+   "crest_x_m": 231.08,
+   "crest_height_m": 6.3,
+   "depth_under_crest_m": 15.26,
+   "face_steepness": 0.8,
+   "overhang_m": 0.02,
+   "liquid": 53534
+  },
+  {
+   "t": 12.1,
+   "crest_x_m": 263.69,
+   "crest_height_m": 6.23,
+   "depth_under_crest_m": 13.09,
+   "face_steepness": 0.35,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 14.1,
+   "crest_x_m": 298.36,
+   "crest_height_m": 6.44,
+   "depth_under_crest_m": 10.78,
+   "face_steepness": 0.18,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 16.1,
+   "crest_x_m": 329.24,
+   "crest_height_m": 6.56,
+   "depth_under_crest_m": 8.72,
+   "face_steepness": 0.25,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 18.1,
+   "crest_x_m": 360.63,
+   "crest_height_m": 6.95,
+   "depth_under_crest_m": 6.62,
+   "face_steepness": 0.39,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 20.1,
+   "crest_x_m": 388.18,
+   "crest_height_m": 7.69,
+   "depth_under_crest_m": 4.79,
+   "face_steepness": 0.86,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 22.1,
+   "crest_x_m": 416.8,
+   "crest_height_m": 8.79,
+   "depth_under_crest_m": 2.88,
+   "face_steepness": 3.59,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 24.1,
+   "crest_x_m": 454.19,
+   "crest_height_m": 5.35,
+   "depth_under_crest_m": 0.39,
+   "face_steepness": 0.0,
+   "overhang_m": 0.0,
+   "liquid": 53534
+  },
+  {
+   "t": 25.6,
+   "crest_x_m": 445.64,
+   "crest_height_m": 4.4,
+   "depth_under_crest_m": 0.96,
+   "face_steepness": 0.29,
+   "overhang_m": 9.69,
+   "liquid": 53534
+  }
+ ],
+ "breaker_closeups": "breaker.png",
+ "recorded_from": "out/runs/beach520x1",
+ "script": "experiments/solitary_beach.py"
+}
