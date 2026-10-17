@@ -148,6 +148,30 @@ void step_2d(int   nx,
 // implicit step. The reference's
 // Sim(emit=..., spray_cfl=...) is the spec and gates/validate_spray_node.py the
 // lockstep.
+// A wave zone (2026-10-18): the wavemaker of a numerical wave basin without a
+// paddle, the relaxation zone of ship and coastal CFD (Jacobsen et al. 2012). With
+// zone_length > 0 (cells) and waves holding at least one train, after every
+// projection the face velocities within zone_length of the x = 0 wall are blended
+// toward the velocity field of a sum of linear wave trains, u = (1 - w) u + w u_t,
+// and so are the liquid particles' velocities after their FLIP update. waves holds
+// four floats a train: its height (cells), period (seconds), direction (degrees from
+// +x toward +z) and phase (radians); zone_depth is the still water depth (cells)
+// the linear theory is evaluated at and zone_ramp the seconds over which every
+// height rises from 0 (a smoothstep; 0 = full from the first step). The weight w is
+// the zone's exp weight, 1 - (exp(s^3.5) - 1) / (e - 1) with s = x / zone_length,
+// times a fade over the cell above the trains' summed surface (full below it, 0 a
+// cell above). Each train: k from w^2 = g k tanh(k h) (Newton), the horizontal
+// velocity a w cosh(k y) / sinh(k h) cos(psi) along its direction, the vertical
+// a w sinh(k y) / sinh(k h) sin(psi), psi = k (x cos + z sin) - w t + phase, y
+// clamped at the still depth, t the end of the step, (step_index + 1) dt. The wall
+// faces the zone touches are its inlet: the x = 0 faces, and in 3D the side-wall
+// faces along the zone, carry the trains' velocity (times the fade) instead of 0,
+// so the flux the trains need is not forced into the wall's cells; a particle
+// carried into a wall is held at it, as everywhere. Below
+// zone_length 0, every port's default, the step is untouched bit for bit. The
+// reference's Sim(zone=...) is the spec (angles are 0 at nz = 1) and
+// gates/validate_wave_zone.py the lockstep, the train against linear theory and the
+// oblique train's angle.
 PF_FLIP_SPIKE_DECL
 void step_3d(int   nx,
              int   ny,
@@ -200,6 +224,10 @@ void step_3d(int   nx,
              int   emit_max_per_cell,
              float spray_cfl,
              const Amino::Array<float>& spray_in,
+             float zone_length,
+             float zone_depth,
+             float zone_ramp,
+             const Amino::Array<float>& waves,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt,
              const Amino::Array<float>& v_wt,

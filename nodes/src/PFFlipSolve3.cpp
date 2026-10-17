@@ -287,6 +287,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float air_nu, const Amino::Array<float>& radius_in,
              int emit_model, float emit_grad_threshold, float emit_rate, int emit_max_per_cell,
              float spray_cfl, const Amino::Array<float>& spray_in,
+             float zone_length, float zone_depth, float zone_ramp,
+             const Amino::Array<float>& waves,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt, const Amino::Array<float>& v_wt,
              const Amino::Array<float>& w_wt,
@@ -591,6 +593,66 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         }
     }
     // vel: velocities (the plate's faces take its speed), not the coefficients
+    // ---- the wave zone (PFFlipSolve.h): after the projection the face velocities
+    // within zone_length of the x = 0 wall are blended toward the sum of linear wave
+    // trains at the end of the step, the weight the zone's exp weight times the fade
+    // above the trains' surface, and the liquid particles get the same blend after
+    // their FLIP update; the wall faces the zone touches (x = 0, and the side walls
+    // along it) are the trains' inlet, carrying their velocity in `walls` below
+    // instead of 0, so the flux the trains need is not forced into the wall's cells.
+    // The reference's _zone_faces / _zone_particles / _enforce_walls.
+    struct ZoneTrain { double a, k, w, dx, dz, ph; };
+    std::vector<ZoneTrain> zoneTrains;
+    const bool zoneOn = zone_length > 0.0f && waves.size() >= 4 && zone_depth > 0.0f;
+    const double zoneLen = zone_length, zoneH = zone_depth;
+    double zoneT = 0.0;
+    if (zoneOn) {
+        const double g = std::fabs(static_cast<double>(gravity));
+        zoneT = (static_cast<double>(step_index) + 1.0) * dt;
+        double ramp = 1.0;
+        if (zone_ramp > 0.0f) {
+            const double s = std::min(1.0, zoneT / static_cast<double>(zone_ramp));
+            ramp = s * s * (3.0 - 2.0 * s);
+        }
+        const double deg = 3.14159265358979323846 / 180.0;
+        for (size_t q = 0; q + 3 < waves.size(); q += 4) {
+            const double H = waves[q], T = waves[q + 1];
+            const double th = static_cast<double>(waves[q + 2]) * deg, ph = waves[q + 3];
+            if (!(T > 0.0) || !(H > 0.0) || !(g > 0.0)) continue;
+            const double om = 2.0 * 3.14159265358979323846 / T;
+            double k = om * om / g;
+            for (int it2 = 0; it2 < 50; ++it2) {
+                const double th2 = std::tanh(k * zoneH), ch = std::cosh(k * zoneH);
+                const double f = g * k * th2 - om * om;
+                const double df = g * (th2 + k * zoneH / (ch * ch));
+                k -= f / df;
+            }
+            zoneTrains.push_back({0.5 * H * ramp, k, om, std::cos(th),
+                                  flatGrid ? 0.0 : std::sin(th), static_cast<double>(ph)});
+        }
+    }
+    // the blend weight at a point and the trains' velocity there
+    auto zoneAt = [&](double x, double y, double z, double& ut, double& vt, double& wt) {
+        ut = vt = wt = 0.0;
+        if (!zoneOn || x >= zoneLen) return 0.0;
+        const double s = x / zoneLen;
+        double wz = 1.0 - (std::exp(std::pow(s, 3.5)) - 1.0) / 1.718281828459045;
+        if (wz <= 0.0) return 0.0;
+        const double ye = std::min(y, zoneH);
+        double eta = 0.0;
+        for (const ZoneTrain& tr : zoneTrains) {
+            const double psi = tr.k * (x * tr.dx + z * tr.dz) - tr.w * zoneT + tr.ph;
+            const double sh = std::sinh(tr.k * zoneH);
+            const double uh = tr.a * tr.w * std::cosh(tr.k * ye) / sh * std::cos(psi);
+            ut += uh * tr.dx;
+            wt += uh * tr.dz;
+            vt += tr.a * tr.w * std::sinh(tr.k * ye) / sh * std::sin(psi);
+            eta += tr.a * std::cos(psi);
+        }
+        const double above = y - (zoneH + eta);
+        const double fy = above <= 0.0 ? 1.0 : std::max(0.0, 1.0 - above);
+        return wz * fy;
+    };
     auto walls = [&](Vec& uu, Vec& vv, Vec& ww, bool vel) {
         for (int j = 0; j < NY; ++j)
             for (int k = 0; k < NZ; ++k) { uu[L.iu(0, j, k)] = 0.0; uu[L.iu(NX, j, k)] = 0.0; }
@@ -611,6 +673,44 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             if (vel && pistonOn)
                 for (size_t c = 0; c < nu; ++c)
                     if (openU[c] <= 0.0 && openSU[c] > 0.0) uu[c] = pistonVx;
+        }
+        if (vel && zoneOn) {
+            // the wave inlet: the x = 0 faces carry the trains' velocity (times the
+            // fade above their surface), and so do the side-wall faces along the zone,
+            // less the flux-weighted mean over every inlet face: a sealed box of
+            // incompressible fluid has no pressure solution under a net inflow, so the
+            // inlet keeps the box's volume and the wall's own column breathes by the mean
+            struct Inlet { size_t c; double w, t, sign; };
+            std::vector<Inlet> faces;
+            double Q = 0.0, W = 0.0;
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k) {
+                    double ut, vt, wt;
+                    const double wgt = zoneAt(0.0, j + 0.5, k + 0.5, ut, vt, wt);
+                    faces.push_back({L.iu(0, j, k), wgt, ut, 1.0});
+                    Q += wgt * ut; W += wgt;
+                }
+            if (!flatGrid) {
+                const int iMax = std::min(NX, static_cast<int>(std::ceil(zoneLen)) + 1);
+                for (int i = 0; i < iMax; ++i)
+                    for (int j = 0; j < NY; ++j) {
+                        double ut, vt, wt;
+                        double wgt = zoneAt(i + 0.5, j + 0.5, 0.0, ut, vt, wt);
+                        faces.push_back({L.iw(i, j, 0), wgt, wt, 1.0});
+                        Q += wgt * wt; W += wgt;
+                        wgt = zoneAt(i + 0.5, j + 0.5, static_cast<double>(NZ), ut, vt, wt);
+                        faces.push_back({L.iw(i, j, NZ), wgt, wt, -1.0});
+                        Q -= wgt * wt; W += wgt;
+                    }
+            }
+            const double cmean = W > 0.0 ? Q / W : 0.0;
+            // the x = 0 faces come first, then the side faces in pairs
+            size_t q = 0;
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k, ++q)
+                    uu[faces[q].c] = faces[q].w * (faces[q].t - cmean);
+            for (; q < faces.size(); ++q)
+                ww[faces[q].c] = faces[q].w * (faces[q].t - faces[q].sign * cmean);
         }
     };
     walls(u, v, w, true);
@@ -804,6 +904,46 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                                         (p[F.ic(i, j, k)] - p[F.ic(i, j, k - 1)]);
     }
     walls(u, v, w, true);
+
+    if (zoneOn) {
+        const int iMax = std::min(NX, static_cast<int>(std::ceil(zoneLen)) + 1);
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i <= iMax; ++i)
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k) {
+                    double ut, vt, wt;
+                    const double wgt = zoneAt(i, j + 0.5, k + 0.5, ut, vt, wt);
+                    if (wgt > 0.0) {
+                        double& c = u[L.iu(i, j, k)];
+                        c = (1.0 - wgt) * c + wgt * ut;
+                    }
+                }
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < iMax; ++i)
+            for (int j = 0; j <= NY; ++j)
+                for (int k = 0; k < NZ; ++k) {
+                    double ut, vt, wt;
+                    const double wgt = zoneAt(i + 0.5, j, k + 0.5, ut, vt, wt);
+                    if (wgt > 0.0) {
+                        double& c = v[L.iv(i, j, k)];
+                        c = (1.0 - wgt) * c + wgt * vt;
+                    }
+                }
+        if (!flatGrid) {
+#pragma omp parallel for schedule(static)
+            for (int i = 0; i < iMax; ++i)
+                for (int j = 0; j < NY; ++j)
+                    for (int k = 0; k <= NZ; ++k) {
+                        double ut, vt, wt;
+                        const double wgt = zoneAt(i + 0.5, j + 0.5, k, ut, vt, wt);
+                        if (wgt > 0.0) {
+                            double& c = w[L.iw(i, j, k)];
+                            c = (1.0 - wgt) * c + wgt * wt;
+                        }
+                    }
+        }
+        walls(u, v, w, true);
+    }
 
     // the divergence the solve removed (cut cells: of the open-weighted u)
     auto fu = [&](size_t c) {
@@ -1014,6 +1154,16 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             vx = a * (vx + sU(du, px, py, pz)) + (1.0 - a) * sU(u, px, py, pz);
             vy = a * (vy + sV(dv, px, py, pz)) + (1.0 - a) * sV(v, px, py, pz);
             vz = flat ? 0.0 : a * (vz + sW(dw, px, py, pz)) + (1.0 - a) * sW(w, px, py, pz);
+            if (zoneOn && liquid) {
+                // the wave zone: the water's velocity blended to the trains' (above)
+                double ut, vt, wt;
+                const double wgt = zoneAt(px, py, pz, ut, vt, wt);
+                if (wgt > 0.0) {
+                    vx = (1.0 - wgt) * vx + wgt * ut;
+                    vy = (1.0 - wgt) * vy + wgt * vt;
+                    vz = flat ? 0.0 : (1.0 - wgt) * vz + wgt * wt;
+                }
+            }
         } else if (flyOn && liquid) {
             flyP[pi] = 1;
         } else {

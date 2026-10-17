@@ -40,7 +40,8 @@ param(
     [string]$Obj = "",
     [string]$Grid = "",
     [int]$MaxMinutes = 240,
-    [string]$Preset = ""
+    [string]$Preset = "",
+    [string]$CameraPath = ""
 )
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 if ($Preset -ne "") {
@@ -60,6 +61,7 @@ if ($Grid -eq "") {
 $env:BIFROST_LIB_CONFIG_FILES = Join-Path $here "pfflip_graphs_config.json"
 $env:MAYA_DISABLE_CER = "1"; $env:MAYA_DISABLE_CIP = "1"; $env:MAYA_DISABLE_CLIC_IPM = "1"
 $env:SURF_CACHE = $Cache
+if ($CameraPath -ne "") { $env:SURF_CAMERA_PATH = (Resolve-Path $CameraPath).Path }   # a tracking camera, keyed per frame
 $env:SURF_OUT = [System.IO.Path]::GetFullPath($Out)
 $env:SURF_NAME = $Name; $env:SURF_FRAMES = $Frames; $env:SURF_GRID = $Grid
 $env:SURF_OBJ = if ($Obj -ne "") { (Resolve-Path $Obj).Path } else { "" }

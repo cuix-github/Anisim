@@ -14,7 +14,9 @@ SURF_MIST_DENSITY, SURF_MIST_THRESHOLD, SURF_METRES_PER_CELL, SURF_DEFAULT_RADIU
 SURF_MCF_ITERS, SURF_MASK_SIGMA, SURF_MASK_THETA, SURF_MASK_ZETA, SURF_MASK_FLOOR,
 SURF_MASK_DILATE,
 SURF_LOOK, SURF_WATER_DEPTH,
-SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR;
+SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR,
+SURF_CAMERA_PATH (a camera.json: {"frames": [[ex, ey, ez, tx, ty, tz], ...]} in cells, frame
+f the list's entry f - 1, keyed on the camera so it tracks; the fixed SURF_CAMERA otherwise);
 see the .ps1) and saves SURF_SCENE. Built
 here rather than in the GUI session
 because a script run at GUI startup sees the compound library before Bifrost's own
@@ -207,7 +209,8 @@ def build(cmds):
     cmds.setAttr(sun + ".color", 1.0, 0.95, 0.86, type="double3")
     cmds.setAttr(sun + ".aiAngle", 1.5)
 
-    # the camera: the play scene's framing unless given
+    # the camera: the play scene's framing unless given; a camera path keys it per
+    # frame (the yaw unwrapped so the keys never spin the long way round)
     size = max(nx, ny, nz)
     cam = E.get("SURF_CAMERA", "").split()
     if len(cam) == 6:
@@ -215,6 +218,27 @@ def build(cmds):
     else:
         eye, target = (nx * 1.05, ny * 1.9, nz + 0.75 * size), (nx * 0.55, 0.0, nz * 0.45)
     aim(cmds, "persp", eye, target)
+    if E.get("SURF_CAMERA_PATH"):
+        import json
+        import math
+        with open(E["SURF_CAMERA_PATH"]) as fh:
+            frames = json.load(fh)["frames"]
+        yaw_prev = None
+        for f, row in enumerate(frames, start=1):
+            e, t = row[:3], row[3:6]
+            aim(cmds, "persp", e, t)
+            yaw = cmds.getAttr("persp.rotateY")
+            if yaw_prev is not None:
+                while yaw - yaw_prev > 180.0:
+                    yaw -= 360.0
+                while yaw - yaw_prev < -180.0:
+                    yaw += 360.0
+                cmds.setAttr("persp.rotateY", yaw)
+            yaw_prev = yaw
+            cmds.setKeyframe("persp", attribute=["translateX", "translateY", "translateZ",
+                                                 "rotateX", "rotateY", "rotateZ"], time=f,
+                             inTangentType="linear", outTangentType="linear")
+        print(f"camera keyed over {len(frames)} frames from {E['SURF_CAMERA_PATH']}", flush=True)
     for c in cmds.ls(cameras=True):
         cmds.setAttr(c + ".renderable", c == "perspShape")
     cmds.setAttr("defaultRenderGlobals.currentRenderer", "arnold", type="string")
