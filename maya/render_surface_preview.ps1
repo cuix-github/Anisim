@@ -7,7 +7,10 @@
 #
 #   render_surface_preview.bat <cache_dir> <out_dir> <name> "<frames>" [obj] ["nx ny nz"]
 #     frames land in <out_dir>\<name>.####.png with a .log per frame and
-#     <name>.notes.txt (times). Knobs beyond these go through the environment:
+#     <name>.notes.txt (times). -Preset <name> (the .ps1 only) sets the knobs below
+#     from maya\presets\<name>.ps1 (paper: the look of the breaking-wave stills), each
+#     only where the environment has not set it; maya\presets\README.md says what each
+#     knob controls. Knobs beyond these go through the environment:
 #     SURF_WIDTH/HEIGHT (1920x1080), SURF_SAMPLES (4), SURF_THREADS (0 = all),
 #     SURF_GPU (1), SURF_CAMERA ("x y z tx ty tz"), SURF_POINT_SIZE (0.5, the sphere
 #     radius in cells), SURF_DETAIL (0.5), SURF_SMOOTH_ITERS (1), SURF_MESH_SMOOTH (0.1),
@@ -36,9 +39,16 @@ param(
     [Parameter(Mandatory = $true)][string]$Frames,
     [string]$Obj = "",
     [string]$Grid = "",
-    [int]$MaxMinutes = 240
+    [int]$MaxMinutes = 240,
+    [string]$Preset = ""
 )
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
+if ($Preset -ne "") {
+    $presetFile = Join-Path $here ("presets\" + $Preset + ".ps1")
+    if (-not (Test-Path $presetFile)) { Write-Error "no preset $presetFile"; exit 2 }
+    . $presetFile
+    Write-Output "preset $Preset (maya\presets\$Preset.ps1); the environment's own knobs kept"
+}
 if (Get-Process maya -ErrorAction SilentlyContinue) { Write-Error "a Maya is already open; close it first"; exit 2 }
 $free = (Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory / 1MB
 if ($free -lt 20) { Write-Error ("only {0:N1} GB free; need 20" -f $free); exit 2 }
