@@ -39,12 +39,15 @@ class Sim:
     # cell spans, and air's kinematic viscosity for the drag's Reynolds number.
     DROPLET_DEFAULTS = dict(r_median=1e-4, r_sigma=0.7, evap_k=1e-9, r_min=1e-6,
                             metres_per_cell=1.0, air_nu=1.5e-5)
+    # spray emission: the gradient (1/s) above which an interface particle may emit,
+    # the chance per unit excess gradient per second, the cap per cell per step
+    EMIT_DEFAULTS = dict(grad_threshold=10.0, rate=0.05, max_per_cell=8)
 
     def __init__(self, nx, ny, rho_l=1000.0, rho_g=1.0, alpha_l=0.97, alpha_g=0.9, g=-9.8,
                  escape=False, esc_phi=0.3, drag_droplet=1.0, drag_bubble=8.0, buoyancy=2.0,
                  st=False, sub_advect=False, adapt=False, obstacles=None,
                  solid_phi=None, solid_cut=False, solid_support=True, piston=None,
-                 droplet=None):
+                 droplet=None, emit=None, spray_cfl=0.0):
         self.nx, self.ny, self.dx = nx, ny, 1.0
         self.rho_l, self.rho_g = rho_l, rho_g
         self.alpha = {1: alpha_l, 0: alpha_g}
@@ -73,6 +76,37 @@ class Sim:
             assert set(self.droplet) == set(self.DROPLET_DEFAULTS), self.droplet
         self.radius = np.zeros(0)
         self.nstep = 0
+        # Extra spray emission (PF-FLIP Section 7, after Ihmsen et al. 2012), OFF by
+        # default: with emit=dict(...) (keys of EMIT_DEFAULTS, any subset) a liquid
+        # particle at the interface (its liquid fraction under 1 - esc_phi, the escape
+        # test's own line seen from the water side) in a cell whose velocity gradient
+        # (the Frobenius norm of the grid velocity's Jacobian, 1/s) exceeds
+        # grad_threshold emits, with probability min(1, rate (G - G0) dt) from a hash of
+        # (step, index), a spray particle at its own position and velocity: liquid,
+        # massless (it adds nothing to any splat, so the flow never feels it), always
+        # a droplet (a radius drawn at its first step, the drag, the evaporation),
+        # deleted when it falls into the water (its liquid fraction above 1 - esc_phi)
+        # or evaporates; at most max_per_cell a cell a step, in index order. The paper
+        # names the method and no thresholds; these are documented choices (the
+        # breaker's interface gradients at 24 s: median 2, p90 9, p99 20 per second,
+        # 10 selecting the lip). Needs droplet (so escape).
+        self.emit = None if emit is None else dict(self.EMIT_DEFAULTS, **emit)
+        if self.emit is not None:
+            assert self.droplet is not None, "spray emission needs the droplet model"
+            assert set(self.emit) == set(self.EMIT_DEFAULTS), self.emit
+        self.spray = np.zeros(0, dtype=bool)
+        self.n_emitted = 0
+        # The droplets' own integrator (PF-FLIP Section 7: RK2 with locally adaptive
+        # time stepping), OFF at 0: with spray_cfl > 0 a droplet's step is cut into
+        # sub-steps that move it at most spray_cfl cells each; over a sub-step the
+        # drag relaxation toward the air velocity sampled at its start is taken
+        # exactly, with gravity, at the rate of the sub-step's midpoint (the rate
+        # depends on the slip: a half step at the starting rate finds it), and the
+        # position advances by the trapezoid of the sub-step's two velocities:
+        # second order in the sub-step. An explicit RK2 on the drag itself would
+        # need thousands of sub-steps for a 10 um drop, which relaxes in
+        # microseconds; the relaxation taken exactly needs none.
+        self.spray_cfl = float(spray_cfl)
         # ST-FLIP (Braun et al. 2026) spatiotemporal sampling, OFF by default. Each
         # particle carries a time jitter tau in (-1/2, 1/2] slab units; splats are
         # weighted by the paper's one-sided temporal poly6 kernel (peak at +1/2), and
@@ -169,6 +203,7 @@ class Sim:
         self.tau = np.zeros(len(self.pos))      # particles start synchronized
         self.xi = np.ones(len(self.pos))        # per-particle jitter strength
         self.radius = np.zeros(len(self.pos))   # droplet radius in metres, 0 = none
+        self.spray = np.zeros(len(self.pos), dtype=bool)   # emitted spray, massless
 
     @staticmethod
     def _splitmix(s):
@@ -192,6 +227,17 @@ class Sim:
         u1 = ((z1 >> np.uint64(11)).astype(np.float64) + 1.0) * 2.0 ** -53
         u2 = (z2 >> np.uint64(11)).astype(np.float64) * 2.0 ** -53
         return np.sqrt(-2.0 * np.log(u1)) * np.cos(2.0 * np.pi * u2)
+
+    @staticmethod
+    def droplet_uniform(step_index, idx):
+        """A uniform on [0, 1) per particle from the hash of (step, index), the state
+        two past the normal's first (splitmix64 at (step + 1) * golden + index + 2),
+        the same in the node."""
+        with np.errstate(over="ignore"):
+            s = (np.uint64(step_index + 1) * np.uint64(0x9E3779B97F4A7C15)
+                 + np.asarray(idx, np.uint64) + np.uint64(2))
+            z = Sim._splitmix(s)
+        return (z >> np.uint64(11)).astype(np.float64) * 2.0 ** -53
 
     def _droplet_radii(self, drop, dt):
         """The radius bookkeeping of one step: rejoined droplets back to 0, new ones
@@ -221,9 +267,99 @@ class Sim:
         k = (0.375 * (self.rho_g / self.rho_l) * cdv / r * dt)[:, None]
         self.vel[d] = (self.vel[d] + k * vg[d]) / (1.0 + k)
 
+    def _droplet_fly(self, d, times):
+        """The droplets d over their own times (seconds each): sub-steps that move a
+        droplet at most spray_cfl cells, the drag relaxation toward the air velocity
+        (sampled at the sub-step's start) taken exactly over each with gravity, the
+        position by the trapezoid of the sub-step's two velocities."""
+        D = self.droplet
+        idx = np.flatnonzero(d)
+        rem = np.asarray(times, float).copy()
+        pos, vel = self.pos[idx].copy(), self.vel[idx].copy()
+        r = np.maximum(self.radius[idx], D["r_min"])
+        g = np.array([0.0, self.g])
+        hi = np.array([self.nx - 0.51, self.ny - 0.51])
+        def rate(v, vg):
+            """The relaxation rate k (1/s) at slip vg - v: (3/8)(rho_a / rho_l)(C_d / r)|v_rel|."""
+            rel = (vg - v) * D["metres_per_cell"]
+            sp = np.sqrt((rel ** 2).sum(1))
+            re = 2.0 * r * sp / D["air_nu"]
+            cdv = np.where(re <= 1000.0, 12.0 * D["air_nu"] / r * (1.0 + 0.15 * re ** 0.687),
+                           0.44 * sp)
+            return 0.375 * (self.rho_g / self.rho_l) * cdv / r
+
+        def relax(v, vg, k, h):
+            """v after h seconds of relaxation at rate k toward vg under gravity."""
+            e = np.exp(-k * h)
+            gk = np.where(k * h > 1e-6, (1.0 - e) / np.maximum(k, 1e-300), h * (1.0 - 0.5 * k * h))
+            return vg + (v - vg) * e[:, None] + g[None, :] * gk[:, None]
+
+        for _ in range(1000000):
+            act = rem > 1e-12
+            if not act.any():
+                break
+            vg = self.sample_velocity(np.clip(pos, 0.51, hi))
+            speed = np.maximum(np.abs(vel).max(1), 1e-9)
+            h = np.where(act, np.minimum(rem, self.spray_cfl / speed), 0.0)
+            # the rate depends on the slip, so it is taken at the sub-step's midpoint
+            # (a half step at the starting rate finds it), then the whole step at it
+            vmid = relax(vel, vg, rate(vel, vg), 0.5 * h)
+            vnew = relax(vel, vg, rate(vmid, vg), h)
+            pos = pos + 0.5 * h[:, None] * (vel + vnew)
+            vel, rem = vnew, rem - h
+        self.pos[idx], self.vel[idx] = pos, vel
+
+    def _grad_norm(self):
+        """The Frobenius norm of the grid velocity's Jacobian per cell (1/s): the
+        cell-centred velocity from the faces, central differences inside and one-sided
+        at the walls, a cell as the unit of length."""
+        uc = 0.5 * (self.u[:-1, :] + self.u[1:, :])
+        vc = 0.5 * (self.v[:, :-1] + self.v[:, 1:])
+        g2 = np.zeros((self.nx, self.ny))
+        for f in (uc, vc):
+            gx, gy = np.gradient(f)
+            g2 += gx ** 2 + gy ** 2
+        return np.sqrt(g2)
+
+    def _emit(self, dt, lf):
+        """Spray emission for this step from the interface particles (liquid fraction
+        lf per particle), appended to the arrays; returns how many."""
+        E, n = self.emit, len(self.pos)
+        c = np.clip(np.floor(self.pos).astype(np.int64), 0, [self.nx - 1, self.ny - 1])
+        gp = self._grad_norm()[c[:, 0], c[:, 1]]
+        cand = ((self.typ == 1) & ~self.spray & ~self.escaped & (lf < 1.0 - self.esc_phi)
+                & (gp > E["grad_threshold"]))
+        idx = np.flatnonzero(cand)
+        if len(idx) == 0:
+            return 0
+        prob = np.clip(E["rate"] * (gp[idx] - E["grad_threshold"]) * dt, 0.0, 1.0)
+        hit = idx[self.droplet_uniform(self.nstep, idx) < prob]
+        if len(hit) == 0:
+            return 0
+        # at most max_per_cell a cell, the lowest indices first
+        key = c[hit, 0] * self.ny + c[hit, 1]
+        order = np.argsort(key, kind="stable")
+        ks = key[order]
+        starts = np.r_[0, np.flatnonzero(np.diff(ks)) + 1]
+        rank = np.empty(len(ks), np.int64)
+        rank[order] = np.arange(len(ks)) - np.repeat(starts, np.diff(np.r_[starts, len(ks)]))
+        hit = hit[rank < E["max_per_cell"]]
+        m = len(hit)
+        self.pos = np.concatenate([self.pos, self.pos[hit]])
+        self.vel = np.concatenate([self.vel, self.vel[hit]])
+        self.typ = np.concatenate([self.typ, np.ones(m, dtype=self.typ.dtype)])
+        self.scale = np.concatenate([self.scale, np.ones(m)])
+        self.tau = np.concatenate([self.tau, np.zeros(m)])
+        if len(self.xi) == n:
+            self.xi = np.concatenate([self.xi, np.ones(m)])
+        self.radius = np.concatenate([self.radius, np.zeros(m)])
+        self.spray = np.concatenate([self.spray, np.ones(m, dtype=bool)])
+        self.escaped = np.concatenate([self.escaped, np.ones(m, dtype=bool)])
+        return m
+
     def _delete(self, keep):
         n = len(keep)
-        for name in ("pos", "vel", "typ", "scale", "tau", "xi", "radius", "escaped"):
+        for name in ("pos", "vel", "typ", "scale", "tau", "xi", "radius", "escaped", "spray"):
             a = getattr(self, name, None)       # xi exists only once seeded
             if a is not None and len(a) == n:
                 setattr(self, name, a[keep])
@@ -252,6 +388,8 @@ class Sim:
         m = np.where(self.typ == 1, self.rho_l, self.rho_g)
         if self.adapt:
             m = m * self.scale ** 2 * np.where(self.scale > 1.5, self.coarse_gain, 1.0)
+        if len(self.spray) == len(m):
+            m = np.where(self.spray, 0.0, m)      # emitted spray adds nothing to the grid
         return m
 
     # --- Eq. 6 kernel weights against a set of face centres, vectorised over a 3x3 stencil
@@ -653,12 +791,17 @@ class Sim:
             blended[skip] = self.vel[skip]
         self.vel = blended
 
-    def advect(self, dt, ballistic=None):
+    def advect(self, dt, ballistic=None, fly=None):
+        if fly is not None and fly.any():
+            self._droplet_fly(fly, np.full(int(fly.sum()), float(dt)))
         old = self.pos
         mid = self.pos + 0.5 * dt * self.sample_velocity(self.pos)
         self.pos = self.pos + dt * self.sample_velocity(np.clip(mid, 0.51, None))
         if ballistic is not None and ballistic.any():
-            self.pos[ballistic] = old[ballistic] + dt * self.vel[ballistic]
+            move = ballistic if fly is None else (ballistic & ~fly)
+            self.pos[move] = old[move] + dt * self.vel[move]
+        if fly is not None and fly.any():
+            self.pos[fly] = old[fly]              # flown already, above
         lo = 0.51
         hix, hiy = self.nx - 0.51, self.ny - 0.51
         for k, hi in ((0, hix), (1, hiy)):
@@ -682,7 +825,7 @@ class Sim:
             # through Eq. 7's square root, still reads as phi ~ 0.45).
             w_rep = self.scale ** 2 if self.adapt else np.ones(len(self.typ))
             ones_air = (self.typ == 0).astype(float) * w_rep
-            ones_liq = ((self.typ == 1).astype(float)) * w_rep
+            ones_liq = ((self.typ == 1) & ~self.spray).astype(float) * w_rep
             fu, fv = self._face_frames()
             au, lu = self._splat(self.u.shape, fu, [ones_air, ones_liq])
             av, lv = self._splat(self.v.shape, fv, [ones_air, ones_liq])
@@ -693,38 +836,62 @@ class Sim:
                               self._sample_faces(lv, np.array([0.5, 0.0]), self.pos))
             drop = (self.typ == 1) & (frac_air > thresh)
             bub = (self.typ == 0) & (frac_liq > thresh)
+            # emitted spray is a droplet whatever the test says, and falls back into
+            # the water (deleted below) where the test would call it liquid
+            drop = drop | self.spray
+            inside = self.spray & (frac_liq > thresh)
             esc = drop | bub
             self.escaped = esc
+            lf = frac_liq / self.rho0_face
         self.g2p(u_star, v_star, skip=esc)
         gone = None
         if self.droplet is not None and esc is not None:
             gone = self._droplet_radii(drop, dt)
+            if inside.any():
+                gone = gone | inside
+        fly = None
         if esc is not None and esc.any():
             vg = self.sample_velocity(self.pos)
             d = drop
-            self.vel[d, 1] += self.g * dt
-            if self.droplet is None:
-                self.vel[d] += self.drag_droplet * dt * (vg[d] - self.vel[d])
-            elif d.any():
-                self._droplet_drag(d, vg, dt)
+            if self.droplet is not None and self.spray_cfl > 0.0:
+                fly = d                      # the droplets' own integrator, in the advection
+            else:
+                self.vel[d, 1] += self.g * dt
+                if self.droplet is None:
+                    self.vel[d] += self.drag_droplet * dt * (vg[d] - self.vel[d])
+                elif d.any():
+                    self._droplet_drag(d, vg, dt)
             b = bub
             self.vel[b, 1] += self.buoyancy * abs(self.g) * dt
             self.vel[b] += self.drag_bubble * dt * (vg[b] - self.vel[b])
         if self.st or self.sub_advect:
-            self._advect_st(dt, ballistic=esc)
+            self._advect_st(dt, ballistic=esc, fly=fly)
         else:
-            self.advect(dt, ballistic=esc)
+            self.advect(dt, ballistic=esc, fly=fly)
         if self.has_solids:
             self._push_out()
+        if self.emit is not None and esc is not None:
+            m = self._emit(dt, lf)
+            self.n_emitted = m
+            if m and gone is not None:
+                gone = np.concatenate([gone, np.zeros(m, bool)])
         if gone is not None and gone.any():
             self._delete(~gone)
         if self.adapt:
             self._adapt_particles()
+        if self.emit is not None and self.spray.any():
+            # the spray kept behind every other particle, so the others keep the
+            # order (and the ST jitter stream) they would have without it
+            order = np.concatenate([np.flatnonzero(~self.spray), np.flatnonzero(self.spray)])
+            for name in ("pos", "vel", "typ", "scale", "tau", "xi", "radius", "escaped", "spray"):
+                a = getattr(self, name, None)
+                if a is not None and len(a) == len(order):
+                    setattr(self, name, a[order])
         self.t += dt
         self.nstep += 1
 
     def _liq_frac(self):
-        ones_liq = (self.typ == 1).astype(float) * self.scale ** 2
+        ones_liq = ((self.typ == 1) & ~self.spray).astype(float) * self.scale ** 2
         fu, fv = self._face_frames()
         (lu,) = self._splat(self.u.shape, fu, [ones_liq])
         (lv,) = self._splat(self.v.shape, fv, [ones_liq])
@@ -749,6 +916,7 @@ class Sim:
             self.scale = np.concatenate([self.scale[keep], np.ones(len(new_pos))])
             self.tau = np.concatenate([self.tau[keep], np.repeat(self.tau[to_split], 4)])
             self.radius = np.concatenate([self.radius[keep], np.zeros(len(new_pos))])
+            self.spray = np.concatenate([self.spray[keep], np.zeros(len(new_pos), bool)])
             self.xi = np.concatenate([self.xi[keep] if len(self.xi) == len(keep) else
                                       np.ones(keep.sum()), np.ones(len(new_pos))])
             lf = np.concatenate([lf[keep], np.full(len(new_pos), 1.0)])  # keep them fine this step
@@ -781,10 +949,11 @@ class Sim:
                 self.scale = np.concatenate([self.scale[keep], np.full(len(new_p), 2.0)])
                 self.tau = np.concatenate([self.tau[keep], np.array(new_tau)])
                 self.radius = np.concatenate([self.radius[keep], np.zeros(len(new_p))])
+                self.spray = np.concatenate([self.spray[keep], np.zeros(len(new_p), bool)])
                 self.xi = np.concatenate([self.xi[keep] if len(self.xi) == len(keep) else
                                           np.ones(int(keep.sum())), np.ones(len(new_p))])
 
-    def _advect_st(self, dt, ballistic=None, cfl_local=1.0, max_rounds=64):
+    def _advect_st(self, dt, ballistic=None, cfl_local=1.0, max_rounds=64, fly=None):
         """ST-FLIP advection: each particle advances by dt*(1 + tau_new - tau_old),
         folding the jitter change into one step, sub-stepped at local CFL <= 1."""
         if self.st:
@@ -794,14 +963,24 @@ class Sim:
             cfl_p = np.abs(self.vel).max(1) * dt / self.dx
             t = np.clip(cfl_p, 0.0, 1.0)
             self.xi = t * t * (3.0 - 2.0 * t)
-            tau_new = self.xi * self.st_rng.uniform(-0.5, 0.5, len(self.pos))
+            # the jitter drawn for every particle but the emitted spray, which flies
+            # unjittered (tau 0, massless): the stream the others consume is then the
+            # one they would consume without it
+            tau_new = np.zeros(len(self.pos))
+            prim = ~self.spray if len(self.spray) == len(self.pos) else np.ones(len(self.pos), bool)
+            tau_new[prim] = self.xi[prim] * self.st_rng.uniform(-0.5, 0.5, int(prim.sum()))
             remaining = dt * (1.0 + tau_new - self.tau)
             self.tau = tau_new
         else:
             remaining = np.full(len(self.pos), float(dt))
+        if fly is not None and fly.any():
+            # the droplets' own integrator over their full jittered step
+            self._droplet_fly(fly, remaining[fly])
+            remaining = np.where(fly, 0.0, remaining)
         if ballistic is not None and ballistic.any():
             # escaped particles fly on their own velocity for their full jittered step
-            self.pos[ballistic] += remaining[ballistic, None] * self.vel[ballistic]
+            move = ballistic if fly is None else (ballistic & ~fly)
+            self.pos[move] += remaining[move, None] * self.vel[move]
             remaining = np.where(ballistic, 0.0, remaining)
         for _ in range(max_rounds):
             active = remaining > 1e-12

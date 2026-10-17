@@ -127,6 +127,27 @@ void step_2d(int   nx,
 // to 0. Bubbles are untouched. droplet_model 0, the default, leaves the step as
 // it was (radius_out = 0 for every particle). The reference's Sim(droplet=...)
 // is the spec and gates/validate_droplet_node.py the lockstep.
+// Extra spray emission (2026-10-17, PF-FLIP Section 7 after Ihmsen et al. 2012):
+// with emit_model 1 (and the droplet model and escape on) a liquid particle at the
+// interface (its liquid fraction under 1 - esc_phi, the escape test's own line seen
+// from the water) in a cell whose velocity gradient (the Frobenius norm of the
+// Jacobian of the cell-centred velocity, 1/s) exceeds emit_grad_threshold emits,
+// with probability min(1, emit_rate (G - G0) dt) from a hash of (step_index,
+// index), a spray particle at its own position and velocity, at most
+// emit_max_per_cell a cell a step in index order: liquid, massless (mass 0 in
+// out_mass, counted in no splat, so the flow never feels it), flagged in spray_in /
+// spray_out (1 = spray), always a droplet (a radius drawn at its first step, the
+// drag, the evaporation), deleted when it falls into the water (its liquid
+// fraction above 1 - esc_phi) or evaporates, and kept behind every other particle
+// so the others keep their order. The paper names the method and no thresholds.
+// spray_cfl > 0 gives every droplet its own integrator (the paper's RK2 with
+// locally adaptive time stepping): sub-steps of at most spray_cfl cells, the drag
+// relaxation toward the air velocity (sampled at the sub-step's start) taken
+// exactly with gravity at the rate of the sub-step's midpoint slip, the position by
+// the trapezoid of the sub-step's two velocities; 0, the default, keeps the one
+// implicit step. The reference's
+// Sim(emit=..., spray_cfl=...) is the spec and gates/validate_spray_node.py the
+// lockstep.
 PF_FLIP_SPIKE_DECL
 void step_3d(int   nx,
              int   ny,
@@ -173,6 +194,12 @@ void step_3d(int   nx,
              float metres_per_cell,
              float air_nu,
              const Amino::Array<float>& radius_in,
+             int   emit_model,
+             float emit_grad_threshold,
+             float emit_rate,
+             int   emit_max_per_cell,
+             float spray_cfl,
+             const Amino::Array<float>& spray_in,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt,
              const Amino::Array<float>& v_wt,
@@ -221,6 +248,7 @@ void step_3d(int   nx,
              Amino::Ptr<Amino::Array<float>>& tau_out,
              Amino::Ptr<Amino::Array<float>>& scale_out,
              Amino::Ptr<Amino::Array<float>>& radius_out,
+             Amino::Ptr<Amino::Array<float>>& spray_out,
              Amino::Ptr<Amino::Array<bool>>& mask_fine,
              Amino::Ptr<Amino::Array<bool>>& mask_coarse,
              Amino::Ptr<Amino::Array<float>>& out_phase_state,

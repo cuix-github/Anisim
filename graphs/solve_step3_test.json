@@ -639,6 +639,36 @@
           "portDefault": "0.000015f"
         },
         {
+          "portName": "emit_model",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
+          "portName": "emit_grad_threshold",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "10f"
+        },
+        {
+          "portName": "emit_rate",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0.05f"
+        },
+        {
+          "portName": "emit_max_per_cell",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "8"
+        },
+        {
+          "portName": "spray_cfl",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
           "portName": "path_radius_in",
           "portDirection": "input",
           "portType": "string",
@@ -652,6 +682,23 @@
         },
         {
           "portName": "ok_radius_out",
+          "portDirection": "output",
+          "portType": "bool"
+        },
+        {
+          "portName": "path_spray_in",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "path_spray_out",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "ok_spray_out",
           "portDirection": "output",
           "portType": "bool"
         },
@@ -886,6 +933,14 @@
         {
           "nodeName": "r_solid_phi",
           "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_spray_in",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "w_spray_out",
+          "nodeType": "File::NumPy::write_NumPy"
         }
       ],
       "connections": [
@@ -1700,6 +1755,50 @@
         {
           "source": ".piston_top",
           "target": "step.piston_top"
+        },
+        {
+          "source": ".emit_model",
+          "target": "step.emit_model"
+        },
+        {
+          "source": ".emit_grad_threshold",
+          "target": "step.emit_grad_threshold"
+        },
+        {
+          "source": ".emit_rate",
+          "target": "step.emit_rate"
+        },
+        {
+          "source": ".emit_max_per_cell",
+          "target": "step.emit_max_per_cell"
+        },
+        {
+          "source": ".spray_cfl",
+          "target": "step.spray_cfl"
+        },
+        {
+          "source": ".path_spray_in",
+          "target": "r_spray_in.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_spray_in.type"
+        },
+        {
+          "source": "r_spray_in.data",
+          "target": "step.spray_in"
+        },
+        {
+          "source": ".path_spray_out",
+          "target": "w_spray_out.file_path"
+        },
+        {
+          "source": "step.spray_out",
+          "target": "w_spray_out.data"
+        },
+        {
+          "source": "w_spray_out.success",
+          "target": ".ok_spray_out"
         }
       ],
       "values": [
@@ -1858,6 +1957,16 @@
         },
         {
           "valueName": "w_out_pos_synced.create_directories",
+          "valueType": "bool",
+          "value": "true"
+        },
+        {
+          "valueName": "w_spray_out.overwrite",
+          "valueType": "bool",
+          "value": "true"
+        },
+        {
+          "valueName": "w_spray_out.create_directories",
           "valueType": "bool",
           "value": "true"
         }
