@@ -120,6 +120,7 @@ void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
                 i < momy.size() ? static_cast<double>(momy[i]) : 0.0,
                 i < momz.size() ? static_cast<double>(momz[i]) : 0.0};
             const double mi = i < mass.size() ? static_cast<double>(mass[i]) : 0.0;
+            if (mi == 0.0) continue;    // a massless particle (emitted spray) is in no channel
             const double phi = i < phase.size() ? static_cast<double>(phase[i]) : 0.0;
             const double wi = (stOn && i < wt.size())
                 ? static_cast<double>(wt[i]) : 0.0;

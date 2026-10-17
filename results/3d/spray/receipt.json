@@ -1,0 +1,76 @@
+{
+ "off": {
+  "unset_identical": true,
+  "spray_all_zero": true,
+  "droplets": 60
+ },
+ "lockstep": {
+  "grid": 0.0001327546826505599,
+  "positions": 4.360726919117042e-06,
+  "velocities": 0.00011567376467877533,
+  "escape_mismatches": 0,
+  "spray_mismatches": 0,
+  "droplets": 60,
+  "radius_rel": 9.042107614327117e-08,
+  "spray": 26,
+  "count": 19206,
+  "emitted": 6,
+  "deleted": 0,
+  "iterations": 10.0
+ },
+ "anchors": {
+  "still_emitted": 0,
+  "by_threshold": [
+   47,
+   18,
+   2
+  ],
+  "integrator": {
+   "stokes": {
+    "errors": [
+     1.774994452174994e-05,
+     4.456644681738453e-06,
+     1.164584814805636e-06
+    ],
+    "ratios": [
+     3.98280450637721,
+     3.826809885445954
+    ]
+   },
+   "fast": {
+    "errors": [
+     0.0013320195581361105,
+     0.0006568184369482033,
+     0.0002182165617377052
+    ],
+    "ratios": [
+     2.0279874668639266,
+     3.009938529494817
+    ]
+   },
+   "tau_ms": 5.925926075627411
+  },
+  "others_identical": true,
+  "long": {
+   "emitted": 167,
+   "alive_max": 24,
+   "alive_end": 1,
+   "others": 19199,
+   "seeded": 19200,
+   "same_as_without": true,
+   "vmax": 44.69115643873871,
+   "finite": true
+  }
+ },
+ "loop": {
+  "spray_first": 0,
+  "spray_last": 2,
+  "spray_max": 5,
+  "fresh_max": 1,
+  "placed": true,
+  "others_match_without": true,
+  "massless": true,
+  "others_identical_3d": true,
+  "resumed_spray": 2
+ }
+}

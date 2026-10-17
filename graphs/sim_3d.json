@@ -222,6 +222,12 @@
      "portDefault": ""
     },
     {
+     "portName": "spr_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
      "portName": "scl_pattern",
      "portDirection": "input",
      "portType": "string",
@@ -414,6 +420,36 @@
      "portDefault": "0.000015f"
     },
     {
+     "portName": "emit_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "emit_grad_threshold",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "10f"
+    },
+    {
+     "portName": "emit_rate",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.05f"
+    },
+    {
+     "portName": "emit_max_per_cell",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "8"
+    },
+    {
+     "portName": "spray_cfl",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
      "portName": "solid_mode",
      "portDirection": "input",
      "portType": "int",
@@ -433,6 +469,12 @@
     },
     {
      "portName": "path_radius",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_spray",
      "portDirection": "input",
      "portType": "string",
      "portDefault": ""
@@ -573,6 +615,17 @@
     },
     {
      "portName": "ok_final_radius",
+     "portDirection": "output",
+     "portType": "bool"
+    },
+    {
+     "portName": "path_final_spray",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "ok_final_spray",
      "portDirection": "output",
      "portType": "bool"
     },
@@ -785,6 +838,11 @@
        "portType": "string"
       },
       {
+       "portName": "spr_pattern",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
        "portName": "scl_pattern",
        "portDirection": "input",
        "portType": "string"
@@ -965,6 +1023,31 @@
        "portType": "float"
       },
       {
+       "portName": "emit_model",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "emit_grad_threshold",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_rate",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_max_per_cell",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "spray_cfl",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
        "portName": "mass_out2",
        "portDirection": "output",
        "portType": "array<float>"
@@ -1016,6 +1099,16 @@
       },
       {
        "portName": "radius_out2",
+       "portDirection": "output",
+       "portType": "array<float>"
+      },
+      {
+       "portName": "spray_in2",
+       "portDirection": "input",
+       "portType": "array<float>"
+      },
+      {
+       "portName": "spray_out2",
        "portDirection": "output",
        "portType": "array<float>"
       },
@@ -1096,6 +1189,7 @@
         "r",
         "t",
         "u",
+        "x",
         "v"
        ]
       },
@@ -1250,6 +1344,14 @@
       {
        "nodeName": "w_rad",
        "nodeType": "File::NumPy::write_NumPy"
+      },
+      {
+       "nodeName": "w_spr",
+       "nodeType": "File::NumPy::write_NumPy"
+      },
+      {
+       "nodeName": "ok_fsp",
+       "nodeType": "Core::Type_Conversion::to_float"
       },
       {
        "nodeName": "ok_fp2",
@@ -1525,6 +1627,10 @@
       },
       {
        "nodeName": "dg_rad",
+       "nodeType": "PFFlip::Solve::dump_gate"
+      },
+      {
+       "nodeName": "dg_spr",
        "nodeType": "PFFlip::Solve::dump_gate"
       },
       {
@@ -2036,6 +2142,22 @@
       {
        "source": "ok_fr.float",
        "target": "ok_acc.first.u"
+      },
+      {
+       "source": "step.spray_out",
+       "target": "w_spr.data"
+      },
+      {
+       "source": ".current_index",
+       "target": "w_spr.frame"
+      },
+      {
+       "source": "w_spr.success",
+       "target": "ok_fsp.from"
+      },
+      {
+       "source": "ok_fsp.float",
+       "target": "ok_acc.first.x"
       },
       {
        "source": ".pressure_solver",
@@ -2998,6 +3120,26 @@
        "target": "step.air_nu"
       },
       {
+       "source": ".emit_model",
+       "target": "step.emit_model"
+      },
+      {
+       "source": ".emit_grad_threshold",
+       "target": "step.emit_grad_threshold"
+      },
+      {
+       "source": ".emit_rate",
+       "target": "step.emit_rate"
+      },
+      {
+       "source": ".emit_max_per_cell",
+       "target": "step.emit_max_per_cell"
+      },
+      {
+       "source": ".spray_cfl",
+       "target": "step.spray_cfl"
+      },
+      {
        "source": "step.out_mass",
        "target": ".mass_out2"
       },
@@ -3036,6 +3178,14 @@
       {
        "source": "step.radius_out",
        "target": ".radius_out2"
+      },
+      {
+       "source": ".spray_in2",
+       "target": "step.spray_in"
+      },
+      {
+       "source": "step.spray_out",
+       "target": ".spray_out2"
       },
       {
        "source": "idx_i.int",
@@ -3116,6 +3266,22 @@
       {
        "source": "dg_rad.path_out",
        "target": "w_rad.file_path"
+      },
+      {
+       "source": "idx_i.int",
+       "target": "dg_spr.step_index"
+      },
+      {
+       "source": ".dump_every",
+       "target": "dg_spr.every"
+      },
+      {
+       "source": ".spr_pattern",
+       "target": "dg_spr.path"
+      },
+      {
+       "source": "dg_spr.path_out",
+       "target": "w_spr.file_path"
       },
       {
        "source": "idx_i.int",
@@ -3505,6 +3671,16 @@
       },
       {
        "valueName": "w_rad.create_directories",
+       "valueType": "bool",
+       "value": "true"
+      },
+      {
+       "valueName": "w_spr.overwrite",
+       "valueType": "bool",
+       "value": "true"
+      },
+      {
+       "valueName": "w_spr.create_directories",
        "valueType": "bool",
        "value": "true"
       },
@@ -4709,6 +4885,11 @@
         "portKind": "state",
         "inputPortName": "radius_in2",
         "outputPortName": "radius_out2"
+       },
+       {
+        "portKind": "state",
+        "inputPortName": "spray_in2",
+        "outputPortName": "spray_out2"
        }
       ]
      }
@@ -4800,6 +4981,10 @@
      "nodeType": "File::NumPy::read_NumPy"
     },
     {
+     "nodeName": "r2_spray",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
      "nodeName": "r2_obs_min",
      "nodeType": "File::NumPy::read_NumPy"
     },
@@ -4853,6 +5038,10 @@
     },
     {
      "nodeName": "wf_radius",
+     "nodeType": "File::NumPy::write_NumPy"
+    },
+    {
+     "nodeName": "wf_spray",
      "nodeType": "File::NumPy::write_NumPy"
     }
    ],
@@ -5070,6 +5259,10 @@
      "target": "loop.rad_pattern"
     },
     {
+     "source": ".spr_pattern",
+     "target": "loop.spr_pattern"
+    },
+    {
      "source": ".scl_pattern",
      "target": "loop.scl_pattern"
     },
@@ -5238,6 +5431,26 @@
      "target": "loop.air_nu"
     },
     {
+     "source": ".emit_model",
+     "target": "loop.emit_model"
+    },
+    {
+     "source": ".emit_grad_threshold",
+     "target": "loop.emit_grad_threshold"
+    },
+    {
+     "source": ".emit_rate",
+     "target": "loop.emit_rate"
+    },
+    {
+     "source": ".emit_max_per_cell",
+     "target": "loop.emit_max_per_cell"
+    },
+    {
+     "source": ".spray_cfl",
+     "target": "loop.spray_cfl"
+    },
+    {
      "source": ".solid_mode",
      "target": "loop.solid_mode"
     },
@@ -5276,6 +5489,18 @@
     {
      "source": "r2_radius.data",
      "target": "loop.radius_in2"
+    },
+    {
+     "source": ".path_spray",
+     "target": "r2_spray.file_path"
+    },
+    {
+     "source": "t_flt.output",
+     "target": "r2_spray.type"
+    },
+    {
+     "source": "r2_spray.data",
+     "target": "loop.spray_in2"
     },
     {
      "source": ".path_obs_min",
@@ -5446,6 +5671,18 @@
      "target": ".ok_final_radius"
     },
     {
+     "source": "loop.spray_out2",
+     "target": "wf_spray.data"
+    },
+    {
+     "source": ".path_final_spray",
+     "target": "wf_spray.file_path"
+    },
+    {
+     "source": "wf_spray.success",
+     "target": ".ok_final_spray"
+    },
+    {
      "source": ".dump_every",
      "target": "loop.dump_every"
     }
@@ -5591,6 +5828,16 @@
     },
     {
      "valueName": "wf_radius.create_directories",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_spray.overwrite",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "wf_spray.create_directories",
      "valueType": "bool",
      "value": "true"
     }

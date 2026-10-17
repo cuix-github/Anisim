@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <random>
 #include <cmath>
+#include <unordered_map>
 #include <vector>
 
 // Milestone 6: the PF-FLIP step in 3D with a multigrid-preconditioned solve.
@@ -256,6 +257,13 @@ inline double dropletNormal(int step_index, uint64_t index) {
     return std::sqrt(-2.0 * std::log(u1)) * std::cos(6.283185307179586 * u2);
 }
 
+// the reference's Sim.droplet_uniform: a uniform on [0, 1) from the state two past
+// the normal's first (splitmix64 at (step + 1) * golden + index + 2)
+inline double dropletUniform(int step_index, uint64_t index) {
+    const uint64_t s = static_cast<uint64_t>(step_index + 1) * 0x9E3779B97F4A7C15ULL + index + 2;
+    return static_cast<double>(splitmix64(s) >> 11) * 0x1.0p-53;
+}
+
 } // namespace
 
 namespace PFFlip {
@@ -277,6 +285,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              int droplet_model, float droplet_r_median, float droplet_r_sigma,
              float droplet_evap_k, float droplet_r_min, float metres_per_cell,
              float air_nu, const Amino::Array<float>& radius_in,
+             int emit_model, float emit_grad_threshold, float emit_rate, int emit_max_per_cell,
+             float spray_cfl, const Amino::Array<float>& spray_in,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt, const Amino::Array<float>& v_wt,
              const Amino::Array<float>& w_wt,
@@ -313,6 +323,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              Amino::Ptr<Amino::Array<float>>& tau_out,
              Amino::Ptr<Amino::Array<float>>& scale_out,
              Amino::Ptr<Amino::Array<float>>& radius_out,
+             Amino::Ptr<Amino::Array<float>>& spray_out,
              Amino::Ptr<Amino::Array<bool>>& mask_fine,
              Amino::Ptr<Amino::Array<bool>>& mask_coarse,
              Amino::Ptr<Amino::Array<float>>& out_phase_state,
@@ -836,6 +847,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // count splats (Eq. 6 kernel) at given positions; value = scale^d per particle.
     auto countSplat = [&](const std::vector<double>& qx, const std::vector<double>& qy,
                           const std::vector<double>& qz, const std::vector<char>& isLiq,
+                          const std::vector<char>& skipP,
                           const std::vector<double>& scl, Vec cntU[2], Vec cntV[2],
                           Vec cntW[2]) {
         const size_t n = qx.size();
@@ -845,6 +857,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         for (int slab = 0; slab < slabs.count(); ++slab) {
             for (size_t slot = slabs.begin(slab); slot < slabs.end(slab); ++slot) {
                 const size_t pi = slabs.particle(slot);
+                if (skipP[pi]) continue;           // emitted spray counts in no phase
                 const int ph = isLiq[pi] ? 1 : 0;
                 const double val = std::pow(scl[pi], dExp);
                 const int ngrids = NZ == 1 ? 2 : 3;
@@ -889,6 +902,14 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     };
 
     std::vector<char> escFlag(np, 0);
+    // emitted spray (the reference's spray flag): a massless liquid particle flagged
+    // in spray_in, always a droplet, counted in no splat, deleted when it falls into
+    // the water (its liquid fraction above 1 - esc_phi); the liquid fraction of the
+    // other liquid particles kept for the emission below
+    const bool sprayOn = droplet_model != 0 && escape != 0;
+    const bool emitOn = sprayOn && emit_model != 0;
+    std::vector<char> sprayF(np, 0), insideF(np, 0);
+    std::vector<double> lfP(emitOn ? np : 0, 1.0);
     if ((escape != 0 || adOn) && np > 0) {
         std::vector<double> qx(np), qy(np), qz(np), scl(np);
         std::vector<char> isLiq(np);
@@ -897,11 +918,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             qx[pi] = positions[pi].x; qy[pi] = positions[pi].y; qz[pi] = positions[pi].z;
             scl[pi] = scaleOf(pi);
             isLiq[pi] = (pi < particle_phase.size() ? particle_phase[pi] : 0.0f) >= 0.5f;
+            sprayF[pi] = (sprayOn && static_cast<size_t>(pi) < spray_in.size()
+                          && spray_in[pi] >= 0.5f && isLiq[pi]) ? 1 : 0;
         }
         Vec cntU[2] = {Vec(nu, 0.0), Vec(nu, 0.0)};
         Vec cntV[2] = {Vec(nv, 0.0), Vec(nv, 0.0)};
         Vec cntW[2] = {Vec(nw, 0.0), Vec(nw, 0.0)};
-        countSplat(qx, qy, qz, isLiq, scl, cntU, cntV, cntW);
+        countSplat(qx, qy, qz, isLiq, sprayF, scl, cntU, cntV, cntW);
         if (escape != 0) {
             const double thresh = (1.0 - esc_phi) * rho0_face;
 #pragma omp parallel for schedule(static)
@@ -910,6 +933,14 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 const double frac = sampleCnt(cntU[other], cntV[other], cntW[other],
                                               qx[pi], qy[pi], qz[pi]);
                 escFlag[pi] = frac > thresh ? 1 : 0;
+                if (sprayF[pi]) {
+                    escFlag[pi] = 1;
+                    const double fl = sampleCnt(cntU[1], cntV[1], cntW[1], qx[pi], qy[pi], qz[pi]);
+                    insideF[pi] = fl > thresh ? 1 : 0;
+                } else if (emitOn && isLiq[pi]) {
+                    lfP[pi] = sampleCnt(cntU[1], cntV[1], cntW[1], qx[pi], qy[pi], qz[pi]) /
+                              static_cast<double>(rho0_face);
+                }
             }
         }
     }
@@ -956,9 +987,15 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             r = std::sqrt(std::max(r * r - evap, 0.0));
             radNew[pi] = r;
             gone[pi] = r < static_cast<double>(droplet_r_min) ? 1 : 0;
+            if (sprayF[pi] && insideF[pi]) gone[pi] = 1;
         }
     }
 
+    // the droplets' own integrator (spray_cfl > 0): gravity and drag applied in the
+    // advection below, sub-stepped; here they only keep their velocity
+    const bool flyOn = dropOn && spray_cfl > 0.0f;
+    const double sprayCfl = spray_cfl;
+    std::vector<char> flyP(np, 0);
     std::vector<double> nvx(np), nvy(np), nvz(np);
 #pragma omp parallel for schedule(static)
     for (long long pi = 0; pi < lnp; ++pi) {
@@ -977,6 +1014,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             vx = a * (vx + sU(du, px, py, pz)) + (1.0 - a) * sU(u, px, py, pz);
             vy = a * (vy + sV(dv, px, py, pz)) + (1.0 - a) * sV(v, px, py, pz);
             vz = flat ? 0.0 : a * (vz + sW(dw, px, py, pz)) + (1.0 - a) * sW(w, px, py, pz);
+        } else if (flyOn && liquid) {
+            flyP[pi] = 1;
         } else {
             const double gx = sU(u, px, py, pz), gy = sV(v, px, py, pz);
             const double gz = flat ? 0.0 : sW(w, px, py, pz);
@@ -1028,10 +1067,59 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         }
     }
 
+    // a droplet's flight over `total` seconds (the reference's _droplet_fly): sub-steps
+    // of at most sprayCfl cells; over each the drag relaxation toward the air
+    // velocity sampled at its start is taken exactly with gravity (rate k =
+    // (3/8)(rho_air/rho_liquid)(C_d/r)|v_rel|, Schiller-Naumann, at the sub-step's
+    // midpoint slip), the position by the trapezoid of the sub-step's two velocities
+    auto flyDroplet = [&](double& px, double& py, double& pz, double& vx, double& vy,
+                          double& vz, double total, double r) {
+        const double mpc = metres_per_cell, nu = air_nu;
+        const double rr = static_cast<double>(rho_air) / rho_liquid;
+        double rem = total;
+        for (int it2 = 0; rem > 1e-12 && it2 < 1000000; ++it2) {
+            const double cx = std::clamp(px, lo, hx), cy = std::clamp(py, lo, hy);
+            const double cz = flat ? pz : std::clamp(pz, lo, hz);
+            const double gx = sU(u, cx, cy, cz), gy = sV(v, cx, cy, cz);
+            const double gz = flat ? 0.0 : sW(w, cx, cy, cz);
+            const double speed = std::max({std::fabs(vx), std::fabs(vy), std::fabs(vz), 1e-9});
+            const double h = std::min(rem, sprayCfl / speed);
+            // the relaxation rate at a slip (the reference's rate)
+            auto rate = [&](double ax, double ay, double az) {
+                const double rx = (gx - ax) * mpc, ry = (gy - ay) * mpc;
+                const double rz = flat ? 0.0 : (gz - az) * mpc;
+                const double sp = std::sqrt(rx * rx + ry * ry + rz * rz);
+                const double re = 2.0 * r * sp / nu;
+                const double cdv = re <= 1000.0
+                    ? 12.0 * nu / r * (1.0 + 0.15 * std::pow(re, 0.687)) : 0.44 * sp;
+                return 0.375 * rr * cdv / r;
+            };
+            // the velocity after hh seconds at rate k toward the air under gravity
+            auto relax = [&](double k, double hh, double& ox, double& oy, double& oz) {
+                const double e = std::exp(-k * hh);
+                const double gk = k * hh > 1e-6 ? (1.0 - e) / std::max(k, 1e-300)
+                                                : hh * (1.0 - 0.5 * k * hh);
+                ox = gx + (vx - gx) * e;
+                oy = gy + (vy - gy) * e + gravity * gk;
+                oz = flat ? 0.0 : gz + (vz - gz) * e;
+            };
+            // the rate taken at the sub-step's midpoint: a half step at the starting
+            // rate finds it, then the whole step at that rate
+            double mx, my, mz, nx2, ny2, nz2;
+            relax(rate(vx, vy, vz), 0.5 * h, mx, my, mz);
+            relax(rate(mx, my, mz), h, nx2, ny2, nz2);
+            px += 0.5 * h * (vx + nx2);
+            py += 0.5 * h * (vy + ny2);
+            if (!flat) pz += 0.5 * h * (vz + nz2);
+            vx = nx2; vy = ny2; vz = nz2;
+            rem -= h;
+        }
+    };
+
     // working vectors sized np, then merge/split edits them.
     std::vector<double> Px(np), Py(np), Pz(np), Vx(np), Vy(np), Vz(np);
     std::vector<double> Tau(np), Wt(np), Scl(np), Ph01(np);
-    std::vector<char> Esc(np);
+    std::vector<char> Esc(np), Spray(np);
     std::vector<double> Rad(np);
     // PFFLIP_SOLID_DEBUG=1 reports how many particles the level set pushed out
     static const bool lsDebug = []() {
@@ -1049,7 +1137,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             ? static_cast<double>(tau_in[pi]) : 0.0;
         const double dtAct = stOn
             ? std::clamp(dt * (1.0 + tauNew[pi] - tauOld), 0.0, 2.0 * dt) : dt;
-        if (escFlag[pi]) {
+        if (escFlag[pi] && flyP[pi]) {
+            flyDroplet(px, py, pz, vx, vy, vz, dtAct,
+                       std::max(radNew[pi], static_cast<double>(droplet_r_min)));
+        } else if (escFlag[pi]) {
             px += dtAct * vx; py += dtAct * vy;
             if (!flat) pz += dtAct * vz;
         } else if (stOn) {
@@ -1105,18 +1196,96 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         Vx[pi] = vx; Vy[pi] = vy; Vz[pi] = vz;
         Tau[pi] = tauNew[pi]; Wt[pi] = wtNewV[pi];
         Scl[pi] = scaleOf(pi); Ph01[pi] = liquid ? 1.0 : 0.0;
-        Esc[pi] = escFlag[pi]; Rad[pi] = radNew[pi];
+        Esc[pi] = escFlag[pi]; Rad[pi] = radNew[pi]; Spray[pi] = sprayF[pi];
     }
 
     if (lsDebug)
         std::fprintf(stderr, "step_3d: level set %s; pushed %lld of %zu particles out\n",
                      lsOn ? "on" : "off", lsPushed, np);
 
+    // extra spray emission (PF-FLIP Section 7 after Ihmsen et al. 2012; the
+    // reference's _emit): a liquid particle at the interface (its liquid fraction
+    // under 1 - esc_phi) in a cell whose velocity gradient exceeds
+    // emit_grad_threshold emits, with probability min(1, emit_rate (G - G0) dt) from
+    // the hash of (step_index, index), a massless spray particle at its position and
+    // velocity, at most emit_max_per_cell a cell, in index order
+    long long nEmitted = 0;
+    if (emitOn && np > 0) {
+        // the Frobenius norm of the Jacobian of the cell-centred velocity, per cell:
+        // central differences inside, one-sided at the walls, a cell the unit
+        Vec uc(ncell), vc(ncell), wc(ncell);
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < NX; ++i)
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k) {
+                    const size_t c = L.ic(i, j, k);
+                    uc[c] = 0.5 * (u[L.iu(i, j, k)] + u[L.iu(i + 1, j, k)]);
+                    vc[c] = 0.5 * (v[L.iv(i, j, k)] + v[L.iv(i, j + 1, k)]);
+                    wc[c] = flat ? 0.0 : 0.5 * (w[L.iw(i, j, k)] + w[L.iw(i, j, k + 1)]);
+                }
+        auto dAxis = [&](const Vec& f, int i, int j, int k, int ax) {
+            const int n = ax == 0 ? NX : (ax == 1 ? NY : NZ);
+            const int q = ax == 0 ? i : (ax == 1 ? j : k);
+            if (n < 2) return 0.0;
+            auto at = [&](int d) {
+                return f[L.ic(ax == 0 ? i + d : i, ax == 1 ? j + d : j, ax == 2 ? k + d : k)];
+            };
+            if (q == 0) return at(1) - at(0);
+            if (q == n - 1) return at(0) - at(-1);
+            return 0.5 * (at(1) - at(-1));
+        };
+        Vec gradN(ncell, 0.0);
+#pragma omp parallel for schedule(static)
+        for (int i = 0; i < NX; ++i)
+            for (int j = 0; j < NY; ++j)
+                for (int k = 0; k < NZ; ++k) {
+                    double g2 = 0.0;
+                    for (int ax = 0; ax < 3; ++ax)
+                        for (const Vec* f : {&uc, &vc, &wc}) {
+                            const double d = dAxis(*f, i, j, k, ax);
+                            g2 += d * d;
+                        }
+                    gradN[L.ic(i, j, k)] = std::sqrt(g2);
+                }
+        const double thr = emit_grad_threshold, rate = emit_rate;
+        const double lfLine = 1.0 - static_cast<double>(esc_phi);
+        std::unordered_map<size_t, int> perCell;
+        std::vector<size_t> hits;
+        for (size_t pi = 0; pi < np; ++pi) {
+            if (Ph01[pi] < 0.5 || Spray[pi] || Esc[pi] || lfP[pi] >= lfLine) continue;
+            const int ci = std::clamp(static_cast<int>(std::floor(Px[pi])), 0, NX - 1);
+            const int cj = std::clamp(static_cast<int>(std::floor(Py[pi])), 0, NY - 1);
+            const int ck = flat ? 0 : std::clamp(static_cast<int>(std::floor(Pz[pi])), 0, NZ - 1);
+            const size_t cell = L.ic(ci, cj, ck);
+            const double g = gradN[cell];
+            if (g <= thr) continue;
+            const double prob = std::clamp(rate * (g - thr) * dt, 0.0, 1.0);
+            if (dropletUniform(step_index, static_cast<uint64_t>(pi)) >= prob) continue;
+            int& cnt = perCell[cell];
+            if (cnt >= emit_max_per_cell) continue;
+            ++cnt;
+            hits.push_back(pi);
+        }
+        for (size_t pi : hits) {
+            const double px = Px[pi], py = Py[pi], pz = Pz[pi];
+            const double vx = Vx[pi], vy = Vy[pi], vz = Vz[pi];
+            Px.push_back(px); Py.push_back(py); Pz.push_back(pz);
+            Vx.push_back(vx); Vy.push_back(vy); Vz.push_back(vz);
+            Tau.push_back(0.0); Wt.push_back(stOn ? wtKernel(0.0) / wtNorm(1.0) : 1.0);
+            Scl.push_back(1.0); Ph01.push_back(1.0); Esc.push_back(1);
+            Rad.push_back(0.0); Spray.push_back(1);
+            gone.push_back(0);
+        }
+        nEmitted = static_cast<long long>(hits.size());
+    }
+    if (lsDebug && emitOn)
+        std::fprintf(stderr, "step_3d: emitted %lld spray particles\n", nEmitted);
+
     if (dropOn) {
         // droplets evaporated below droplet_r_min leave the simulation here, before
         // the adaptive merge and split see the particle set
         bool any = false;
-        for (size_t i = 0; i < np; ++i) if (gone[i]) { any = true; break; }
+        for (size_t i = 0; i < gone.size(); ++i) if (gone[i]) { any = true; break; }
         if (any) {
             auto dropGone = [&](auto& vec) {
                 size_t wr = 0;
@@ -1127,7 +1296,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             dropGone(Px); dropGone(Py); dropGone(Pz);
             dropGone(Vx); dropGone(Vy); dropGone(Vz);
             dropGone(Tau); dropGone(Wt); dropGone(Scl); dropGone(Ph01);
-            dropGone(Rad); dropGone(Esc);
+            dropGone(Rad); dropGone(Esc); dropGone(Spray);
         }
     }
 
@@ -1140,7 +1309,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         Vec cntU[2] = {Vec(nu, 0.0), Vec(nu, 0.0)};
         Vec cntV[2] = {Vec(nv, 0.0), Vec(nv, 0.0)};
         Vec cntW[2] = {Vec(nw, 0.0), Vec(nw, 0.0)};
-        countSplat(Px, Py, Pz, isLiq, Scl, cntU, cntV, cntW);
+        countSplat(Px, Py, Pz, isLiq, Spray, Scl, cntU, cntV, cntW);
         std::vector<double> lf(Px.size());
 #pragma omp parallel for schedule(static)
         for (long long i = 0; i < static_cast<long long>(Px.size()); ++i)
@@ -1178,7 +1347,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             keepFilter(Px); keepFilter(Py); keepFilter(Pz);
             keepFilter(Vx); keepFilter(Vy); keepFilter(Vz);
             keepFilter(Tau); keepFilter(Wt); keepFilter(Scl); keepFilter(Ph01);
-                keepFilter(Rad);
+            keepFilter(Rad); keepFilter(Spray);
             {
                 size_t wr = 0;
                 for (size_t i = 0; i < drop.size(); ++i)
@@ -1197,7 +1366,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     Tau.push_back(tas[m2]);
                     Wt.push_back(wtKernel(tas[m2]) / wtNorm(1.0));
                     Scl.push_back(1.0); Ph01.push_back(phs[m2]); Esc.push_back(0);
-                    Rad.push_back(0.0);
+                    Rad.push_back(0.0); Spray.push_back(0);
                 }
             }
         }
@@ -1258,7 +1427,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 keepFilter(Px); keepFilter(Py); keepFilter(Pz);
                 keepFilter(Vx); keepFilter(Vy); keepFilter(Vz);
                 keepFilter(Tau); keepFilter(Wt); keepFilter(Scl); keepFilter(Ph01);
-                keepFilter(Rad);
+                keepFilter(Rad); keepFilter(Spray);
                 {
                     size_t wr = 0;
                     for (size_t k2 = 0; k2 < drop.size(); ++k2)
@@ -1271,7 +1440,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     Tau.push_back(mta[m2]);
                     Wt.push_back(wtKernel(mta[m2]) / wtNorm(1.0));
                     Scl.push_back(2.0); Ph01.push_back(0.0); Esc.push_back(0);
-                    Rad.push_back(0.0);
+                    Rad.push_back(0.0); Spray.push_back(0);
                 }
             }
         }
@@ -1311,6 +1480,25 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     }
 
     // ---- pack outputs at the final particle count.
+    // the emitted spray kept behind every other particle, so the others keep the
+    // order (and the ST jitter stream) they would have without it
+    if (sprayOn) {
+        bool any = false;
+        for (char s2 : Spray) if (s2) { any = true; break; }
+        if (any) {
+            std::vector<size_t> order;
+            order.reserve(Px.size());
+            for (size_t i = 0; i < Px.size(); ++i) if (!Spray[i]) order.push_back(i);
+            for (size_t i = 0; i < Px.size(); ++i) if (Spray[i]) order.push_back(i);
+            auto permute = [&](auto& vec) {
+                auto copy = vec;
+                for (size_t i = 0; i < order.size(); ++i) vec[i] = copy[order[i]];
+            };
+            permute(Px); permute(Py); permute(Pz); permute(Vx); permute(Vy); permute(Vz);
+            permute(Tau); permute(Wt); permute(Scl); permute(Ph01); permute(Rad);
+            permute(Esc); permute(Spray);
+        }
+    }
     const size_t nf = Px.size();
     auto outPos = Amino::newMutablePtr<Amino::Array<Bifrost::Math::float3>>(nf);
     auto outVel = Amino::newMutablePtr<Amino::Array<Bifrost::Math::float3>>(nf);
@@ -1326,6 +1514,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     auto outWtPh = Amino::newMutablePtr<Amino::Array<float>>(nf);
     auto outEsc = Amino::newMutablePtr<Amino::Array<float>>(nf);
     auto outRad = Amino::newMutablePtr<Amino::Array<float>>(nf);
+    auto outSpray = Amino::newMutablePtr<Amino::Array<float>>(nf);
     auto outMF = Amino::newMutablePtr<Amino::Array<bool>>(nf);
     auto outMC = Amino::newMutablePtr<Amino::Array<bool>>(nf);
     double maxSpeed = 0.0;
@@ -1364,7 +1553,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         (*outSync)[i] = {static_cast<float>(sx), static_cast<float>(sy),
                          static_cast<float>(sz)};
         const double rhoP = Ph01[i] >= 0.5 ? rl : rg;
-        const double mEff = rhoP * std::pow(Scl[i], dExp) *
+        const double mEff = Spray[i] ? 0.0 : rhoP * std::pow(Scl[i], dExp) *
                             (Scl[i] > 1.5 ? coarse_gain : 1.0);
         const double wp = Wt[i];
         (*outM)[i] = static_cast<float>(wp * mEff);
@@ -1378,6 +1567,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         (*outWtPh)[i] = static_cast<float>(wp * Ph01[i]);
         (*outEsc)[i] = Esc[i] ? 1.0f : 0.0f;
         (*outRad)[i] = static_cast<float>(Rad[i]);
+        (*outSpray)[i] = Spray[i] ? 1.0f : 0.0f;
         (*outMF)[i] = Scl[i] < 1.5;
         (*outMC)[i] = Scl[i] >= 1.5;
         maxSpeed = std::max({maxSpeed, std::fabs(Vx[i]), std::fabs(Vy[i]),
@@ -1405,6 +1595,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     pressure = outP.toImmutable();
     out_escaped = outEsc.toImmutable();
     radius_out = outRad.toImmutable();
+    spray_out = outSpray.toImmutable();
     tau_out = outTau.toImmutable();
     scale_out = outScl.toImmutable();
     mask_fine = outMF.toImmutable();

@@ -17,6 +17,8 @@ showcase (ST, escaped particles, adaptive air, multigrid, the fused transfer).
       the leading crest's log over every dump of the 3D run so far, its marks, audit frames.
   ..\\.venv\\Scripts\\python.exe piston_beach.py cache T0 T1 [--cpm M]
 
+--spray adds the extra spray emission at the lip and the droplets' own integrator (tag
+suffix s), --integrator the integrator alone (suffix i); both imply --droplets.
 --droplets (chunk, measure, cache) runs the droplet model of step_3d (each escaped
 liquid particle its own radius, evaporating; metres_per_cell from the cells) under the
 tag with a d appended, so the plain run's dumps stay; chunk --from TAG resumes from
@@ -56,11 +58,13 @@ SHORE = TOE + H / SLOPE
 
 
 class Run:
-    def __init__(self, cpm=4.0, flat=False, droplets=False):
-        self.cpm, self.droplets = cpm, droplets
+    def __init__(self, cpm=4.0, flat=False, droplets=False, spray=False, integrator=False):
+        self.cpm, self.spray, self.integrator = cpm, spray, integrator or spray
+        self.droplets = droplets or self.integrator
         self.grid = (int(LX * cpm), int(LY * cpm), 1 if flat else int(LZ * cpm))
         self.dt = 0.1 / cpm
-        self.tag = f"pistonbeach{cpm:g}" + ("x1" if flat else "") + ("d" if droplets else "")
+        self.tag = (f"pistonbeach{cpm:g}" + ("x1" if flat else "") + ("d" if self.droplets else "")
+                    + ("s" if spray else ("i" if integrator else "")))
 
 
 def scene(run):
@@ -73,8 +77,13 @@ def ports(run, sc):
     # the droplet model's constants stay at the node's SI defaults; only the cell size
     # is the scene's
     droplets = {"droplet_model": 1, "metres_per_cell": 1.0 / run.cpm} if run.droplets else {}
+    # the droplets' own integrator at half a cell a sub-step, and the extra spray
+    # emission at the node's defaults (the breaker's lip above 10 per second)
+    spray = {"spray_cfl": 0.5} if run.integrator else {}
+    if run.spray:
+        spray["emit_model"] = 1
     return dict(calibration(), gravity=-sc["g"], piston_stroke=S * sc["m"], piston_period=T,
-                piston_x0=sc["x0"], piston_width=sc["w"], piston_top=sc["top"], **droplets)
+                piston_x0=sc["x0"], piston_width=sc["w"], piston_top=sc["top"], **droplets, **spray)
 
 
 def beach_phi(run, sc):
@@ -245,6 +254,8 @@ def main(argv):
     cmd = argv[0] if argv else ""
     cpm = opt(argv, "--cpm", 4.0)
     droplets = "--droplets" in argv
+    spray = "--spray" in argv       # emission and the integrator; implies --droplets
+    integrator = "--integrator" in argv   # the integrator alone; implies --droplets
     if cmd == "preview":
         run = Run(cpm, flat=True)
         sc = scene(run)
@@ -252,7 +263,7 @@ def main(argv):
         run_chunk(run, 0, seconds, 0.1, 0, seed(run, sc))
         report(run, sc, RunPaths(run.tag), dumps_of(run, RunPaths(run.tag)))
     elif cmd == "chunk":
-        run = Run(cpm, droplets=droplets)
+        run = Run(cpm, droplets=droplets, spray=spray, integrator=integrator)
         sc = scene(run)
         c = int(argv[1])
         plan = [tuple(float(v) for v in p.split(":")) for p in opt(argv, "--plan", "", str).split(",")]
@@ -262,10 +273,10 @@ def main(argv):
         init = load_final_state(src.dumps(c - 1)) if c else seed(run, sc)
         run_chunk(run, c, plan[c][0], plan[c][1], offset, init)
     elif cmd == "measure":
-        run = Run(cpm, droplets=droplets)
+        run = Run(cpm, droplets=droplets, spray=spray, integrator=integrator)
         report(run, scene(run), RunPaths(run.tag), dumps_of(run, RunPaths(run.tag)))
     elif cmd == "cache":
-        run = Run(cpm, flat="--flat" in argv, droplets=droplets)
+        run = Run(cpm, flat="--flat" in argv, droplets=droplets, spray=spray, integrator=integrator)
         paths = RunPaths(run.tag)
         t0, t1 = float(argv[1]), float(argv[2])
         cache = paths.cache("full")
