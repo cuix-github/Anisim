@@ -13,7 +13,7 @@ builds a cache without simulating, two ways:
 
   .venv\\Scripts\\python.exe maya\\play_cache.py states <out_dir> <state_dir> [<state_dir> ...]
       one frame per full-state dump (a chunk's final*.npy)
-  .venv\\Scripts\\python.exe maya\\play_cache.py blend <out_dir> <dt> <every> <fps> <dump_dir> [...]
+  .venv\\Scripts\\python.exe maya\\play_cache.py blend <out_dir> <dt> <every> <fps> <dump_dir> [...] [--escaped-radius R] [--frames N]
       frames at a video rate from a run's per-substep dumps (frame/vel/ph.####.npy in
       each chunk's directory, substep dt, every Nth substep dumped), each one a cubic
       Hermite blend of the two dumps around its time (positions and velocities both
@@ -81,9 +81,14 @@ def hermite(p0, v0, p1, v1, h, u):
     return p, (1 - u) * v0 + u * v1
 
 
-def blend(out_dir, dump_dirs, substeps, every, dt, fps, frames=None, **info):
+def blend(out_dir, dump_dirs, substeps, every, dt, fps, frames=None, escaped_radius=None, **info):
     """Frames 1..n at `fps` from the dumps, frame 1 at the first dump's time, the last
-    at or before the last dump's; `frames` caps the count. Returns the liquid counts."""
+    at or before the last dump's; `frames` caps the count. With `escaped_radius` every
+    frame also gets radius.####.npy: that radius for the particles the nearer dump
+    flags escaped and 0 for the rest, so the render draws a plain run's escaped
+    particles as droplets (the paper's rule) without the droplet model having run.
+    Returns the liquid counts."""
+    os.makedirs(out_dir, exist_ok=True)
     dumps = dump_times(dump_dirs, substeps, every, dt)
     t0, t_last = dumps[0][0], dumps[-1][0]
     n = int(np.floor((t_last - t0) * fps + 1e-6)) + 1
@@ -101,14 +106,25 @@ def blend(out_dir, dump_dirs, substeps, every, dt, fps, frames=None, **info):
                 raise SystemExit(f"blend: liquid counts differ between dumps {i} and {i + 1} "
                                  f"({len(pa)} vs {len(pb)}); the order assumption fails here")
             pair, cur, h = i, (pb, vb), b[0] - a[0]
+            if escaped_radius is not None:
+                esc = [load_escaped(x[1], x[2]) for x in (a, b)]
         u = (t - dumps[i][0]) / h
         p, v = hermite(pa, va, pb, vb, h, min(max(u, 0.0), 1.0))
-        counts.append(write_liquid(out_dir, f, p, np.linalg.norm(v, axis=1)))
+        r = None
+        if escaped_radius is not None:
+            r = np.where(esc[0 if u < 0.5 else 1], np.float32(escaped_radius), np.float32(0.0))
+        counts.append(write_liquid(out_dir, f, p, np.linalg.norm(v, axis=1), r))
     write_index(out_dir, counts, fps=fps, dt_frame_s=round(1.0 / fps, 6), time_s_first=round(t0, 6),
                 blended_from=dict(dt=dt, every=every, dumps=len(dumps),
                                   dirs=[os.path.basename(os.path.normpath(d)) for d in dump_dirs]),
-                **info)
+                **(dict(escaped_radius=escaped_radius) if escaped_radius is not None else {}), **info)
     return counts
+
+
+def load_escaped(d, k):
+    """The liquid particles' escaped flags at dump k, in the liquid order load_liquid uses."""
+    ph = np.load(os.path.join(d, f"ph.{k:04d}.npy")) >= 0.5
+    return (np.load(os.path.join(d, f"esc.{k:04d}.npy")) >= 0.5)[ph]
 
 
 def write_index(d, counts, **info):
@@ -139,9 +155,15 @@ def main(argv):
     if len(a) >= 3 and a[0] == "states":
         print(from_states(a[1], a[2:], **info))
     elif len(a) >= 6 and a[0] == "blend":
+        opts = {}
+        for flag, key, cast in (("--escaped-radius", "escaped_radius", float), ("--frames", "frames", int)):
+            if flag in a:
+                j = a.index(flag)
+                opts[key] = cast(a[j + 1])
+                a = a[:j] + a[j + 2:]
         dirs = a[5:]
         substeps = len([f for f in os.listdir(dirs[0]) if f.startswith("frame.")]) * int(a[3])
-        print(blend(a[1], dirs, substeps, int(a[3]), float(a[2]), int(a[4]), **info))
+        print(blend(a[1], dirs, substeps, int(a[3]), float(a[2]), int(a[4]), **opts, **info))
     else:
         sys.exit(__doc__)
 

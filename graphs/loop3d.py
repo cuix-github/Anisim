@@ -57,7 +57,7 @@ def load_final_state(d):
 def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
                  extra_ports=None, seed_fn=None, obstacles=None, fused=False,
                  dump_every=1, init_arrays=None, final_state=False, step_offset=0,
-                 dumps=DUMPS, solid=None, out_dir=None):
+                 dumps=DUMPS, solid=None, out_dir=None, waves=None):
     """init_arrays resumes from a saved state instead of seeding; final_state also
     writes the whole state at the end (final_<name>.npy beside final.npy); a
     resumed run passes step_offset = substeps already run, so the ST jitter
@@ -67,7 +67,9 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
     inside; solid_mode 1 binary faces or 2 cut cells); seeding stays the
     caller's (seed_fn), so particles inside it are the caller's to drop. out_dir is
     where everything is written (a run's dumps/c<N>, see runs.py); without it, the
-    gates' out/loop3_<tag>."""
+    gates' out/loop3_<tag>. waves is the wave zone's trains, four floats each (height
+    in cells, period in seconds, direction in degrees, phase in radians), read once;
+    the zone itself is the zone_* ports (extra_ports), off without them."""
     d = out_dir or os.path.join(HERE, "..", "out", "loop3_" + tag)
     os.makedirs(d, exist_ok=True)
     if init_arrays is not None:
@@ -92,7 +94,10 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
             "probes_w": lattice(nx, ny, nz + 1),
             # no solid: one value, which the node ignores at solid_mode 0
             "solid_phi": (np.asarray(solid[0], np.float32).ravel() if solid is not None
-                          else np.ones(1, np.float32))}
+                          else np.ones(1, np.float32)),
+            # no wave zone: one train of nothing, which the node ignores at zone_length 0
+            "waves": (np.asarray(waves, np.float32).ravel() if waves is not None
+                      else np.zeros(4, np.float32))}
     if solid is not None:
         assert np.shape(solid[0]) == (nx + 1, ny + 1, nz + 1), np.shape(solid[0])
         extra_ports = dict(extra_ports or {}, solid_mode=int(solid[1]))

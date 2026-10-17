@@ -707,6 +707,30 @@
           "portDirection": "input",
           "portType": "float",
           "portDefault": "0f"
+        },
+        {
+          "portName": "zone_length",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
+          "portName": "zone_depth",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
+          "portName": "zone_ramp",
+          "portDirection": "input",
+          "portType": "float",
+          "portDefault": "0f"
+        },
+        {
+          "portName": "path_waves",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
         }
       ],
       "compoundNodes": [
@@ -936,6 +960,10 @@
         },
         {
           "nodeName": "r_spray_in",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_waves",
           "nodeType": "File::NumPy::read_NumPy"
         },
         {
@@ -1787,6 +1815,30 @@
         {
           "source": "r_spray_in.data",
           "target": "step.spray_in"
+        },
+        {
+          "source": ".path_waves",
+          "target": "r_waves.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_waves.type"
+        },
+        {
+          "source": "r_waves.data",
+          "target": "step.waves"
+        },
+        {
+          "source": ".zone_length",
+          "target": "step.zone_length"
+        },
+        {
+          "source": ".zone_depth",
+          "target": "step.zone_depth"
+        },
+        {
+          "source": ".zone_ramp",
+          "target": "step.zone_ramp"
         },
         {
           "source": ".path_spray_out",

@@ -43,7 +43,7 @@ import time
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, ".."))
 SHOWCASE = "collider_showcase"            # the older layout's folder for everything but dumps
-CACHES = ("states", "full", "blend24")
+CACHES = ("states", "full", "blend24", "crop")   # crop: the liquid around a tracking camera only
 LEGACY_CACHE = {"states": "{tag}_states", "full": "{tag}_play", "blend24": "{tag}_play24"}
 RUN_DIR = re.compile(r"^loop3_(.+)_c(\d+)$")
 # the canonical profiling state (CLAUDE.md): a chunk folder by name, never a run to move
