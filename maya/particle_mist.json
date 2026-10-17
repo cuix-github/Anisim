@@ -92,6 +92,42 @@
      "portDefault": "10000f"
     },
     {
+     "portName": "mcf_iterations",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0L"
+    },
+    {
+     "portName": "mask_sigma",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "2f"
+    },
+    {
+     "portName": "mask_theta",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "2f"
+    },
+    {
+     "portName": "mask_zeta",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "5f"
+    },
+    {
+     "portName": "mask_floor",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "mask_dilate",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
      "portName": "mist",
      "portDirection": "output",
      "portType": "Object"
@@ -134,6 +170,18 @@
      "nodeType": "File::NumPy::read_NumPy"
     },
     {
+     "nodeName": "tiny",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "none",
+     "nodeType": "Core::Logic::less"
+    },
+    {
+     "nodeName": "liq",
+     "nodeType": "Core::Array::filter_array"
+    },
+    {
      "nodeName": "c_pts",
      "nodeType": "Geometry::Points::construct_points"
     },
@@ -158,8 +206,296 @@
      "nodeType": "Geometry::Query::sample_volume"
     },
     {
+     "nodeName": "k_sf",
+     "nodeType": "Core::Fields::scalar_field"
+    },
+    {
+     "nodeName": "k_sdf",
+     "nodeType": "Core::Fields::voxel_field"
+    },
+    {
+     "nodeName": "k_hv",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "k_half",
+     "nodeType": "Core::Math::add",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_psi0",
+     "nodeType": "Core::Math::clamp"
+    },
+    {
+     "nodeName": "k_psi",
+     "nodeType": "Core::Math::clamp"
+    },
+    {
+     "nodeName": "k_detf",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_sv",
+     "nodeType": "Core::Math::divide",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_hvf",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_p00",
+     "nodeType": "Core::Math::subtract",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_halff",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_p0",
+     "nodeType": "Core::Math::subtract",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_bnd",
+     "nodeType": "Geometry::Volume::volume_bounds"
+    },
+    {
+     "nodeName": "k_vol",
+     "nodeType": "Geometry::Converters::field_to_volume"
+    },
+    {
+     "nodeName": "k_sig",
+     "nodeType": "Core::Math::divide",
+     "multiInPortNames": [
+      "s",
+      "h"
+     ]
+    },
+    {
+     "nodeName": "k_three",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "k_w",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_wi",
+     "nodeType": "Core::Type_Conversion::to_int"
+    },
+    {
+     "nodeName": "k_blur",
+     "nodeType": "Geometry::Volume::smooth_voxel_property"
+    },
+    {
+     "nodeName": "k_fb",
+     "nodeType": "Core::Fields::voxel_field"
+    },
+    {
+     "nodeName": "k_eps_v",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "k_eps",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_den",
+     "nodeType": "Core::Math::add",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_q",
+     "nodeType": "Core::Math::divide",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_th",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_span",
+     "nodeType": "Core::Math::subtract",
+     "multiInPortNames": [
+      "z",
+      "t"
+     ]
+    },
+    {
+     "nodeName": "k_s",
+     "nodeType": "Core::Math::clamp"
+    },
+    {
+     "nodeName": "k_spanf",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_qs",
+     "nodeType": "Core::Math::subtract",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_s0",
+     "nodeType": "Core::Math::divide",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_s2",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_s3",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_c3_v",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "k_c3",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_a",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_c2_v",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "k_c2",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_b",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_poly",
+     "nodeType": "Core::Math::subtract",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_c1_v",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "k_c1",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_g",
+     "nodeType": "Core::Math::subtract",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "k_fl",
+     "nodeType": "Core::Fields::to_field"
+    },
+    {
+     "nodeName": "k_gf",
+     "nodeType": "Core::Math::max",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "mcf",
+     "nodeType": "Geometry::Volume::smooth_level_set_property"
+    },
+    {
+     "nodeName": "k_zero",
+     "valueType": "int"
+    },
+    {
+     "nodeName": "k_on",
+     "nodeType": "Core::Logic::greater"
+    },
+    {
+     "nodeName": "k_empty",
+     "valueType": "Object"
+    },
+    {
+     "nodeName": "k_out",
+     "nodeType": "Core::Logic::if"
+    },
+    {
+     "nodeName": "k_if_d",
+     "nodeType": "Core::Logic::if"
+    },
+    {
+     "nodeName": "k_if_b",
+     "nodeType": "Core::Logic::if"
+    },
+    {
+     "nodeName": "k_if_g",
+     "nodeType": "Core::Logic::if"
+    },
+    {
      "nodeName": "thin",
      "nodeType": "Core::Logic::greater"
+    },
+    {
+     "nodeName": "hasr",
+     "nodeType": "Core::Logic::greater"
+    },
+    {
+     "nodeName": "ismist",
+     "nodeType": "Core::Logic::or"
     },
     {
      "nodeName": "pick",
@@ -170,11 +506,7 @@
      "nodeType": "Core::Array::filter_array"
     },
     {
-     "nodeName": "tiny",
-     "valueType": "float"
-    },
-    {
-     "nodeName": "none",
+     "nodeName": "none_m",
      "nodeType": "Core::Logic::less"
     },
     {
@@ -297,7 +629,23 @@
      "target": "rrad.frame"
     },
     {
+     "source": "rrad.data",
+     "target": "none.first"
+    },
+    {
+     "source": "tiny.output",
+     "target": "none.second"
+    },
+    {
      "source": "rpos.data",
+     "target": "liq.array"
+    },
+    {
+     "source": "none.output",
+     "target": "liq.boolean_array"
+    },
+    {
+     "source": "liq.filtered_array",
      "target": "c_pts.point_position"
     },
     {
@@ -321,6 +669,322 @@
      "target": "p2v_c.detail_size"
     },
     {
+     "source": "k_sf.scalar_field",
+     "target": "k_sdf.field_type"
+    },
+    {
+     "source": "p2v_c.volume",
+     "target": "k_sdf.volume"
+    },
+    {
+     "source": ".mask_dilate",
+     "target": "k_half.first.a"
+    },
+    {
+     "source": "k_hv.output",
+     "target": "k_half.first.b"
+    },
+    {
+     "source": ".surface_detail",
+     "target": "k_detf.value"
+    },
+    {
+     "source": "k_sdf.voxel_field",
+     "target": "k_sv.first.a"
+    },
+    {
+     "source": "k_detf.out_field",
+     "target": "k_sv.first.b"
+    },
+    {
+     "source": "k_hv.output",
+     "target": "k_hvf.value"
+    },
+    {
+     "source": "k_hvf.out_field",
+     "target": "k_p00.first.a"
+    },
+    {
+     "source": "k_sv.output",
+     "target": "k_p00.first.b"
+    },
+    {
+     "source": "k_p00.output",
+     "target": "k_psi0.value"
+    },
+    {
+     "source": "k_half.output",
+     "target": "k_halff.value"
+    },
+    {
+     "source": "k_halff.out_field",
+     "target": "k_p0.first.a"
+    },
+    {
+     "source": "k_sv.output",
+     "target": "k_p0.first.b"
+    },
+    {
+     "source": "k_p0.output",
+     "target": "k_psi.value"
+    },
+    {
+     "source": "k_psi0.clamped",
+     "target": "k_vol.field"
+    },
+    {
+     "source": "p2v_c.volume",
+     "target": "k_bnd.volume"
+    },
+    {
+     "source": "k_bnd.min_bound",
+     "target": "k_vol.min_bounds"
+    },
+    {
+     "source": "k_bnd.max_bound",
+     "target": "k_vol.max_bounds"
+    },
+    {
+     "source": ".surface_detail",
+     "target": "k_vol.detail_size"
+    },
+    {
+     "source": ".mask_sigma",
+     "target": "k_sig.first.s"
+    },
+    {
+     "source": ".surface_detail",
+     "target": "k_sig.first.h"
+    },
+    {
+     "source": "k_sig.output",
+     "target": "k_w.first.a"
+    },
+    {
+     "source": "k_three.output",
+     "target": "k_w.first.b"
+    },
+    {
+     "source": "k_w.output",
+     "target": "k_wi.from"
+    },
+    {
+     "source": "k_vol.volume",
+     "target": "k_blur.volume"
+    },
+    {
+     "source": "k_sig.output",
+     "target": "k_blur.voxel_standard_deviation"
+    },
+    {
+     "source": "k_wi.int",
+     "target": "k_blur.voxel_filter_width"
+    },
+    {
+     "source": "k_sf.scalar_field",
+     "target": "k_fb.field_type"
+    },
+    {
+     "source": "k_blur.out_volume",
+     "target": "k_fb.volume"
+    },
+    {
+     "source": "k_eps_v.output",
+     "target": "k_eps.value"
+    },
+    {
+     "source": "k_fb.voxel_field",
+     "target": "k_den.first.a"
+    },
+    {
+     "source": "k_eps.out_field",
+     "target": "k_den.first.b"
+    },
+    {
+     "source": "k_psi.clamped",
+     "target": "k_q.first.a"
+    },
+    {
+     "source": "k_den.output",
+     "target": "k_q.first.b"
+    },
+    {
+     "source": ".mask_theta",
+     "target": "k_th.value"
+    },
+    {
+     "source": ".mask_zeta",
+     "target": "k_span.first.z"
+    },
+    {
+     "source": ".mask_theta",
+     "target": "k_span.first.t"
+    },
+    {
+     "source": "k_span.output",
+     "target": "k_spanf.value"
+    },
+    {
+     "source": "k_q.output",
+     "target": "k_qs.first.a"
+    },
+    {
+     "source": "k_th.out_field",
+     "target": "k_qs.first.b"
+    },
+    {
+     "source": "k_qs.output",
+     "target": "k_s0.first.a"
+    },
+    {
+     "source": "k_spanf.out_field",
+     "target": "k_s0.first.b"
+    },
+    {
+     "source": "k_s0.output",
+     "target": "k_s.value"
+    },
+    {
+     "source": "k_s.clamped",
+     "target": "k_s2.first.a"
+    },
+    {
+     "source": "k_s.clamped",
+     "target": "k_s2.first.b"
+    },
+    {
+     "source": "k_s2.output",
+     "target": "k_s3.first.a"
+    },
+    {
+     "source": "k_s.clamped",
+     "target": "k_s3.first.b"
+    },
+    {
+     "source": "k_c3_v.output",
+     "target": "k_c3.value"
+    },
+    {
+     "source": "k_c3.out_field",
+     "target": "k_a.first.a"
+    },
+    {
+     "source": "k_s2.output",
+     "target": "k_a.first.b"
+    },
+    {
+     "source": "k_c2_v.output",
+     "target": "k_c2.value"
+    },
+    {
+     "source": "k_c2.out_field",
+     "target": "k_b.first.a"
+    },
+    {
+     "source": "k_s3.output",
+     "target": "k_b.first.b"
+    },
+    {
+     "source": "k_a.output",
+     "target": "k_poly.first.a"
+    },
+    {
+     "source": "k_b.output",
+     "target": "k_poly.first.b"
+    },
+    {
+     "source": "k_c1_v.output",
+     "target": "k_c1.value"
+    },
+    {
+     "source": "k_c1.out_field",
+     "target": "k_g.first.a"
+    },
+    {
+     "source": "k_poly.output",
+     "target": "k_g.first.b"
+    },
+    {
+     "source": ".mask_floor",
+     "target": "k_fl.value"
+    },
+    {
+     "source": "k_g.output",
+     "target": "k_gf.first.a"
+    },
+    {
+     "source": "k_fl.out_field",
+     "target": "k_gf.first.b"
+    },
+    {
+     "source": "sm.out_volume",
+     "target": "mcf.volume"
+    },
+    {
+     "source": ".mcf_iterations",
+     "target": "mcf.iterations"
+    },
+    {
+     "source": "k_gf.maximum",
+     "target": "mcf.mask_field"
+    },
+    {
+     "source": ".mcf_iterations",
+     "target": "k_on.first"
+    },
+    {
+     "source": "k_zero.output",
+     "target": "k_on.second"
+    },
+    {
+     "source": "k_on.output",
+     "target": "k_out.condition"
+    },
+    {
+     "source": "mcf.out_volume",
+     "target": "k_out.true_case"
+    },
+    {
+     "source": "sm.out_volume",
+     "target": "k_out.false_case"
+    },
+    {
+     "source": "k_on.output",
+     "target": "k_if_d.condition"
+    },
+    {
+     "source": "k_vol.volume",
+     "target": "k_if_d.true_case"
+    },
+    {
+     "source": "k_empty.output",
+     "target": "k_if_d.false_case"
+    },
+    {
+     "source": "k_on.output",
+     "target": "k_if_b.condition"
+    },
+    {
+     "source": "k_blur.out_volume",
+     "target": "k_if_b.true_case"
+    },
+    {
+     "source": "k_empty.output",
+     "target": "k_if_b.false_case"
+    },
+    {
+     "source": "k_on.output",
+     "target": "k_if_g.condition"
+    },
+    {
+     "source": "k_gf.maximum",
+     "target": "k_if_g.true_case"
+    },
+    {
+     "source": "k_sf.scalar_field",
+     "target": "k_if_g.false_case"
+    },
+    {
      "source": "p2v_c.volume",
      "target": "sm.volume"
     },
@@ -329,7 +993,7 @@
      "target": "sm.iterations"
     },
     {
-     "source": "sm.out_volume",
+     "source": "k_out.output",
      "target": "smp.volume"
     },
     {
@@ -353,11 +1017,27 @@
      "target": "thin.second"
     },
     {
+     "source": "rrad.data",
+     "target": "hasr.first"
+    },
+    {
+     "source": "tiny.output",
+     "target": "hasr.second"
+    },
+    {
+     "source": "thin.output",
+     "target": "ismist.first"
+    },
+    {
+     "source": "hasr.output",
+     "target": "ismist.second"
+    },
+    {
      "source": "rpos.data",
      "target": "pick.array"
     },
     {
-     "source": "thin.output",
+     "source": "ismist.output",
      "target": "pick.boolean_array"
     },
     {
@@ -369,19 +1049,19 @@
      "target": "pickr.array"
     },
     {
-     "source": "thin.output",
+     "source": "ismist.output",
      "target": "pickr.boolean_array"
     },
     {
      "source": "pickr.filtered_array",
-     "target": "none.first"
+     "target": "none_m.first"
     },
     {
      "source": "tiny.output",
-     "target": "none.second"
+     "target": "none_m.second"
     },
     {
-     "source": "none.output",
+     "source": "none_m.output",
      "target": "none_f.from"
     },
     {
@@ -529,6 +1209,11 @@
      ]
     },
     {
+     "valueName": "tiny.value",
+     "valueType": "float",
+     "value": "0.000000001f"
+    },
+    {
      "valueName": "c_size.property",
      "valueType": "string",
      "value": "point_size"
@@ -554,9 +1239,124 @@
      "value": "voxel_signed_distance"
     },
     {
-     "valueName": "tiny.value",
+     "valueName": "k_sdf.property",
+     "valueType": "string",
+     "value": "voxel_signed_distance"
+    },
+    {
+     "valueName": "k_hv.value",
      "valueType": "float",
-     "value": "0.000000001f"
+     "value": "0.5f"
+    },
+    {
+     "valueName": "k_psi0.min",
+     "valueType": "float",
+     "value": "0f"
+    },
+    {
+     "valueName": "k_psi0.max",
+     "valueType": "float",
+     "value": "1f"
+    },
+    {
+     "valueName": "k_psi.min",
+     "valueType": "float",
+     "value": "0f"
+    },
+    {
+     "valueName": "k_psi.max",
+     "valueType": "float",
+     "value": "1f"
+    },
+    {
+     "valueName": "k_three.value",
+     "valueType": "float",
+     "value": "12f"
+    },
+    {
+     "valueName": "k_vol.field_interpretation",
+     "valueType": "Geometry::Volume::SamplerInterpretation",
+     "value": "FogDensity"
+    },
+    {
+     "valueName": "k_vol.resolution_mode",
+     "valueType": "Geometry::Volume::ResolutionType",
+     "value": "Absolute"
+    },
+    {
+     "valueName": "k_vol.store_level_set",
+     "valueType": "bool",
+     "value": "false"
+    },
+    {
+     "valueName": "k_vol.store_fog_density",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "k_blur.property",
+     "valueType": "string",
+     "value": "voxel_fog_density"
+    },
+    {
+     "valueName": "k_fb.property",
+     "valueType": "string",
+     "value": "voxel_fog_density"
+    },
+    {
+     "valueName": "k_eps_v.value",
+     "valueType": "float",
+     "value": "0.0000000001f"
+    },
+    {
+     "valueName": "k_s.min",
+     "valueType": "float",
+     "value": "0f"
+    },
+    {
+     "valueName": "k_s.max",
+     "valueType": "float",
+     "value": "1f"
+    },
+    {
+     "valueName": "k_c3_v.value",
+     "valueType": "float",
+     "value": "3f"
+    },
+    {
+     "valueName": "k_c2_v.value",
+     "valueType": "float",
+     "value": "2f"
+    },
+    {
+     "valueName": "k_c1_v.value",
+     "valueType": "float",
+     "value": "1f"
+    },
+    {
+     "valueName": "mcf.mode",
+     "valueType": "Geometry::Volume::SmoothLevelSetPropertyMode",
+     "value": "MeanCurvature"
+    },
+    {
+     "valueName": "mcf.mask_interpretation",
+     "valueType": "Geometry::Volume::SamplerInterpretation",
+     "value": "FogDensity"
+    },
+    {
+     "valueName": "mcf.grid_retopology",
+     "valueType": "bool",
+     "value": "false"
+    },
+    {
+     "valueName": "k_zero.value",
+     "valueType": "int",
+     "value": "0"
+    },
+    {
+     "valueName": "k_empty.value",
+     "valueType": "Object",
+     "value": {}
     },
     {
      "valueName": "three.value",

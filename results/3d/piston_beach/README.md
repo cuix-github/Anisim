@@ -34,6 +34,9 @@ does. The dumps (29 GB, a dump every second to 18 s, every 0.2 s after) stay in
 
 `pistonbeach4d` (`pistonbeach4d.json`): the last three seconds re-simulated from the
 21 s state with the droplet model on (`chunk 4 --droplets --from pistonbeach4`, 1,016 s),
-its droplet counts and radii per dump against the plain run's escaped counts, and the
-two renders of its frame at 23.6 s that compare the old mist with the droplet clouds
-(`out/runs/pistonbeach4d/renders/spray/`).
+its droplet counts and radii per dump against the plain run's escaped counts, the
+renders of its frame at 23.6 s that compare the old mist with the droplet clouds
+(`out/runs/pistonbeach4d/renders/spray/`), and the renders of the same frame that
+compare the surface as it was with ST-FLIP's masked mean-curvature flow, masked and
+unmasked (`out/runs/pistonbeach4d/renders/smooth/`), with the gate's measurements of
+the mask.

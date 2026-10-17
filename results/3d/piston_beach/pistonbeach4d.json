@@ -249,5 +249,86 @@
    }
   },
   "images": "out/runs/pistonbeach4d/renders/spray/ (not committed)"
+ },
+ "smoothing_render": {
+  "what": "the same frame, camera, look and mist (mist_density 0.001, every escaped droplet a cloud) at 1000 x 1000; one variable: the surface smoothing. The control on 8 Arnold threads (the daytime cap), the flow arms on 32 once the machine was offered: walls not comparable across arms",
+  "env": {
+   "SURF_WIDTH": "1000",
+   "SURF_HEIGHT": "1000",
+   "SURF_THREADS": "8 (A), 32 (B, C)",
+   "SURF_METRES_PER_CELL": "0.25",
+   "SURF_MIST_DENSITY": "0.001",
+   "look": "as the spray arms (ocean, depth 40, colour 0.3 0.55 0.6, sun -40 160 0 at 6, sky 12, camera 505 96 -52 to 505 65 15)"
+  },
+  "arms": {
+   "A_control": {
+    "knobs": "SURF_SMOOTH_ITERS 1, SURF_MCF_ITERS 0: the pipeline as it was, one Gaussian pass",
+    "wall_s": 1602.8,
+    "look": "the particle lattice shows through as ripples over the whole surface; the body blobby, the splash grey puffs over the worms (8 Arnold threads, the daytime cap)"
+   },
+   "B_masked_flow": {
+    "knobs": "SURF_SMOOTH_ITERS 0, SURF_MCF_ITERS 30: ST-FLIP Appendix B, the flow under the self-quotient mask (sigma 2 cells, theta 2, zeta 5, dilate 1 voxel)",
+    "wall_s": 547.3,
+    "look": "the bulk a smooth dark surface, the ripples gone; the curtain full of small bright glass beads, the lone drops and thin bits the mask keeps, inside the mist (32 threads)"
+   },
+   "C_unmasked_flow": {
+    "knobs": "as B with SURF_MASK_FLOOR 1: the same flow with the mask at 1 everywhere",
+    "wall_s": 502.7,
+    "look": "the same smooth bulk, the beads gone, the splash grey puffs only: what the mask buys (32 threads)"
+   }
+  },
+  "images": "out/runs/pistonbeach4d/renders/smooth/ (not committed)",
+  "gate": {
+   "mask_at_probes_g": {
+    "ball centre": 0.0,
+    "ball half a cell in": 0.0,
+    "ball inside its surface": 0.0,
+    "ball outside": 0.0,
+    "sheet centre": 0.0,
+    "block centre": 1.0,
+    "block top inside": 1.0,
+    "block top outside": 0.975,
+    "far outside": 1.0
+   },
+   "blur_sigma_voxels": {
+    "measured": 4.11,
+    "nominal": 4.0,
+    "filter_width_sigmas": {
+     "3": 3.03,
+     "6": 3.66,
+     "12": 4.11
+    }
+   },
+   "flow_30_iterations": {
+    "ball_extent_cells": {
+     "raw": 2.12,
+     "masked": 2.12,
+     "unmasked": 0.0
+    },
+    "sheet_vertices": {
+     "raw": 256,
+     "masked": 248,
+     "unmasked": 0
+    },
+    "block_top_edge_cells": {
+     "raw": 6.059,
+     "masked": 5.717,
+     "unmasked": 5.436
+    }
+   },
+   "mask_dilate": {
+    "0": "the sheet thins and the mesher drops it (0 vertices), the ball keeps 0.84",
+    "0.5": "the sheet kept (248), the ball 0.84",
+    "1": "the sheet kept (248), the ball 1.00; the block's edge and mask unchanged"
+   }
+  },
+  "droplets_in_the_render": {
+   "frame": 7,
+   "droplets": 16438,
+   "mist_by_depth_rule": 5724,
+   "droplets_inside_the_control_surface": 14653,
+   "their_depth_median_cells": -0.489,
+   "note": "a voxel deep in their own sphere: not mist by depth, not contoured by the mesher; now every droplet is mist and none is surface (the papers' split)"
+  }
  }
 }

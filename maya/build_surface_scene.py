@@ -11,6 +11,8 @@ renderer. Reads the environment render_surface_preview.ps1 sets (SURF_CACHE,
 SURF_SCENE, SURF_GRID, SURF_OBJ, SURF_CAMERA, SURF_POINT_SIZE, SURF_DETAIL,
 SURF_SMOOTH_ITERS, SURF_MESH_SMOOTH, SURF_MIST_RADIUS, SURF_MIST_DETAIL,
 SURF_MIST_DENSITY, SURF_MIST_THRESHOLD, SURF_METRES_PER_CELL, SURF_DEFAULT_RADIUS,
+SURF_MCF_ITERS, SURF_MASK_SIGMA, SURF_MASK_THETA, SURF_MASK_ZETA, SURF_MASK_FLOOR,
+SURF_MASK_DILATE,
 SURF_LOOK, SURF_WATER_DEPTH,
 SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR;
 see the .ps1) and saves SURF_SCENE. Built
@@ -108,15 +110,24 @@ def build(cmds):
     pattern = os.path.join(cache, "liquid.####").replace("\\", "/")
     radius, detail = env("SURF_POINT_SIZE", 0.5), env("SURF_DETAIL", 0.5)
     smooth_iters = env("SURF_SMOOTH_ITERS", 1, int)
+    # the escaped droplets' radii: out of the surface, always mist (the papers' split)
+    radii = radius_pattern(cache, E["SURF_OUT"])
+    # after the Gaussian passes: ST-FLIP's feature-preserving mean-curvature flow
+    # (0 = off; the paper's 30), its mask's blur in cells, thresholds and floor
+    mcf = (("mcf_iterations", env("SURF_MCF_ITERS", 0, int)),
+           ("mask_sigma", env("SURF_MASK_SIGMA", 2.0)), ("mask_theta", env("SURF_MASK_THETA", 2.0)),
+           ("mask_zeta", env("SURF_MASK_ZETA", 5.0)), ("mask_floor", env("SURF_MASK_FLOOR", 0.0)),
+           ("mask_dilate", env("SURF_MASK_DILATE", 1.0)))
     shape = graph(cmds, "particleSurfaceShape", "particle_surface", "mesh", (
         ("liquid_pattern", pattern), ("point_size", radius), ("detail_size", detail),
-        ("smooth_iterations", smooth_iters), ("smoothing", env("SURF_MESH_SMOOTH", 0.1))))
+        ("smooth_iterations", smooth_iters), ("smoothing", env("SURF_MESH_SMOOTH", 0.1)),
+        ("radius_pattern", radii)) + mcf)
     # the mist: each particle the surface leaves out drawn as its cloud of droplets
     # (its radius from the cache, default_radius without one), additive density on a
     # spray grid of SURF_MIST_DETAIL cells, clouds of SURF_MIST_RADIUS cells,
     # SURF_MIST_DENSITY the fraction of a parcel's water drawn (1 = physical)
     mist = graph(cmds, "particleMistShape", "particle_mist", "mist", (
-        ("liquid_pattern", pattern), ("radius_pattern", radius_pattern(cache, E["SURF_OUT"])),
+        ("liquid_pattern", pattern), ("radius_pattern", radii),
         ("surface_radius", radius), ("surface_detail", detail),
         ("smooth_iterations", smooth_iters),
         ("mist_threshold", env("SURF_MIST_THRESHOLD", 0.0)),
@@ -125,7 +136,7 @@ def build(cmds):
         ("metres_per_cell", env("SURF_METRES_PER_CELL", 1.0)),
         ("default_radius", env("SURF_DEFAULT_RADIUS", 0.0001)),
         ("mist_density", env("SURF_MIST_DENSITY", 1.0)),
-        ("spray_epsilon", SPRAY_EPS)))
+        ("spray_epsilon", SPRAY_EPS)) + mcf)
 
     # water: glass at the index of water, tinted with depth; foam: white, matte;
     # mixed by convex curvature (the papers render high-curvature areas foam-like)
