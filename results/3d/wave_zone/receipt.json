@@ -37,7 +37,7 @@
    -0.158
   ],
   "peak_speed": 4.29,
-  "wall_s": 56.6
+  "wall_s": 55.9
  },
  "oblique": {
   "grid": [
@@ -56,9 +56,9 @@
    12,
    11
   ],
-  "eta_max": 0.687,
-  "particles_end": 1622738,
-  "peak_speed": 4.11,
-  "wall_s": 153.1
+  "eta_max": 0.681,
+  "particles_end": 1623130,
+  "peak_speed": 3.98,
+  "wall_s": 152.5
  }
 }

@@ -933,6 +933,8 @@ class Sim:
             frac_liq = 0.5 * (self._sample_faces(lu, np.array([0.0, 0.5]), self.pos) +
                               self._sample_faces(lv, np.array([0.5, 0.0]), self.pos))
             drop = (self.typ == 1) & (frac_air > thresh)
+            if self.zone is not None:
+                drop &= ~(self.pos[:, 0] < self.zone["length"])   # the zone's liquid is the zone's to move
             bub = (self.typ == 0) & (frac_liq > thresh)
             # emitted spray is a droplet whatever the test says, and falls back into
             # the water (deleted below) where the test would call it liquid

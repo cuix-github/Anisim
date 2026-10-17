@@ -163,11 +163,18 @@ void step_2d(int   nx,
 // cell above). Each train: k from w^2 = g k tanh(k h) (Newton), the horizontal
 // velocity a w cosh(k y) / sinh(k h) cos(psi) along its direction, the vertical
 // a w sinh(k y) / sinh(k h) sin(psi), psi = k (x cos + z sin) - w t + phase, y
-// clamped at the still depth, t the end of the step, (step_index + 1) dt. The wall
+// clamped at the still depth, t the end of the step, (step_index + 1) dt. (The
+// trains' Stokes drift is not subtracted: tried as a closed basin's return flow, it
+// cut the radiated height to 0.68 of the train's; the particles the zone carries
+// drift forward by it, an open question.) The wall
 // faces the zone touches are its inlet: the x = 0 faces, and in 3D the side-wall
-// faces along the zone, carry the trains' velocity (times the fade) instead of 0,
-// so the flux the trains need is not forced into the wall's cells; a particle
-// carried into a wall is held at it, as everywhere. Below
+// faces along the zone, carry the trains' velocity (times the fade) less its
+// flux-weighted mean over every inlet face, so no net flux is forced into the
+// sealed box (a plain inlet has no pressure solution there; returning each column's
+// flux through the air faces above it, tried, cut the radiated height to 0.67); a
+// particle carried into a wall is held at it, as everywhere, and the escape test
+// leaves the zone's liquid alone, so the wall's own column, which breathes by the
+// mean and piles at the wall, never spawns droplets. Below
 // zone_length 0, every port's default, the step is untouched bit for bit. The
 // reference's Sim(zone=...) is the spec (angles are 0 at nz = 1) and
 // gates/validate_wave_zone.py the lockstep, the train against linear theory and the

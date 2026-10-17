@@ -1073,6 +1073,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 const double frac = sampleCnt(cntU[other], cntV[other], cntW[other],
                                               qx[pi], qy[pi], qz[pi]);
                 escFlag[pi] = frac > thresh ? 1 : 0;
+                // the wave zone's liquid is the zone's to move, never a droplet
+                if (zoneOn && isLiq[pi] && qx[pi] < zoneLen) escFlag[pi] = 0;
                 if (sprayF[pi]) {
                     escFlag[pi] = 1;
                     const double fl = sampleCnt(cntU[1], cntV[1], cntW[1], qx[pi], qy[pi], qz[pi]);
