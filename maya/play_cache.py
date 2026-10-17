@@ -3,6 +3,8 @@ one numbered pair of .npy files per frame, Bifrost's frame-token convention:
 
   liquid.####.npy  the liquid particles' positions, (N, 3) float32, in cells
   speed.####.npy   their speeds, (N,) float32, cells per second (the viewport colour)
+  radius.####.npy  their droplet radii in metres, (N,) float32, 0 for a particle in the
+                   water (written when the run dumped rad.####; the blend does not yet)
   cache.json       how many frames, the particle counts, where they came from
 
 Air particles are left out: the viewport shows the water. Maya frame f reads frame f,
@@ -31,21 +33,25 @@ import sys
 import numpy as np
 
 
-def write_liquid(d, frame, p, s):
-    """One frame from liquid positions (N, 3) and speeds (N,), both float32."""
+def write_liquid(d, frame, p, s, r=None):
+    """One frame from liquid positions (N, 3) and speeds (N,), both float32, and the
+    droplet radii (N,) when the run has them."""
+    if r is not None:
+        np.save(os.path.join(d, f"radius.{frame:04d}.npy"), np.ascontiguousarray(r, dtype=np.float32))
     os.makedirs(d, exist_ok=True)
     np.save(os.path.join(d, f"liquid.{frame:04d}.npy"), np.ascontiguousarray(p, dtype=np.float32))
     np.save(os.path.join(d, f"speed.{frame:04d}.npy"), np.ascontiguousarray(s, dtype=np.float32))
     return int(len(p))
 
 
-def write_frame(d, frame, pos, vel, phase):
+def write_frame(d, frame, pos, vel, phase, radius=None):
     """One frame of the cache from a run's particles (all phases); returns the liquid
     count. phase >= 0.5 is liquid, as everywhere else in the solver."""
     liquid = np.asarray(phase) >= 0.5
     p = np.asarray(pos, np.float32)[liquid]
     s = np.linalg.norm(np.asarray(vel, np.float32)[liquid], axis=1)
-    return write_liquid(d, frame, p, s)
+    r = None if radius is None else np.asarray(radius, np.float32)[liquid]
+    return write_liquid(d, frame, p, s, r)
 
 
 def dump_times(dump_dirs, substeps, every, dt):

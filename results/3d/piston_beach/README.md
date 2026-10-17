@@ -31,3 +31,9 @@ this run through `maya/render_surface_preview.bat` (the ocean look, 1920 x 1080,
 at 22.4 and 23.6 s); the images stay in `out/runs/pistonbeach4/renders/`, as footage
 does. The dumps (29 GB, a dump every second to 18 s, every 0.2 s after) stay in
 `out/runs/pistonbeach4/`.
+
+`pistonbeach4d` (`pistonbeach4d.json`): the last three seconds re-simulated from the
+21 s state with the droplet model on (`chunk 4 --droplets --from pistonbeach4`, 1,016 s),
+its droplet counts and radii per dump against the plain run's escaped counts, and the
+two renders of its frame at 23.6 s that compare the old mist with the droplet clouds
+(`out/runs/pistonbeach4d/renders/spray/`).

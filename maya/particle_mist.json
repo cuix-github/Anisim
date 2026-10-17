@@ -20,6 +20,12 @@
      "portDefault": ""
     },
     {
+     "portName": "radius_pattern",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
      "portName": "frame",
      "portDirection": "input",
      "portType": "float",
@@ -50,22 +56,40 @@
      "portDefault": "0f"
     },
     {
-     "portName": "mist_radius",
+     "portName": "spray_detail",
      "portDirection": "input",
      "portType": "float",
-     "portDefault": "1.5f"
+     "portDefault": "0.5f"
     },
     {
-     "portName": "mist_detail",
+     "portName": "cloud_radius",
      "portDirection": "input",
      "portType": "float",
      "portDefault": "1f"
+    },
+    {
+     "portName": "metres_per_cell",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "default_radius",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.0001f"
     },
     {
      "portName": "mist_density",
      "portDirection": "input",
      "portType": "float",
      "portDefault": "1f"
+    },
+    {
+     "portName": "spray_epsilon",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "10000f"
     },
     {
      "portName": "mist",
@@ -81,6 +105,11 @@
      "portName": "depth",
      "portDirection": "output",
      "portType": "array<float>"
+    },
+    {
+     "portName": "spray_weights",
+     "portDirection": "output",
+     "portType": "array<float>"
     }
    ],
    "compoundNodes": [
@@ -94,6 +123,14 @@
     },
     {
      "nodeName": "rpos",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
+     "nodeName": "t_flt",
+     "valueType": "array<float>"
+    },
+    {
+     "nodeName": "rrad",
      "nodeType": "File::NumPy::read_NumPy"
     },
     {
@@ -129,12 +166,101 @@
      "nodeType": "Core::Array::filter_array"
     },
     {
+     "nodeName": "pickr",
+     "nodeType": "Core::Array::filter_array"
+    },
+    {
+     "nodeName": "tiny",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "none",
+     "nodeType": "Core::Logic::less"
+    },
+    {
+     "nodeName": "none_f",
+     "nodeType": "Core::Type_Conversion::to_float"
+    },
+    {
+     "nodeName": "fill",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "r_eff",
+     "nodeType": "Core::Math::add",
+     "multiInPortNames": [
+      "a",
+      "b"
+     ]
+    },
+    {
+     "nodeName": "three",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "r3",
+     "nodeType": "Core::Math::power"
+    },
+    {
+     "nodeName": "k_cloud",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "num",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "d",
+      "m",
+      "k"
+     ]
+    },
+    {
+     "nodeName": "den",
+     "nodeType": "Core::Math::multiply",
+     "multiInPortNames": [
+      "r",
+      "r3"
+     ]
+    },
+    {
+     "nodeName": "w",
+     "nodeType": "Core::Math::divide",
+     "multiInPortNames": [
+      "n",
+      "d"
+     ]
+    },
+    {
      "nodeName": "m_pts",
      "nodeType": "Geometry::Points::construct_points"
     },
     {
      "nodeName": "m_size",
      "nodeType": "Geometry::Properties::set_geo_property"
+    },
+    {
+     "nodeName": "setw",
+     "nodeType": "Geometry::Properties::set_geo_property"
+    },
+    {
+     "nodeName": "zero_f",
+     "valueType": "float"
+    },
+    {
+     "nodeName": "rvox",
+     "nodeType": "Core::Math::divide",
+     "multiInPortNames": [
+      "r",
+      "h"
+     ]
+    },
+    {
+     "nodeName": "sp_m",
+     "nodeType": "Geometry::Volume::splat_points_into_volume"
     },
     {
      "nodeName": "p2v_m",
@@ -157,6 +283,18 @@
     {
      "source": "f2i.int",
      "target": "rpos.frame"
+    },
+    {
+     "source": "t_flt.output",
+     "target": "rrad.type"
+    },
+    {
+     "source": ".radius_pattern",
+     "target": "rrad.file_path"
+    },
+    {
+     "source": "f2i.int",
+     "target": "rrad.frame"
     },
     {
      "source": "rpos.data",
@@ -227,6 +365,82 @@
      "target": ".mist_positions"
     },
     {
+     "source": "rrad.data",
+     "target": "pickr.array"
+    },
+    {
+     "source": "thin.output",
+     "target": "pickr.boolean_array"
+    },
+    {
+     "source": "pickr.filtered_array",
+     "target": "none.first"
+    },
+    {
+     "source": "tiny.output",
+     "target": "none.second"
+    },
+    {
+     "source": "none.output",
+     "target": "none_f.from"
+    },
+    {
+     "source": "none_f.float",
+     "target": "fill.first.a"
+    },
+    {
+     "source": ".default_radius",
+     "target": "fill.first.b"
+    },
+    {
+     "source": "pickr.filtered_array",
+     "target": "r_eff.first.a"
+    },
+    {
+     "source": "fill.output",
+     "target": "r_eff.first.b"
+    },
+    {
+     "source": ".cloud_radius",
+     "target": "r3.base"
+    },
+    {
+     "source": "three.output",
+     "target": "r3.exponent"
+    },
+    {
+     "source": ".mist_density",
+     "target": "num.first.d"
+    },
+    {
+     "source": ".metres_per_cell",
+     "target": "num.first.m"
+    },
+    {
+     "source": "k_cloud.output",
+     "target": "num.first.k"
+    },
+    {
+     "source": "r_eff.output",
+     "target": "den.first.r"
+    },
+    {
+     "source": "r3.power",
+     "target": "den.first.r3"
+    },
+    {
+     "source": "num.output",
+     "target": "w.first.n"
+    },
+    {
+     "source": "den.output",
+     "target": "w.first.d"
+    },
+    {
+     "source": "w.output",
+     "target": ".spray_weights"
+    },
+    {
      "source": "pick.filtered_array",
      "target": "m_pts.point_position"
     },
@@ -235,27 +449,63 @@
      "target": "m_size.geometry"
     },
     {
-     "source": ".mist_radius",
+     "source": ".cloud_radius",
      "target": "m_size.data"
     },
     {
-     "source": ".mist_radius",
+     "source": ".cloud_radius",
      "target": "m_size.default"
     },
     {
      "source": "m_size.out_geometry",
+     "target": "setw.geometry"
+    },
+    {
+     "source": "w.output",
+     "target": "setw.data"
+    },
+    {
+     "source": "zero_f.output",
+     "target": "setw.default"
+    },
+    {
+     "source": "setw.out_geometry",
      "target": "p2v_m.points"
     },
     {
-     "source": ".mist_detail",
+     "source": ".spray_detail",
      "target": "p2v_m.detail_size"
     },
     {
-     "source": ".mist_density",
+     "source": "zero_f.output",
      "target": "p2v_m.fog_density"
     },
     {
+     "source": ".cloud_radius",
+     "target": "rvox.first.r"
+    },
+    {
+     "source": ".spray_detail",
+     "target": "rvox.first.h"
+    },
+    {
+     "source": "rvox.output",
+     "target": "sp_m.radius"
+    },
+    {
      "source": "p2v_m.volume",
+     "target": "sp_m.volume"
+    },
+    {
+     "source": "setw.out_geometry",
+     "target": "sp_m.points"
+    },
+    {
+     "source": ".spray_epsilon",
+     "target": "sp_m.add_to_denominator"
+    },
+    {
+     "source": "sp_m.out_volume",
      "target": ".mist"
     }
    ],
@@ -269,6 +519,13 @@
        "y": "0f",
        "z": "0f"
       }
+     ]
+    },
+    {
+     "valueName": "t_flt.value",
+     "valueType": "array<float>",
+     "value": [
+      "0f"
      ]
     },
     {
@@ -297,9 +554,64 @@
      "value": "voxel_signed_distance"
     },
     {
+     "valueName": "tiny.value",
+     "valueType": "float",
+     "value": "0.000000001f"
+    },
+    {
+     "valueName": "three.value",
+     "valueType": "float",
+     "value": "3f"
+    },
+    {
+     "valueName": "k_cloud.value",
+     "valueType": "float",
+     "value": "0.1790493f"
+    },
+    {
      "valueName": "m_size.property",
      "valueType": "string",
      "value": "point_size"
+    },
+    {
+     "valueName": "setw.property",
+     "valueType": "string",
+     "value": "voxel_fog_density"
+    },
+    {
+     "valueName": "zero_f.value",
+     "valueType": "float",
+     "value": "0f"
+    },
+    {
+     "valueName": "sp_m.create_properties",
+     "valueType": "bool",
+     "value": "true"
+    },
+    {
+     "valueName": "sp_m.properties",
+     "valueType": "string",
+     "value": "voxel_fog_density"
+    },
+    {
+     "valueName": "sp_m.kernel",
+     "valueType": "Geometry::Volume::SplatKernelType",
+     "value": "kLinearKernel"
+    },
+    {
+     "valueName": "sp_m.add_to_weights",
+     "valueType": "float",
+     "value": "0f"
+    },
+    {
+     "valueName": "sp_m.smoothing",
+     "valueType": "float",
+     "value": "0f"
+    },
+    {
+     "valueName": "sp_m.coarsest_depth",
+     "valueType": "int",
+     "value": "0"
     },
     {
      "valueName": "p2v_m.store_level_set",

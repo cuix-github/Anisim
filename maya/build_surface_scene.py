@@ -10,7 +10,8 @@ matte grey; a ground plane; the camera framing the domain; Arnold set as the
 renderer. Reads the environment render_surface_preview.ps1 sets (SURF_CACHE,
 SURF_SCENE, SURF_GRID, SURF_OBJ, SURF_CAMERA, SURF_POINT_SIZE, SURF_DETAIL,
 SURF_SMOOTH_ITERS, SURF_MESH_SMOOTH, SURF_MIST_RADIUS, SURF_MIST_DETAIL,
-SURF_MIST_DENSITY, SURF_MIST_THRESHOLD, SURF_LOOK, SURF_WATER_DEPTH,
+SURF_MIST_DENSITY, SURF_MIST_THRESHOLD, SURF_METRES_PER_CELL, SURF_DEFAULT_RADIUS,
+SURF_LOOK, SURF_WATER_DEPTH,
 SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR;
 see the .ps1) and saves SURF_SCENE. Built
 here rather than in the GUI session
@@ -71,6 +72,27 @@ def graph(cmds, name, compound, out_port, ports):
     return shape
 
 
+# the spray channel's regularisation (see particle_mist in generate_particle_surface.py:
+# the stored density is the kernel sum over this, the shader multiplies it back)
+SPRAY_EPS = 10000.0
+
+
+def radius_pattern(cache, out):
+    """The cache's radius.#### when the run dumped droplet radii; otherwise zeros
+    written beside the scene (out/radius/), one file per liquid frame, so the mist
+    draws every particle at default_radius."""
+    if os.path.exists(os.path.join(cache, "radius.0001.npy")):
+        return os.path.join(cache, "radius.####").replace("\\", "/")
+    d = os.path.join(out, "radius")
+    os.makedirs(d, exist_ok=True)
+    import numpy as np
+    for name in sorted(os.listdir(cache)):
+        if name.startswith("liquid.") and name.endswith(".npy"):
+            n = np.load(os.path.join(cache, name), mmap_mode="r").shape[0]
+            np.save(os.path.join(d, "radius." + name[7:]), np.zeros(n, np.float32))
+    return os.path.join(d, "radius.####").replace("\\", "/")
+
+
 def build(cmds):
     cache = E["SURF_CACHE"]
     nx, ny, nz = [float(v) for v in E["SURF_GRID"].split()]
@@ -89,13 +111,21 @@ def build(cmds):
     shape = graph(cmds, "particleSurfaceShape", "particle_surface", "mesh", (
         ("liquid_pattern", pattern), ("point_size", radius), ("detail_size", detail),
         ("smooth_iterations", smooth_iters), ("smoothing", env("SURF_MESH_SMOOTH", 0.1))))
+    # the mist: each particle the surface leaves out drawn as its cloud of droplets
+    # (its radius from the cache, default_radius without one), additive density on a
+    # spray grid of SURF_MIST_DETAIL cells, clouds of SURF_MIST_RADIUS cells,
+    # SURF_MIST_DENSITY the fraction of a parcel's water drawn (1 = physical)
     mist = graph(cmds, "particleMistShape", "particle_mist", "mist", (
-        ("liquid_pattern", pattern), ("surface_radius", radius), ("surface_detail", detail),
+        ("liquid_pattern", pattern), ("radius_pattern", radius_pattern(cache, E["SURF_OUT"])),
+        ("surface_radius", radius), ("surface_detail", detail),
         ("smooth_iterations", smooth_iters),
         ("mist_threshold", env("SURF_MIST_THRESHOLD", 0.0)),
-        ("mist_radius", env("SURF_MIST_RADIUS", 1.5)),
-        ("mist_detail", env("SURF_MIST_DETAIL", 1.0)),
-        ("mist_density", env("SURF_MIST_DENSITY", 0.08))))
+        ("spray_detail", env("SURF_MIST_DETAIL", 0.5)),
+        ("cloud_radius", env("SURF_MIST_RADIUS", 1.0)),
+        ("metres_per_cell", env("SURF_METRES_PER_CELL", 1.0)),
+        ("default_radius", env("SURF_DEFAULT_RADIUS", 0.0001)),
+        ("mist_density", env("SURF_MIST_DENSITY", 1.0)),
+        ("spray_epsilon", SPRAY_EPS)))
 
     # water: glass at the index of water, tinted with depth; foam: white, matte;
     # mixed by convex curvature (the papers render high-curvature areas foam-like)
@@ -119,10 +149,11 @@ def build(cmds):
     cmds.connectAttr(foam + ".outColor", mix + ".shader2")
     cmds.connectAttr(curv + ".outColorR", mix + ".mix")
     assign(cmds, mix, shape, "waterSG")
-    # mist: a white scattering fog read from the volume's fog density
+    # mist: a white scattering fog read from the spray density channel (its stored
+    # value is the extinction per cell over SPRAY_EPS)
     fog = cmds.shadingNode("aiStandardVolume", asShader=True, name="mistFog")
     cmds.setAttr(fog + ".densityChannel", "voxel_fog_density", type="string")
-    cmds.setAttr(fog + ".density", 1.0)
+    cmds.setAttr(fog + ".density", SPRAY_EPS)
     cmds.setAttr(fog + ".scatter", 1.0)
     cmds.setAttr(fog + ".scatterColor", 1.0, 1.0, 1.0, type="double3")
     cmds.setAttr(fog + ".scatterAnisotropy", 0.4)
