@@ -16,7 +16,11 @@
 #     the parcel's whole water drawn as droplets of its radius; less is a fraction),
 #     SURF_METRES_PER_CELL (1), SURF_DEFAULT_RADIUS (0.0001 m, for a mist particle
 #     without a droplet radius), SURF_MIST_THRESHOLD (0: particles the smoothed
-#     surface leaves out are mist),
+#     surface leaves out are mist), SURF_MCF_ITERS (0: iterations of mean-curvature
+#     flow under ST-FLIP's feature-preserving mask after the Gaussian passes; the
+#     paper's 30), SURF_MASK_SIGMA (2, the mask's blur in cells), SURF_MASK_THETA (2),
+#     SURF_MASK_ZETA (5), SURF_MASK_FLOOR (0; 1 runs the flow unmasked), SURF_MASK_DILATE
+#     (1 voxel: the mask's density pushed out so both sides of a kept feature are held),
 #     SURF_GI_VOLUME_DEPTH (3 scattering bounces in the mist), SURF_VOLUME_SAMPLES (2).
 #     SURF_LOOK (ocean: dark absorbing water, near-black sky, the sun low behind the spray),
 #     SURF_WATER_DEPTH (transmission depth, cells), SURF_SKY_INTENSITY, SURF_SUN_INTENSITY,
