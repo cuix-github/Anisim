@@ -57,7 +57,7 @@ def load_final_state(d):
 def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
                  extra_ports=None, seed_fn=None, obstacles=None, fused=False,
                  dump_every=1, init_arrays=None, final_state=False, step_offset=0,
-                 dumps=DUMPS, solid=None, out_dir=None, waves=None):
+                 dumps=DUMPS, solid=None, out_dir=None, waves=None, release_init=False):
     """init_arrays resumes from a saved state instead of seeding; final_state also
     writes the whole state at the end (final_<name>.npy beside final.npy); a
     resumed run passes step_offset = substeps already run, so the ST jitter
@@ -69,7 +69,10 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
     where everything is written (a run's dumps/c<N>, see runs.py); without it, the
     gates' out/loop3_<tag>. waves is the wave zone's trains, four floats each (height
     in cells, period in seconds, direction in degrees, phase in radians), read once;
-    the zone itself is the zone_* ports (extra_ports), off without them."""
+    the zone itself is the zone_* ports (extra_ports), off without them. release_init
+    empties init_arrays (the caller's dict) once its arrays are on disk, so a caller
+    that holds the dict only to pass it here does not keep a second copy of the state
+    in memory beside bifcmd for the whole run (7.7 GB at the basin's seeding)."""
     d = out_dir or os.path.join(HERE, "..", "out", "loop3_" + tag)
     os.makedirs(d, exist_ok=True)
     if init_arrays is not None:
@@ -111,6 +114,8 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
     # the arrays live on disk now; a 512x128x256 seeding is 10 GB of them in this
     # process, and bifcmd needs that memory more than a process that only waits
     del arrs, pos, mass, zeros
+    if release_init and init_arrays is not None:
+        init_arrays.clear()
     import gc
     gc.collect()
     args = [os.path.join(HERE, "..", "graphs", "run_sim_3d_fused.bat" if fused else "run_sim_3d.bat"),

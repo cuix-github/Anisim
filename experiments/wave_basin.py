@@ -497,7 +497,7 @@ def run_chunk(run, chunk, seconds, every_s, offset, init):
           f"a dump every {every}; {len(init['positions']):,} particles", flush=True)
     t0 = time.time()
     d, _, diag = run_bifrost3(f"{run.tag}_c{chunk}", nx, ny, nz, None, substeps, run.dt,
-                              extra_ports=ports(run, sc), init_arrays=init, final_state=True,
+                              extra_ports=ports(run, sc), init_arrays=init, release_init=True, final_state=True,
                               step_offset=offset, dump_every=every, solid=(beach_phi(run, sc), 2),
                               dumps=DUMPS + ("vel",), fused=True, out_dir=paths.dumps(chunk), waves=waves(run))
     wall = time.time() - t0
