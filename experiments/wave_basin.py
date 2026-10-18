@@ -19,7 +19,7 @@ as droplets at render time (the paper's rule) as the breaker's were.
       every dump so far: the highest crest beyond the zone (x, z, height), the spray
       count, a top-view height map per dump under renders/audit, summary.json.
   ..\\.venv\\Scripts\\python.exe wave_basin.py cache T0 T1 [--fps F] [--cpm M] [--radius R]
-                                            [--crop SEAWARD SHOREWARD ACROSS]
+                                            [--crop SEAWARD SHOREWARD ACROSS] [--band Z0 Z1]
       the play cache for the dumps between T0 and T1 seconds: at --fps F (24) frames
       blended between the dumps (maya/play_cache.py's Hermite blend), at --fps 0 one
       frame per dump; radius.####.npy marks the escaped particles as droplets of
@@ -29,12 +29,16 @@ as droplets at render time (the paper's rule) as the breaker's were.
       --crop (metres) keeps only the liquid within that box of the followed crest, the
       cache then named crop: the render meshes the water around the camera, not the
       whole basin. --kind K names the cache instead (stills, for a few frames apart).
+      --band Z0 Z1 (metres across the basin) follows the highest crest within that band
+      only, and with --crop keeps the band instead of ACROSS around the crest: a section
+      slab's own crest, which a crest elsewhere across the basin would steer away.
       --spray-above H keeps a droplet radius only for escaped particles more than H cells
       above the bulk water (1 for maya/presets/paper_clean.ps1; 0, the default, keeps them
       all, the paper look).
-  ..\\.venv\\Scripts\\python.exe wave_basin.py section KIND [--z Z] [--back B] [--up U]
+  ..\\.venv\\Scripts\\python.exe wave_basin.py section KIND [--z Z] [--z1 Z1] [--back B] [--up U]
                                             [--look-up L] [--look-in I] [--cpm M]
-      a section of cache KIND: the liquid beyond z = Z metres (55), the cut face showing
+      a section of cache KIND: the liquid beyond z = Z metres (55), and short of Z1 when
+      given (a slab; the beach then over the slab only), the cut face showing
       the wave in profile, a side camera following the crest B metres in front of the
       cut (55) and U above still water (0.75), looking at L above still water (0.75), I
       beyond the cut (0); the breaker's framing is --back 13 --up 12 --look-up 4.25
@@ -42,7 +46,7 @@ as droplets at render time (the paper's rule) as the breaker's were.
       more than H cells above the bulk water (calm water clean; 0 keeps them all), --out K
       names the cache (section). The beach over the section's width.
 
-Everything lands under out/runs/<tag>/ (graphs/runs.py): tag wavebasin<M>.
+Everything lands under out/runs/<tag>/ (graphs/runs.py): tag wavesea<M>.
 """
 import json
 import os
@@ -355,13 +359,15 @@ def report(run, sc, paths, entries):
 # ------------------------------------------------------------------ the cache
 
 
-def write_cache(run, sc, paths, entries, fps, radius, crop=None, kind=None, spray_above=None):
+def write_cache(run, sc, paths, entries, fps, radius, crop=None, kind=None, spray_above=None, band=None):
     """Frames at fps between the first and last entry (one per dump at fps 0), the
     liquid blended between the dumps around each frame, the escaped particles of the
     nearer dump marked with `radius`; then the tracking camera from the frames. With
     crop = (seaward, shoreward, across) in metres only the liquid within that box of
     the followed crest is written (the cache `crop`), the camera found first from the
-    whole surface: the render then meshes the water around the camera, not the basin."""
+    whole surface: the render then meshes the water around the camera, not the basin.
+    band = (z0, z1) in metres follows the crests within that band across the basin only,
+    and the crop then keeps that band instead of crop[2] around the crest."""
     nx, ny, nz = run.grid
     cache = paths.cache(kind or ("crop" if crop else "full"))
     os.makedirs(cache, exist_ok=True)
@@ -399,12 +405,17 @@ def write_cache(run, sc, paths, entries, fps, radius, crop=None, kind=None, spra
         return p, v, (ea if u < 0.5 else eb)
 
     sigma = max(1.0, 0.5 * fps) if fps > 0 else 1.0
+    zb = None if band is None else (band[0] * run.cpm, band[1] * run.cpm)
+
+    def crests_in(top):
+        cs = crests(top, sc, run)
+        return cs if zb is None else [c for c in cs if zb[0] <= c[1] <= zb[1]]
     sm = None
     if crop:
         # the first pass finds the crest to follow from the whole surface
         for f, (t, ia, ib, u) in enumerate(plan, start=1):
             p, _, _ = frame_of(ia, ib, u)
-            cands.append(crests(surface_map(p, nx, nz), sc, run))
+            cands.append(crests_in(surface_map(p, nx, nz)))
         sm = smooth_track(follow(cands), sigma)
         cands = []
     for f, (t, ia, ib, u) in enumerate(plan, start=1):
@@ -413,12 +424,13 @@ def write_cache(run, sc, paths, entries, fps, radius, crop=None, kind=None, spra
         if above > 0 and e.any():
             e = spray_only(p, e, nx, nz, above)
         if sm is None:
-            cands.append(crests(surface_map(p, nx, nz), sc, run))
+            cands.append(crests_in(surface_map(p, nx, nz)))
         else:
             cx, cz = sm[f - 1][0], sm[f - 1][1]
             m = run.cpm
-            keep = ((p[:, 0] > cx - crop[0] * m) & (p[:, 0] < cx + crop[1] * m)
-                    & (p[:, 2] > cz - crop[2] * m) & (p[:, 2] < cz + crop[2] * m))
+            across = ((p[:, 2] >= zb[0]) & (p[:, 2] < zb[1])) if zb is not None else \
+                ((p[:, 2] > cz - crop[2] * m) & (p[:, 2] < cz + crop[2] * m))
+            keep = (p[:, 0] > cx - crop[0] * m) & (p[:, 0] < cx + crop[1] * m) & across
             p, v, e = p[keep], v[keep], e[keep]
         r = np.where(e, np.float32(radius), np.float32(0.0))
         counts.append(write_liquid(cache, f, p, np.linalg.norm(v, axis=1), r))
@@ -430,14 +442,15 @@ def write_cache(run, sc, paths, entries, fps, radius, crop=None, kind=None, spra
     path = camera_path(sm, run)
     with open(os.path.join(cache, "camera.json"), "w") as fh:
         json.dump({"frames": path, "crest_cells": [list(map(float, tr)) for tr in sm], "offset_m": CAMERA_OFFSET,
-                   "crop_m": crop}, fh)
+                   "crop_m": crop, "band_m": band}, fh)
     write_index(cache, counts, grid=list(run.grid), times_s=times_s, source=run.tag, fps=fps,
-                escaped_radius_m=radius, spray_above_cells=SPRAY_ABOVE, camera="camera.json", crop_m=crop)
+                escaped_radius_m=radius, spray_above_cells=SPRAY_ABOVE if spray_above is None else spray_above,
+                camera="camera.json", crop_m=crop, band_m=band)
     return cache, counts, times_s
 
 
 def write_section(run, sc, paths, kind, zc_m, back_m=55.0, up_m=0.75, look_up_m=0.75, look_in_m=0.0,
-                  spray_above=0.0, out_kind="section"):
+                  spray_above=0.0, out_kind="section", z1_m=None):
     """A section of a cache's frames: the liquid beyond z = zc_m metres only, so the cut
     face shows the wave in profile, like a flume's glass wall; camera.json a side camera
     per frame at the followed crest's x, back_m metres in front of the cut and up_m above
@@ -445,7 +458,8 @@ def write_section(run, sc, paths, kind, zc_m, back_m=55.0, up_m=0.75, look_up_m=
     breaker's crop camera: 13, 12, 4.25, 3.75); the beach over the section's width.
     spray_above > 0 keeps a droplet radius only for the escaped particles more than that
     many cells above the slab's bulk water (the artist's knob for spray on calm water;
-    0 keeps every escaped particle a droplet). Writes the cache `out_kind`."""
+    0 keeps every escaped particle a droplet). z1_m, when given, is the slab's far side:
+    the liquid short of it only, the beach over the slab. Writes the cache `out_kind`."""
     nx, ny, nz = run.grid
     m = run.cpm
     src = paths.cache(kind)
@@ -454,13 +468,14 @@ def write_section(run, sc, paths, kind, zc_m, back_m=55.0, up_m=0.75, look_up_m=
     dst = paths.cache(out_kind)
     os.makedirs(dst, exist_ok=True)
     zc = zc_m * m
+    z1 = float(nz) if z1_m is None else z1_m * m
     counts, frames = [], []
     for f in range(1, idx["frames"] + 1):
         p = np.load(os.path.join(src, f"liquid.{f:04d}.npy"))
         s = np.load(os.path.join(src, f"speed.{f:04d}.npy"))
         rp = os.path.join(src, f"radius.{f:04d}.npy")
         r = np.load(rp) if os.path.exists(rp) else np.zeros(len(p), np.float32)
-        keep = p[:, 2] >= zc
+        keep = (p[:, 2] >= zc) & (p[:, 2] < z1)
         p, s, r = p[keep], s[keep], r[keep]
         if spray_above > 0 and (r > 0).any():
             e = spray_only(p, r > 0, nx, nz, spray_above)
@@ -470,16 +485,17 @@ def write_section(run, sc, paths, kind, zc_m, back_m=55.0, up_m=0.75, look_up_m=
         frames.append([cx, float(sc["h"] + up_m * m), float(zc - back_m * m),
                        cx, float(sc["h"] + look_up_m * m), float(zc + look_in_m * m)])
     with open(os.path.join(dst, "camera.json"), "w") as fh:
-        json.dump({"frames": frames, "section_z_m": zc_m, "back_m": back_m, "up_m": up_m,
+        json.dump({"frames": frames, "section_z_m": zc_m, "section_z1_m": z1_m, "back_m": back_m, "up_m": up_m,
                    "look_up_m": look_up_m, "look_in_m": look_in_m}, fh)
     toe, x1 = sc["toe"], float(nx)
     y1 = float((nx - toe) * sc["slope"])
-    v = [(toe, 0, zc), (x1, 0, zc), (x1, y1, zc), (toe, 0, nz), (x1, 0, nz), (x1, y1, nz)]
+    v = [(toe, 0, zc), (x1, 0, zc), (x1, y1, zc), (toe, 0, z1), (x1, 0, z1), (x1, y1, z1)]
     with open(os.path.join(dst, "beach.obj"), "w") as fh:
         fh.write("o beach\n")
         fh.writelines(f"v {a:.4f} {b:.4f} {c:.4f}\n" for a, b, c in v)
         fh.writelines("f " + " ".join(map(str, q)) + "\n" for q in ((1, 3, 2), (4, 5, 6), (1, 2, 5, 4), (2, 3, 6, 5), (3, 1, 4, 6)))
     write_index(dst, counts, grid=list(run.grid), times_s=idx.get("times_s"), source=run.tag, section_z_m=zc_m,
+                section_z1_m=z1_m,
                 from_cache=kind, camera="camera.json")
     return dst, counts
 
@@ -538,15 +554,20 @@ def main(argv):
         if "--crop" in argv:
             i = argv.index("--crop")
             crop = tuple(float(v) for v in argv[i + 1:i + 4])
+        band = None
+        if "--band" in argv:
+            i = argv.index("--band")
+            band = tuple(float(v) for v in argv[i + 1:i + 3])
         cache, counts, times = write_cache(run, sc, paths, entries, opt(argv, "--fps", 24.0), opt(argv, "--radius", 1e-4),
                                            crop=crop, kind=opt(argv, "--kind", None, str),
-                                           spray_above=opt(argv, "--spray-above", None))
+                                           spray_above=opt(argv, "--spray-above", None), band=band)
         write_beach_obj(prepare(paths.input("beach.obj")), run, sc)
         print(f"wrote {len(counts)} frames to {cache}: t {times[0]} .. {times[-1]}; camera.json beside them")
     elif cmd == "section":
         dst, counts = write_section(run, sc, paths, argv[1], opt(argv, "--z", 55.0), opt(argv, "--back", 55.0),
                                     opt(argv, "--up", 0.75), opt(argv, "--look-up", 0.75), opt(argv, "--look-in", 0.0),
-                                    opt(argv, "--spray-above", 0.0), opt(argv, "--out", "section", str))
+                                    opt(argv, "--spray-above", 0.0), opt(argv, "--out", "section", str),
+                                    opt(argv, "--z1", None))
         print(f"wrote {len(counts)} section frames to {dst}: {counts}")
     else:
         raise SystemExit(__doc__)
