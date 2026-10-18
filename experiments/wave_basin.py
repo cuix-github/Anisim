@@ -67,9 +67,63 @@ from PIL import Image  # noqa: E402
 H, TOE, SLOPE = 12.0, 36.0, 0.1
 LX, LY, LZ = 172.0, 24.0, 80.0
 SHORE = TOE + H / SLOPE
-ZONE, RAMP = 24.0, 16.0
-# the trains: height (m), period (s), heading (degrees from +x toward +z), phase (rad)
-TRAINS = ((3.2, 8.0, 15.0, 0.0), (2.4, 6.5, -20.0, 0.0))
+ZONE, RAMP = 24.0, 8.0
+# the sea (2026-10-18): two lead waves heading for the beach, nine companions around
+# them and a hundred small waves in all directions, each a row of height (m), period (s),
+# heading (degrees from +x toward +z) and timing (rad); the second lead's timing chosen
+# so the two line up at ALIGN (x m, z m, t s), the breaking zone mid-run. A fixed seed
+# replays the same sea. (The first basin, 2026-10-17, ran two trains: 3.2 m at 8 s,
+# 15 degrees, and 2.4 m at 6.5 s, -20 degrees, with a 16 s ramp.)
+SEA = dict(seed=7,
+           leads=((3.0, 9.5, 12.0, 0.0), (1.5, 11.0, -5.0)),
+           align=(100.0, 40.0, 28.0),
+           companions=(9, 1.2, (8.0, 11.0), 12.0, 15.0),      # count, typical height, periods, heading, spread
+           small=(100, 0.8, (2.0, 5.0), 12.0, 60.0))
+
+
+def _k(T, h=H):
+    om = 2 * np.pi / T
+    k = om * om / 9.8
+    for _ in range(50):
+        th, ch = np.tanh(k * h), np.cosh(k * h)
+        k -= (9.8 * k * th - om * om) / (9.8 * (th + k * h / (ch * ch)))
+    return float(k)
+
+
+def _scale_to(heights, typical):
+    """Heights scaled so the waves they add up to are about `typical` tall (four times
+    the spread of their sum)."""
+    h = np.asarray(heights, float)
+    return h * (typical / 4) / np.sqrt(np.sum((h / 2) ** 2 / 2))
+
+
+def sea_rows(sea=SEA):
+    """The sea's rows, in metres, seconds, degrees and radians: the leads, then the
+    companions (random heights, periods across their range, headings within their spread),
+    then the small waves (frequencies evenly spread and jittered, heights falling with
+    frequency as an ocean's do, times a random factor; headings fanned, most near the
+    main direction)."""
+    rng = np.random.default_rng(sea["seed"])
+    (H0, T0, d0, p0), (H1, T1, d1) = sea["leads"]
+    xa, za, ta = sea["align"]
+
+    def phase(T, d, ph):
+        r = np.radians(d)
+        return _k(T) * (xa * np.cos(r) + za * np.sin(r)) - 2 * np.pi / T * ta + ph
+    p1 = (phase(T0, d0, p0) - phase(T1, d1, 0.0)) % (2 * np.pi)
+    rows = [(H0, T0, d0, p0), (H1, T1, d1, float(p1))]
+    n, typ, (lo, hi), mean, spread = sea["companions"]
+    T = rng.uniform(lo, hi, n)
+    d = mean + rng.uniform(-spread, spread, n)
+    Hs = _scale_to(rng.rayleigh(1.0, n), typ)
+    rows += [(float(a), float(b), float(c), float(rng.uniform(0, 2 * np.pi))) for a, b, c in zip(Hs, T, d)]
+    n, typ, (lo, hi), mean, spread = sea["small"]
+    f = np.linspace(1 / hi, 1 / lo, n) + rng.uniform(-0.4, 0.4, n) * (1 / lo - 1 / hi) / n
+    Hs = _scale_to(f ** -2.5 * rng.rayleigh(1.0, n), typ)
+    u = rng.uniform(-1, 1, n)
+    d = np.clip(mean + spread * np.sign(u) * (1 - np.sqrt(1 - np.abs(u))), -60, 60)
+    rows += [(float(a), float(1 / b), float(c), float(rng.uniform(0, 2 * np.pi))) for a, b, c in zip(Hs, f, d)]
+    return rows
 # the tracking camera's offset from the crest it follows, metres: seaward, up, toward the near wall
 CAMERA_OFFSET = (-24.0, 16.0, -16.0)
 # an escaped particle counts as spray in the cache only this many cells above the bulk
@@ -85,7 +139,7 @@ class Run:
         self.cpm = cpm
         self.grid = (int(LX * cpm), int(LY * cpm), int(LZ * cpm))
         self.dt = 0.1 / cpm
-        self.tag = f"wavebasin{cpm:g}"
+        self.tag = f"wavesea{cpm:g}"
 
 
 def scene(run):
@@ -99,8 +153,8 @@ def ports(run, sc):
 
 
 def waves(run):
-    """The node's `waves`: four floats a train, the height in cells."""
-    return np.asarray([(Hw * run.cpm, T, th, ph) for Hw, T, th, ph in TRAINS], np.float32).ravel()
+    """The node's `waves`: four floats a wave, the height in cells."""
+    return np.asarray([(Hw * run.cpm, T, th, ph) for Hw, T, th, ph in sea_rows()], np.float32).ravel()
 
 
 def beach_phi(run, sc):
@@ -286,7 +340,7 @@ def report(run, sc, paths, entries):
         height_image(top, sc, run, os.path.join(frames, f"top{n:04d}.png"))
     track = follow(cands)
     summary = {"tag": run.tag, "grid": list(run.grid), "cells_per_metre": run.cpm, "dt": run.dt,
-               "scene_m": {"h": H, "domain": [LX, LY, LZ], "zone": ZONE, "ramp_s": RAMP, "trains": TRAINS,
+               "scene_m": {"h": H, "domain": [LX, LY, LZ], "zone": ZONE, "ramp_s": RAMP, "sea": SEA,
                            "toe": TOE, "slope": SLOPE, "shore": SHORE},
                "followed_crest": [None if tr is None else [round(tr[0] / m, 2), round(tr[1] / m, 2), round((tr[2] - sc["h"]) / m, 2)]
                                   for tr in track],
