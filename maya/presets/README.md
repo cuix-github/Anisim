@@ -4,6 +4,15 @@ A preset is a PowerShell file here that sets the launcher's environment knobs, e
 
 `paper.ps1` is the look settled on 2026-10-16/17: the breaking-wave stills of PF-FLIP and ST-FLIP on our particles. Two knobs belong to the scene and are not in the preset: `SURF_METRES_PER_CELL` (the simulation's cell in metres, 0.25 for the breaker) and `SURF_CAMERA`.
 
+`paper_clean.ps1` is the same look, clean on calm water (2026-10-18). On the breaker every frame was a break, so the paper look's rule that any water the smoothed surface leaves out is a droplet cloud read as white water. On the wave basin's calm 2.8 m swell at 18 s, far from breaking and with no wind, the same rule painted the surface as snow: a real swell like it is glassy. Two knobs remove the dots, one render and one cache:
+
+| Knob | paper | paper_clean | What it removes |
+| --- | --- | --- | --- |
+| `SURF_MIST_THRESHOLD` (render) | 0 | 0.75 | water less than 0.75 cells outside the smoothed surface, left out only because the smoothing irons single-particle bumps away |
+| `--spray-above` (cache: `experiments/wave_basin.py cache` or `section`) | 0 | 1 | escaped particles within one cell of the bulk water: a surface particle poking above its neighbours sees mostly air and trips the solver's escape test without flying |
+
+The test, one knob at a time on the basin's 18 s frame with the paper look's camera framing (`out/runs/wavebasin4/renders/full_height/S0_t18`, `S1_t18`, `S3_t18`): the threshold alone took out most dots; the 502 flagged particles left in the slab all sat within a cell of the water, and the cache knob took them out, leaving none. Not yet tested on a break: real spray leaves the crest fast and should be more than a cell above the water within a frame or two, which the basin's break frames are to show (arms S0 and S3 of the night of 2026-10-18). The cache knob is not an environment variable because the play cache's `radius.####.npy` carries it; a cache made without it renders as the paper look's spray whatever the preset.
+
 ## The surface (`maya/particle_surface`, ST-FLIP Appendix B)
 
 | Knob | What it controls | Where it acts | Paper |
