@@ -595,8 +595,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // vel: velocities (the plate's faces take its speed), not the coefficients
     // ---- the wave zone (PFFlipSolve.h): after the projection the face velocities
     // within zone_length of the x = 0 wall are blended toward the sum of linear wave
-    // trains at the end of the step, the weight the zone's exp weight times the fade
-    // above the trains' surface, and the liquid particles get the same blend after
+    // trains at the end of the step, the weight the zone's exp weight times the face's
+    // liquid fraction, and the liquid particles get the same blend after
     // their FLIP update; the wall faces the zone touches (x = 0, and the side walls
     // along it) are the trains' inlet, carrying their velocity in `walls` below
     // instead of 0, so the flux the trains need is not forced into the wall's cells.
@@ -639,7 +639,6 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         double wz = 1.0 - (std::exp(std::pow(s, 3.5)) - 1.0) / 1.718281828459045;
         if (wz <= 0.0) return 0.0;
         const double ye = std::min(y, zoneH);
-        double eta = 0.0;
         for (const ZoneTrain& tr : zoneTrains) {
             const double psi = tr.k * (x * tr.dx + z * tr.dz) - tr.w * zoneT + tr.ph;
             const double sh = std::sinh(tr.k * zoneH);
@@ -647,11 +646,19 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             ut += uh * tr.dx;
             wt += uh * tr.dz;
             vt += tr.a * tr.w * std::sinh(tr.k * ye) / sh * std::sin(psi);
-            eta += tr.a * std::cos(psi);
         }
-        const double above = y - (zoneH + eta);
-        const double fy = above <= 0.0 ? 1.0 : std::max(0.0, 1.0 - above);
-        return wz * fy;
+        return wz;
+    };
+    // the zone forces the water where the water is, not where the trains put their
+    // surface: a face's weight is times its liquid fraction, the air is left alone.
+    // Forcing the water below the trains' surface only (the first zone's fade) pumped
+    // it one way: lifted on the crests, the water above the trains' troughs was left
+    // where it was, and the zone's level rose a metre in 8 s under the mixed sea, the
+    // unforced layer on top sheared to 10 m/s and the air over it to 18 (2026-10-18)
+    auto liquidOf = [&](const Vec& P, const Vec& Wt, size_t c) {
+        double p = P[c];
+        if (hasWt) p = Wt[c] > 1e-12 ? p / Wt[c] : 0.0;
+        return std::clamp(p, 0.0, 1.0);
     };
     auto walls = [&](Vec& uu, Vec& vv, Vec& ww, bool vel) {
         for (int j = 0; j < NY; ++j)
@@ -676,7 +683,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         }
         if (vel && zoneOn) {
             // the wave inlet: the x = 0 faces carry the trains' velocity (times the
-            // fade above their surface), and so do the side-wall faces along the zone,
+            // face's liquid fraction), and so do the side-wall faces along the zone,
             // less the flux-weighted mean over every inlet face: a sealed box of
             // incompressible fluid has no pressure solution under a net inflow, so the
             // inlet keeps the box's volume and the wall's own column breathes by the mean
@@ -686,7 +693,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             for (int j = 0; j < NY; ++j)
                 for (int k = 0; k < NZ; ++k) {
                     double ut, vt, wt;
-                    const double wgt = zoneAt(0.0, j + 0.5, k + 0.5, ut, vt, wt);
+                    const double wgt = zoneAt(0.0, j + 0.5, k + 0.5, ut, vt, wt) * liquidOf(chP_u, chW_u, L.iu(0, j, k));
                     faces.push_back({L.iu(0, j, k), wgt, ut, 1.0});
                     Q += wgt * ut; W += wgt;
                 }
@@ -695,10 +702,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 for (int i = 0; i < iMax; ++i)
                     for (int j = 0; j < NY; ++j) {
                         double ut, vt, wt;
-                        double wgt = zoneAt(i + 0.5, j + 0.5, 0.0, ut, vt, wt);
+                        double wgt = zoneAt(i + 0.5, j + 0.5, 0.0, ut, vt, wt) * liquidOf(chP_w, chW_w, L.iw(i, j, 0));
                         faces.push_back({L.iw(i, j, 0), wgt, wt, 1.0});
                         Q += wgt * wt; W += wgt;
-                        wgt = zoneAt(i + 0.5, j + 0.5, static_cast<double>(NZ), ut, vt, wt);
+                        wgt = zoneAt(i + 0.5, j + 0.5, static_cast<double>(NZ), ut, vt, wt) * liquidOf(chP_w, chW_w, L.iw(i, j, NZ));
                         faces.push_back({L.iw(i, j, NZ), wgt, wt, -1.0});
                         Q -= wgt * wt; W += wgt;
                     }
@@ -912,7 +919,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             for (int j = 0; j < NY; ++j)
                 for (int k = 0; k < NZ; ++k) {
                     double ut, vt, wt;
-                    const double wgt = zoneAt(i, j + 0.5, k + 0.5, ut, vt, wt);
+                    const double wgt = zoneAt(i, j + 0.5, k + 0.5, ut, vt, wt) * liquidOf(chP_u, chW_u, L.iu(i, j, k));
                     if (wgt > 0.0) {
                         double& c = u[L.iu(i, j, k)];
                         c = (1.0 - wgt) * c + wgt * ut;
@@ -923,7 +930,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             for (int j = 0; j <= NY; ++j)
                 for (int k = 0; k < NZ; ++k) {
                     double ut, vt, wt;
-                    const double wgt = zoneAt(i + 0.5, j, k + 0.5, ut, vt, wt);
+                    const double wgt = zoneAt(i + 0.5, j, k + 0.5, ut, vt, wt) * liquidOf(chP_v, chW_v, L.iv(i, j, k));
                     if (wgt > 0.0) {
                         double& c = v[L.iv(i, j, k)];
                         c = (1.0 - wgt) * c + wgt * vt;
@@ -935,7 +942,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 for (int j = 0; j < NY; ++j)
                     for (int k = 0; k <= NZ; ++k) {
                         double ut, vt, wt;
-                        const double wgt = zoneAt(i + 0.5, j + 0.5, k, ut, vt, wt);
+                        const double wgt = zoneAt(i + 0.5, j + 0.5, k, ut, vt, wt) * liquidOf(chP_w, chW_w, L.iw(i, j, k));
                         if (wgt > 0.0) {
                             double& c = w[L.iw(i, j, k)];
                             c = (1.0 - wgt) * c + wgt * wt;

@@ -102,14 +102,16 @@ def twin(state, ch, zone, t):
     vm, vo = ch["v_mass"].astype(float), ch["v_mom"].astype(float)
     ref.u = np.where(um > 0, uo / np.maximum(um, 1e-30), 0.0)
     ref.v = np.where(vm > 0, vo / np.maximum(vm, 1e-30), 0.0)
-    ref._enforce_walls()
-    u_star, v_star = ref.u.copy(), ref.v.copy()
-    ref.v += ref.g * DT
-    ref._enforce_walls()
+    # the node's face phase, which the projection and the zone's faces (the inlet's
+    # among them) are weighed by
     phi_u = np.clip(ch["u_phase"].astype(float), 0, 1)
     phi_v = np.clip(ch["v_phase"].astype(float), 0, 1)
     ref.mu, ref.mv = np.empty_like(ref.u), np.empty_like(ref.v)
     ref.phase = lambda raw: phi_u if raw is ref.mu else phi_v
+    ref._enforce_walls()
+    u_star, v_star = ref.u.copy(), ref.v.copy()
+    ref.v += ref.g * DT
+    ref._enforce_walls()
     ref.project(DT)
     ref._zone_faces(t + DT)
     ref._enforce_walls()

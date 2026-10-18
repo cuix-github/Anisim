@@ -383,10 +383,13 @@ class Sim:
     # radians: after every projection the face velocities within `length` of the
     # x = 0 wall are blended toward the sum of the linear trains' velocity fields, and
     # so are the liquid particles' velocities after their FLIP update, with the weight
-    # 1 - (exp(s^3.5) - 1) / (e - 1), s = x / length, times a fade over the cell above
-    # the trains' summed surface; the x = 0 wall faces are the trains' inlet, carrying
-    # their velocity (times the fade) instead of 0 whenever a step is under way, so the
-    # flux the trains need is not forced into the wall's cells. Each train's wavenumber
+    # 1 - (exp(s^3.5) - 1) / (e - 1), s = x / length, a face's times its phase (the
+    # water is forced where it is, the air left alone); the x = 0 wall faces are the
+    # trains' inlet, carrying their velocity (times the face's phase) instead of 0
+    # whenever a step is under way, so the flux the trains need is not forced into the
+    # wall's cells. (The first zone faded the weight over the cell above the trains'
+    # summed surface instead, which pumped the water one way: lifted on the crests, the
+    # water above the trains' troughs was left where it was, and the level rose.) Each train's wavenumber
     # solves w^2 = g k tanh(k h) at the still depth h; its height rises from 0 over
     # `ramp` seconds (a smoothstep). The field is taken at the end of the step. The 3D
     # node's zone_* ports and `waves` array are this (its trains may also have a
@@ -425,24 +428,24 @@ class Sim:
         s = np.clip(x / z["length"], 0.0, 1.0)
         wz = np.where(x < z["length"], 1.0 - (np.exp(s ** 3.5) - 1.0) / 1.718281828459045, 0.0)
         ye = np.minimum(y, h)
-        ut, vt, eta = np.zeros_like(x), np.zeros_like(x), np.zeros_like(x)
+        ut, vt = np.zeros_like(x), np.zeros_like(x)
         for a, k, om, ph in self._zone_trains(t):
             psi = k * x - om * t + ph
             sh = np.sinh(k * h)
             ut += a * om * np.cosh(k * ye) / sh * np.cos(psi)
             vt += a * om * np.sinh(k * ye) / sh * np.sin(psi)
-            eta += a * np.cos(psi)
-        above = y - (h + eta)
-        fy = np.where(above <= 0.0, 1.0, np.maximum(0.0, 1.0 - above))
-        return wz * fy, ut, vt
+        return wz, ut, vt
 
     def _zone_faces(self, t):
         nx, ny = self.nx, self.ny
+        pu, pv = self._face_phase()
         i, j = np.meshgrid(np.arange(nx + 1, dtype=float), np.arange(ny, dtype=float) + 0.5, indexing="ij")
         w, ut, _ = self._zone_at(i, j, t)
+        w = w * pu
         self.u = (1.0 - w) * self.u + w * ut
         i, j = np.meshgrid(np.arange(nx, dtype=float) + 0.5, np.arange(ny + 1, dtype=float), indexing="ij")
         w, _, vt = self._zone_at(i, j, t)
+        w = w * pv
         self.v = (1.0 - w) * self.v + w * vt
 
     def _zone_particles(self, t, skip=None):
@@ -725,6 +728,7 @@ class Sim:
             # flux-weighted mean (a sealed box has no pressure solution under a net
             # inflow; the wall's own column breathes by the mean instead)
             w, ut, _ = self._zone_at(np.zeros(self.ny), np.arange(self.ny, dtype=float) + 0.5, self._zone_t)
+            w = w * self._face_phase()[0][0, :]
             c = float(np.sum(w * ut) / np.sum(w)) if np.sum(w) > 0.0 else 0.0
             self.u[0, :] = w * (ut - c)
         if self.has_solids:
@@ -780,14 +784,15 @@ class Sim:
             raw2 = np.median(mu2[2:-2, 2:-2]) / self.rho_l
             self.coarse_gain = float(np.mean(acc)) / self.rho_l / max(raw2, 1e-9)
 
-    def project(self, dt, tol=1e-6, max_iter=4000):
+    def _face_phase(self):
+        """The faces' phase (Eq. 7) as the projection takes it."""
         if self.solid_phi is not None and self.solid_support:
             su, sv = self._solid_support_share()
-            phi_u = self.phase(self.mu / np.maximum(su, 0.1))
-            phi_v = self.phase(self.mv / np.maximum(sv, 0.1))
-        else:
-            phi_u = self.phase(self.mu)
-            phi_v = self.phase(self.mv)
+            return self.phase(self.mu / np.maximum(su, 0.1)), self.phase(self.mv / np.maximum(sv, 0.1))
+        return self.phase(self.mu), self.phase(self.mv)
+
+    def project(self, dt, tol=1e-6, max_iter=4000):
+        phi_u, phi_v = self._face_phase()
         rho_u = self.rho_g + (self.rho_l - self.rho_g) * phi_u
         rho_v = self.rho_g + (self.rho_l - self.rho_g) * phi_v
         bu = 1.0 / rho_u
