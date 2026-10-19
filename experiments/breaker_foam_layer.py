@@ -113,6 +113,50 @@ def export_points(path,points,density):
         a.AiUniverseDestroy(u);a.AiEnd();dll.close()
 
 
+def check_imported(folder):
+    """Expand the real parent procedural without ray tracing; inspect every point."""
+    parent=folder/'scene_check.ass';child=folder/'foam.ass'
+    assert ass_units(parent)==ass_units(child),'Parent/child unit mismatch'
+    z=np.load(folder.parent/'layer.npz');density=z['density_'+folder.name+'_per_m']
+    groups=np.floor(density/max(density.max(),1e-20)*63).astype(int);groups[density==0]=-1
+    a,dll=arnold();a.AiBegin();u=a.AiUniverse()
+    try:
+        a.AiNodeSetFlt(a.AiUniverseGetOptions(u),'meters_per_unit',ass_units(parent))
+        assert a.AiSceneLoad(u,str(parent))
+        proc=a.AiNodeLookUpByName(u,'foamLayerShape');assert proc
+        assert a.AiProceduralExpand(proc)
+        lo=np.full(3,np.inf);hi=-lo;max_offset=0.;count=0
+        for bucket in np.unique(groups):
+            if bucket<0:continue
+            node=a.AiNodeLookUpByName(u,f'surfaceFoam_{bucket:02d}',proc);assert node
+            # Expanded child transforms include the unit conversion. Require an
+            # identity chain, not merely the pre-expansion Maya transform.
+            ancestor=node
+            while ancestor:
+                assert np.allclose(np.asarray(a.AiNodeGetMatrix(ancestor,'matrix').data),np.eye(4),atol=1e-8)
+                ancestor=a.AiNodeGetParent(ancestor)
+            def read(attr,components):
+                arr=a.AiNodeGetArray(node,attr);n=a.AiArrayGetNumElements(arr);ptr=a.AiArrayMap(arr)
+                values=np.ctypeslib.as_array(ctypes.cast(ptr,ctypes.POINTER(ctypes.c_float)),shape=(n*components,)).copy().reshape(n,components)
+                a.AiArrayUnmap(arr);return values
+            p=read('points',3);r=read('radius',1);selected=groups==bucket
+            assert np.array_equal(p,(z['points_m'][selected]*4).astype(np.float32))
+            assert np.all(r==np.float32(RADIUS*4))
+            offsets=np.linalg.norm(p.astype(float)*.25-z['surface_m'][selected],axis=1)
+            assert np.max(np.abs(offsets-OFFSET))<1e-5
+            max_offset=max(max_offset,float(offsets.max()));count+=len(p)
+            lo=np.minimum(lo,(p-r).min(0));hi=np.maximum(hi,(p+r).max(0))
+        assert count==int((density>0).sum()) and max_offset+RADIUS<.03001
+        result=dict(status='passed',method='AiProceduralExpand of exported parent scene; no rendering',
+                    child_meters_per_unit=ass_units(child),parent_meters_per_unit=ass_units(parent),
+                    import_scale=1.,expanded_points=count,expanded_world_bounds=[lo.tolist(),hi.tolist()],
+                    center_to_source_surface_max_m=max_offset,sphere_to_source_surface_upper_bound_m=max_offset+RADIUS,
+                    expanded_transform_chain_identity=True,layer_sha256=base.sha(folder.parent/'layer.npz'),
+                    foam_ass_sha256=base.sha(child),parent_ass_sha256=base.sha(parent))
+        base.save(folder/'alignment_check.json',result);return result
+    finally:a.AiUniverseDestroy(u);a.AiEnd();dll.close()
+
+
 def diagnostic(out,p,t,mask,surface,centers,weights,factors,face_ids,area):
     import matplotlib
     matplotlib.use('Agg')

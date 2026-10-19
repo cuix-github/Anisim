@@ -15,7 +15,7 @@ import numpy as np
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 import breaker_deep_water as base
 from analyze_breaker_deep_water import pfm,convert,OIIO,MAYAPY,COMPONENTS,LAYERS
-from breaker_foam_layer import ass_units,RADIUS,OFFSET
+from breaker_foam_layer import ass_units,check_imported
 
 OUT=base.ROOT/'out/runs/breaker_foam_layer_20261019_v2'
 CONTROL=base.ROOT/'out/runs/breaker_interface_sss_20261019_v3/A'
@@ -62,23 +62,6 @@ def prepare(out):
             transform=c.listRelatives(standin,parent=True,fullPath=True)[0]
             matrix=np.asarray(c.xform(transform,q=True,worldSpace=True,matrix=True)).reshape(4,4)
             assert np.allclose(matrix,np.eye(4),atol=1e-8),matrix.tolist()
-            z=np.load(out/'layer.npz');active=z['density_'+arm+'_per_m']>0
-            # These point/radius values were checked against native ASS readback.
-            points=(z['points_m'][active]*4).astype(np.float32);radius=np.float32(RADIUS*4)
-            expected=np.r_[(points-radius).min(0),(points+radius).max(0)]
-            actual=np.asarray(c.exactWorldBoundingBox(standin),float)
-            error=float(np.abs(actual-expected).max())
-            assert error<.01,('Imported stand-in bounds differ',actual.tolist(),expected.tolist())
-            imported_m=points.astype(float)*.25
-            offsets=np.linalg.norm(imported_m-z['surface_m'][active],axis=1)
-            assert np.max(np.abs(offsets-OFFSET))<1e-5
-            assert offsets.max()+RADIUS<.03001
-            alignment=dict(status='passed',child_meters_per_unit=child_unit,parent_meters_per_unit=parent_unit,
-                           import_scale=child_unit/parent_unit,maya_world_bounds=actual.tolist(),expected_bounds=expected.tolist(),
-                           bbox_max_error_scene_units=error,center_to_source_surface_max_m=float(offsets.max()),
-                           sphere_to_source_surface_upper_bound_m=float(offsets.max()+RADIUS),matrix=matrix.tolist(),
-                           layer_sha256=base.sha(out/'layer.npz'),foam_ass_sha256=base.sha(folder/'foam.ass'))
-            base.save(folder/'alignment_check.json',alignment)
             base.save(folder/'export_check.json',dict(status='passed',scene_sha256=base.sha(folder/'candidate.mb'),
                                                       ass_sha256=base.sha(folder/'scene_check.ass')))
         base.save(out/'prepare.json',dict(status='passed',wall_s=time.perf_counter()-start));base.exit_worker(0)
@@ -156,6 +139,8 @@ exit $p.ExitCode
         with (folder/(mode+'_launch.log')).open('w') as log:
             proc=subprocess.run(command,env=env,cwd=base.ROOT,stdout=log,stderr=subprocess.STDOUT,timeout=timeout)
         receipt['exit_code']=proc.returncode;assert proc.returncode==0,'Read worker log'
+        if mode=='prepare':
+            for arm in ['A','B']:check_imported(out/arm)
         assert hashes=={p.name:base.sha(p) for p in base.CACHE.iterdir() if p.is_file()}
         if mode!='prepare':
             worker=json.loads((folder/'worker_result.json').read_text());assert worker['status']=='passed'
