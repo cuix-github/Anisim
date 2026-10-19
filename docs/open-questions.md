@@ -4,6 +4,16 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Intermediate foam appearance (2026-10-19).** After reviewing the paired
+  views, Xue leaned toward B clustered but wanted some of A's continuity without
+  its broad matte coating. One explicitly authorized 24.9 s, 18 m oblique
+  preview mixes volume density as 25 percent A plus 75 percent B, keeping total
+  extinction, geometry, lighting and water optics fixed. It passed alignment,
+  scattering and display checks; visual review finds a modest intermediate
+  result with remaining broad patches. It is awaiting Xue's comparison, not a
+  new accepted preset or a claim of paper fidelity. The result and limitations
+  are in the [view study](breaker-foam-view-study.md#one-intermediate-foam-preview).
+
 - **Water scale and visible crop sides (2026-10-19).** Xue finds the white crest
   close to the target but the whole image still reads as a small fish tank. The
   [eight-view foam study](breaker-foam-view-study.md) confirms that much of the

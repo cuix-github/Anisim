@@ -109,3 +109,41 @@ checks. `crop_audit.png` and its JSON record the boundary evidence. Numeric
 receipts are committed in `results/rendering/breaker_foam_views_20261019.json`.
 All original source-cache hashes remain unchanged. No final ocean preset is
 selected, and the next expanded-water render remains a proposal.
+
+## One intermediate foam preview
+
+Later on October 19, Xue leaned toward B but described the desired result as
+somewhere between the two: B has useful gaps and fine variation, while A reads
+as more continuous whitewater but sometimes looks like an opaque matte coating.
+He authorized exactly one intermediate image at the 24.9 s, 18 m oblique view.
+The agent selected density C = 0.25 A + 0.75 B as a first candidate biased toward
+B, not an optimized or paper-derived coefficient. Mixing happens in the spatial
+extinction field supplied to Arnold, not in the final images. The water shader,
+lights, camera, mask, foam scattering shader, point positions and radii remain
+unchanged. No renderer source, simulation or reconstruction was modified.
+
+`experiments/breaker_foam_mix.py` reproduces the A/B density endpoints exactly,
+checks the saved scene and render hashes, and preserves A's support. In B's
+empty regions C has 25 percent of A's density; its dense peaks decrease.
+Integrated primitive extinction remains 16.81893 m2 in all three fields. This
+is a volume integral, not projected coverage or guaranteed equal brightness.
+The existing 64-bin export has 3.70 percent relative L1 density quantization
+error for C and 2.46e-9 relative total-budget error. Expanded procedural checks
+confirm unchanged radii/transforms and a maximum 3.001 cm distance from the
+source surface including floating-point conversion. The density plot was
+reviewed before launching the single licensed GUI-Maya render.
+
+The new 960 x 540 image passed on its first call: 229.55 s inside rendering,
+238.96 s process including GUI startup. Checks finished by 23:14 UTC, within
+the announced 10–15 minute preparation/render/inspection allowance. Volume is
+nonzero, SSS is zero, component closure is 9.04e-8 relative L1, and independent
+ACES display conversion agrees within 0.226 mean 8-bit level. Source-cache
+hashes are unchanged; mist is off. A/B controls were reused without rendering.
+
+Visual review finds a modest intermediate result: B's granular structure remains,
+while some gaps gain a thinner continuous white layer. Broad white patches and
+the glossy main water remain; this single image does not establish C as superior
+to B, a final ocean look, or temporally coherent foam. Xue's review is pending.
+The output is `out/runs/breaker_foam_mix_20261019/C/beauty_view.png`, with the
+frozen scene, foam ASS, density diagnostics and numeric receipts beside it.
+Compact evidence is in `results/rendering/breaker_foam_mix_20261019.json`.

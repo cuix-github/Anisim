@@ -1,0 +1,110 @@
+{
+  "status": "passed",
+  "new_render_count": 1,
+  "image": {
+    "status": "passed",
+    "aov_closure_relative_l1": 9.041140723323597e-08,
+    "component_raw_rgb_share": {
+      "specular": 0.2906524701175318,
+      "transmission": 0.3629158871162034,
+      "diffuse": 0.27363236085885806,
+      "sss": 0.0,
+      "coat": 0.0,
+      "sheen": 0.0,
+      "emission": 0.0,
+      "volume": 0.07279928195194203,
+      "background": 0.0
+    },
+    "display_mean_abs_levels": 0.22548482510288065,
+    "render_call_s": 229.54788900003769,
+    "process_s": 238.95503069995902
+  },
+  "layer": {
+    "status": "passed",
+    "alpha_B": 0.75,
+    "equation": "density_C = 0.25 * density_A + 0.75 * density_B",
+    "endpoint_control": "A and B reproduced exactly; existing scene/render hashes verified",
+    "source_hashes": {
+      "A/beauty.png": "b3d4c60aeadc889b9fd8c956edb0547fc1b39170831054cef0ac4fde3594c290",
+      "A/optics.0001.exr": "d2391c243c67319833cfc78aff53592b4d69c9821263427da95f6ec8a762214d",
+      "A/candidate.mb": "80cc5a520d0998104f1e05d054f561eb399eb539afdd180e8ac5bf1ee7ac70a3",
+      "A/foam.ass": "8b1543df48e227744d4000f7480995c1f1367ebfa22e7c6bde8dad808e7f080c",
+      "B/beauty.png": "213bd4aa336db81a5946cbf9cf27c43d85280ba2906a4f7de26c1bb783352c04",
+      "B/optics.0001.exr": "d916a9886c1a3a075a05d08b78d823eeac08fb2aae7eb112da40fc41d24b3322",
+      "B/candidate.mb": "3f814df5762f003483c08e9f5d750b05f54ba5ed578944bded72049fdb1eff2f",
+      "B/foam.ass": "719991b6726a6e9adea1d12e759ead614596d01301c12bb801d6ed84503cc27e"
+    },
+    "source_layer_sha256": "4babfbdeb3bc11ff38eb53cdb49b2695c0d919c5a317bc652d0d06dca3bc63ce",
+    "layer_sha256": "5f27c04c8c025918139500e8ef7c7956b6bae52466a0012e7197217dc2a454bc",
+    "integrated_extinction_m2": [
+      16.81893287138607,
+      16.81893287138607,
+      16.81893287138607
+    ],
+    "density_export": {
+      "status": "passed",
+      "meters_per_unit": 0.01,
+      "points": 322649,
+      "logical_points": 324601,
+      "groups": 64,
+      "density_representation": "64 constant-density bins; zero-density points omitted",
+      "density_quantization_relative_l1": 0.037036492293234365,
+      "budget_relative_error": 2.462687326034826e-09,
+      "integrated_extinction_m2": 16.8189328299663,
+      "point_radius_m": 0.0225,
+      "step_m": 0.005,
+      "density_range_per_m": [
+        0.0,
+        11.826134060101928
+      ],
+      "ass_sha256": "06b5161047032f859ac6c07c5a06999f33b1b60471456fb0114bc8594fecfa2b"
+    },
+    "support": "Exactly A support; unchanged positions and radius",
+    "git_sha": "70ed8eada7a540f3191e06b9dfc2243fcca05518",
+    "simulation": false,
+    "render_count_authorized": 1
+  },
+  "preparation": {
+    "status": "passed",
+    "changed_state_keys": [
+      "foam_ass_sha256",
+      "foam_arm",
+      "foam_layer_sha256"
+    ]
+  },
+  "alignment": {
+    "status": "passed",
+    "method": "AiProceduralExpand of exported parent scene; no rendering",
+    "child_meters_per_unit": 0.01,
+    "parent_meters_per_unit": 0.01,
+    "import_scale": 1.0,
+    "expanded_points": 322649,
+    "expanded_world_bounds": [
+      [
+        554.6063232421875,
+        48.629371643066406,
+        241.95751953125
+      ],
+      [
+        635.2332153320312,
+        66.927734375,
+        310.05718994140625
+      ]
+    ],
+    "center_to_source_surface_max_m": 0.0075084276202143614,
+    "sphere_to_source_surface_upper_bound_m": 0.03000842762021436,
+    "expanded_transform_chain_identity": true,
+    "layer_sha256": "5f27c04c8c025918139500e8ef7c7956b6bae52466a0012e7197217dc2a454bc",
+    "foam_ass_sha256": "06b5161047032f859ac6c07c5a06999f33b1b60471456fb0114bc8594fecfa2b",
+    "parent_ass_sha256": "86f765f6a4f58b576fe2eeafcc3c6b17bc5556628cda2e5da1f5cbc39a86cde2"
+  },
+  "simulation": false,
+  "remeshing": false,
+  "mist": false,
+  "source_controls_reused": "C:\\Users\\5d149\\source\\Anisim\\out\\runs\\breaker_foam_views_20261019\\oblique",
+  "temporal_validation": false,
+  "paper_method_claim": false,
+  "visual_review": "Modest intermediate appearance: some gaps gain thin continuity, granular structure remains; broad white patches and glossy bulk persist. User review pending.",
+  "raw_image_distinct_from_both_controls": true,
+  "review_finished_utc": "2026-10-19T23:16:07Z"
+}

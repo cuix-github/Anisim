@@ -19,6 +19,13 @@ failure plus its separate verified recovery; that image was not rerendered.
 
 ## One folder per run
 
+The intermediate foam preview lives in `out/runs/breaker_foam_mix_20261019/`.
+`C/beauty_view.png` is the single new 24.9 s, 18 m oblique image, using
+25 percent uniform plus 75 percent clustered volume density. `C/candidate.mb`
+uses `C/foam.ass`; retain both. `layer.npz`, `density_check.png`, alignment and
+image checks, and `analysis.json` preserve the experiment. Existing A/B images
+in `breaker_foam_views_20261019/oblique/` are its controls, not newly rendered.
+
 The [thin-foam study](breaker-foam-layer-study.md) retains failed support checks
 under out/runs/breaker_foam_layer_20261019/, scene-preparation checks under _v2,
 the ineffective first A under _v3, and the ineffective explicit-density A under
