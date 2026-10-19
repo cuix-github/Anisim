@@ -96,6 +96,45 @@ the asset's unit metadata with the frozen parent scene and check imported bounds
 and camera projection before any new render. Neither failed artifact was altered;
 no unit-corrected scene or further render was produced after the conditional stop.
 
+## Unit-aligned comparison completed
+
+At 19:58:22 UTC on October 19, Xue approved correcting units, checking actual
+imported alignment, then rendering A and conditionally B. Advance notice was
+required if the work was expected to exceed ten minutes. The native ASS now
+declares 0.01 meters per scene unit, matching the frozen Maya parent. This
+matches the parent DCC convention; it does not change the inherited mapping of
+four scene-coordinate units per simulation metre, or rescale the baseline.
+The layer data hash, positions, radii, density groups and shaders remain unchanged.
+
+An initial preparation attempt in _v5 stopped without rendering because Maya
+standalone returned an empty display bounding box for the unloaded stand-in.
+The replacement check uses public AiProceduralExpand on the exported parent ASS,
+with no ray tracing. It verifies every active point and radius, the expanded
+transform chain and distance to its original surface anchor. Both arms passed
+in _v6 at commit fdf0e38. Maximum centre-to-anchor distance is 7.50843 mm;
+including sphere radius, the bound is 30.00843 mm (float32 rounding included).
+The former unit-mismatched _v4 asset is rejected by the new preflight gate.
+
+A completed first and passed its nonzero volume check before B was launched.
+Both licensed 960 by 540 images pass finite EXR, component closure and independent
+ACES display checks. Volume contributes 10.0027 percent of summed raw RGB in A
+and 7.4918 percent in B; these are whole-image radiance shares, not foam coverage
+or physically measured foam fractions. SSS remains zero. A took 185.39 s inside
+rendering (194.63 s process); B took 107.53 s (116.35 s process). The earlier
+ineffective A images were much faster because the layer missed the wave. At
+20:04:55 UTC, before the ten-minute limit, the agent revised the total estimate
+to 12–15 minutes based on the now-active volume work.
+
+Visual review finds a smoother continuous white coating in A and visibly broken,
+granular patches in B. B changes the coverage texture, while retaining the same
+large underlying fragments and glassy main water. It is a valid comparison and
+a working rendering path, not an accepted ocean preset or a claim of reference
+quality. A/B scene states differ only in foam asset and arm identifiers. Cache,
+water geometry, corrected-baseline optics, close side camera and mist-off state
+remain fixed. No simulation or remeshing ran. This turn spent exactly two render
+calls; the whole thin-foam study has four calls, including the two earlier failed
+A attempts. The images, smaller-display comparison and receipts are in _v6.
+
 ## The circled hard fragments are a separate geometry finding
 
 Xue supplied a marked image highlighting angular free-surface fragments. An

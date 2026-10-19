@@ -4,13 +4,13 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
-- **Thin surface foam is stopped after two invalid A attempts.** The
-  [foam-layer study](breaker-foam-layer-study.md) passed spatial and export
-  checks, but both its first A and approved explicit-density replacement produced
-  zero volume scattering. B was withheld as agreed. A read-only audit confirmed
-  mismatched ASS unit metadata and an unintended 100-fold scale on import.
-  Correct unit alignment and imported spatial checks are required before any
-  newly authorized rendering; the visual foam hypothesis remains untested.
+- **Thin surface foam now renders, but the ocean look remains open.** The
+  [foam-layer study](breaker-foam-layer-study.md) corrected an ASS unit mismatch
+  after two ineffective A attempts. Expanded-procedural checks now verify actual
+  imported points, radii and transforms. The newly approved A passed scattering
+  before B ran; both images are valid. B breaks up A's continuous white coating,
+  while the large fragment silhouettes and glassy bulk remain. Four calls total,
+  two valid previews; no solver or remeshing. No further render is authorized.
   A separate offline audit found that the user-circled floating diamond has
   only six vertices and eight triangles before and after smoothing. That is a
   reconstruction limitation for this fragment, not a diagnosis of all crest
