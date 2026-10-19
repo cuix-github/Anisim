@@ -753,7 +753,10 @@ def build3d():
                      # integrator (spray_cfl 0 = the one implicit step); see step_3d
                      ("emit_model", "int", "0"), ("emit_grad_threshold", "float", "10f"),
                      ("emit_rate", "float", "0.05f"), ("emit_max_per_cell", "int", "8"),
-                     ("spray_cfl", "float", "0f")):
+                     ("spray_cfl", "float", "0f"),
+                     # the wave zone (zone_length 0 = none; see step_3d), cells and seconds
+                     ("zone_length", "float", "0f"), ("zone_depth", "float", "0f"),
+                     ("zone_ramp", "float", "0f")):
         if n != "radius_coarse":
             body["ports"].append(P(n, "input", t))
             conns.append({"source": "." + n, "target": "step." + n})
@@ -768,8 +771,10 @@ def build3d():
         P("obstacles_min", "input", "array<Math::float3>"),
         P("obstacles_max", "input", "array<Math::float3>"),
         P("solid_mode", "input", "int"), P("solid_phi", "input", "array<float>"),
+        P("waves", "input", "array<float>"),
     ]
     conns += [
+        {"source": ".waves", "target": "step.waves"},
         {"source": "step.out_mass", "target": ".mass_out2"},
         {"source": ".scale_in2", "target": "step.scale_in"},
         {"source": "step.scale_out", "target": ".scale_out2"},
@@ -805,13 +810,14 @@ def build3d():
     conns += [{"source": ".spray_in2", "target": "step.spray_in"},
               {"source": "step.spray_out", "target": ".spray_out2"}]
     for n, rt in (("scale", "t_flt"), ("phase_st", "t_flt"), ("radius", "t_flt"), ("spray", "t_flt"),
-                  ("obs_min", "t_pos"), ("obs_max", "t_pos"), ("solid_phi", "t_flt")):
+                  ("obs_min", "t_pos"), ("obs_max", "t_pos"), ("solid_phi", "t_flt"),
+                  ("waves", "t_flt")):
         top["ports"].append(P("path_" + n, "input", "string", ""))
         top["compoundNodes"].append({"nodeName": "r2_" + n, "nodeType": "File::NumPy::read_NumPy"})
         tgt = {"scale": "scale_in2", "phase_st": "phase_in2", "radius": "radius_in2",
                "spray": "spray_in2",
                "obs_min": "obstacles_min", "obs_max": "obstacles_max",
-               "solid_phi": "solid_phi"}[n]
+               "solid_phi": "solid_phi", "waves": "waves"}[n]
         top["connections"] += [
             {"source": ".path_" + n, "target": "r2_" + n + ".file_path"},
             {"source": rt + ".output", "target": "r2_" + n + ".type"},

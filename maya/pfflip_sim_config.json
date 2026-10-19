@@ -1,0 +1,17 @@
+{
+    "AminoConfigurations": [
+        {
+            "vendorName": "Anisim",
+            "libraryVersion": "1.0.0",
+            "libraryName": "PFFlipSim",
+            "jsonLibs": [
+                {
+                    "path": "../graphs",
+                    "files": [
+                        "sim_3d_fused.json"
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -450,6 +450,24 @@
      "portDefault": "0f"
     },
     {
+     "portName": "zone_length",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "zone_depth",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
+     "portName": "zone_ramp",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0f"
+    },
+    {
      "portName": "solid_mode",
      "portDirection": "input",
      "portType": "int",
@@ -493,6 +511,12 @@
     },
     {
      "portName": "path_solid_phi",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_waves",
      "portDirection": "input",
      "portType": "string",
      "portDefault": ""
@@ -1048,6 +1072,21 @@
        "portType": "float"
       },
       {
+       "portName": "zone_length",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "zone_depth",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "zone_ramp",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
        "portName": "mass_out2",
        "portDirection": "output",
        "portType": "array<float>"
@@ -1089,6 +1128,11 @@
       },
       {
        "portName": "solid_phi",
+       "portDirection": "input",
+       "portType": "array<float>"
+      },
+      {
+       "portName": "waves",
        "portDirection": "input",
        "portType": "array<float>"
       },
@@ -1658,6 +1702,22 @@
       {
        "source": ".spray_cfl",
        "target": "step.spray_cfl"
+      },
+      {
+       "source": ".zone_length",
+       "target": "step.zone_length"
+      },
+      {
+       "source": ".zone_depth",
+       "target": "step.zone_depth"
+      },
+      {
+       "source": ".zone_ramp",
+       "target": "step.zone_ramp"
+      },
+      {
+       "source": ".waves",
+       "target": "step.waves"
       },
       {
        "source": "step.out_mass",
@@ -2260,6 +2320,10 @@
      "nodeType": "File::NumPy::read_NumPy"
     },
     {
+     "nodeName": "r2_waves",
+     "nodeType": "File::NumPy::read_NumPy"
+    },
+    {
      "nodeName": "wf_velocities",
      "nodeType": "File::NumPy::write_NumPy"
     },
@@ -2714,6 +2778,18 @@
      "target": "loop.spray_cfl"
     },
     {
+     "source": ".zone_length",
+     "target": "loop.zone_length"
+    },
+    {
+     "source": ".zone_depth",
+     "target": "loop.zone_depth"
+    },
+    {
+     "source": ".zone_ramp",
+     "target": "loop.zone_ramp"
+    },
+    {
      "source": ".solid_mode",
      "target": "loop.solid_mode"
     },
@@ -2800,6 +2876,18 @@
     {
      "source": "r2_solid_phi.data",
      "target": "loop.solid_phi"
+    },
+    {
+     "source": ".path_waves",
+     "target": "r2_waves.file_path"
+    },
+    {
+     "source": "t_flt.output",
+     "target": "r2_waves.type"
+    },
+    {
+     "source": "r2_waves.data",
+     "target": "loop.waves"
     },
     {
      "source": "loop.velocities_out",

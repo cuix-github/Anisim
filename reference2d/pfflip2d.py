@@ -47,7 +47,7 @@ class Sim:
                  escape=False, esc_phi=0.3, drag_droplet=1.0, drag_bubble=8.0, buoyancy=2.0,
                  st=False, sub_advect=False, adapt=False, obstacles=None,
                  solid_phi=None, solid_cut=False, solid_support=True, piston=None,
-                 droplet=None, emit=None, spray_cfl=0.0):
+                 droplet=None, emit=None, spray_cfl=0.0, zone=None):
         self.nx, self.ny, self.dx = nx, ny, 1.0
         self.rho_l, self.rho_g = rho_l, rho_g
         self.alpha = {1: alpha_l, 0: alpha_g}
@@ -173,6 +173,12 @@ class Sim:
         if self.piston is not None:
             self.solid_cut, self.solid_support = True, True
             self._move_piston(0.0, 0.0)
+        # the wave zone (below): None leaves every path untouched
+        self.zone = None
+        self._zone_t = None          # the end of the step under way, for the inlet
+        if zone is not None:
+            self.zone = dict(self.ZONE_DEFAULTS, **zone)
+            self.zone["waves"] = [tuple(map(float, wv)) for wv in self.zone["waves"]]
         self.st_rng = np.random.default_rng(7)
         self.tau = np.zeros(0)
         self.u = np.zeros((nx + 1, ny))   # x-velocity on vertical faces
@@ -370,6 +376,89 @@ class Sim:
         X, Y = np.meshgrid(np.arange(nx + 1, dtype=float), np.arange(ny + 1, dtype=float),
                            indexing="ij")
         return np.maximum(np.maximum(x_left - X, X - (x_left + width)), Y - top)
+
+    # --- the wave zone (2026-10-18): the wavemaker of a numerical wave basin without
+    # a paddle, the relaxation zone of ship and coastal CFD (Jacobsen et al. 2012).
+    # zone = dict(length, depth, ramp, waves=[(H, T, phase), ...]) in cells, seconds and
+    # radians: after every projection the face velocities within `length` of the
+    # x = 0 wall are blended toward the sum of the linear trains' velocity fields, and
+    # so are the liquid particles' velocities after their FLIP update, with the weight
+    # 1 - (exp(s^3.5) - 1) / (e - 1), s = x / length, a face's times its phase (the
+    # water is forced where it is, the air left alone); the x = 0 wall faces are the
+    # trains' inlet, carrying their velocity (times the face's phase) instead of 0
+    # whenever a step is under way, so the flux the trains need is not forced into the
+    # wall's cells. (The first zone faded the weight over the cell above the trains'
+    # summed surface instead, which pumped the water one way: lifted on the crests, the
+    # water above the trains' troughs was left where it was, and the level rose.) Each train's wavenumber
+    # solves w^2 = g k tanh(k h) at the still depth h; its height rises from 0 over
+    # `ramp` seconds (a smoothstep). The field is taken at the end of the step. The 3D
+    # node's zone_* ports and `waves` array are this (its trains may also have a
+    # direction; here they run along x).
+    ZONE_DEFAULTS = dict(length=24.0, depth=12.0, ramp=0.0, waves=())
+
+    @staticmethod
+    def wavenumber(T, h, g):
+        """k from w^2 = g k tanh(k h), Newton from the deep-water k (as the node)."""
+        om = 2.0 * np.pi / T
+        k = om * om / g
+        for _ in range(50):
+            th, ch = np.tanh(k * h), np.cosh(k * h)
+            k -= (g * k * th - om * om) / (g * (th + k * h / (ch * ch)))
+        return k
+
+    def _zone_trains(self, t):
+        z = self.zone
+        g = abs(self.g)
+        ramp = 1.0
+        if z["ramp"] > 0.0:
+            s = min(1.0, t / z["ramp"])
+            ramp = s * s * (3.0 - 2.0 * s)
+        out = []
+        for H, T, ph in z["waves"]:
+            if not (T > 0.0) or not (H > 0.0):
+                continue
+            out.append((0.5 * H * ramp, self.wavenumber(T, z["depth"], g), 2.0 * np.pi / T, ph))
+        return out
+
+    def _zone_at(self, x, y, t):
+        """The blend weight at the points (x, y) and the trains' velocity there."""
+        z = self.zone
+        h = z["depth"]
+        x, y = np.asarray(x, float), np.asarray(y, float)
+        s = np.clip(x / z["length"], 0.0, 1.0)
+        wz = np.where(x < z["length"], 1.0 - (np.exp(s ** 3.5) - 1.0) / 1.718281828459045, 0.0)
+        ye = np.minimum(y, h)
+        ut, vt = np.zeros_like(x), np.zeros_like(x)
+        for a, k, om, ph in self._zone_trains(t):
+            psi = k * x - om * t + ph
+            sh = np.sinh(k * h)
+            ut += a * om * np.cosh(k * ye) / sh * np.cos(psi)
+            vt += a * om * np.sinh(k * ye) / sh * np.sin(psi)
+        return wz, ut, vt
+
+    def _zone_faces(self, t):
+        nx, ny = self.nx, self.ny
+        pu, pv = self._face_phase()
+        i, j = np.meshgrid(np.arange(nx + 1, dtype=float), np.arange(ny, dtype=float) + 0.5, indexing="ij")
+        w, ut, _ = self._zone_at(i, j, t)
+        w = w * pu
+        self.u = (1.0 - w) * self.u + w * ut
+        i, j = np.meshgrid(np.arange(nx, dtype=float) + 0.5, np.arange(ny + 1, dtype=float), indexing="ij")
+        w, _, vt = self._zone_at(i, j, t)
+        w = w * pv
+        self.v = (1.0 - w) * self.v + w * vt
+
+    def _zone_particles(self, t, skip=None):
+        liquid = self.typ == 1
+        if skip is not None:
+            liquid = liquid & ~skip
+        if not liquid.any():
+            return
+        w, ut, vt = self._zone_at(self.pos[liquid, 0], self.pos[liquid, 1], t)
+        v = self.vel[liquid]
+        v[:, 0] = (1.0 - w) * v[:, 0] + w * ut
+        v[:, 1] = (1.0 - w) * v[:, 1] + w * vt
+        self.vel[liquid] = v
 
     def _move_piston(self, t, dt):
         """The plate at time t, moving at the step's mean speed towards t + dt."""
@@ -634,6 +723,14 @@ class Sim:
     def _enforce_walls(self):
         self.u[0, :] = self.u[-1, :] = 0.0
         self.v[:, 0] = self.v[:, -1] = 0.0
+        if self.zone is not None and self._zone_t is not None:
+            # the wave inlet: the x = 0 faces carry the trains' velocity less its
+            # flux-weighted mean (a sealed box has no pressure solution under a net
+            # inflow; the wall's own column breathes by the mean instead)
+            w, ut, _ = self._zone_at(np.zeros(self.ny), np.arange(self.ny, dtype=float) + 0.5, self._zone_t)
+            w = w * self._face_phase()[0][0, :]
+            c = float(np.sum(w * ut) / np.sum(w)) if np.sum(w) > 0.0 else 0.0
+            self.u[0, :] = w * (ut - c)
         if self.has_solids:
             mu, mv = self._solid_face_masks()
             self.u[mu] = 0.0
@@ -687,14 +784,15 @@ class Sim:
             raw2 = np.median(mu2[2:-2, 2:-2]) / self.rho_l
             self.coarse_gain = float(np.mean(acc)) / self.rho_l / max(raw2, 1e-9)
 
-    def project(self, dt, tol=1e-6, max_iter=4000):
+    def _face_phase(self):
+        """The faces' phase (Eq. 7) as the projection takes it."""
         if self.solid_phi is not None and self.solid_support:
             su, sv = self._solid_support_share()
-            phi_u = self.phase(self.mu / np.maximum(su, 0.1))
-            phi_v = self.phase(self.mv / np.maximum(sv, 0.1))
-        else:
-            phi_u = self.phase(self.mu)
-            phi_v = self.phase(self.mv)
+            return self.phase(self.mu / np.maximum(su, 0.1)), self.phase(self.mv / np.maximum(sv, 0.1))
+        return self.phase(self.mu), self.phase(self.mv)
+
+    def project(self, dt, tol=1e-6, max_iter=4000):
+        phi_u, phi_v = self._face_phase()
         rho_u = self.rho_g + (self.rho_l - self.rho_g) * phi_u
         rho_v = self.rho_g + (self.rho_l - self.rho_g) * phi_v
         bu = 1.0 / rho_u
@@ -812,11 +910,16 @@ class Sim:
     def step(self, dt):
         if self.piston is not None:
             self._move_piston(self.t, dt)
+        if self.zone is not None:
+            self._zone_t = self.t + dt
         self.p2g()
         u_star, v_star = self.u.copy(), self.v.copy()
         self.v += self.g * dt          # gravity on y-faces
         self._enforce_walls()
         self.project(dt)
+        if self.zone is not None:
+            self._zone_faces(self.t + dt)
+            self._enforce_walls()
         esc = None
         if self.escape:
             # Escape detection from the OTHER phase's local number density, which is
@@ -835,6 +938,8 @@ class Sim:
             frac_liq = 0.5 * (self._sample_faces(lu, np.array([0.0, 0.5]), self.pos) +
                               self._sample_faces(lv, np.array([0.5, 0.0]), self.pos))
             drop = (self.typ == 1) & (frac_air > thresh)
+            if self.zone is not None:
+                drop &= ~(self.pos[:, 0] < self.zone["length"])   # the zone's liquid is the zone's to move
             bub = (self.typ == 0) & (frac_liq > thresh)
             # emitted spray is a droplet whatever the test says, and falls back into
             # the water (deleted below) where the test would call it liquid
@@ -844,6 +949,8 @@ class Sim:
             self.escaped = esc
             lf = frac_liq / self.rho0_face
         self.g2p(u_star, v_star, skip=esc)
+        if self.zone is not None:
+            self._zone_particles(self.t + dt, esc)
         gone = None
         if self.droplet is not None and esc is not None:
             gone = self._droplet_radii(drop, dt)
