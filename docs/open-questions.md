@@ -4,6 +4,19 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Reproduce the papers before adding new render design (Xue, 2026-10-19).**
+  The proposed hybrid particle classifier and analytic droplet replacements are
+  deferred. Procedurally clustered foam remains a look experiment, not the target
+  reconstruction. Re-reading ST-FLIP Section 4 / Appendix B confirms an implicit
+  density 0.5-isocontour rendered by ray marching, after union-of-spheres deposition
+  at twice the simulation-grid resolution and feature-preserving curvature flow.
+  Our density-derived mask but SDF evolution, one-voxel mask dilation, Gaussian
+  pass and polygon extraction need a correspondence audit before more appearance
+  tuning. The frozen control uses 10 MCF iterations; the paper generally uses 30,
+  but equal iteration counts do not establish equal numerical smoothing strength.
+  Distinguish coarse field detail from polygon approximation on the circled
+  fragment. No diagnostic reconstruction, new rendering or simulation started.
+
 - **Thin surface foam now renders, but the ocean look remains open.** The
   [foam-layer study](breaker-foam-layer-study.md) corrected an ASS unit mismatch
   after two ineffective A attempts. Expanded-procedural checks now verify actual

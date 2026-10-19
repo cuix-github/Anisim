@@ -135,6 +135,14 @@ remain fixed. No simulation or remeshing ran. This turn spent exactly two render
 calls; the whole thin-foam study has four calls, including the two earlier failed
 A attempts. The images, smaller-display comparison and receipts are in _v6.
 
+After reviewing this direction, Xue clarified on October 19 that reproduction of
+PF-FLIP and ST-FLIP takes priority over additional render design. The clustered
+procedural density in B remains an informative appearance experiment, but is
+not the paper's method and will not be extended as the reproduction baseline.
+The proposed hybrid particle classifier and analytic droplet replacement are
+also deferred. Next priorities are surface-reconstruction correspondence and
+paper-grounded interface/spray scattering, with no new runs authorized here.
+
 ## The circled hard fragments are a separate geometry finding
 
 Xue supplied a marked image highlighting angular free-surface fragments. An
