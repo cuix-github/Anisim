@@ -24,6 +24,17 @@ OFFSET=.0075 # centre relative to the sampled water surface, metres
 AREA=.014**2 # integration area per quadrature point, square metres
 TAU=.8       # target normal optical depth at full mask before overlaps/curvature
 STEP=.005    # 5 mm in metres; converted to scene units only on export
+MAYA_METERS_PER_UNIT=.01  # Match the frozen Maya ASS; simulation metre is 4 scene units.
+
+
+def ass_units(path):
+    # Read only the header, never the potentially huge base85 geometry lines.
+    with Path(path).open() as f:
+        for _ in range(12):
+            line=f.readline()
+            if line.startswith('### meters_per_unit:'):
+                return float(line.split(':',1)[1])
+    raise AssertionError('Missing ASS unit metadata: '+str(path))
 
 
 def noise(p,length,seed):
@@ -49,9 +60,11 @@ def arnold():
 def export_points(path,points,density):
     a,dll=arnold();a.AiBegin();u=a.AiUniverse()
     try:
-        # The first rendered point cloud produced no scattering despite a valid
-        # user_data_float link. Use explicit constant shader densities instead;
-        # this avoids depending on per-point user data in volume shading context.
+        # Coordinates already use the frozen Maya scene's convention. Omitting
+        # this metadata scales them another 100 times when loaded as a stand-in.
+        a.AiNodeSetFlt(a.AiUniverseGetOptions(u),'meters_per_unit',MAYA_METERS_PER_UNIT)
+        # Retain the previous arm's density grouping: only unit metadata changes.
+        # The prior failure did not establish a fault in per-point user data.
         group=np.floor(density/max(density.max(),1e-20)*63).astype(int)
         group[density==0]=-1
         exported=np.zeros(len(points));groups=[]
@@ -73,6 +86,7 @@ def export_points(path,points,density):
             a.AiNodeSetArray(node,'shader',shaders)
             exported[index]=value;groups.append((name,shader,index,value))
         assert a.AiSceneWrite(u,str(path))
+        assert ass_units(path)==MAYA_METERS_PER_UNIT
         a.AiUniverseDestroy(u);u=a.AiUniverse()
         assert a.AiSceneLoad(u,str(path))
         actual_density=np.zeros(len(points))
@@ -90,7 +104,7 @@ def export_points(path,points,density):
         error=float(np.abs(actual_density-density).sum()/density.sum())
         budget_error=float(abs(actual_density.sum()-density.sum())/density.sum())
         assert error<.08 and budget_error<1e-6,(error,budget_error)
-        return dict(status='passed',points=int((density>0).sum()),logical_points=len(points),groups=len(groups),
+        return dict(status='passed',meters_per_unit=ass_units(path),points=int((density>0).sum()),logical_points=len(points),groups=len(groups),
                     density_representation='64 constant-density bins; zero-density points omitted',
                     density_quantization_relative_l1=error,budget_relative_error=budget_error,
                     integrated_extinction_m2=float(actual_density.sum()*4*np.pi/3*RADIUS**3),point_radius_m=RADIUS,step_m=STEP,
