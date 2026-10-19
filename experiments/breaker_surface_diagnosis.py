@@ -154,7 +154,12 @@ def worker(out):
     result["status"] = "passed"
     (out / "worker_result.json").write_text(json.dumps(result, indent=2))
     print("BAKED_RELOAD_PASS", result["baked_reload_verify_s"], flush=True)
-    maya.standalone.uninitialize()
+    # Match the existing scene builder: this installed Maya/MtoA combination can
+    # crash in plugin teardown after successful standalone work. Exit only after
+    # all assertions, flushed files and the completed result have been written.
+    import ctypes
+    sys.stdout.flush(); sys.stderr.flush()
+    ctypes.windll.kernel32.TerminateProcess(ctypes.windll.kernel32.GetCurrentProcess(), 0)
 
 
 def main():

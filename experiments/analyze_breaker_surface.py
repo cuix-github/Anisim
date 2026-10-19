@@ -86,7 +86,9 @@ def section(mesh, z=68):
 def main():
     worker = json.loads((OUT / "worker_result.json").read_text())
     receipt = json.loads((OUT / "receipt.json").read_text())
-    assert worker["status"] == receipt["status"] == "passed"
+    verification = json.loads((OUT / "static_verification.json").read_text())
+    assert worker["status"] == verification["status"] == "passed"
+    assert verification["exit_code"] == 0
     probes = np.load(OUT / "probes.npz")
     p, radii = probes["positions"], probes["radii"]
     meshes, closest, metrics = {}, {}, {}
@@ -122,7 +124,7 @@ def main():
         assert set(diff) == {allowed}, diff
         assert graphs[a]["connections"] == graphs[b]["connections"]
         changes[a + "_to_" + b] = diff
-    result = dict(status="passed", run=receipt, execution=worker, geometry=metrics,
+    result = dict(status="passed", run=receipt, execution=worker, static_verification=verification, geometry=metrics,
                   near_raw_unflagged_probes=int(near_raw.sum()), flagged_probes=int((radii > 1e-9).sum()),
                   correspondence=comparisons, adjacent_graph_changes=changes,
                   artifacts_sha256={f.name: hashlib.sha256(f.read_bytes()).hexdigest()
