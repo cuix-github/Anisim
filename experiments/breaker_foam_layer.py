@@ -129,6 +129,11 @@ def build(out):
     surface=np.einsum('ni,nij->nj',bary,q[ids])
     normal=np.einsum('ni,nij->nj',bary,normals[t[ids]]);normal/=np.linalg.norm(normal,axis=1)[:,None]
     m=np.einsum('ni,ni->n',bary,mask[t[ids]])
+    # Interpolating a vertex mask can leak across a triangle straddling a crop
+    # exclusion. Apply the analytic exclusion again at each actual sample.
+    low=p.min(0);high=p.max(0)
+    cut=np.minimum.reduce([surface[:,0]-low[0],high[0]-surface[:,0],surface[:,2]-low[2],high[2]-surface[:,2]])
+    m*=smoothstep(.6,1.0,cut)
     weights=area[ids]/np.repeat(counts,counts)*m
     centers=surface+normal*OFFSET
     factors=smoothstep(-.25,.5,noise(surface,.24,774))*smoothstep(-.35,.45,noise(surface,.065,991))
@@ -136,7 +141,6 @@ def build(out):
     volume=4*np.pi/3*RADIUS**3;dA=TAU*weights/volume;dB=dA*factors
     budget=[float(np.sum(d)*volume) for d in [dA,dB]]
     assert abs(budget[0]-budget[1])/budget[0]<1e-12
-    low=p.min(0);high=p.max(0)
     edge=np.minimum.reduce([centers[:,0]-low[0],high[0]-centers[:,0],centers[:,2]-low[2],high[2]-centers[:,2]])-RADIUS
     active=weights>1e-8
     assert edge[active].min()>.5
