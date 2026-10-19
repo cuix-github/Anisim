@@ -92,6 +92,14 @@ Listed, not deleted; deleting a run's data is the owner's call.
 
 ## The gates and the studies
 
+The paired foam viewing study is `out/runs/breaker_foam_views_20261019/`: `wide`
+and `oblique` retain the 24.9 s assets; `later26` and `later28` use existing caches
+at 26.025 and 28.025 s. Every view has A/B scenes, licensed renders, image checks
+and a full-size pair; the root contact sheet contains eight previews. `frames/`
+retains reconstruction, normal controls and pre-render mask/layer checks.
+`crop_audit.png` identifies the visible artificial water-crop side using existing
+position/normal AOVs, without new rendering. [Findings and limits](breaker-foam-view-study.md).
+
 The frozen 24.9 s render study is `out/runs/breaker_render_study_20261019/`: `A` through `E` contain the five 960 x 540 previews, `candidate_D` the 1920 x 1080 inspection candidate, and `comparison.png` the labeled contact sheet. Each arm keeps its saved scene, complete launch log, Arnold/Maya logs and hashed receipt. `verified_study.json` holds the independent scene audit. The source cache at `out/runs/wavesea4/cache/breaking_section` was not rewritten. [Settings, findings and reproduction](breaker-render-study.md).
 
 Each gate's and study's working folder stays at the `out\` root under its own name, as before: `out\loop3_<gate run>` for the loop gates (`resume_*`, `lsn_*`, `st3d`, ...), `out\step_in` and `out\step_out` and their kin for the node gates, `out\play_gate`, `out\p2g_gate`, `out\level_set_node`, `out\threading`, `out\adaptive_*`, `out\bore_suite`. The report lists them under "everything else" with a label each. `out\loop3_D_finale_c1` is the canonical profiling state, the mid-bore finale every speed receipt resumes from; it stays where CLAUDE.md names it. Ask before regenerating it.

@@ -4,6 +4,19 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Water scale and visible crop sides (2026-10-19).** Xue finds the white crest
+  close to the target but the whole image still reads as a small fish tank. The
+  [eight-view foam study](breaker-foam-view-study.md) confirms that much of the
+  glassy side-view wall is near the artificial front crop boundary: 54.2% and
+  61.8% of selected transmitted samples in two side images, versus 12.6% in the
+  oblique image. These are thresholded AOV samples, not total image coverage.
+  The 18–24 m local views also magnify similar absolute cell sizes much more than
+  the reference's kilometre-wide presentation. Prioritize a fuller cached-water
+  composition with artificial sides outside the important sight lines before
+  another material sweep; estimate reconstruction memory first. No expanded
+  reconstruction or extra render has started. Both foam appearances remain
+  candidates. Their instantaneous masks do not provide persistent surface foam.
+
 - **Reproduce the papers before adding new render design (Xue, 2026-10-19).**
   The proposed hybrid particle classifier and analytic droplet replacements are
   deferred. Procedurally clustered foam remains a look experiment, not the target
@@ -30,7 +43,9 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   imported points, radii and transforms. The newly approved A passed scattering
   before B ran; both images are valid. B breaks up A's continuous white coating,
   while the large fragment silhouettes and glassy bulk remain. Four calls total,
-  two valid previews; no solver or remeshing. No further render is authorized.
+  two valid previews; no solver or remeshing in that original comparison.
+  Xue subsequently requested the eight paired views described above; those are
+  complete, with later-frame reconstruction from existing caches and no solver.
   A separate offline audit found that the user-circled floating diamond has
   only six vertices and eight triangles before and after smoothing. That is a
   reconstruction limitation for this fragment, not a diagnosis of all crest

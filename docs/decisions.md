@@ -36,7 +36,7 @@ as though it were the paper's method: both papers explicitly exclude procedural
 textures. Prioritize conformance of particle-derived surface reconstruction,
 feature-preserving smoothing, interface scattering and the paper's spray path.
 Arnold-specific numerical approximations must be labelled and validated; the
-papers do not supply a complete material/lighting preset. This direction does
+papers do not supply a complete material/lighting preset. This direction
 did not initially authorize another run. Later on October 19 Xue authorized
 offline reconstruction and scattering checks together, still deferring spray
 and solver changes. After seeing the valid A/B foam images on desktop, he judged
