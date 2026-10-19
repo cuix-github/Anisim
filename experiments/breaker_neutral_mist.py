@@ -119,6 +119,8 @@ def render(out):
     try:
         c.scriptEditorInfo(writeHistory=True,historyFilename=str(out/'maya.log'))
         c.file(str(out/'candidate.mb'),open=True,force=True)
+        # Workspace file rules are process state, not persisted by saving .mb.
+        c.workspace(fileRule=['images',out.as_posix()])
         assert c.ls(type='bifrostGraphShape')==['candidateMistShape']
         assert c.getAttr('baked_control.visibility') and c.getAttr('candidateMistShape.visibility')
         assert not c.getAttr('baked_raw.visibility') and not c.getAttr('baked_no_mcf.visibility')
@@ -167,7 +169,17 @@ def main():
         folder=out/args.mode; assert not (folder/'receipt.json').exists()
         if args.mode=='side':
             prior=json.loads((out/'original/receipt.json').read_text())
-            assert prior['status']=='passed' and prior['git_sha']==base.git('rev-parse','HEAD')
+            if prior['status']=='passed':
+                assert prior['git_sha']==base.git('rev-parse','HEAD')
+            else:
+                # A finished render with failed PNG collection can be recovered
+                # without spending another render; preserve the failed receipt.
+                recovery=json.loads((out/'original/recovery.json').read_text())
+                assert recovery['status']=='passed'
+                assert recovery['receipt_sha256']==base.sha(out/'original/receipt.json')
+                assert recovery['png_sha256']==base.sha(out/'original/beauty.png')
+                assert recovery['exr_sha256']==base.sha(out/'original/optics.0001.exr')
+            assert prior['cache_sha256']==hashes and prior['source_sha256']==base.SOURCE_SHA
         launcher=r"""
 $ErrorActionPreference = 'Stop'
 if (Get-Process maya,mayapy -ErrorAction SilentlyContinue) { throw 'Another Maya process is open' }
