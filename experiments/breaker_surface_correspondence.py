@@ -231,8 +231,51 @@ def analyze():
     save(OUT/'analysis.json',report);print(json.dumps(report,indent=2))
 
 
+def analyze_local():
+    commit=clean_sha()
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    from matplotlib.collections import PolyCollection
+    from breaker_corner_audit import components
+    report=dict(git_sha=commit,arms={})
+    fig,axs=plt.subplots(2,2,figsize=(12,10))
+    frozen=np.load(OUT/'control/sdf.npy')
+    for col,arm in enumerate(['local_control','local_refine']):
+        out=OUT/arm;z=np.load(out/'mesh.npz');p=z['points'].astype(float)*.25;t=z['triangles']
+        ids,face_ids=components(p,t)
+        nearest=int(np.argmin(np.linalg.norm(p-CENTER,axis=1)))
+        connected=ids==ids[nearest];faces=t[face_ids==ids[nearest]]
+        h,area,n,edges,counts,ta=interface.curvature(p,t)
+        filtered=interface.filter_field(h,p,edges)
+        sdf=np.load(out/'sdf.npy')
+        assert np.max(np.abs(sdf-frozen))<1e-5
+        xy=(p-CENTER)[:,:2]*100
+        local=(np.abs(p[t].mean(1)-CENTER)<[.5,.5,.5]).all(1)
+        triangles=t[local];order=np.argsort(p[triangles,2].mean(1))[::-1]
+        ax=axs[0,col]
+        ax.add_collection(PolyCollection(xy[triangles[order]],facecolors='#b8dce9',edgecolors='#35566b',linewidths=.7,alpha=.65))
+        ax.set(xlim=(-35,35),ylim=(-25,25),aspect='equal',title=arm+' / projected local mesh',xlabel='x / cm',ylabel='y / cm')
+        color=plt.get_cmap('inferno')(interface.smoothstep(2,4,np.abs(filtered))[triangles].mean(1))
+        ax=axs[1,col];ax.add_collection(PolyCollection(xy[triangles[order]],facecolors=color[order],edgecolors='#333',linewidths=.2))
+        ax.set(xlim=(-35,35),ylim=(-25,25),aspect='equal',title='Legacy curvature mask: dark 0, bright 1',xlabel='x / cm',ylabel='y / cm')
+        report['arms'][arm]=dict(nearest_vertex_distance_m=float(np.linalg.norm(p[nearest]-CENTER)),
+            component_vertices=int(connected.sum()),component_triangles=len(faces),
+            component_bounds_m=[p[connected].min(0).tolist(),p[connected].max(0).tolist()],
+            component_filtered_H_range_per_m=[float(filtered[connected].min()),float(filtered[connected].max())],
+            component_mean_mask=float(np.mean(interface.smoothstep(2,4,np.abs(filtered[connected])))),
+            source_sdf_max_difference_cells=float(np.max(np.abs(sdf-frozen))),
+            manifold=bool(np.all(counts==2)))
+    report['interpretation']='The nearest connected component is a spatial correspondence check, not exact particle provenance. Resampling changes the discrete volume as well as the contour: not a paper-faithful replacement until field, topology and smoothing correspondence are established.'
+    fig.suptitle('Local diagnostic only — unchanged cached particles / no Arnold render')
+    fig.tight_layout();fig.savefig(OUT/'local_comparison.png',dpi=140);plt.close(fig)
+    save(OUT/'local_analysis.json',report);print(json.dumps(report,indent=2))
+
+
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['smoke','control','fine','local_control','local_refine','analyze'])
+    parser.add_argument('action',choices=['smoke','control','fine','local_control','local_refine','analyze','analyze_local'])
     args=parser.parse_args()
-    analyze() if args.action=='analyze' else run(args.action)
+    if args.action=='analyze':analyze()
+    elif args.action=='analyze_local':analyze_local()
+    else:run(args.action)
