@@ -72,7 +72,7 @@ def snapshot(c):
                 value = c.getAttr(node + '.' + attr)
                 json.dumps(value)
                 values[attr] = value
-            except (RuntimeError, TypeError):
+            except (RuntimeError, TypeError, ValueError):
                 pass
         result[node] = values
     sel = om.MSelectionList()
