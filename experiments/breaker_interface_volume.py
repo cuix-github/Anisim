@@ -159,7 +159,7 @@ def readback_graph(out):
         ('write.file_path','string',(out/'readback.npy').as_posix()),
         ('write.frame','long','0L'),('write.enable','bool','true'),('write.overwrite','bool','false')]]
     compound['connections']=[dict(source=a,target=b) for a,b in [
-        ('read.volumes','first.array'),('obj.output','first.default'),
+        ('read.volumes','first.array'),
         ('first.value','samp.volume'),('f3.output','pts.type'),('pts.data','samp.positions'),
         ('samp.sampled_data','write.data'),('write.success','.ok'),('read.success','.ok_read')]]
     compound['ports']=[dict(portName=n,portDirection='output',portType='bool') for n in ('ok','ok_read')]
