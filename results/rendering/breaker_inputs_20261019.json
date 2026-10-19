@@ -1,0 +1,246 @@
+{
+  "source_revision": "fc1791874466324fd8aed4eaf019cd9746194c3c",
+  "worktree_status": "",
+  "cache_hashes": {
+    "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+    "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+    "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+    "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5",
+    "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88"
+  },
+  "time_s": 24.9,
+  "cell_size_m": 0.25,
+  "particles": 811717,
+  "surface_input_particles": 810525,
+  "excluded_from_surface_by_radius": 1192,
+  "bounds_m": [
+    [
+      120.0,
+      8.400461196899414,
+      60.00005340576172
+    ],
+    [
+      164.18177795410156,
+      21.13202667236328,
+      77.99996948242188
+    ]
+  ],
+  "height_quantiles_m": {
+    "surface_input": [
+      8.400461196899414,
+      9.717986679077148,
+      11.479308128356934,
+      12.953954124450684,
+      21.13202667236328
+    ],
+    "excluded": [
+      11.856410026550293,
+      12.529621028900147,
+      13.39655351638794,
+      14.2971773147583,
+      20.725486755371094
+    ]
+  },
+  "saved_renders": {
+    "A": {
+      "eye_m": [
+        149.0,
+        19.0,
+        47.0
+      ],
+      "target_m": [
+        142.5,
+        14.5,
+        64.0
+      ],
+      "target_distance_m": 18.748333259252675,
+      "surface_voxel_m": 0.125,
+      "particle_sphere_radius_m": 0.125,
+      "voxel_px_at_target_estimate": 6.222775382397758,
+      "sphere_diameter_px_at_target_estimate": 12.445550764795517,
+      "triangles": 274090,
+      "ray_depths": {
+        "diffuse": 1,
+        "specular": 1,
+        "transmission": 8,
+        "volume indirect": 3
+      },
+      "scene_sha256": "3cd4d2fbf71ad63efe8aeecd81db7d51658a72565bbf42e88b532cd327cd23a2",
+      "log_sha256": "53d497db16a13c05c2ba6ab926645247cc28fd944249166d83e83c06e8ba8acf",
+      "water_roughness": 0.029999999329447746,
+      "mcf_iterations": 30,
+      "mist_hidden": false,
+      "water_assigned_directly": false
+    },
+    "B": {
+      "eye_m": [
+        149.0,
+        19.0,
+        47.0
+      ],
+      "target_m": [
+        142.5,
+        14.5,
+        64.0
+      ],
+      "target_distance_m": 18.748333259252675,
+      "surface_voxel_m": 0.125,
+      "particle_sphere_radius_m": 0.125,
+      "voxel_px_at_target_estimate": 6.222775382397758,
+      "sphere_diameter_px_at_target_estimate": 12.445550764795517,
+      "triangles": 274090,
+      "ray_depths": {
+        "diffuse": 1,
+        "specular": 1,
+        "transmission": 8,
+        "volume indirect": 3
+      },
+      "scene_sha256": "229ff16bcc41ec3820c74d114a6e8f0592240874d0510d31766d181e648149fc",
+      "log_sha256": "36cd77bd73a6452d22b2303a44f5d8f3683b96d9d1e49174610f7a07ee2844f1",
+      "water_roughness": 0.029999999329447746,
+      "mcf_iterations": 30,
+      "mist_hidden": false,
+      "water_assigned_directly": true
+    },
+    "C": {
+      "eye_m": [
+        149.0,
+        19.0,
+        47.0
+      ],
+      "target_m": [
+        142.5,
+        14.5,
+        64.0
+      ],
+      "target_distance_m": 18.748333259252675,
+      "surface_voxel_m": 0.125,
+      "particle_sphere_radius_m": 0.125,
+      "voxel_px_at_target_estimate": 6.222775382397758,
+      "sphere_diameter_px_at_target_estimate": 12.445550764795517,
+      "triangles": 274090,
+      "ray_depths": {
+        "diffuse": 1,
+        "specular": 1,
+        "transmission": 8,
+        "volume indirect": 3
+      },
+      "scene_sha256": "64b2d7d7a372d2b5c92ec79260bd46d2d987f5c851dabb250da73d8010a55cd8",
+      "log_sha256": "c1adf369c4313b3d93d75bfb99983b5d20371e6858c1dc452b440490103d3a5d",
+      "water_roughness": 0.029999999329447746,
+      "mcf_iterations": 30,
+      "mist_hidden": true,
+      "water_assigned_directly": true
+    },
+    "D": {
+      "eye_m": [
+        149.0,
+        19.0,
+        47.0
+      ],
+      "target_m": [
+        142.5,
+        14.5,
+        64.0
+      ],
+      "target_distance_m": 18.748333259252675,
+      "surface_voxel_m": 0.125,
+      "particle_sphere_radius_m": 0.125,
+      "voxel_px_at_target_estimate": 6.222775382397758,
+      "sphere_diameter_px_at_target_estimate": 12.445550764795517,
+      "triangles": 292516,
+      "ray_depths": {
+        "diffuse": 1,
+        "specular": 1,
+        "transmission": 8,
+        "volume indirect": 3
+      },
+      "scene_sha256": "70a3a40c23ece6dc36e64900114917e9e25d142a599a521d20a7688aa64341ee",
+      "log_sha256": "ea3ca6c16f7b77b782deecf691d83d7410750a312fe59be80c228cfbd8066197",
+      "water_roughness": 0.029999999329447746,
+      "mcf_iterations": 10,
+      "mist_hidden": true,
+      "water_assigned_directly": true
+    },
+    "E": {
+      "eye_m": [
+        149.0,
+        19.0,
+        47.0
+      ],
+      "target_m": [
+        142.5,
+        14.5,
+        64.0
+      ],
+      "target_distance_m": 18.748333259252675,
+      "surface_voxel_m": 0.125,
+      "particle_sphere_radius_m": 0.125,
+      "voxel_px_at_target_estimate": 6.222775382397758,
+      "sphere_diameter_px_at_target_estimate": 12.445550764795517,
+      "triangles": 274090,
+      "ray_depths": {
+        "diffuse": 1,
+        "specular": 1,
+        "transmission": 8,
+        "volume indirect": 3
+      },
+      "scene_sha256": "4489bb4d474427873d7f25ff6621ac3dbbe3933dee691e65278792897abe7638",
+      "log_sha256": "46b08ec828a8395d3a0f8b6daa4748d8f1d15099c48306723ac5d549257ca1d4",
+      "water_roughness": 0.029999999329447746,
+      "mcf_iterations": 30,
+      "mist_hidden": true,
+      "water_assigned_directly": true
+    },
+    "candidate_D": {
+      "eye_m": [
+        156.0,
+        19.0,
+        62.0
+      ],
+      "target_m": [
+        143.5,
+        14.5,
+        68.5
+      ],
+      "target_distance_m": 14.79019945774904,
+      "surface_voxel_m": 0.125,
+      "particle_sphere_radius_m": 0.125,
+      "voxel_px_at_target_estimate": 15.77621275493231,
+      "sphere_diameter_px_at_target_estimate": 31.55242550986462,
+      "triangles": 292516,
+      "ray_depths": {
+        "diffuse": 1,
+        "specular": 1,
+        "transmission": 8,
+        "volume indirect": 3
+      },
+      "scene_sha256": "c4b856e1f00e771857d76ae058fdb107c62bb47e4416a871775a2fd43a3cfa69",
+      "log_sha256": "0b639f90b3c5e39c6cc239f8dcdc1c3f94323323f10233d64df0db3aff170f71",
+      "water_roughness": 0.029999999329447746,
+      "mcf_iterations": 10,
+      "mist_hidden": true,
+      "water_assigned_directly": true
+    }
+  },
+  "limits": [
+    "No production mesh or level set is evaluated or measured here.",
+    "Surface input membership is not a test of survival in the final mesh.",
+    "The radius channel is a render classification; it is not each parcel's geometric radius.",
+    "Screen size estimates assume horizontal film fit and ignore occlusion.",
+    "Cell size alone does not establish equal resolved physics or screen-space detail."
+  ],
+  "plot_selections": [
+    {
+      "title": "All cache particles projected from the side (18 m depth overlaps)",
+      "particles": 811717,
+      "excluded": 1192
+    },
+    {
+      "title": "Local side slice: z = 67.75 to 68.25 m (0.5 m thick)",
+      "particles": 22640,
+      "excluded": 36
+    }
+  ],
+  "wall_s": 0.40305600001011044
+}
