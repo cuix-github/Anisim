@@ -16,6 +16,9 @@ import breaker_six_views as study
 import breaker_deep_water as base
 import breaker_surface_correspondence as surface
 
+TILES = [(10, 50), (38, 62), (50, 78)]
+JOINS = [44, 56]
+
 
 def stitch(p0, t0, p1, t1, plane):
     a = t0[p0[t0, 2].mean(1) < plane]
@@ -81,8 +84,8 @@ def run_tile(name, index):
     commit = surface.clean_sha()
     assert study.read(study.OUT/'tile_control.json')['frozen_triangles_exact']
     spec = study.FRAMES[name]
-    # Join at z=44 m; left/right inputs overlap from 38 to 50 m.
-    zlo, zhi = [(10, 50), (38, 78)][index]
+    # The high-lip side needs narrower tiles; each join retains 6 m context.
+    zlo, zhi = TILES[index]
     root = study.OUT/'frames'/name
     folder = root/'tiles'/str(index)
     assert not folder.exists()
@@ -144,12 +147,16 @@ def run_tile(name, index):
 def assemble(name):
     surface.clean_sha()
     root = study.OUT/'frames'/name
-    tiles = [root/'tiles'/str(i) for i in range(2)]
+    tiles = [root/'tiles'/str(i) for i in range(len(TILES))]
     receipts = [study.read(folder/'receipt.json') for folder in tiles]
     assert all(r['status'] == 'passed' for r in receipts)
     meshes = [(np.load(folder/'positions.npy'), np.load(folder/'indices.npy').reshape(-1, 3)) for folder in tiles]
-    p, t, seam = stitch(*meshes[0], *meshes[1], plane=44*4)
-    base.save(root/'seam_check.json', seam)
+    p, t = meshes[0]
+    seams = []
+    for (other_p, other_t), plane in zip(meshes[1:], JOINS):
+        p, t, seam = stitch(p, t, other_p, other_t, plane=plane*4)
+        seams.append(seam)
+    base.save(root/'seam_check.json', dict(status='passed', joins=seams))
     np.save(root/'positions.npy', p)
     np.save(root/'indices.npy', t.ravel())
     env = os.environ.copy()
@@ -167,7 +174,7 @@ def assemble(name):
               source_frame=spec['frame'], source_hashes=receipts[0]['source_hashes'],
               inputs=surface.KNOBS, crop_x_min_m=spec['xmin'], crop_z_m=[10, 78],
               vertices=len(p), triangles=len(t), mesh_sha256=base.sha(root/'mesh.npz'),
-              process_s=sum(r['process_s'] for r in receipts), seam=seam, tiles=receipts,
+              process_s=sum(r['process_s'] for r in receipts), seams=seams, tiles=receipts,
               simulation=False, interpolation_geometry=False))
     print(json.dumps(study.read(root/'mesh_receipt.json'), indent=2))
 
@@ -177,7 +184,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['control', 'tile', 'assemble'])
     parser.add_argument('name', choices=list(study.FRAMES), nargs='?')
-    parser.add_argument('index', type=int, choices=[0, 1], nargs='?')
+    parser.add_argument('index', type=int, choices=list(range(len(TILES))), nargs='?')
     args = parser.parse_args()
     if args.action == 'control':
         control()
