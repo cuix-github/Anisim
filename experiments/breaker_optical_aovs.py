@@ -84,6 +84,12 @@ def snapshot(c):
                           'bounds': c.exactWorldBoundingBox('baked_control'),
                           'shading_engines': c.listConnections(dag.fullPathName(), type='shadingEngine')}
     result['imager_connections'] = c.listConnections('defaultArnoldRenderOptions.imagers', plugs=True)
+    result['output_settings'] = {plug: c.getAttr(plug) for plug in (
+        'defaultArnoldDenoiser.layerSelection', 'defaultArnoldDenoiser.outputSuffix',
+        'opticalEXR.ai_translator', 'opticalEXR.colorManagement',
+        'defaultColorMgtGlobals.renderingSpaceName', 'defaultColorMgtGlobals.viewTransformName',
+        'water.transmissionColor', 'water.transmissionScatter', 'water.thinWalled',
+        'aiAOV_beauty_raw.lightPathExpression')}
     return result
 
 
@@ -125,6 +131,8 @@ def worker(out, arm, inspect_only=False):
         c.setAttr(driver + '.ai_translator', 'exr', type='string')
         c.setAttr(driver + '.mergeAOVs', True)
         c.setAttr(driver + '.halfPrecision', False)
+        spaces = c.attributeQuery('colorManagement', node=driver, listEnum=True)[0].split(':')
+        c.setAttr(driver + '.colorManagement', spaces.index('Raw'))
         c.setAttr(driver + '.prefix', (out / 'optics').as_posix(), type='string')
         box = c.createNode('aiAOVFilter', name='opticalBox')
         c.setAttr(box + '.ai_translator', 'box', type='string')
