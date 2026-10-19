@@ -156,7 +156,7 @@ def worker(out, arm, inspect_only=False):
             start = time.perf_counter()
             c.arnoldRender(seq='1', w=960, h=540, cam='persp', srv=False)
             result['render_call_s'] = time.perf_counter() - start
-            images = list((out / 'tmp').glob('*.png'))
+            images = list((out / 'tmp').rglob('*.png'))
             assert len(images) == 1, [str(p) for p in images]
             shutil.move(str(images[0]), out / 'beauty.png')
             exrs = list(out.rglob('*.exr'))
