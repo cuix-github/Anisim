@@ -50,12 +50,10 @@ def graph(out,export=False):
     setv('vol.adaptivity','Geometry::Volume::Adaptivity','Off')
     setv('vol.store_level_set','bool','true');setv('vol.store_fog_density','bool','true')
     setv('vol.fog_density','float','1f');setv('vol.rebuild_level_set','bool','false')
-    node('support','Geometry::Properties::get_geo_property');connect('vol.volume','support.geometry')
-    connect(flt,'support.type');setv('support.property','string','voxel_fog_density')
-    nodes.append(dict(nodeName='negative',nodeType='Core::Math::multiply',multiInPortNames=['a','b']))
-    connect('support.data','negative.first.a');setv('negative.first.b','float','-1f')
+    node('support','File::NumPy::read_NumPy');connect(flt,'support.type')
+    setv('support.file_path','string',(out/'refinement.####').as_posix());setv('support.frame','int','0L')
     node('refinement','Geometry::Properties::set_geo_property_data');connect('vol.volume','refinement.geometry')
-    setv('refinement.property','string','voxel_fog_density');connect('negative.output','refinement.data')
+    setv('refinement.property','string','voxel_fog_density');connect('support.data','refinement.data')
     node('refine','Geometry::Volume::coarsen_refine');connect('refinement.out_geometry','refine.volume')
     setv('refine.property','string','voxel_fog_density')
     setv('refine.mode','Geometry::Volume::CoarsenRefineMode','Refine')
@@ -111,8 +109,8 @@ def sample(out):
         assert np.array_equal(np.asarray(mesh.getVertices()[1]).reshape(-1,3),t)
         vox=np.load(out/'voxels.npy'); support=np.load(out/'support_density.npy')
         assert len(vox)==len(support)
-        ids=np.flatnonzero(support>1e-6)
-        assert len(ids)<3000000,('Unexpectedly large query set',len(ids))
+        ids=np.flatnonzero(support<0)
+        assert len(ids)<10000000,('Unexpectedly large query set',len(ids))
         closest=np.zeros((len(ids),3)); normal=np.zeros_like(closest);faces=np.empty(len(ids),np.int32)
         for i,idx in enumerate(ids):
             hit=inter.getClosestPoint(om.MPoint(*map(float,vox[idx])))
@@ -195,7 +193,7 @@ def main():
         command=[MAYAPY,str(Path(__file__).resolve())]
     elif mode=='readback':
         a=np.load(out/'extinction.0000.npy');p=np.load(out/'voxels.npy')
-        pos=np.flatnonzero(a>0)[::11];neg=np.flatnonzero((a==0)&(np.load(out/'support_density.npy')>0))[::1000]
+        pos=np.flatnonzero(a>0)[::11];neg=np.flatnonzero((a==0)&(np.load(out/'support_density.npy')<0))[::1000]
         ids=np.r_[pos,neg];np.save(out/'probe.0000.npy',p[ids]);np.save(out/'probe_expected.npy',a[ids])
         g=out/'readback.json';base.save(g,readback_graph(out))
         env['PATH']=str(BIF/'bin')+';'+str(BIF/'thirdparty/bin')+';'+env['PATH']
