@@ -10,6 +10,13 @@ comparison and offline checks. The candidate was not accepted as an improvement.
 It reuses the validated local scene from `breaker_optical_aovs_20261019_v3/B/`;
 there is no new simulation cache or surface reconstruction.
 
+The later [neutral water and finer mist study](breaker-neutral-mist-study.md)
+lives in `out/runs/breaker_neutral_mist_20261019_v2/`, with two closer-inspection
+previews and offline checks. The unversioned-suffix folder preserves the failed
+first preparation. The successful folder also retains the original PNG-collection
+failure plus its separate verified recovery; that image was not rerendered.
+`chunk5_audit.json` records checkpoint availability and timing estimates only.
+
 ## One folder per run
 
 Since 2026-10-16 a run writes everything it produces under one folder named by its tag:

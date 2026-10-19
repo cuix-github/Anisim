@@ -1,5 +1,9 @@
 # A preset-derived breaker candidate, 2026-10-19
 
+The later [neutral-color / finer-mist follow-up](breaker-neutral-mist-study.md)
+responds to the preference for the corrected baseline and a closer side camera.
+This page records the initial blue candidate.
+
 The two authorized 960 by 540 previews completed using the existing 24.9 s
 cache and frozen control mesh. This candidate is **not an accepted replacement
 look**: the original view is more saturated blue and darker, and the broad

@@ -1,0 +1,322 @@
+{
+  "status": "passed",
+  "render_count": 2,
+  "simulation_rerun": false,
+  "water_surface_rebuilt": false,
+  "mist_classification_and_volume_built": true,
+  "arms": {
+    "original": {
+      "process_exit_code": 1,
+      "collection_recovered": true,
+      "render_source_sha": "1ad42515f427a7e4d7732a940acc5ad75cec9707",
+      "render_call_s": 318.1491437999648,
+      "process_s": 341.2509091999964,
+      "aov_closure_relative_l1": 8.85230133921675e-08,
+      "png_matches_ocio_view": {
+        "mean_abs_levels": 0.18928112139917697,
+        "fraction_over_8": 0.0,
+        "max_abs_levels": 1.0
+      },
+      "component_raw_rgb_share": {
+        "specular": 0.4270329177379608,
+        "transmission": 0.45336252450942993,
+        "diffuse": 0.05285407230257988,
+        "sss": 0.0,
+        "coat": 0.0,
+        "sheen": 0.0,
+        "emission": 0.0,
+        "volume": 0.06675046682357788,
+        "background": 0.0
+      },
+      "prior_N_exact": false,
+      "prior_P_exact": true,
+      "prior_N_max_abs_difference": 1.7881393432617188e-07,
+      "prior_N_mean_abs_difference": 8.448776789293788e-09,
+      "mean_linear_specular_rgb": [
+        0.03703083097934723,
+        0.037129826843738556,
+        0.034406572580337524
+      ],
+      "mean_linear_transmission_rgb": [
+        0.028608962893486023,
+        0.04380340874195099,
+        0.04302886128425598
+      ],
+      "baseline_mean_linear_specular_rgb": [
+        0.02444959618151188,
+        0.028402263298630714,
+        0.035682011395692825
+      ],
+      "baseline_mean_linear_transmission_rgb": [
+        0.03481141850352287,
+        0.04914679005742073,
+        0.05555346608161926
+      ]
+    },
+    "side": {
+      "process_exit_code": 0,
+      "collection_recovered": false,
+      "render_source_sha": "8d527847cabe059d5a18ffb61eb8b48e6d68348e",
+      "render_call_s": 297.6971152999904,
+      "process_s": 314.9732903999975,
+      "aov_closure_relative_l1": 8.300600762824151e-08,
+      "png_matches_ocio_view": {
+        "mean_abs_levels": 0.13286779835390947,
+        "fraction_over_8": 0.0,
+        "max_abs_levels": 1.0
+      },
+      "component_raw_rgb_share": {
+        "specular": 0.09924323856830597,
+        "transmission": 0.660931408405304,
+        "diffuse": 0.04212045297026634,
+        "sss": 0.0,
+        "coat": 0.0,
+        "sheen": 0.0,
+        "emission": 0.0,
+        "volume": 0.1977049559354782,
+        "background": 0.0
+      }
+    }
+  },
+  "between_images_changed_nodes": [
+    "persp",
+    "perspShape"
+  ],
+  "geometry": {
+    "vertices": 146326,
+    "triangles": 292516,
+    "bounds": [
+      479.7057189941406,
+      33.332767486572266,
+      239.67364501953125,
+      637.517333984375,
+      66.8351058959961,
+      312.3418884277344
+    ],
+    "points_normals_topology_sha256": [
+      "8d0919d8c5f98b3182d080b34287b2126dcdb3cadd6378065a55a1df471d1694",
+      "1a28544fb36fdf00cb73c0003bbe0a3c6251d2b7742c092fe8c7235cd399c17f",
+      "bdf4008e31646147a526e84aae610fba71fd4afd451c7466308d7e355ece935a",
+      "1e893abb9abbb2922b3cfcbcb0d9f8ca14e50a5091ee3587a1c66a69f80d2902"
+    ]
+  },
+  "material": {
+    "base": 0.0,
+    "metalness": 0.0,
+    "specular": 1.0,
+    "specularIOR": 1.3329999446868896,
+    "specularRoughness": 0.11999999731779099,
+    "transmission": 1.0,
+    "transmissionDepth": 40.0,
+    "transmissionColor": [
+      [
+        0.30000001192092896,
+        0.550000011920929,
+        0.6000000238418579
+      ]
+    ],
+    "transmissionScatter": [
+      [
+        0.15000000596046448,
+        0.15000000596046448,
+        0.15000000596046448
+      ]
+    ],
+    "transmissionScatterAnisotropy": 0.75,
+    "transmissionExtraRoughness": 0.0,
+    "thinWalled": false
+  },
+  "sky": {
+    "elevation": 30.0,
+    "azimuth": 160.0,
+    "turbidity": 6.0,
+    "sunSize": 5.0,
+    "intensity": 1.0,
+    "enableSun": true,
+    "enableSky": true
+  },
+  "mist_ports": {
+    "surface_radius": 0.5,
+    "surface_detail": 0.5,
+    "smooth_iterations": 0,
+    "mist_threshold": 0.75,
+    "spray_detail": 0.25,
+    "cloud_radius": 0.5,
+    "metres_per_cell": 0.25,
+    "default_radius": 0.0001,
+    "mist_density": 0.00025,
+    "spray_epsilon": 10000,
+    "mcf_iterations": 10,
+    "mask_sigma": 2,
+    "mask_theta": 2,
+    "mask_zeta": 5,
+    "mask_floor": 0,
+    "mask_dilate": 1
+  },
+  "mist_shader": {
+    "density": 10000.0,
+    "densityChannel": "voxel_fog_density",
+    "scatter": 1.0,
+    "scatterColor": [
+      [
+        1.0,
+        1.0,
+        1.0
+      ]
+    ],
+    "scatterAnisotropy": 0.4000000059604645
+  },
+  "side_view_dot_dominant_wave": 2.7755575615628914e-17,
+  "render_source_sha": "1ad42515f427a7e4d7732a940acc5ad75cec9707",
+  "checkpoint_audit": {
+    "status": "read_only_audit",
+    "simulation_launched": false,
+    "checkpoint": "out/runs/wavesea4/dumps/c3",
+    "checkpoint_time_s": 24,
+    "fields": {
+      "positions": {
+        "file": "final.npy",
+        "shape": [
+          61280955,
+          3
+        ],
+        "dtype": "float32",
+        "bytes": 735371540
+      },
+      "velocities": {
+        "file": "final_velocities.npy",
+        "shape": [
+          61280955,
+          3
+        ],
+        "dtype": "float32",
+        "bytes": 735371540
+      },
+      "mass": {
+        "file": "final_mass.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "momx": {
+        "file": "final_momx.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "momy": {
+        "file": "final_momy.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "momz": {
+        "file": "final_momz.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "tau": {
+        "file": "final_tau.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "wt": {
+        "file": "final_wt.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "wtph": {
+        "file": "final_wtph.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "scale": {
+        "file": "final_scale.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "phase": {
+        "file": "final_phase.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900
+      },
+      "radius": {
+        "file": "final_radius.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900,
+        "nonzero": 0
+      },
+      "spray": {
+        "file": "final_spray.npy",
+        "shape": [
+          61280955
+        ],
+        "dtype": "float32",
+        "bytes": 245123900,
+        "nonzero": 0
+      }
+    },
+    "total_bytes": 4167105980,
+    "prior_chunk4": {
+      "chunk": 4,
+      "substeps": 240,
+      "every": 5,
+      "dt": 0.025,
+      "offset": 960,
+      "grid": [
+        688,
+        96,
+        320
+      ],
+      "wall_s": 14235.8,
+      "wall_per_substep_s": 59.32,
+      "sim_time_s": [
+        24.0,
+        30.0
+      ],
+      "iterations_mean": 95.5,
+      "peak_speed_cells_per_s": 583.06
+    },
+    "steps_to_24_9": 36,
+    "estimated_prior_rate_seconds_to_24_9": 2135.52,
+    "estimate_excludes_new_model_cost_and_startup": true,
+    "large_checkpoint_resume_tested": false,
+    "needed_changes": [
+      "wave_basin launcher: new output tag, resume-source and droplet/emission/integrator ports",
+      "cache exporter: variable particle count/order, actual radius/spray fields; exact dump rather than stable-index interpolation"
+    ],
+    "history_limitation": "Only 0.9 s of new spray history at 24.9 s, not equivalent to enabling the model from time zero"
+  },
+  "execution_notes": [
+    "Initial preparation failed before rendering; preserved in breaker_neutral_mist_20261019.",
+    "Original completed render was recovered after PNG collection failed; exit-1 receipt unchanged; no repeat render.",
+    "Second render used output-workspace collection fix only; render settings and geometry were unchanged."
+  ]
+}
