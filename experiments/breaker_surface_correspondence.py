@@ -43,12 +43,19 @@ def clean_sha():
     return subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
 
 
-def graph(scale):
+def graph(scale, resample=False):
     surf = gen.surface('particle_surface')
     # Expose the exact production SDF, without changing its construction.
     final = next(c['source'] for c in surf['connections'] if c['target']=='v2m.volumes.vol')
     surf['ports'] += [gen.P('final_volume','output','Object')]
     surf['connections'] += [{'source':final,'target':'.final_volume'}]
+    if resample:
+        surf['compoundNodes'].append(dict(nodeName='refine',nodeType='Geometry::Volume::resample_volume'))
+        surf['values'].append(dict(valueName='refine.detail_size_scale',valueType='float',value='0.5f'))
+        surf['connections'].append(dict(source=final,target='refine.source_volume'))
+        for connection in surf['connections']:
+            if connection['target']=='v2m.volumes.vol':
+                connection['source']='refine.resampled_volume'
     if scale != 1:
         surf['values'] += [dict(valueName='v2m.detail_size_scale',valueType='float',value=f'{scale}f'),
                            dict(valueName='v2m.enable_subdivision',valueType='bool',value='true')]
@@ -85,6 +92,8 @@ def run(arm):
     commit = clean_sha()
     if arm=='fine':
         assert json.loads((OUT/'control/receipt.json').read_text())['frozen_control_match']
+    if arm=='local_refine':
+        assert json.loads((OUT/'local_control/receipt.json').read_text())['local_control_match']
     out = OUT/arm
     if arm=='smoke':
         attempt=1
@@ -95,6 +104,14 @@ def run(arm):
     scale = .5 if arm=='fine' else 1
     cache = CACHE
     knobs = KNOBS.copy()
+    source_hashes={p.name:sha(p) for p in CACHE.glob('*.npy')}
+    if arm.startswith('local_'):
+        # Diagnostic crop only: 4 m padding around a 20 cm fragment. Require
+        # exact local mesh correspondence before interpreting its refined arm.
+        cache=out/'cache';cache.mkdir()
+        p=np.load(CACHE/'liquid.0001.npy');r=np.load(CACHE/'radius.0001.npy')
+        keep=(np.abs(p*.25-CENTER)<4).all(1)
+        np.save(cache/'liquid.0001.npy',p[keep]);np.save(cache/'radius.0001.npy',r[keep])
     if arm=='smoke':
         cache = out/'cache';cache.mkdir()
         x,y,z = np.meshgrid(np.arange(5)*.5,np.arange(5)*.5,np.arange(5)*.5,indexing='ij')
@@ -108,7 +125,7 @@ def run(arm):
         x,y = np.meshgrid(ax+ CENTER[0],ax+CENTER[1])
         probes = np.column_stack([x.ravel(),y.ravel(),np.full(x.size,CENTER[2])])*4
     np.save(out/'probes.npy',probes.astype(np.float32))
-    save(out/'graph.json',graph(scale))
+    save(out/'graph.json',graph(scale,resample=arm=='local_refine'))
     hashes = {p.name:sha(p) for p in cache.glob('*.npy')}
     args = [str(BIF/'bin/bifcmd.exe'),str(out/'graph.json')]
     inputs = dict(knobs, liquid_pattern=(cache/'liquid.####').as_posix(),
@@ -119,7 +136,8 @@ def run(arm):
     for k,v in inputs.items():args += ['--set-port',k,str(v)]
     env = os.environ.copy();env['PATH']=str(BIF/'bin')+';'+str(BIF/'thirdparty/bin')+';'+env['PATH']
     record = dict(git_sha=commit,arm=arm,inputs=inputs,mesh_detail_scale=scale,
-                  graph_sha256=sha(out/'graph.json'),cache_hashes_before=hashes,status='running')
+                  graph_sha256=sha(out/'graph.json'),cache_hashes_before=hashes,
+                  source_cache_hashes_before=source_hashes,status='running')
     save(out/'receipt.json',record)
     start=time.perf_counter()
     with (out/'bifcmd.log').open('w') as log:
@@ -146,8 +164,21 @@ def run(arm):
             record['frozen_position_max_error_cells']<1e-5 and np.array_equal(faces(t),faces(z['triangles'])))
         save(out/'receipt.json',record)
         assert record['frozen_control_match'],record
+    if arm=='local_control':
+        z=np.load(FROZEN)
+        def fragment(points, triangles):
+            keep=(np.abs(points*.25-CENTER)<.25).all(1)
+            used=np.unique(triangles[keep[triangles].all(1)])
+            points=points[used];return points[np.lexsort(points.T[::-1])]
+        a=fragment(p,t);b=fragment(z['points'],z['triangles'])
+        record['local_control_match']=np.array_equal(a,b)
+        record['local_fragment_vertices']=len(a)
+        save(out/'receipt.json',record)
+        assert record['local_control_match'],record
     record['cache_hashes_after']={p.name:sha(p) for p in cache.glob('*.npy')}
     assert record['cache_hashes_after']==hashes
+    record['source_cache_hashes_after']={p.name:sha(p) for p in CACHE.glob('*.npy')}
+    assert record['source_cache_hashes_after']==source_hashes
     record['status']='passed';save(out/'receipt.json',record)
     print(json.dumps(record,indent=2))
 
@@ -202,6 +233,6 @@ def analyze():
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['smoke','control','fine','analyze'])
+    parser.add_argument('action',choices=['smoke','control','fine','local_control','local_refine','analyze'])
     args=parser.parse_args()
     analyze() if args.action=='analyze' else run(args.action)
