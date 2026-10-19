@@ -88,12 +88,14 @@ def main():
             "log_sha256": digest(log_path),
             "water_roughness": float(re.search(r'setAttr "\.specular_roughness" ([^;]+);', nodes["water"]).group(1)),
             "mcf_iterations": int(graphs["particleSurfaceShape"]["particle_surface.mcf_iterations"].rstrip("L")),
-            "mist_hidden": 'setAttr ".v" no;' in nodes["particleMistShape"],
+            "mist_hidden": bool(re.search(r'setAttr[^;\n]*"\.v"\s+(?:no|0|false);', nodes["particleMistShape"])),
             "water_assigned_directly": 'connectAttr "water.out" "waterSG.ss";' in connections,
         }
         for name in ["diffuse", "specular", "transmission", "volume indirect"]:
             match = re.search(re.escape(name) + r"\s+samples\s+\d+ / depth\s+(\d+)", log)
             geo["ray_depths"][name] = int(match.group(1))
+        assert geo["mist_hidden"] == (arm in ["C", "D", "E", "candidate_D"]), arm
+        assert geo["water_assigned_directly"] == (arm != "A"), arm
         report["saved_renders"][arm] = geo
 
     # Full-depth projection and a thin central slice distinguish overlapping points
