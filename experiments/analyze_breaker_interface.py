@@ -16,7 +16,8 @@ def check(folder):
     receipt=json.loads((folder/'receipt.json').read_text());assert receipt['status']=='passed'
     state=json.loads((folder/'state.json').read_text())
     assert state['mist'] is False
-    assert state['interfaceEnable']['input2']==int(folder.name=='B')
+    enable=state['interfaceEnable']['input2']
+    assert np.all(np.asarray(enable)==int(folder.name=='B'))
     assert base.sha(folder/'beauty.png')==receipt['png_sha256']
     exr=folder/receipt['worker']['exr'];assert base.sha(exr)==receipt['exr_sha256']
     info=subprocess.check_output([OIIO,'--info','-v',str(exr)],text=True)
@@ -39,25 +40,30 @@ def check(folder):
     delta=np.abs(png-view);assert delta.mean()<=1 and (delta.max(2)>8).mean()<.01
     shares={k:float(data[k].sum(dtype=float)/total) for k in COMPONENTS}
     assert shares['volume']==0,'Mist/volume must be absent'
-    if folder.name=='A':assert np.max(np.abs(data['sss']))<1e-8
-    else:assert shares['sss']>1e-5,'SSS mask did not reach rendered shading'
     result=dict(status='passed',aov_closure_relative_l1=closure,component_raw_rgb_share=shares,
                 display_mean_abs_levels=float(delta.mean()),render_call_s=receipt['worker']['render_call_s'],
                 process_s=receipt['process_s'],renderer_license='valid')
+    if folder.name=='A':assert np.max(np.abs(data['sss']))<1e-8
+    elif shares['sss']<=1e-5:
+        result.update(status='failed',error='SSS mask did not reach rendered shading')
     base.save(folder/('control_check.json' if folder.name=='A' else 'image_check.json'),result)
+    assert result['status']=='passed',result
     print(json.dumps(result,indent=2));return result
 
 
-def report(out):
+def report(out,control=None):
     from PIL import Image,ImageDraw,ImageFont
-    states=[json.loads((out/arm/'state.json').read_text()) for arm in ['A','B']]
+    folders={'A':control or out/'A','B':out/'B'}
+    states=[json.loads((folders[arm]/'state.json').read_text()) for arm in ['A','B']]
     differences=[k for k in states[0] if states[0][k]!=states[1][k]]
     assert differences==['interfaceEnable'],differences
     assert states[0]['geometry']==json.loads((base.PRIOR/'B/state.json').read_text())['geometry']
-    normals=[pfm(out/arm/'N.pfm') for arm in ['A','B']]
-    positions=[pfm(out/arm/'P.pfm') for arm in ['A','B']]
-    checks={arm:json.loads((out/arm/('control_check.json' if arm=='A' else 'image_check.json')).read_text()) for arm in ['A','B']}
-    result=dict(status='passed',simulation_rerun=False,mesh_rebuilt=False,mist=False,render_count=2,
+    normals=[pfm(folders[arm]/'N.pfm') for arm in ['A','B']]
+    positions=[pfm(folders[arm]/'P.pfm') for arm in ['A','B']]
+    checks={arm:json.loads((folders[arm]/('control_check.json' if arm=='A' else 'image_check.json')).read_text()) for arm in ['A','B']}
+    assert all(c['status']=='passed' for c in checks.values())
+    result=dict(status='passed',simulation_rerun=False,mesh_rebuilt=False,mist=False,comparison_images=2,
+                control_path=str(folders['A']),control_reused=control is not None,
                 changed_nodes=differences,N_exact=bool(np.array_equal(*normals)),P_exact=bool(np.array_equal(*positions)),
                 N_max_abs_difference=float(np.abs(normals[0]-normals[1]).max()),arms=checks,
                 approximation=states[0]['approximation'],mask_sha256=states[0]['mask_sha256'])
@@ -66,7 +72,7 @@ def report(out):
     for i,(arm,label) in enumerate([('A','A | Corrected baseline / close side view / mist off'),
                                     ('B','B | Same scene + curvature-gated randomwalk SSS')]):
         draw.text((12,i*574+6),label,font=font,fill='white')
-        sheet.paste(Image.open(out/arm/'beauty_view.png').convert('RGB'),(0,i*574+34))
+        sheet.paste(Image.open(folders[arm]/'beauty_view.png').convert('RGB'),(0,i*574+34))
     sheet.save(out/'comparison.png');base.save(out/'analysis.json',result);print(json.dumps(result,indent=2))
 
 
@@ -74,6 +80,7 @@ if __name__=='__main__':
     if len(sys.argv)>1 and sys.argv[1]=='--convert':convert(Path(sys.argv[2]))
     else:
         p=argparse.ArgumentParser();p.add_argument('mode',choices=['A','B','report']);p.add_argument('--out',type=Path,default=OUT)
+        p.add_argument('--control',type=Path)
         a=p.parse_args()
-        if a.mode=='report':report(a.out)
+        if a.mode=='report':report(a.out,a.control)
         else:check(a.out/a.mode)

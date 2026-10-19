@@ -1,0 +1,94 @@
+{
+  "status": "awaiting_replacement_render_approval",
+  "simulation_rerun": false,
+  "render_count": 2,
+  "mask": {
+    "status": "numeric_checks_passed_visual_review_pending",
+    "gates": {
+      "unit_sphere_area_mean_H": 1.0000121984799633,
+      "unit_sphere_median_H": 0.9980734031650157,
+      "plane_max_abs_H": 0.0,
+      "status": "passed"
+    },
+    "mesh_sha256": "619d71d297c5259de3fda029bf2e202ef8a2673e8b3c692e38ed5f0a62ce22c1",
+    "git_sha": "d40ab8c507f4e5a051cc9d269c3808921389c646",
+    "total_area_m2": 1962.6838733585564,
+    "selected_area_m2": 39.78369296753098,
+    "strong_area_m2": 19.404489205355695,
+    "weighted_area_fraction": 0.010789130986030075,
+    "selected_area_fraction": 0.020270046290976493,
+    "calm_max_weight": 0.0,
+    "cut_max_weight": 0.0,
+    "selected_triangles": 9523,
+    "filter": {
+      "iterations": 4,
+      "edge_gaussian_sigma_m": 0.125,
+      "blend": 0.5
+    },
+    "curvature_ramp_per_m": [
+      2,
+      4
+    ],
+    "cut_exclusion_m": [
+      0.6,
+      1.0
+    ],
+    "height_gate_m": [
+      12.25,
+      13.0
+    ],
+    "H_percentiles": [
+      -109.20062903314307,
+      -2.129442309618538,
+      -0.09696788694277678,
+      0.03557702587019711,
+      0.22633232691942218,
+      7.482948701484967,
+      1239.0081202174215
+    ],
+    "wall_s": 3.9401856000185944
+  },
+  "A": {
+    "status": "passed",
+    "aov_closure_relative_l1": 8.888858203931915e-08,
+    "component_raw_rgb_share": {
+      "specular": 0.20242249871420182,
+      "transmission": 0.4564214510660213,
+      "diffuse": 0.3411560494848729,
+      "sss": 0.0,
+      "coat": 0.0,
+      "sheen": 0.0,
+      "emission": 0.0,
+      "volume": 0.0,
+      "background": 0.0
+    },
+    "display_mean_abs_levels": 0.10424125514403292,
+    "render_call_s": 12.490908199979458,
+    "process_s": 23.357993199955672,
+    "renderer_license": "valid"
+  },
+  "B_failed_effect": {
+    "status": "failed",
+    "aov_closure_relative_l1": 8.888858203931915e-08,
+    "component_raw_rgb_share": {
+      "specular": 0.20242249871420182,
+      "transmission": 0.4564214510660213,
+      "diffuse": 0.3411560494848729,
+      "sss": 0.0,
+      "coat": 0.0,
+      "sheen": 0.0,
+      "emission": 0.0,
+      "volume": 0.0,
+      "background": 0.0
+    },
+    "display_mean_abs_levels": 0.10424125514403292,
+    "render_call_s": 12.791074900014792,
+    "process_s": 21.495272500033025,
+    "renderer_license": "valid",
+    "error": "SSS mask did not reach rendered shading"
+  },
+  "raw_beauty_A_B_exact": true,
+  "volume_roundtrip_validated": false,
+  "repaired_scene_export_validated": true,
+  "accepted_look": false
+}

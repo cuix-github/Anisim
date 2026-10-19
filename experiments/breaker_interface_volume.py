@@ -1,7 +1,11 @@
-"""Bake a curvature-gated, 10 cm inner interface band to a reusable VDB.
+"""UNVALIDATED prototype: curvature-gated inner band to VDB.
 
 Stock Bifrost builds/exports the sparse grid. Public Maya mesh queries locate
 each voxel against the frozen surface. This is render preparation, not a solve.
+The 2026-10-19 VDB roundtrip failed. No volume from this script was rendered.
+Nominal detail_size is NOT evidence that every sampled location is a finest-level
+leaf voxel. Preserve these instruments for diagnosis, not as a production preset.
+Refinement input provenance and sparse sampling semantics remain unresolved.
 """
 import argparse
 import json
@@ -182,7 +186,9 @@ def readback_graph(out):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('mode',choices=['grid','sample','export','readback'])
+    parser.add_argument('--experimental',action='store_true',help='Explicitly run the unvalidated volume prototype')
     parser.add_argument('--out',type=Path,default=DEFAULT);args=parser.parse_args();out=args.out.resolve()
+    assert args.experimental,'Unvalidated prototype; see docs/breaker-interface-study.md before use'
     assert not base.git('status','--porcelain');assert base.sha(base.SOURCE)==base.SOURCE_SHA
     assert json.loads((out/'mask_review.json').read_text())['status']=='passed'
     mode=args.mode;receipt=dict(status='running',mode=mode,git_sha=base.git('rev-parse','HEAD'))
