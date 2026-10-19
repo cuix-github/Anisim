@@ -22,6 +22,7 @@ from breaker_foam_layer import check_imported, ass_units
 ROOT=base.ROOT
 OUT=ROOT/'out/runs/breaker_foam_views_20261019'
 ORIGINAL=ROOT/'out/runs/breaker_foam_layer_20261019_v6'
+FRAMES=OUT/'frames'
 VIEWS={
     'wide':dict(time_s=24.9,width_m=24,rotation=[0,168,0],target_m=[145.5,13.5,70]),
     'oblique':dict(time_s=24.9,width_m=18,rotation=[-10,145,0],target_m=[145.5,13.5,70]),
@@ -38,11 +39,28 @@ def prepare_worker(view):
     try:
         for arm in ['A','B']:
             folder=out/arm
-            source=ORIGINAL/arm if spec['time_s']==24.9 else out/'source'/arm
+            source=ORIGINAL/arm
             c.file(str(source/'candidate.mb'),open=True,force=True)
             before=json.loads((source/'state.json').read_text())
             assert base.geometry(c)==before['geometry']
             assert not c.ls(type='bifrostGraphShape')
+            if spec['time_s']!=24.9:
+                import maya.api.OpenMaya as om
+                z=np.load(FRAMES/view/'mesh.npz');points=z['points'];triangles=z['triangles'];normals=z['normals']
+                c.delete('baked_control')
+                transform=c.createNode('transform',name='baked_control')
+                selection=om.MSelectionList();selection.add(transform);parent=selection.getDependNode(0)
+                fn=om.MFnMesh();fn.create(om.MPointArray(points.tolist()),[3]*len(triangles),
+                                         triangles.ravel().tolist(),parent=parent)
+                fn.setVertexNormals(om.MVectorArray(normals.tolist()),list(range(len(points))))
+                c.sets(transform,e=True,forceElement='waterSG')
+                normal_counts,normal_ids=fn.getNormalIds()
+                corners=np.asarray(fn.getNormals())[np.asarray(normal_ids)].reshape(-1,3,3)
+                error=float(np.max(np.abs(corners-normals[triangles])))
+                assert error<1e-5,error
+                assert np.array_equal(np.asarray(fn.getPoints())[:,:3].astype(np.float32),points)
+                base.save(folder/'normal_transfer.json',dict(status='passed',max_corner_normal_error=error,
+                          mesh_sha256=base.sha(FRAMES/view/'mesh.npz')))
             pitch,yaw,_=np.radians(spec['rotation'])
             direction=np.array([np.sin(yaw)*np.cos(pitch),-np.sin(pitch),np.cos(yaw)*np.cos(pitch)])
             eye=np.asarray(spec['target_m'])*4+300*direction
@@ -75,9 +93,14 @@ def prepare_worker(view):
 def prepare(view):
     assert not base.git('status','--porcelain')
     out=OUT/view;assert not out.exists();out.mkdir(parents=True)
-    source=ORIGINAL
-    assert VIEWS[view]['time_s']==24.9,'Later-frame source preparation must be explicitly implemented and checked first'
-    assert json.loads((source/'analysis.json').read_text())['status']=='passed'
+    source=ORIGINAL if VIEWS[view]['time_s']==24.9 else FRAMES/view/'foam'
+    if VIEWS[view]['time_s']==24.9:
+        assert json.loads((source/'analysis.json').read_text())['status']=='passed'
+        source_receipt=source/'analysis.json'
+    else:
+        assert json.loads((source/'review.json').read_text())['status']=='passed'
+        assert json.loads((FRAMES/view/'mesh_receipt.json').read_text())['status']=='passed'
+        source_receipt=source/'layer_check.json'
     shutil.copy2(source/'layer.npz',out/'layer.npz')
     for arm in ['A','B']:
         folder=out/arm;folder.mkdir();shutil.copy2(source/arm/'foam.ass',folder/'foam.ass')
@@ -89,7 +112,7 @@ def prepare(view):
     assert result.returncode==0,(out/'prepare.log').read_text()[-3000:]
     for arm in ['A','B']:check_imported(out/arm)
     base.save(out/'prepare.json',dict(status='passed',git_sha=base.git('rev-parse','HEAD'),view=VIEWS[view],
-              source=str(source),source_analysis_sha256=base.sha(source/'analysis.json'),simulation=False))
+              source=str(source),source_receipt_sha256=base.sha(source_receipt),simulation=False))
 
 
 def launch(view,arm):
