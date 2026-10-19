@@ -4,7 +4,8 @@ The 24.9 s wavesea4 study: A control, B foam off, C also mist hidden,
 D C with less surface smoothing, E C with a four-times brighter environment.
 Outputs, scene files, hashes, full launch logs and settings stay under out/.
 Run each arm once and inspect it before continuing. The candidate accepts
-the letter of the chosen preview and changes only image resolution.
+the letter of the chosen preview, with optional explicit preset and camera
+overrides for the presentation shot (not another single-variable comparison).
 """
 import argparse
 import hashlib
@@ -45,8 +46,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("arm", choices=ARMS)
     parser.add_argument("--candidate", action="store_true")
+    parser.add_argument("--preset", default="paper_clean")
+    parser.add_argument("--camera", help="Candidate only: six values in cells")
     parser.add_argument("--out", type=Path, default=ROOT / "out/runs/breaker_render_study_20261019")
     args = parser.parse_args()
+    if not args.candidate and (args.preset != "paper_clean" or args.camera):
+        raise SystemExit("Preview arms use their fixed preset and camera")
+    if args.camera:
+        if len(args.camera.split()) != 6:
+            raise SystemExit("Camera requires six numeric values")
+        tuple(float(v) for v in args.camera.split())
     if git("status", "--porcelain"):
         raise SystemExit("Dirty checkout: commit the intended instrument before measuring")
     cache = ROOT / "out/runs/wavesea4/cache/breaking_section"
@@ -67,14 +76,15 @@ def main():
         assert chosen["status"] == "passed", "Chosen preview must pass first"
     output.mkdir(parents=True)
     width, height = (1920, 1080) if args.candidate else (960, 540)
+    arm_overrides = ARMS[args.arm] if args.preset == "paper_clean" else {}
     overrides = {"SURF_WIDTH": str(width), "SURF_HEIGHT": str(height),
-                 "SURF_CAMERA": CAMERA, "SURF_METRES_PER_CELL": "0.25",
-                 "SURF_THREADS": "0", "SURF_GPU": "0", **ARMS[args.arm]}
+                 "SURF_CAMERA": args.camera or CAMERA, "SURF_METRES_PER_CELL": "0.25",
+                 "SURF_THREADS": "0", "SURF_GPU": "0", **arm_overrides}
     child_env = {k: v for k, v in os.environ.items() if not k.startswith("SURF_")}
     child_env.update(overrides)
     receipt = {"arm": label, "git_sha": git("rev-parse", "HEAD"),
                "cache": str(cache.relative_to(ROOT)), "time_s": 24.9,
-               "input_sha256": inputs, "preset": "paper_clean",
+               "input_sha256": inputs, "preset": args.preset,
                "overrides": overrides, "status": "running",
                "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     receipt_path = output / "receipt.json"
@@ -82,7 +92,7 @@ def main():
     command = ["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File",
                str(ROOT / "maya/render_surface_preview.ps1"), "-Cache", str(cache),
                "-Out", str(output), "-Name", "breaker", "-Frames", "1",
-               "-Obj", str(cache / "beach.obj"), "-Preset", "paper_clean",
+               "-Obj", str(cache / "beach.obj"), "-Preset", args.preset,
                "-MaxMinutes", "12"]
     started = time.perf_counter()
     print(f"START {label}: {width}x{height}, cache 24.9 s, {output}", flush=True)
