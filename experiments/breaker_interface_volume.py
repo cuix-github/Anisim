@@ -57,21 +57,24 @@ def graph(out,export=False):
     node('refine','Geometry::Volume::coarsen_refine');connect('refinement.out_geometry','refine.volume')
     setv('refine.property','string','voxel_fog_density')
     setv('refine.mode','Geometry::Volume::CoarsenRefineMode','Refine')
-    setv('refine.bandwidth','float','2f')
+    setv('refine.bandwidth','float','0f')
+    node('resample','Geometry::Volume::resample_volume')
+    connect('vol.volume','resample.source_volume');connect('refine.out_volume','resample.target_volume')
+    setv('resample.properties','string','voxel_fog_density')
     # A converter may already carry corner positions. Refresh explicitly: the
     # getter otherwise returns that existing channel even when Center is asked.
-    node('centers','Geometry::Volume::update_voxel_position');connect('refine.out_volume','centers.volume')
+    node('centers','Geometry::Volume::update_voxel_position');connect('resample.resampled_volume','centers.volume')
     setv('centers.voxel_offset','Geometry::Volume::VoxelOffset','Center')
     node('vp','Geometry::Properties::get_voxel_position');connect('centers.out_volume','vp.volume')
     writer('positions','vp.voxel_position',out/('export_voxels.npy' if export else 'voxels.npy'))
     if not export:
-        node('get','Geometry::Properties::get_geo_property');connect('refine.out_volume','get.geometry')
+        node('get','Geometry::Properties::get_geo_property');connect('resample.resampled_volume','get.geometry')
         connect(flt,'get.type');setv('get.property','string','voxel_fog_density')
         writer('support_density','get.data',out/'support_density.npy')
     else:
         node('density','File::NumPy::read_NumPy');connect(flt,'density.type')
         setv('density.file_path','string',(out/'extinction.####').as_posix());setv('density.frame','int','0L')
-        node('set','Geometry::Properties::set_geo_property_data');connect('refine.out_volume','set.geometry')
+        node('set','Geometry::Properties::set_geo_property_data');connect('resample.resampled_volume','set.geometry')
         setv('set.property','string','voxel_fog_density')
         connect('density.data','set.data')
         ports.append(dict(portName='ok_set',portDirection='output',portType='bool'))
@@ -109,7 +112,7 @@ def sample(out):
         assert np.array_equal(np.asarray(mesh.getVertices()[1]).reshape(-1,3),t)
         vox=np.load(out/'voxels.npy'); support=np.load(out/'support_density.npy')
         assert len(vox)==len(support)
-        ids=np.flatnonzero(support<0)
+        ids=np.flatnonzero(support>1e-6)
         assert len(ids)<10000000,('Unexpectedly large query set',len(ids))
         closest=np.zeros((len(ids),3)); normal=np.zeros_like(closest);faces=np.empty(len(ids),np.int32)
         for i,idx in enumerate(ids):
@@ -193,7 +196,7 @@ def main():
         command=[MAYAPY,str(Path(__file__).resolve())]
     elif mode=='readback':
         a=np.load(out/'extinction.0000.npy');p=np.load(out/'voxels.npy')
-        pos=np.flatnonzero(a>0)[::11];neg=np.flatnonzero((a==0)&(np.load(out/'support_density.npy')<0))[::1000]
+        pos=np.flatnonzero(a>0)[::11];neg=np.flatnonzero((a==0)&(np.load(out/'support_density.npy')>1e-6))[::1000]
         ids=np.r_[pos,neg];np.save(out/'probe.0000.npy',p[ids]);np.save(out/'probe_expected.npy',a[ids])
         g=out/'readback.json';base.save(g,readback_graph(out))
         env['PATH']=str(BIF/'bin')+';'+str(BIF/'thirdparty/bin')+';'+env['PATH']
