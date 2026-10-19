@@ -23,5 +23,6 @@ for name in ('beauty', 'beauty_raw', 'specular', 'transmission', 'specular_indir
         stream.write(f'PF\n{width} {height}\n-1.0\n'.encode())
         stream.write(pixels.astype('<f4').tobytes())
     subprocess.run(['C:/Program Files/Autodesk/Arnold/Maya2027/bin/oiiotool.exe',
-                    str(target), '-d', 'uint8', '-o', str(folder / (name + '_view.png'))], check=True)
+                    str(target), '--attrib', 'oiio:ColorSpace', 'sRGB', '-d', 'uint8',
+                    '-o', str(folder / (name + '_view.png'))], check=True)
 print('OCIO_VIEW_PASS', ocio.__version__, 'ACEScg -> ACES 1.0 SDR-video (sRGB)')

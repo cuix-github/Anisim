@@ -4,6 +4,16 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **The optical check found a PNG export problem, but not a complete ocean look.**
+  The [24.9 s AOV comparison](breaker-optical-study.md) reproduced the control on
+  static geometry and found the PNG driver exporting untransformed linear ACEScg.
+  Display-corrected views reveal more structure; the PNG path now explicitly
+  selects the configured view transform, with a new production render still
+  untested. Specular depth 1 to 3 adds 6.19 percent to the curl rectangle's raw
+  RGB sum, mostly on transmission paths, without removing the broad glassy
+  shapes. Surface representation, environment structure and internal optics
+  remain open; no new simulation or further look candidate was run.
+
 - **The breaker's rendering still looks glassy.** The 2026-10-19 [frozen-cache study](breaker-render-study.md) rendered five isolated previews and one presentation candidate at 24.9 s. Curvature foam contributes hard white patches; mist obscures sheets; less MCF retains more relief and ripples; a brighter environment improves visibility but keeps strong blue reflections. The candidate still falls short of realism. `breaker_inspect` is diagnostic, not a replacement default. The surface reconstruction, normals, reflection/transmission setup and representation of escaped particles need to be distinguished before another simulation is justified; none was rerun for this study.
 
 - **A CFL-bound substep.** Every long run steps at a fixed dt. The 512 run's air reached 900 to 1450 cells per second and crossed 76 to 123 cells in one substep, past anything the push-out reaches, which is how a handful of air particles ended up inside a boulder for one frame; the 2D long runs' splashes made particles at 120 to 460 cells per second in every arm. Fine for an A/B between solvers, not for a quality claim.
