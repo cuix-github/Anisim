@@ -71,7 +71,11 @@ def worker(out):
     print("STATIC_VERIFICATION_PASS", json.dumps(checks), flush=True)
     import ctypes
     sys.stdout.flush(); sys.stderr.flush()
-    ctypes.windll.kernel32.TerminateProcess(ctypes.windll.kernel32.GetCurrentProcess(), 0)
+    terminate = ctypes.windll.kernel32.TerminateProcess
+    terminate.argtypes = [ctypes.c_void_p, ctypes.c_uint]
+    terminate.restype = ctypes.c_int
+    terminate(ctypes.c_void_p(-1), 0)
+    raise ctypes.WinError()
 
 
 def main():

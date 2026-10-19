@@ -54,16 +54,74 @@ global winding-number test or a liquid-mass measurement. Interior liquid centres
 are not expected to sit on the rendered boundary.
 
 The first export retained the Maya converter's default `transferNormals=false`.
-Its geometry and closest-point arrays were written, but the saved-scene normal
-comparison failed; it is retained as a failed run in
-`out/runs/breaker_surface_diagnosis_20261019/`. This is an instrumentation problem,
-not evidence of a problem in the previous direct Bifrost-to-Arnold renders. The
-corrected export enables normal transfer, locks the baked corner normals, and
-compares them by face corner after reopening, allowing normal-table reordering.
-Its outputs are separate in `out/runs/breaker_surface_diagnosis_20261019_v2/`.
+Its geometry and closest-point arrays were written, but a bit-exact saved-scene
+normal comparison failed. The next attempt enabled transfer and locking but still
+used a bit-exact comparison immediately after locking. Both failed runs are kept
+in `out/runs/breaker_surface_diagnosis_20261019/` and its `_v2` sibling. A cheap
+static-scene probe measured the normal changes at about 2.4e-7 per component.
+These were overly strict instrumentation assertions, not evidence of a defect in
+the previous direct Bifrost-to-Arnold renders. The final export, in the `_v3`
+sibling, transfers and locks normals and checks face-corner correspondence with
+absolute tolerance 2e-6. Geometry remains bit-exact through baking and reopening.
 
 The static Maya scene preserves the three stages, with only the control visible,
-and the source camera, lights and material. Once validated, it can avoid repeatedly
+and the source camera, lights and material. It can avoid repeatedly
 reconstructing the particle surface during look development. Geometry/normal
 round-trip validation is not a beauty-render equivalence test; that comparison
 must precede attributing later image differences solely to shading.
+
+The final export passed from clean commit `07da114` in 327.27 s including process
+startup. A separate static-scene verifier from clean commit `d2ffb9a` passed in
+16.64 s including startup; opening and checking the scene took 11.26 s within it.
+All three stages have identical positions and triangles after reopening, and
+their maximum face-corner normal component error is 2.384e-7. The 132.9 MB scene
+contains no Bifrost graph shapes. Both processes returned zero; their logs still
+record MtoA teardown warnings after the completed checks. The runner now uses an
+explicit 64-bit process handle for the existing scene-builder termination pattern;
+that exit operation was separately smoke-checked. No geometry run was repeated
+to test process cleanup. The two failed exports consumed another 542.42 s, and
+are not hidden in the final export's clock.
+
+| Whole cached surface | Raw reconstruction | Mesher smoothing 0.1 only | Current MCF 10 + smoothing 0.1 |
+| --- | ---: | ---: | ---: |
+| Triangles | 381,022 | 381,022 | 292,516 |
+| Connected components | 309 | 309 | 89 |
+| Surface area, square metres | 2,281.21 | 2,279.10 | 1,962.68 |
+| Median adjacent-face angle | 8.81 degrees | 8.62 degrees | 1.47 degrees |
+
+The mesher's 0.1 smoothing changes much less than MCF here. In the interior curl
+region, 12.45 percent of the raw surface's 19,377 vertices lie more than one
+12.5 cm surface voxel from the current surface; 4.28 percent lie more than 25 cm
+away. The median distance is 2.75 cm, the 99th percentile 43.97 cm. Conversely,
+only 0.73 percent of the current surface's 14,877 vertices lie more than 12.5 cm
+from the raw surface. This asymmetric change is consistent with trimming protruding
+features. These are vertex-weighted distances, not percentages of missing water,
+surface area or meaningful detail. Component counts alone cannot distinguish
+removal from merging, or real spray fragments from reconstruction noise.
+
+Of 6,950 unflagged particle centres within 12.5 cm of the raw mesh in that region,
+138 end up more than 12.5 cm on the local outside side of the current surface.
+The closest-surface position shifts by a median 3.4 cm and a 99th percentile
+34.7 cm for that set. This local-normal test normalizes the interpolated closest
+normals first and does not replace a global inside test. Radius-flagged particles
+are intentionally excluded before all three stages and require their separate
+render representation. The unsmoothed reconstruction itself may already omit
+structures; these comparisons do not quantify that earlier loss.
+
+The meshes are closed in their edge incidence, with no nonmanifold edges. The
+current surface has no degenerate triangles or nonfinite normals. About 0.040
+percent of its face-corner normals oppose their geometric face normal. That rules
+out a global reversal but not local artifacts. An Arnold N AOV is still needed to
+verify the final shading normals in the actual render path. The section figure at
+z=68 m shows smoother crests, smaller detached contours disappearing and a rounded
+lip. Particle dots use a 0.25 m slab, while the mesh curves are exact planes; they
+are not identical sampling measures.
+
+The evidence now prioritizes MCF's structural changes and the missing optical
+components over a new simulation or a whole-grid refinement. It does not justify
+turning smoothing off everywhere: the raw surface contains noise too. The next
+useful image experiment is an approved AOV diagnostic on reusable geometry,
+with a conversion control, before selecting a physically coherent water/whitewater
+look. No such render was launched. The numeric receipt is
+`results/rendering/breaker_surface_20261019.json`; the local section plot and scene
+are `curl_sections.png` and `baked_breaker.mb` in the `_v3` output directory.

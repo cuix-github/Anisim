@@ -23,6 +23,8 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 - **Volume-drift correction** (the paper's divergence correction term): add if a run visibly loses volume; none has so far.
 - **Pressure tolerance.** The authors solve to 1e-4 where we run 1e-6; a gated lever on the solve's 40 percent of a substep.
 
+- **Separating surface changes from optical appearance.** The 2026-10-19 [surface diagnosis](breaker-surface-diagnosis.md) localizes a material part of the breaker's shape change to masked MCF: the cached surface changes from 309 to 89 connected components, and 12.45 percent of raw mesh vertices in the interior curl patch lie over 12.5 cm from the current surface. This is not a lost-water or lost-detail percentage. A verified static Maya scene now preserves three stages and normals for reuse. Actual Arnold reflection/transmission/normal AOVs and a conversion control remain unrendered; internal water scattering is zero and whitewater representation is incomplete. No solver rerun or production preset change followed.
+
 ## Answered
 
 - ~~Why does the stock-graph ST plunge produce 56 peak bubbles against the reference's 259?~~ Answered 2026-10-11 (Aniso PR #48): not a solver bug. The validator forwarded only `rho0_face` while the graph's escape parameters defaulted to zero, so the two sides had run different physics since the test was born; with parameters matched the plunge scores droplets 99 against 94 and bubbles 237 against 259. The story is under "Both gaps closed" in the [history](history.md).

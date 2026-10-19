@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
@@ -100,7 +101,10 @@ def main():
     for stage in STAGES:
         delta = (p - closest[stage]["points"]) * .25
         distances[stage] = np.linalg.norm(delta, axis=1)
-        local[stage] = (delta * closest[stage]["normals"]).sum(axis=1)
+        n = closest[stage]["normals"]
+        lengths = np.linalg.norm(n, axis=1)
+        assert np.isfinite(n).all() and (lengths > 0).all()
+        local[stage] = (delta * (n / lengths[:, None])).sum(axis=1)
     # All probes are measured; restrict this comparison to centres near the raw
     # mesh to avoid treating correctly interior liquid particles as missing detail.
     near_raw = (radii < 1e-9) & (distances["raw"] <= .125)
@@ -138,7 +142,10 @@ def main():
         assert set(diff) == {allowed}, diff
         assert graphs[a]["connections"] == graphs[b]["connections"]
         changes[a + "_to_" + b] = diff
-    result = dict(status="passed", run=receipt, execution=worker, static_verification=verification, geometry=metrics,
+    result = dict(status="passed", analysis_git_sha=subprocess.check_output(
+                      ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip(),
+                  analysis_source_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+                  run=receipt, execution=worker, static_verification=verification, geometry=metrics,
                   near_raw_unflagged_probes=int(near_raw.sum()), flagged_probes=int((radii > 1e-9).sum()),
                   correspondence=comparisons, surface_correspondence=surface_correspondence, adjacent_graph_changes=changes,
                   artifacts_sha256={f.name: hashlib.sha256(f.read_bytes()).hexdigest()
@@ -163,7 +170,7 @@ def main():
         ax.add_collection(LineCollection(section(meshes[stage]), colors="#154b66", linewidths=.55))
         ax.set_title(title)
     for ax in axes.flat:
-        ax.set_xlim(134, 152); ax.set_ylim(13, 22)
+        ax.set_xlim(137, 147); ax.set_ylim(9.5, 15.5)
         ax.set_aspect("equal"); ax.set_xlabel("x (m)"); ax.set_ylabel("height (m)")
         ax.grid(alpha=.15)
     fig.suptitle("24.9 s curl: particle slab vs exact mesh sections at z=68 m\nMarker sizes are not particle radii; mesh sections contain no lighting or material", fontsize=13)

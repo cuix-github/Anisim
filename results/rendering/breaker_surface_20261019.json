@@ -1,0 +1,329 @@
+{
+  "status": "passed",
+  "run": {
+    "git_sha": "07da1145840b576781fde1d63a19f76bed329a55",
+    "input_sha256": {
+      "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+      "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+      "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+      "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+      "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+    },
+    "scene_sha256": "aca704061a5334f90f542174236d21e6a79215064f4d1896c205e4e7ce501ca9",
+    "started_utc": "2026-10-19T08:13:37Z",
+    "status": "passed",
+    "timeout_s": 600,
+    "exit_code": 0,
+    "wall_s": 327.26686209999025
+  },
+  "execution": {
+    "setup_open_s": 8.241561200004071,
+    "converter_transfer_normals": true,
+    "roi_metres": [
+      [
+        134,
+        152
+      ],
+      [
+        13,
+        23
+      ],
+      [
+        63,
+        75
+      ]
+    ],
+    "probes": 46455,
+    "stages": {
+      "control": {
+        "mcf_iterations": 10,
+        "mesher_smoothing": 0.1,
+        "vertices": 146326,
+        "triangles": 292516,
+        "evaluation_s": 268.53378639998846,
+        "closest_query_s": 0.7512458999990486,
+        "wall_s": 277.130439999979,
+        "bake_corner_normal_max_error": 2.384185791015625e-07,
+        "reload_corner_normal_max_error": 2.384185791015625e-07
+      },
+      "no_mcf": {
+        "mcf_iterations": 0,
+        "mesher_smoothing": 0.1,
+        "vertices": 190761,
+        "triangles": 381022,
+        "evaluation_s": 2.814902300015092,
+        "closest_query_s": 0.7979943000245839,
+        "wall_s": 16.102692000044044,
+        "bake_corner_normal_max_error": 2.384185791015625e-07,
+        "reload_corner_normal_max_error": 2.384185791015625e-07
+      },
+      "raw": {
+        "mcf_iterations": 0,
+        "mesher_smoothing": 0.0,
+        "vertices": 190761,
+        "triangles": 381022,
+        "evaluation_s": 0.8643203999963589,
+        "closest_query_s": 0.8319076999905519,
+        "wall_s": 14.538867900031619,
+        "bake_corner_normal_max_error": 2.384185791015625e-07,
+        "reload_corner_normal_max_error": 2.384185791015625e-07
+      }
+    },
+    "baked_reload_verify_s": 6.152566700009629,
+    "baked_bytes": 132927144,
+    "worker_wall_s": 322.74522869999055,
+    "status": "passed"
+  },
+  "static_verification": {
+    "status": "passed",
+    "mesh_checks": {
+      "control": {
+        "positions_exact": true,
+        "triangles_exact": true,
+        "face_corner_normal_max_error": 2.384185791015625e-07,
+        "triangles": 292516
+      },
+      "no_mcf": {
+        "positions_exact": true,
+        "triangles_exact": true,
+        "face_corner_normal_max_error": 2.384185791015625e-07,
+        "triangles": 381022
+      },
+      "raw": {
+        "positions_exact": true,
+        "triangles_exact": true,
+        "face_corner_normal_max_error": 2.384185791015625e-07,
+        "triangles": 381022
+      }
+    },
+    "optics": {
+      "metalness": 0.0,
+      "specularIOR": 1.3300000429153442,
+      "specularRoughness": 0.029999999329447746,
+      "transmission": 1.0,
+      "transmissionColor": [
+        [
+          0.30000001192092896,
+          0.550000011920929,
+          0.6000000238418579
+        ]
+      ],
+      "transmissionDepth": 40.0,
+      "transmissionScatter": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "transmissionExtraRoughness": 0.0
+    },
+    "static_correspondence_s": 1.661764700023923,
+    "open_and_verify_s": 11.262281500035897,
+    "baked_scene_sha256": "bcf7b41c0fba0d2acc46f94004bb197bdb8621b138ea44cc4e83079dd6d8ba4d",
+    "exit_code": 0,
+    "process_wall_s": 16.64446640003007,
+    "git_sha": "d2ffb9a1382db4f862a2a0021fd8a7edae74fac8",
+    "export_launcher_status": "passed",
+    "export_launcher_exit_code": 0
+  },
+  "geometry": {
+    "raw": {
+      "vertices": 190761,
+      "triangles": 381022,
+      "area_m2": 2281.2119140625,
+      "components": 309,
+      "components_under_100_faces": 296,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "degenerate_triangles": 3,
+      "nonfinite_normals": 0,
+      "normals_opposed_to_face_fraction": 0.0014609945085853112,
+      "shading_vs_geometric_angle_deg": {
+        "p50": 9.255250930786133,
+        "p90": 27.777032852172855,
+        "p99": 63.43249481201167,
+        "max": 175.18516540527344
+      },
+      "adjacent_face_angle_deg": {
+        "p50": 8.814386367797852,
+        "p90": 31.635274505615236,
+        "p99": 79.40637939453133,
+        "max": 177.99464416503906
+      }
+    },
+    "no_mcf": {
+      "vertices": 190761,
+      "triangles": 381022,
+      "area_m2": 2279.098876953125,
+      "components": 309,
+      "components_under_100_faces": 296,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "degenerate_triangles": 0,
+      "nonfinite_normals": 0,
+      "normals_opposed_to_face_fraction": 0.0012378987739990518,
+      "shading_vs_geometric_angle_deg": {
+        "p50": 9.148385047912598,
+        "p90": 27.180373191833496,
+        "p99": 61.72232093811043,
+        "max": 173.93417358398438
+      },
+      "adjacent_face_angle_deg": {
+        "p50": 8.615592002868652,
+        "p90": 30.741418457031248,
+        "p99": 77.67146392822303,
+        "max": 177.42935180664062
+      }
+    },
+    "control": {
+      "vertices": 146326,
+      "triangles": 292516,
+      "area_m2": 1962.683837890625,
+      "components": 89,
+      "components_under_100_faces": 84,
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0,
+      "degenerate_triangles": 0,
+      "nonfinite_normals": 0,
+      "normals_opposed_to_face_fraction": 0.00040453627607834556,
+      "shading_vs_geometric_angle_deg": {
+        "p50": 1.6121621131896973,
+        "p90": 10.813998317718518,
+        "p99": 43.06193439483649,
+        "max": 175.30943298339844
+      },
+      "adjacent_face_angle_deg": {
+        "p50": 1.4690037965774536,
+        "p90": 11.085770511627198,
+        "p99": 49.733414916992366,
+        "max": 175.90704345703125
+      }
+    }
+  },
+  "near_raw_unflagged_probes": 6950,
+  "flagged_probes": 609,
+  "correspondence": {
+    "raw": {
+      "near_raw_particle_center_distance_m": {
+        "p50": 0.09454013779759407,
+        "p90": 0.1185863122344017,
+        "p99": 0.12434280686080455,
+        "max": 0.12499579787254333
+      },
+      "near_raw_local_outside_over_one_voxel": 0,
+      "near_raw_closest_point_shift_from_raw_m": {
+        "p50": 0.0,
+        "p90": 0.0,
+        "p99": 0.0,
+        "max": 0.0
+      },
+      "flagged_particle_distance_m": {
+        "p50": 0.18044351041316986,
+        "p90": 0.5840330481529236,
+        "p99": 1.5014720106124873,
+        "max": 5.404354572296143
+      }
+    },
+    "no_mcf": {
+      "near_raw_particle_center_distance_m": {
+        "p50": 0.09461845085024834,
+        "p90": 0.11868975013494493,
+        "p99": 0.12439993232488632,
+        "max": 0.12563595175743103
+      },
+      "near_raw_local_outside_over_one_voxel": 0,
+      "near_raw_closest_point_shift_from_raw_m": {
+        "p50": 0.0003419597342144698,
+        "p90": 0.001449895917903632,
+        "p99": 0.011274525383487383,
+        "max": 0.10686103254556656
+      },
+      "flagged_particle_distance_m": {
+        "p50": 0.1809977889060974,
+        "p90": 0.5845397472381592,
+        "p99": 1.501462931632995,
+        "max": 5.404390335083008
+      }
+    },
+    "control": {
+      "near_raw_particle_center_distance_m": {
+        "p50": 0.09325684607028961,
+        "p90": 0.1580007866024971,
+        "p99": 0.37272130399942466,
+        "max": 1.831815242767334
+      },
+      "near_raw_local_outside_over_one_voxel": 138,
+      "near_raw_closest_point_shift_from_raw_m": {
+        "p50": 0.034033168107271194,
+        "p90": 0.1103739313781262,
+        "p99": 0.34702704906463744,
+        "max": 1.8635773658752441
+      },
+      "flagged_particle_distance_m": {
+        "p50": 0.22391590476036072,
+        "p90": 0.6453791856765748,
+        "p99": 1.7311490345001206,
+        "max": 5.416387557983398
+      }
+    }
+  },
+  "surface_correspondence": {
+    "raw_to_control": {
+      "roi_vertices": 19377,
+      "roi_distance_m": {
+        "p50": 0.027482401579618454,
+        "p90": 0.14671464562416076,
+        "p99": 0.43968038439751095,
+        "max": 1.8671891689300537
+      },
+      "roi_fraction_over_0_125m": 0.12447747329307943,
+      "roi_fraction_over_0_25m": 0.042834288073489185,
+      "roi_fraction_over_0_5m": 0.007225060638901791
+    },
+    "control_to_raw": {
+      "roi_vertices": 14877,
+      "roi_distance_m": {
+        "p50": 0.019857291132211685,
+        "p90": 0.06168828606605529,
+        "p99": 0.11787090450525277,
+        "max": 0.18144862353801727
+      },
+      "roi_fraction_over_0_125m": 0.00732674598373328,
+      "roi_fraction_over_0_25m": 0.0,
+      "roi_fraction_over_0_5m": 0.0
+    }
+  },
+  "adjacent_graph_changes": {
+    "control_to_no_mcf": {
+      "particle_surface.mcf_iterations": [
+        "10L",
+        "0L"
+      ]
+    },
+    "no_mcf_to_raw": {
+      "particle_surface.smoothing": [
+        null,
+        "0f"
+      ]
+    }
+  },
+  "artifacts_sha256": {
+    "baked_breaker.mb": "bcf7b41c0fba0d2acc46f94004bb197bdb8621b138ea44cc4e83079dd6d8ba4d",
+    "control_closest.npz": "ec46729ccdf9a571d3118ec25767d4eb1d5ad7e132f43e490bc2c94577ee82c1",
+    "control_mesh.npz": "619d71d297c5259de3fda029bf2e202ef8a2673e8b3c692e38ed5f0a62ce22c1",
+    "control_to_raw.npz": "5e4572d9eec093581fa029624063470a7ed7161dcfb51f4c9014d76c8bd5a805",
+    "no_mcf_closest.npz": "e7ab39dec35a9765129dc47812cd265203d36e4b180b124336275b6b808c1c2f",
+    "no_mcf_mesh.npz": "19ac316d542a9010a8f13c43f1c8a5623f8be71d5a8966b89a2ba3a817274e65",
+    "probes.npz": "a91c628ff45062708b0afb73d2094cbfd422f3033fe41c2b01954fbae3f01ffc",
+    "raw_closest.npz": "3cd4e24958ee403bd9702fa2ccba156bc4588b2af60b6b6b884b71a3859c2de1",
+    "raw_mesh.npz": "e556301b2e281abc4c3cca843d02f566c7adf4dcbc3050928890c537bb9bd3c8",
+    "raw_to_control.npz": "4feeeeb86c0bf918469169c24275e0b6a73ee0efb54402b9d49164f17654cccc"
+  },
+  "limits": [
+    "Closest-normal side is a local test, not a global inside/winding test.",
+    "Normals were read through bifrostGeoToMaya; Arnold shading AOVs were not rendered.",
+    "Particle-centre distance is not a mass-conservation measurement.",
+    "No baked-scene beauty equivalence or improved ocean appearance is claimed."
+  ]
+}
