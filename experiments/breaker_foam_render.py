@@ -47,6 +47,7 @@ def prepare(out):
             c.setAttr('opticalEXR.prefix',(folder/'optics').as_posix(),type='string')
             c.setAttr('defaultArnoldRenderOptions.log_filename',(folder/'arnold.log').as_posix(),type='string')
             state={node:{attr:c.getAttr(node+'.'+attr) for attr in baseline[node]} for node in NODE_KEYS}
+            state=json.loads(json.dumps(state))  # Maya tuples vs persisted JSON lists
             for node in NODE_KEYS:assert state[node]==baseline[node],node
             state.update(geometry=base.geometry(c),mist=False,foam_ass_sha256=base.sha(folder/'foam.ass'),
                          foam_layer_sha256=base.sha(out/'layer.npz'),foam_arm=arm,control_receipt_sha256=base.sha(CONTROL/'receipt.json'))
