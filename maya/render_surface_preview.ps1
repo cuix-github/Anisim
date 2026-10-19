@@ -1,6 +1,6 @@
 # Renders chosen frames of a play cache as Arnold water: the scene is built
 # headlessly (build_surface_scene.py, mayapy: the surface and mist compounds, the
-# water, foam and fog shaders, sky, sun, colliders, ground, camera), then a minimized GUI Maya session
+# water, foam and fog shaders, sky, sun, colliders, ground, camera), then a hidden GUI Maya session
 # opens it and renders the frames (render_surface_preview.py). Arnold batch is a
 # separate entitlement; the session render is what the subscription licenses. Output
 # stays in out/.
@@ -78,11 +78,12 @@ if (Test-Path $notes) { Remove-Item $notes }
 Write-Output "Building $($env:SURF_SCENE) ..."
 & "C:\Program Files\Autodesk\Maya2027\bin\mayapy.exe" (Join-Path $here "build_surface_scene.py") 2>&1 |
     Where-Object { $_ -match "^saved|Error|Traceback|line \d+" } | ForEach-Object { "$_" }
+if ($LASTEXITCODE -ne 0) { Write-Error "scene builder failed ($LASTEXITCODE)"; exit 1 }
 if (-not (Test-Path $env:SURF_SCENE)) { Write-Error "the scene was not built"; exit 1 }
 
 Write-Output "Rendering frames $Frames of $Cache (grid $Grid) ..."
 $t0 = Get-Date
-$p = Start-Process -FilePath "C:\Program Files\Autodesk\Maya2027\bin\maya.exe" -ArgumentList @("-command", $arg) -PassThru -WindowStyle Minimized
+$p = Start-Process -FilePath "C:\Program Files\Autodesk\Maya2027\bin\maya.exe" -ArgumentList @("-command", $arg) -PassThru -WindowStyle Hidden
 while (-not (Test-Path $marker) -and -not $p.HasExited -and ((Get-Date) - $t0).TotalMinutes -lt $MaxMinutes) { Start-Sleep -Seconds 5 }
 if (-not $p.HasExited) {
     Stop-Process -Id $p.Id -Force

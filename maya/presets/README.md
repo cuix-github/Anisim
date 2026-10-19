@@ -4,6 +4,8 @@ A preset is a PowerShell file here that sets the launcher's environment knobs, e
 
 `paper.ps1` is the look settled on 2026-10-16/17: the breaking-wave stills of PF-FLIP and ST-FLIP on our particles. Two knobs belong to the scene and are not in the preset: `SURF_METRES_PER_CELL` (the simulation's cell in metres, 0.25 for the breaker) and `SURF_CAMERA`.
 
+`breaker_inspect.ps1` is the water-only diagnostic candidate from the [24.9 s comparison](../../docs/breaker-render-study.md), 2026-10-19. It bypasses curvature foam, hides the existing mist, uses 10 MCF iterations and doubles the original ocean environment RGB. It exposes sheets and holes but still looks glassy; it is not a replacement for `paper_clean` or an accepted realistic ocean look. Hiding mist also hides its escaped particles; it never changes the cache or returns those particles to the surface.
+
 `paper_clean.ps1` is the same look, clean on calm water (2026-10-18). On the breaker every frame was a break, so the paper look's rule that any water the smoothed surface leaves out is a droplet cloud read as white water. On the wave basin's calm 2.8 m swell at 18 s, far from breaking and with no wind, the same rule painted the surface as snow: a real swell like it is glassy. Two knobs remove the dots, one render and one cache:
 
 | Knob | paper | paper_clean | What it removes |
@@ -50,9 +52,12 @@ The test, one knob at a time on the basin's 18 s frame with the paper look's cam
 | `SURF_SUN_ROTATE` | the sun's direction; the preset puts it low behind the spray so the mist is lit from behind |
 | `SURF_SUN_INTENSITY`, `SURF_SKY_INTENSITY` | the two lights |
 | `SURF_SKY_VISIBLE` | whether the camera sees the sky dome |
+| `SURF_SKY_COLOR` | optional linear RGB override for the dome; its intensity is a separate multiplier |
+| `SURF_FOAM_STRENGTH` | 0 bypasses curvature foam; 0 to 1 scales its curvature multiplier; default 1 preserves the original |
+| `SURF_MIST_VISIBLE` | 0 hides the existing mist shape; default 1 shows it; particle classification is unchanged |
 | `SURF_CAMERA` | "x y z tx ty tz" in cells |
 
-The foam is not a knob: the white matte material is mixed into the glass by convex curvature (`aiCurvature`, radius 1.2, threshold 0.15), the render-time rule the papers use. Bubbles are not drawn (`docs/open-questions.md`).
+The white matte foam material is mixed into the glass by convex curvature (`aiCurvature`, radius 1.2, threshold 0.15), the render-time rule the papers use. The strength control defaults to the original multiplier of 1.6; zero assigns the water shader directly. Bubbles are not drawn (`docs/open-questions.md`).
 
 ## Arnold (`maya/render_surface_preview.py`)
 

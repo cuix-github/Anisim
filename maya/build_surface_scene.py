@@ -12,9 +12,11 @@ SURF_SCENE, SURF_GRID, SURF_OBJ, SURF_CAMERA, SURF_POINT_SIZE, SURF_DETAIL,
 SURF_SMOOTH_ITERS, SURF_MESH_SMOOTH, SURF_MIST_RADIUS, SURF_MIST_DETAIL,
 SURF_MIST_DENSITY, SURF_MIST_THRESHOLD, SURF_METRES_PER_CELL, SURF_DEFAULT_RADIUS,
 SURF_MCF_ITERS, SURF_MASK_SIGMA, SURF_MASK_THETA, SURF_MASK_ZETA, SURF_MASK_FLOOR,
-SURF_MASK_DILATE,
+SURF_MASK_DILATE, SURF_MIST_VISIBLE (0 hides the rendered volume only),
 SURF_LOOK, SURF_WATER_DEPTH,
-SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR,
+SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SKY_COLOR (linear RGB),
+SURF_FOAM_STRENGTH (0 bypasses the curvature foam; 1 keeps the original),
+SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR,
 SURF_CAMERA_PATH (a camera.json: {"frames": [[ex, ey, ez, tx, ty, tz], ...]} in cells, frame
 f the list's entry f - 1, keyed on the camera so it tracks; the fixed SURF_CAMERA otherwise);
 see the .ps1) and saves SURF_SCENE. Built
@@ -139,6 +141,7 @@ def build(cmds):
         ("default_radius", env("SURF_DEFAULT_RADIUS", 0.0001)),
         ("mist_density", env("SURF_MIST_DENSITY", 1.0)),
         ("spray_epsilon", SPRAY_EPS)) + mcf)
+    cmds.setAttr(mist + ".visibility", env("SURF_MIST_VISIBLE", 1, int))
 
     # water: glass at the index of water, tinted with depth; foam: white, matte;
     # mixed by convex curvature (the papers render high-curvature areas foam-like)
@@ -153,15 +156,18 @@ def build(cmds):
                    transmissionDepth=env("SURF_WATER_DEPTH", 6.0 if ocean else 60.0))
     foam = shader(cmds, "aiStandardSurface", "foam", base=1.0, baseColor=(0.94, 0.96, 0.98),
                   specular=0.25, specularRoughness=0.55)
+    foam_strength = env("SURF_FOAM_STRENGTH", 1.0)
+    if not 0.0 <= foam_strength <= 1.0:
+        raise ValueError("SURF_FOAM_STRENGTH must be between 0 and 1")
     curv = cmds.shadingNode("aiCurvature", asTexture=True, name="foamCurvature")
     for k, v in (("radius", 1.2), ("spread", 1.0), ("threshold", 0.15), ("bias", 0.5),
-                 ("multiply", 1.6)):
+                 ("multiply", 1.6 * foam_strength)):
         cmds.setAttr(curv + "." + k, v)
     mix = cmds.shadingNode("aiMixShader", asShader=True, name="waterFoamMix")
     cmds.connectAttr(water + ".outColor", mix + ".shader1")
     cmds.connectAttr(foam + ".outColor", mix + ".shader2")
     cmds.connectAttr(curv + ".outColorR", mix + ".mix")
-    assign(cmds, mix, shape, "waterSG")
+    assign(cmds, water if foam_strength == 0 else mix, shape, "waterSG")
     # mist: a white scattering fog read from the spray density channel (its stored
     # value is the extinction per cell over SPRAY_EPS)
     fog = cmds.shadingNode("aiStandardVolume", asShader=True, name="mistFog")
@@ -202,6 +208,11 @@ def build(cmds):
     else:
         cmds.setAttr(sky + ".color", 0.5, 0.66, 0.9, type="double3")
         cmds.setAttr(sky + ".intensity", env("SURF_SKY_INTENSITY", 1.0))
+    if E.get("SURF_SKY_COLOR"):
+        sky_color = tuple(float(v) for v in E["SURF_SKY_COLOR"].split())
+        if len(sky_color) != 3 or any(v < 0 for v in sky_color):
+            raise ValueError("SURF_SKY_COLOR must contain three nonnegative values")
+        cmds.setAttr(sky + ".color", *sky_color, type="double3")
     sun = cmds.directionalLight(name="sun", intensity=env("SURF_SUN_INTENSITY", 4.0 if ocean else 3.0))
     rot = [float(v) for v in E.get("SURF_SUN_ROTATE", "").split()] or ([-18.0, 15.0, 0.0] if ocean
                                                                       else [-48.0, 28.0, 0.0])
