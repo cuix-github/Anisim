@@ -54,11 +54,10 @@ def read_layers(folder):
         target = folder / (layer + '.pfm')
         run(exr, '--ch', channels(layer), '-o', target)
         arrays[layer] = pfm(target)
-    # Display every radiometric panel through the same OCIO view as the Maya PNG.
-    for layer in ['beauty', 'beauty_raw', 'specular', 'transmission', 'specular_indirect']:
-        run('--colorconfig', OCIO, exr, '--ch', channels(layer), '--chnames', 'R,G,B',
-            '--ociodisplay:from=ACEScg', 'sRGB', 'ACES 1.0 SDR-video', '-d', 'uint8',
-            '-o', folder / (layer + '_view.png'))
+    # The shipped oiiotool lacks OCIO. The public Python binding shipped with
+    # Maya handles color conversion, without initializing a Maya application.
+    subprocess.run(['C:/Program Files/Autodesk/Maya2027/bin/mayapy.exe',
+                    str(ROOT / 'experiments/convert_breaker_aov_views.py'), str(folder)], check=True)
     n = arrays['N']
     visible = np.linalg.norm(n, axis=2) > .5
     mapped = np.where(visible[..., None], (n + 1) * .5, 0)
