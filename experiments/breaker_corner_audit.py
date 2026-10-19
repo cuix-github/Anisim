@@ -58,7 +58,7 @@ def main():
     report.update(git_sha=base.git('rev-parse','HEAD'),wall_s=time.perf_counter()-start,
                   note='AABB particle counts are proximity evidence, not exact particle-to-fragment provenance.')
     base.save(OUT/'analysis.json',report)
-    print(json.dumps(report,indent=2))
+    print(json.dumps({name:len(report[name]['fragments']) for name in ['raw','no_mcf','control']}))
 
 
 if __name__=='__main__':main()
