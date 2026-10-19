@@ -31,6 +31,21 @@ VIEWS={
 }
 
 
+def mesh_flags(c,shape):
+    regular={'castsShadows','receiveShadows','primaryVisibility','visibleInReflections',
+             'visibleInRefractions','doubleSided','opposite','smoothShading','motionBlur'}
+    flags={}
+    for attr in c.listAttr(shape,scalar=True) or []:
+        if not (attr.startswith('ai') or attr in regular):continue
+        plug=shape+'.'+attr
+        if not c.getAttr(plug,settable=True):continue
+        kind=c.getAttr(plug,type=True)
+        if kind not in ['bool','long','short','byte','enum','float','double','string']:continue
+        value=c.getAttr(plug)
+        if value is not None:flags[attr]=dict(type=kind,value=value)
+    return flags
+
+
 def prepare_worker(view):
     import maya.standalone
     maya.standalone.initialize(name='python')
@@ -47,12 +62,20 @@ def prepare_worker(view):
             if spec['time_s']!=24.9:
                 import maya.api.OpenMaya as om
                 z=np.load(FRAMES/view/'mesh.npz');points=z['points'];triangles=z['triangles'];normals=z['normals']
+                original_shape=c.listRelatives('baked_control',shapes=True,fullPath=True)[0]
+                flags=mesh_flags(c,original_shape)
                 c.delete('baked_control')
                 transform=c.createNode('transform',name='baked_control')
                 selection=om.MSelectionList();selection.add(transform);parent=selection.getDependNode(0)
                 fn=om.MFnMesh();fn.create(om.MPointArray(points.tolist()),[3]*len(triangles),
                                          triangles.ravel().tolist(),parent=parent)
                 fn.setVertexNormals(om.MVectorArray(normals.tolist()),list(range(len(points))))
+                new_shape=c.listRelatives(transform,shapes=True,fullPath=True)[0]
+                for attr,item in flags.items():
+                    assert c.attributeQuery(attr,node=new_shape,exists=True),attr
+                    if item['type']=='string':c.setAttr(new_shape+'.'+attr,item['value'],type='string')
+                    else:c.setAttr(new_shape+'.'+attr,item['value'])
+                assert mesh_flags(c,new_shape)==flags
                 c.sets(transform,e=True,forceElement='waterSG')
                 normal_counts,normal_ids=fn.getNormalIds()
                 corners=np.asarray(fn.getNormals())[np.asarray(normal_ids)].reshape(-1,3,3)
@@ -60,7 +83,7 @@ def prepare_worker(view):
                 assert error<1e-5,error
                 assert np.array_equal(np.asarray(fn.getPoints())[:,:3].astype(np.float32),points)
                 base.save(folder/'normal_transfer.json',dict(status='passed',max_corner_normal_error=error,
-                          mesh_sha256=base.sha(FRAMES/view/'mesh.npz')))
+                          mesh_sha256=base.sha(FRAMES/view/'mesh.npz'),preserved_render_flags=flags))
             pitch,yaw,_=np.radians(spec['rotation'])
             direction=np.array([np.sin(yaw)*np.cos(pitch),-np.sin(pitch),np.cos(yaw)*np.cos(pitch)])
             eye=np.asarray(spec['target_m'])*4+300*direction
