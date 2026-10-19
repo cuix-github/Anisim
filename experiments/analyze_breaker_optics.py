@@ -144,12 +144,20 @@ def main():
         png = np.asarray(Image.open(folder / 'beauty.png').convert('RGB'), dtype=float)
         converted = np.asarray(Image.open(folder / 'beauty_view.png').convert('RGB'), dtype=float)
         display_error = float(np.abs(png - converted).mean())
-        assert display_error < 1, 'EXR display transform disagrees with Maya PNG'
+        raw_export_error = float(np.abs(png - np.clip(data['beauty'], 0, 1) * 255).mean())
+        # The failed display-equivalence assertion exposed a real export issue:
+        # the PNG uses linear ACEScg values, despite being viewed as normal PNG.
+        # Test that explanation numerically instead of relaxing the display test.
+        assert raw_export_error < 1, 'PNG does not match the predicted untransformed export'
+        assert states[arm]['defaultColorMgtGlobals']['outputTransformEnabled'] is False
+        assert 'icc_profile' not in Image.open(folder / 'beauty.png').info
         signal = float(region(data['beauty_raw']).sum())
         shares = {name: float(region(data[name]).sum() / signal) for name in COMPONENTS}
         checks[arm] = {'exr_channels': 54, 'aov_sum_relative_l1_error': relative,
                        'aov_sum_max_absolute_error': float(error.max()),
                        'exr_display_vs_png_mae_levels': display_error,
+                       'linear_exr_times_255_vs_png_mae_levels': raw_export_error,
+                       'png_has_display_transform': False,
                        'curl_component_linear_rgb_sum_fractions': shares,
                        'render_call_s': receipt['worker']['render_call_s'],
                        'process_wall_s': receipt['process_wall_s'],
@@ -162,11 +170,14 @@ def main():
     a_png = np.asarray(Image.open(root / 'A/beauty.png').convert('RGB'), dtype=float)
     b_png = np.asarray(Image.open(root / 'B/beauty.png').convert('RGB'), dtype=float)
     display_delta = np.abs(b_png - a_png)
+    a_view = np.asarray(Image.open(root / 'A/beauty_view.png').convert('RGB'), dtype=float)
+    b_view = np.asarray(Image.open(root / 'B/beauty_view.png').convert('RGB'), dtype=float)
     metrics = {'curl_raw_rgb_sum_change_fraction': float(region(delta).sum() / reference.sum()),
                'curl_raw_relative_l1_change': float(np.abs(region(delta)).sum() / reference.sum()),
                'curl_display_mae_levels': float(region(display_delta).mean()),
                'curl_display_fraction_pixels_changed_over_8_levels': float((region(display_delta).max(axis=2) > 8).mean()),
                'full_display_mae_levels': float(display_delta.mean()),
+               'curl_aces_view_mae_levels': float(region(np.abs(b_view - a_view)).mean()),
                'normal_aov_exact': True, 'position_aov_exact': True}
     for layer in ['specular', 'specular_direct', 'specular_indirect', 'transmission']:
         values = region(arrays['B'][layer] - arrays['A'][layer])
@@ -184,9 +195,11 @@ def main():
                          'AOVs identify the first scattering category; transmission includes any later reflection events.',
                          'The comparison tests specular depth 1 versus 3 only, not convergence at unlimited depth.']}
     (root / 'analysis.json').write_text(json.dumps(result, indent=2) + '\n')
-    panel_image([(root / 'A/beauty.png', 'A | specular depth 1'),
-                 (root / 'B/beauty.png', 'B | specular depth 3')], root / 'comparison.png')
-    panel_image([(root / 'B/beauty.png', 'Beauty | original display transform'),
+    panel_image([(root / 'A/beauty_view.png', 'A | specular depth 1 | ACES display'),
+                 (root / 'B/beauty_view.png', 'B | specular depth 3 | ACES display')], root / 'comparison.png')
+    panel_image([(root / 'A/beauty.png', 'Original PNG | no display transform'),
+                 (root / 'A/beauty_view.png', 'Same render | ACES to sRGB display')], root / 'color_comparison.png')
+    panel_image([(root / 'B/beauty_view.png', 'Beauty | ACES display transform'),
                  (root / 'B/beauty_raw_view.png', 'Raw beauty | same display transform'),
                  (root / 'B/specular_view.png', 'Specular | same exposure'),
                  (root / 'B/transmission_view.png', 'Transmission | same exposure'),
