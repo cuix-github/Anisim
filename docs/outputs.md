@@ -21,8 +21,9 @@ failure plus its separate verified recovery; that image was not rerendered.
 
 The [thin-foam study](breaker-foam-layer-study.md) retains failed support checks
 under out/runs/breaker_foam_layer_20261019/, scene-preparation checks under _v2,
-the ineffective first A under _v3, and prepared explicit-density scenes under _v4.
-No _v4 image has rendered yet. The existing-mesh corner audit and focused
+the ineffective first A under _v3, and the ineffective explicit-density A under
+_v4, including its failed image check and unit-mismatch audit. B never rendered;
+the experiment stopped after the approved replacement A failed. The existing-mesh corner audit and focused
 eight-triangle fragment plot are in out/runs/breaker_corner_audit_20261019/.
 
 The [interface-scattering study](breaker-interface-study.md) retains its mask

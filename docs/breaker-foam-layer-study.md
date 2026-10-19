@@ -54,8 +54,8 @@ Nevertheless, the first licensed GUI render at commit 7d988b1 had an exactly
 zero volume AOV. It took 12.51 s inside the render call and 22.36 s including the
 process; mean absolute raw-beauty difference from the existing baseline was only
 5.88e-7. The image check failed and B was not launched. The process receipt and
-failed image check are both preserved. The live density path was ineffective;
-its precise evaluation cause is not established. This does not prove Arnold
+failed image check are both preserved. The layer contributed no visible volume;
+density evaluation was not isolated by that check. This does not prove Arnold
 generally cannot read per-point data for volumes, which its documentation says
 is supported. Export/readback alone did not validate live shading.
 
@@ -70,8 +70,31 @@ also inspected directly. This is a prepared alternative, not a validated look.
 The two replacement scenes passed geometry, optics, camera and export checks.
 Because producing both valid previews after the failed A would spend three
 render calls instead of two, approval was requested for the extra call. At this
-record, replacement A and B have not rendered. If replacement A still fails the
-scattering check, B must not run.
+point, replacement A and B had not rendered. Xue subsequently approved replacement
+A, with B conditional on a nonzero scattering check and an explicit stop if A
+failed. Replacement A ran at 19:50:49 UTC on October 19 at commit ee3a070. Its
+licensed render completed in 12.00 s (21.09 s including the process), but its
+volume AOV was again exactly zero. The image check failed, and B was not launched.
+There have been two render calls in this thin-foam study, both ineffective A
+attempts, and no valid foam comparison. No simulation ran.
+
+A subsequent read-only audit identified a concrete integration error. The native
+foam ASS header declares meters_per_unit=1; the Maya parent ASS declares 0.01.
+The points were already expressed in the parent's coordinate convention, so
+importing the asset introduces an unintended factor of 100. Native maximum
+bounds (635.233215, 66.927734, 310.057190) predict imported maxima
+(63523.3215, 6692.77344, 31005.7190); the actual render log reports
+(63523.3203, 6692.77344, 31005.7188). The layer is displaced and scaled away from
+the wave. The first failed A log shows the same oversized bounds.
+
+This accounts for the absent in-frame foam without establishing a defect in
+per-point density support. The earlier export/readback and identity-transform
+checks missed the parent/child unit conversion. Changing density representation
+did not address that error. The [Arnold units documentation](https://help.autodesk.com/cloudhelp/ENU/AR-Core/files/ac-render-settings/arnold_user_guide_ac_render_settings_ac_units_html.html)
+describes this automatic procedural scaling. The next prerequisite is to align
+the asset's unit metadata with the frozen parent scene and check imported bounds
+and camera projection before any new render. Neither failed artifact was altered;
+no unit-corrected scene or further render was produced after the conditional stop.
 
 ## The circled hard fragments are a separate geometry finding
 
@@ -97,8 +120,9 @@ The geometry audit and close-up plot are in
 out/runs/breaker_corner_audit_20261019/. The first failed support build is in
 out/runs/breaker_foam_layer_20261019/. The _v2 folder retains the valid layer and
 a scene-preparation tuple/list comparison failure; _v3 retains the completed
-but ineffective A. The _v4 folder holds the reviewed replacement layer and
-unrendered scenes. These outputs are local, not committed.
+but ineffective A. The _v4 folder holds the ineffective replacement A, its failed
+image_check.json and unit_audit.json, and the unrendered B. These outputs are
+local, not committed; compact evidence is in results/rendering/.
 
 [Arnold points](https://help.autodesk.com/cloudhelp/ENU/AR-Core/files/ac-shapes/arnold_user_guide_ac_shapes_ac_points_html.html)
 documents volume point rendering.

@@ -1,7 +1,7 @@
 {
-  "status": "replacement_pair_prepared_awaiting_extra_render_approval",
+  "status": "stopped_after_failed_replacement_A",
   "simulation_rerun": false,
-  "render_calls_completed": 1,
+  "render_calls_completed": 2,
   "valid_foam_previews": 0,
   "layer": {
     "status": "numeric_passed_visual_review_pending",
@@ -149,5 +149,86 @@
     },
     "interpretation": "Angular silhouette exists in raw and smoothed meshes. Nearby particles are location evidence, not proof of their exact meshing contribution. This does not diagnose all attached crest corners."
   },
-  "start_utc": "2026-10-19T19:17:15Z"
+  "start_utc": "2026-10-19T19:17:15Z",
+  "B_rendered": false,
+  "replacement_A": {
+    "receipt": {
+      "status": "passed",
+      "mode": "A",
+      "git_sha": "ee3a07047e4f9735e3f20725a6f04128055e5b72",
+      "cache_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "source_sha256": "d1ddd4682c46f04e76aae5586d2cf74215617e0d4012318393e26404e81e6100",
+      "control_receipt_sha256": "ff04898924528d097fc837cb82ed9bda124050d7d38ea0ae811cf7e961e4f17d",
+      "started_utc": "2026-10-19T19:50:49Z",
+      "exit_code": 0,
+      "worker": {
+        "status": "passed",
+        "render_call_s": 11.998720599978697,
+        "worker_s": 14.005325299978722,
+        "exr": "optics.0001.exr"
+      },
+      "png_sha256": "f03169835625c8b5d4a1983ee43df796a300a3a5851e1570d63f2f671d7cd781",
+      "exr_sha256": "759a04bdb03de4353e57792aa9843bb06b9834af340277f5bc61dd4635664621",
+      "foam_ass_sha256": "08e3b0a030bf3aef4503d88f8aa199f2881bcc4d50e993a60dcb39a46abc3633",
+      "process_s": 21.085869000002276
+    },
+    "image_check": {
+      "status": "failed",
+      "aov_closure_relative_l1": 8.8896214319158e-08,
+      "component_raw_rgb_share": {
+        "specular": 0.20242187084389068,
+        "transmission": 0.4564233807303498,
+        "diffuse": 0.3411547477030854,
+        "sss": 0.0,
+        "coat": 0.0,
+        "sheen": 0.0,
+        "emission": 0.0,
+        "volume": 0.0,
+        "background": 0.0
+      },
+      "display_mean_abs_levels": 0.10413644547325103,
+      "render_call_s": 11.998720599978697,
+      "process_s": 21.085869000002276,
+      "error": "Foam volume did not contribute"
+    },
+    "unit_audit": {
+      "status": "unit_mismatch_confirmed_from_headers_and_render_bounds",
+      "child_meters_per_unit": 1.0,
+      "parent_meters_per_unit": 0.01,
+      "child_to_parent_scale": 100.0,
+      "native_point_bounds": [
+        [
+          554.6063232421875,
+          48.629371643066406,
+          241.95751953125
+        ],
+        [
+          635.2332153320312,
+          66.927734375,
+          310.05718994140625
+        ]
+      ],
+      "predicted_imported_bounds": [
+        [
+          55460.63232421875,
+          4862.937164306641,
+          24195.751953125
+        ],
+        [
+          63523.321533203125,
+          6692.7734375,
+          31005.718994140625
+        ]
+      ],
+      "render_log_bounds": "00:00:02  1594MB         |  scene bounds: (-1720 -1 -800) -> (63523.3203 6692.77344 31005.7188)",
+      "note": "No render or scene mutation. Actual image remains invalid; no corrected scene was rendered."
+    }
+  },
+  "stop_reason": "User approved B only if replacement A passed; replacement A failed its nonzero-volume check."
 }
