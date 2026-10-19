@@ -110,6 +110,9 @@ def main():
     assert {p.name: digest(p) for p in cache.iterdir() if p.is_file()} == receipts['A']['cache_sha256'] == receipts['B']['cache_sha256']
     assert receipts['A']['control_check']['status'] == 'passed'
     changes = state_difference(states['A'], states['B'])
+    # Public Maya node docs define lightBlindData as an addr, not a light knob:
+    # https://help.autodesk.com/cloudhelp/2024/ENU/Maya-Tech-Docs/Nodes/defaultLightList.html
+    runtime_addresses = {key: changes.pop(key) for key in list(changes) if key.endswith('.lightBlindData')}
     assert changes == {'defaultArnoldRenderOptions.GISpecularDepth': [1, 3]}, changes
     arrays, checks = {}, {}
     for arm in 'AB':
@@ -171,7 +174,8 @@ def main():
         metrics[layer + '_delta_over_control_raw_rgb'] = float(values.sum() / reference.sum())
     result = {'status': 'passed', 'render_git_sha': receipts['A']['git_sha'],
               'analysis_git_sha': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
-              'state_differences': changes, 'control': receipts['A']['control_check'],
+              'state_differences': changes, 'excluded_process_addresses': runtime_addresses,
+              'control': receipts['A']['control_check'],
               'curl_xyxy': CURL, 'checks': checks, 'comparison': metrics,
               'input_sha256': receipts['A']['cache_sha256'], 'baked_sha256': receipts['A']['baked_sha256'],
               'limits': ['The rectangular curl ROI is not an object-isolated water mask.',
