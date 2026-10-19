@@ -139,8 +139,35 @@ def sample(out):
         base.exit_worker(1)
 
 
+def readback_graph(out):
+    g=graph(out); compound=g['compounds'][0]
+    compound['compoundNodes']=[
+        dict(nodeName='read',nodeType='File::Geometry::read_OpenVDB_volume'),
+        dict(nodeName='first',nodeType='Core::Array::get_from_array'),
+        dict(nodeName='obj',valueType='Object'),
+        dict(nodeName='pts',nodeType='File::NumPy::read_NumPy'),
+        dict(nodeName='f3',valueType='array<Math::float3>'),
+        dict(nodeName='samp',nodeType='Geometry::Query::sample_volume'),
+        dict(nodeName='write',nodeType='File::NumPy::write_NumPy')]
+    compound['values']=[dict(valueName=n,valueType=t,value=v) for n,t,v in [
+        ('read.filename','string','interface.vdb'),('read.directory','string',out.as_posix()),
+        ('read.properties','string','*'),('obj.value','Object',{}),
+        ('f3.value','array<Math::float3>',[{'x':'0f','y':'0f','z':'0f'}]),
+        ('pts.file_path','string',(out/'probe.####').as_posix()),('pts.frame','int','0L'),
+        ('samp.property','string','voxel_fog_density'),('samp.default','float','0f'),
+        ('samp.sampler','Geometry::Query::SamplerType','kLinear'),
+        ('write.file_path','string',(out/'readback.npy').as_posix()),
+        ('write.frame','long','0L'),('write.enable','bool','true'),('write.overwrite','bool','false')]]
+    compound['connections']=[dict(source=a,target=b) for a,b in [
+        ('read.volumes','first.array'),('obj.output','first.default'),
+        ('first.value','samp.volume'),('f3.output','pts.type'),('pts.data','samp.positions'),
+        ('samp.sampled_data','write.data'),('write.success','.ok'),('read.success','.ok_read')]]
+    compound['ports']=[dict(portName=n,portDirection='output',portType='bool') for n in ('ok','ok_read')]
+    return g
+
+
 def main():
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('mode',choices=['grid','sample','export'])
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('mode',choices=['grid','sample','export','readback'])
     parser.add_argument('--out',type=Path,default=DEFAULT);args=parser.parse_args();out=args.out.resolve()
     assert not base.git('status','--porcelain');assert base.sha(base.SOURCE)==base.SOURCE_SHA
     assert json.loads((out/'mask_review.json').read_text())['status']=='passed'
@@ -150,6 +177,13 @@ def main():
         assert not (out/'extinction.0000.npy').exists()
         env.update(INTERFACE_SAMPLE_WORKER='1',INTERFACE_OUT=str(out))
         command=[MAYAPY,str(Path(__file__).resolve())]
+    elif mode=='readback':
+        a=np.load(out/'extinction.0000.npy');p=np.load(out/'voxels.npy')
+        pos=np.flatnonzero(a>0)[::11];neg=np.flatnonzero((a==0)&(np.load(out/'support_density.npy')>0))[::1000]
+        ids=np.r_[pos,neg];np.save(out/'probe.0000.npy',p[ids]);np.save(out/'probe_expected.npy',a[ids])
+        g=out/'readback.json';base.save(g,readback_graph(out))
+        env['PATH']=str(BIF/'bin')+';'+str(BIF/'thirdparty/bin')+';'+env['PATH']
+        command=[str(BIF/'bin/bifcmd.exe'),str(g)]
     else:
         assert not (out/('voxels.npy' if mode=='grid' else 'interface.vdb')).exists()
         g=out/(mode+'.json');base.save(g,graph(out,mode=='export'))
@@ -166,6 +200,11 @@ def main():
             assert (out/'interface.vdb').stat().st_size>1024
             receipt.update(vdb_sha256=base.sha(out/'interface.vdb'),vdb_bytes=(out/'interface.vdb').stat().st_size,
                            grid_order_exact=True)
+        if mode=='readback':
+            a=np.load(out/'probe_expected.npy');b=np.load(out/'readback.npy')
+            assert a.shape==b.shape and np.isfinite(b).all()
+            error=float(np.max(np.abs(a-b)));assert error<1e-4,error
+            receipt.update(samples=len(a),max_abs_density_error=error,zero_samples=int((a==0).sum()))
         receipt['status']='passed'
     except BaseException:
         receipt.update(status='failed',error=traceback.format_exc());raise
