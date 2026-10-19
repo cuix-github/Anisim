@@ -49,7 +49,7 @@ def graph(out,export=False):
     setv('vol.enable_bandwidth','bool','true');setv('vol.bandwidth','float','3f')
     setv('vol.resolution_mode','Geometry::Volume::ResolutionType','Absolute')
     setv('vol.adaptivity','Geometry::Volume::Adaptivity','Off')
-    setv('vol.store_level_set','bool','false');setv('vol.store_fog_density','bool','true')
+    setv('vol.store_level_set','bool','true');setv('vol.store_fog_density','bool','true')
     setv('vol.fog_density','float','1f');setv('vol.rebuild_level_set','bool','false')
     # A converter may already carry corner positions. Refresh explicitly: the
     # getter otherwise returns that existing channel even when Center is asked.
