@@ -87,7 +87,7 @@ def snapshot(c):
     result['output_settings'] = {plug: c.getAttr(plug) for plug in (
         'defaultArnoldDenoiser.layerSelection', 'defaultArnoldDenoiser.outputSuffix',
         'opticalEXR.ai_translator', 'opticalEXR.colorManagement',
-        'defaultColorMgtGlobals.renderingSpaceName', 'defaultColorMgtGlobals.viewTransformName',
+        'defaultColorMgtGlobals.wsn', 'defaultColorMgtGlobals.vtn',
         'water.transmissionColor', 'water.transmissionScatter', 'water.thinWalled',
         'aiAOV_beauty_raw.lightPathExpression')}
     return result
