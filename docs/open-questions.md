@@ -4,13 +4,16 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
-- **Curvature-selected scattering is still unproven.** The 2026-10-19
+- **Curvature-selected scattering works, but the white regions remain chunky.** The 2026-10-19
   [interface study](breaker-interface-study.md) passed a curvature-mask check,
   but the proposed thin VDB band failed roundtrip validation. A stock randomwalk
   SSS alternative was prepared; its first B render received a constant-zero
   mask and was identical to control in raw beauty. The native Arnold connection
-  has been repaired and checked in an ASS export. One replacement B is awaiting
-  approval, so there is no valid scattering-look result yet. No solver ran.
+  was repaired and one explicitly approved replacement B rendered with a nonzero
+  SSS contribution. The broken lip whitens, but its patches remain thick and the
+  broad body still looks glassy. Cache and geometry are unchanged; mist is off.
+  This validates the local shading path, not a final ocean look or the failed VDB
+  band. No solver ran, and no additional render was started.
 
 - **The refined water/mist candidate is still not an accepted look.** After the
   first Deep Water / Physical Sky package proved too blue, the authorized

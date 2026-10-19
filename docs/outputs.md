@@ -22,9 +22,11 @@ failure plus its separate verified recovery; that image was not rerendered.
 The [interface-scattering study](breaker-interface-study.md) retains its mask
 in out/runs/breaker_interface_scatter_20261019/ and unvalidated volume attempts
 through _v9. The initial SSS A and failed-effect B are in
-out/runs/breaker_interface_sss_20261019_v3/. The _v4 folder holds repaired scenes
-and non-rendering ASS export checks, awaiting approval for one replacement B.
-These are evidence of pipeline checks and failures, not an accepted ocean look.
+out/runs/breaker_interface_sss_20261019_v3/. The _v4 folder holds repaired scenes,
+ASS export checks, the approved replacement B, analysis.json and comparison.png.
+The comparison reuses v3/A; v4/A was not rendered. B now has a validated SSS
+contribution, but the white patches remain thick and the body glassy. These
+artifacts are a working scattering comparison, not an accepted ocean look.
 
 Since 2026-10-16 a run writes everything it produces under one folder named by its tag:
 

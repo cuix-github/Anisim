@@ -57,14 +57,22 @@ def report(out,control=None):
     states=[json.loads((folders[arm]/'state.json').read_text()) for arm in ['A','B']]
     differences=[k for k in states[0] if states[0][k]!=states[1][k]]
     assert differences==['interfaceEnable'],differences
-    assert states[0]['geometry']==json.loads((base.PRIOR/'B/state.json').read_text())['geometry']
+    prior_geometry=json.loads((base.PRIOR/'B/state.json').read_text())['geometry']
+    # The older optical receipt records shading_engines, while current receipts
+    # record point/normal/topology hashes. Compare the common geometry fields;
+    # A/B geometry, including all four hashes, is already identical above.
+    prior_geometry_fields=['vertices','triangles','bounds']
+    for key in prior_geometry_fields:
+        assert states[0]['geometry'][key]==prior_geometry[key],key
     normals=[pfm(folders[arm]/'N.pfm') for arm in ['A','B']]
     positions=[pfm(folders[arm]/'P.pfm') for arm in ['A','B']]
     checks={arm:json.loads((folders[arm]/('control_check.json' if arm=='A' else 'image_check.json')).read_text()) for arm in ['A','B']}
     assert all(c['status']=='passed' for c in checks.values())
     result=dict(status='passed',simulation_rerun=False,mesh_rebuilt=False,mist=False,comparison_images=2,
                 control_path=str(folders['A']),control_reused=control is not None,
-                changed_nodes=differences,N_exact=bool(np.array_equal(*normals)),P_exact=bool(np.array_equal(*positions)),
+                changed_nodes=differences,geometry_exact_between_arms=True,
+                prior_geometry_matching_fields=prior_geometry_fields,
+                N_exact=bool(np.array_equal(*normals)),P_exact=bool(np.array_equal(*positions)),
                 N_max_abs_difference=float(np.abs(normals[0]-normals[1]).max()),arms=checks,
                 approximation=states[0]['approximation'],mask_sha256=states[0]['mask_sha256'])
     font=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',20)

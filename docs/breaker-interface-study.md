@@ -92,15 +92,50 @@ failure rather than rewriting the successful process receipt.
 The repair was prepared and export-checked before requesting permission for one
 additional B render, because that exceeds the originally agreed image count.
 The requested allowance is 2–5 minutes including checks, with no simulation.
-At the time of this record, that extra render has not started. The exported
-connection check is not yet evidence that the SSS contribution renders correctly.
+Xue then explicitly approved that replacement B, reusing the validated A.
+
+## The approved replacement B renders scattering, but is not an accepted look
+
+The repaired B rendered at commit 70f2151, starting at 18:58:51 UTC. The licensed
+GUI render call took 14.24 s and its process took 23.56 s. Only one additional
+image was rendered: three images total across the original pair and replacement.
+The original A receipt and image hashes are recorded in B's receipt. Rendering,
+offline validation and visual inspection finished by 19:00:58 UTC, about four
+minutes after the approval acknowledgement at 18:56:55; documentation followed.
+
+The SSS component now contributes 18.88 percent of the whole image's summed raw
+RGB values. This confirms that the shading path is active; it is not a foam
+coverage fraction or a physical energy measurement. The component sum closes
+against raw beauty to 9.00e-8 relative L1, the independent display conversion
+agrees within 0.104 mean code values, and the volume component is zero. Cache,
+source scene and mask hashes are unchanged. A/B point, normal and topology
+hashes match exactly, as do the position AOVs. The rendered normal AOV differs
+by at most 1.19e-7; the stored mesh normals have not changed.
+
+The offline comparison initially stopped on a receipt-schema mismatch: the
+older optical receipt includes the shading-engine name, whereas newer receipts
+include geometry hashes. Its shared vertex count, triangle count and bounds all
+match. The checker now compares those named fields to the old receipt and still
+requires exact A/B geometry hashes. This repair only re-ran offline analysis;
+it did not spend another render or change either image.
+
+Visual inspection shows white scattering on the broken lip and curled fragments,
+with the broad right-hand water body remaining transparent and glassy. The white
+regions still read as thick, smooth patches rather than fine foam. This is a
+working localized-scattering comparison, not an accepted ocean preset. Changing
+the material has not added small droplets, foam structure or persistent surface
+foam. The result supports investigating how scattering is distributed and how
+fine structure is represented; it does not establish a solver-resolution limit
+or justify starting another simulation. No additional render is authorized by
+this result. The unvalidated independent VDB band remains a separate open issue.
 
 ## Artifacts and sources
 
 The mask and review are in out/runs/breaker_interface_scatter_20261019/.
 The same prefix through _v9 retains failed/unvalidated VDB preparation variants.
 The two first images are in out/runs/breaker_interface_sss_20261019_v3/;
-the repaired, unrendered scenes and ASS checks are in the _v4 folder. Earlier
+the repaired scenes, replacement B, ASS checks, analysis.json and A/B comparison
+are in the _v4 folder. Its A scene is unrendered because the old A was reused. Earlier
 SSS folders retain preparation failures. No production defaults changed.
 
 The scripts are breaker_interface_mask.py, the explicitly unvalidated
