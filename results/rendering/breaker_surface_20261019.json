@@ -1,5 +1,7 @@
 {
   "status": "passed",
+  "analysis_git_sha": "1e76aeba88fcd6be9c5b85d3dcb6129bdc49e95c",
+  "analysis_source_sha256": "93bc4a34a8ab5fca904f8013f3c680c2023ebee8912a00bc6442cad5056577c4",
   "run": {
     "git_sha": "07da1145840b576781fde1d63a19f76bed329a55",
     "input_sha256": {
