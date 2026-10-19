@@ -55,9 +55,10 @@ def prepare(out):
         import maya.api.OpenMaya as om
         sel=om.MSelectionList();sel.add('baked_control');dag=sel.getDagPath(0);dag.extendToShape()
         mesh=om.MFnMesh(dag);weights=np.load(MASK/'mask.npz')['mask']
-        mesh.createColorSetWithName('interfaceMask');mesh.setCurrentColorSetName('interfaceMask')
+        c.polyColorSet('baked_control',create=True,colorSet='interfaceMask',representation='RGB')
+        c.polyColorSet('baked_control',currentColorSet=True,colorSet='interfaceMask')
         colors=om.MColorArray([om.MColor((float(w),float(w),float(w),1)) for w in weights])
-        mesh.setVertexColors(colors,list(range(mesh.numVertices)),colorSet='interfaceMask')
+        mesh.setVertexColors(colors,list(range(mesh.numVertices)))
         c.setAttr(dag.fullPathName()+'.aiExportColors',True)
         read=c.shadingNode('aiUserDataColor',asUtility=True,name='interfaceMaskReader')
         c.setAttr(read+'.colorAttrName','interfaceMask',type='string')
