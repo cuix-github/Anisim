@@ -37,7 +37,12 @@ textures. Prioritize conformance of particle-derived surface reconstruction,
 feature-preserving smoothing, interface scattering and the paper's spray path.
 Arnold-specific numerical approximations must be labelled and validated; the
 papers do not supply a complete material/lighting preset. This direction does
-not authorize another render, reconstruction run or solver continuation.
+did not initially authorize another run. Later on October 19 Xue authorized
+offline reconstruction and scattering checks together, still deferring spray
+and solver changes. After seeing the valid A/B foam images on desktop, he judged
+both promising and requested additional paired angles, distances and later cached
+frames before selecting either. That observation study should preserve both
+existing looks; it does not turn procedural B into a claim of paper fidelity.
 
 - Every change lands through its own pull request; the repository squash-merges, so a branch whose pull request merged is never pushed onto again.
 - The repository stores code and small numeric evidence (JSON receipts, charts, frame sheets). Videos, rendered frames, caches and Maya scenes stay in the ignored `out/` (rule set 2026-10-13; the videos committed before then were untracked the same day).

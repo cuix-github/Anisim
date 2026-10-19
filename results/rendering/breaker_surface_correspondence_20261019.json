@@ -1,0 +1,416 @@
+{
+  "analysis": {
+    "gates": {
+      "unit_sphere_area_mean_H": 1.0000121984799633,
+      "unit_sphere_median_H": 0.9980734031650157,
+      "plane_max_abs_H": 0.0,
+      "status": "passed"
+    },
+    "arms": {
+      "control": {
+        "vertices": 146326,
+        "triangles": 292516,
+        "local_triangles": 8,
+        "surface_area_m2": 1962.6838733585564,
+        "selected_area_m2": 39.78369296753098,
+        "strong_area_m2": 19.404489205355695,
+        "mask_area_weighted": 0.010789130986030075,
+        "cut_max": 0.0,
+        "curvature_filter_note": "Legacy 4 graph passes; physical smoothing width differs with mesh resolution; not a matched optical A/B."
+      },
+      "fine": {
+        "vertices": 332491,
+        "triangles": 664846,
+        "local_triangles": 8,
+        "surface_area_m2": 1955.7561231880054,
+        "selected_area_m2": 39.575141868404884,
+        "strong_area_m2": 19.819607823800744,
+        "mask_area_weighted": 0.010948024839773715,
+        "cut_max": 0.0,
+        "curvature_filter_note": "Legacy 4 graph passes; physical smoothing width differs with mesh resolution; not a matched optical A/B."
+      }
+    },
+    "final_field_sample_max_difference_cells": 0.0
+  },
+  "local_analysis": {
+    "git_sha": "74614e5e952eede5e66fed7c27a7f45c499c01d2",
+    "arms": {
+      "local_control": {
+        "nearest_vertex_distance_m": 0.05572566664343274,
+        "component_vertices": 6,
+        "component_triangles": 8,
+        "component_bounds_m": [
+          [
+            144.48179626464844,
+            14.632614135742188,
+            75.60437774658203
+          ],
+          [
+            144.6524658203125,
+            14.745379447937012,
+            75.71623229980469
+          ]
+        ],
+        "component_filtered_H_range_per_m": [
+          14.798786079568416,
+          14.860829066373501
+        ],
+        "component_mean_mask": 1.0,
+        "source_sdf_max_difference_cells": 2.384185791015625e-07,
+        "manifold": true
+      },
+      "local_refine": {
+        "nearest_vertex_distance_m": 0.05924747833420196,
+        "component_vertices": 86,
+        "component_triangles": 168,
+        "component_bounds_m": [
+          [
+            144.4243621826172,
+            14.559948921203613,
+            75.5665283203125
+          ],
+          [
+            144.8563995361328,
+            14.81099796295166,
+            75.78434753417969
+          ]
+        ],
+        "component_filtered_H_range_per_m": [
+          5.894375706045032,
+          29.79917081789128
+        ],
+        "component_mean_mask": 1.0,
+        "source_sdf_max_difference_cells": 2.384185791015625e-07,
+        "manifold": true
+      }
+    },
+    "interpretation": "The nearest connected component is a spatial correspondence check, not exact particle provenance. Resampling changes the discrete volume as well as the contour: not a paper-faithful replacement until field, topology and smoothing correspondence are established."
+  },
+  "runs": {
+    "smoke": {
+      "git_sha": "a956728cc863da46d2023b5785bba512576871dc",
+      "arm": "smoke",
+      "inputs": {
+        "point_size": 0.5,
+        "detail_size": 0.5,
+        "offset": 0,
+        "smooth_iterations": 0,
+        "smoothing": 0.1,
+        "mcf_iterations": 0,
+        "mask_sigma": 2,
+        "mask_theta": 2,
+        "mask_zeta": 5,
+        "mask_floor": 0,
+        "mask_dilate": 1,
+        "liquid_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke/cache/liquid.####",
+        "radius_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke/cache/radius.####",
+        "frame": 1,
+        "path_probes": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke/probes.npy",
+        "path_positions": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke/positions.npy",
+        "path_indices": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke/indices.npy",
+        "path_offsets": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke/offsets.npy",
+        "path_sdf": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke/sdf.npy"
+      },
+      "mesh_detail_scale": 1,
+      "graph_sha256": "6dbb38c1242b62503be31d12cd85e7aee0ca8e9df07436d758ca10b14a609adc",
+      "cache_hashes_before": {
+        "liquid.0001.npy": "9f9ea357b1726d5c5ede97b0595b2f7f8e29530b86f32857a8327d24a8ccc62e",
+        "radius.0001.npy": "f9c435c6b899599fd3c26f680a0fe63a4096873dfb5cfef999a6ecd1be933c1b"
+      },
+      "status": "running",
+      "wall_s": 3.9579771000426263,
+      "exit_code": 1
+    },
+    "smoke_2": {
+      "git_sha": "ed043e6bc8c29f8e706083b183138bfa0e230b92",
+      "arm": "smoke",
+      "inputs": {
+        "point_size": 0.5,
+        "detail_size": 0.5,
+        "offset": 0,
+        "smooth_iterations": 0,
+        "smoothing": 0.1,
+        "mcf_iterations": 0,
+        "mask_sigma": 2,
+        "mask_theta": 2,
+        "mask_zeta": 5,
+        "mask_floor": 0,
+        "mask_dilate": 1,
+        "liquid_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke_2/cache/liquid.####",
+        "radius_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke_2/cache/radius.####",
+        "frame": 1,
+        "path_probes": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke_2/probes.npy",
+        "path_positions": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke_2/positions.npy",
+        "path_indices": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke_2/indices.npy",
+        "path_offsets": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke_2/offsets.npy",
+        "path_sdf": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/smoke_2/sdf.npy"
+      },
+      "mesh_detail_scale": 1,
+      "graph_sha256": "32c4ee5eecd09f1cadf09b78ffd97f7de93d964a4bf0175ad6f8eb51fc80476d",
+      "cache_hashes_before": {
+        "liquid.0001.npy": "9f9ea357b1726d5c5ede97b0595b2f7f8e29530b86f32857a8327d24a8ccc62e",
+        "radius.0001.npy": "f9c435c6b899599fd3c26f680a0fe63a4096873dfb5cfef999a6ecd1be933c1b"
+      },
+      "status": "passed",
+      "wall_s": 3.978423099964857,
+      "exit_code": 0,
+      "vertices": 183,
+      "triangles": 362,
+      "bounds_cells": [
+        [
+          -0.5018146634101868,
+          -0.5018146634101868,
+          -0.5018146634101868
+        ],
+        [
+          2.501814603805542,
+          2.501814603805542,
+          2.5
+        ]
+      ],
+      "cache_hashes_after": {
+        "liquid.0001.npy": "9f9ea357b1726d5c5ede97b0595b2f7f8e29530b86f32857a8327d24a8ccc62e",
+        "radius.0001.npy": "f9c435c6b899599fd3c26f680a0fe63a4096873dfb5cfef999a6ecd1be933c1b"
+      }
+    },
+    "control": {
+      "git_sha": "ed043e6bc8c29f8e706083b183138bfa0e230b92",
+      "arm": "control",
+      "inputs": {
+        "point_size": 0.5,
+        "detail_size": 0.5,
+        "offset": 0,
+        "smooth_iterations": 0,
+        "smoothing": 0.1,
+        "mcf_iterations": 10,
+        "mask_sigma": 2,
+        "mask_theta": 2,
+        "mask_zeta": 5,
+        "mask_floor": 0,
+        "mask_dilate": 1,
+        "liquid_pattern": "C:/Users/5d149/source/Anisim/out/runs/wavesea4/cache/breaking_section/liquid.####",
+        "radius_pattern": "C:/Users/5d149/source/Anisim/out/runs/wavesea4/cache/breaking_section/radius.####",
+        "frame": 1,
+        "path_probes": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/control/probes.npy",
+        "path_positions": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/control/positions.npy",
+        "path_indices": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/control/indices.npy",
+        "path_offsets": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/control/offsets.npy",
+        "path_sdf": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/control/sdf.npy"
+      },
+      "mesh_detail_scale": 1,
+      "graph_sha256": "32c4ee5eecd09f1cadf09b78ffd97f7de93d964a4bf0175ad6f8eb51fc80476d",
+      "cache_hashes_before": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "status": "passed",
+      "wall_s": 258.85705819999566,
+      "exit_code": 0,
+      "vertices": 146326,
+      "triangles": 292516,
+      "bounds_cells": [
+        [
+          479.7057189941406,
+          33.332767486572266,
+          239.67364501953125
+        ],
+        [
+          637.517333984375,
+          66.8351058959961,
+          312.3418884277344
+        ]
+      ],
+      "frozen_position_max_error_cells": 0.0,
+      "frozen_control_match": true,
+      "cache_hashes_after": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      }
+    },
+    "fine": {
+      "git_sha": "ed043e6bc8c29f8e706083b183138bfa0e230b92",
+      "arm": "fine",
+      "inputs": {
+        "point_size": 0.5,
+        "detail_size": 0.5,
+        "offset": 0,
+        "smooth_iterations": 0,
+        "smoothing": 0.1,
+        "mcf_iterations": 10,
+        "mask_sigma": 2,
+        "mask_theta": 2,
+        "mask_zeta": 5,
+        "mask_floor": 0,
+        "mask_dilate": 1,
+        "liquid_pattern": "C:/Users/5d149/source/Anisim/out/runs/wavesea4/cache/breaking_section/liquid.####",
+        "radius_pattern": "C:/Users/5d149/source/Anisim/out/runs/wavesea4/cache/breaking_section/radius.####",
+        "frame": 1,
+        "path_probes": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/fine/probes.npy",
+        "path_positions": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/fine/positions.npy",
+        "path_indices": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/fine/indices.npy",
+        "path_offsets": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/fine/offsets.npy",
+        "path_sdf": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/fine/sdf.npy"
+      },
+      "mesh_detail_scale": 0.5,
+      "graph_sha256": "0169ed433a861c7a21d820d5001a74b5ecf80ea4fab208b3ad596ca56c7943bf",
+      "cache_hashes_before": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "status": "passed",
+      "wall_s": 237.46709919994464,
+      "exit_code": 0,
+      "vertices": 332491,
+      "triangles": 664846,
+      "bounds_cells": [
+        [
+          479.7082824707031,
+          33.361820220947266,
+          239.68911743164062
+        ],
+        [
+          637.517333984375,
+          66.8351058959961,
+          312.3418884277344
+        ]
+      ],
+      "cache_hashes_after": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      }
+    },
+    "local_control": {
+      "git_sha": "bfe7d3f6363ad894462624d549b309cc7d10ef57",
+      "arm": "local_control",
+      "inputs": {
+        "point_size": 0.5,
+        "detail_size": 0.5,
+        "offset": 0,
+        "smooth_iterations": 0,
+        "smoothing": 0.1,
+        "mcf_iterations": 10,
+        "mask_sigma": 2,
+        "mask_theta": 2,
+        "mask_zeta": 5,
+        "mask_floor": 0,
+        "mask_dilate": 1,
+        "liquid_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_control/cache/liquid.####",
+        "radius_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_control/cache/radius.####",
+        "frame": 1,
+        "path_probes": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_control/probes.npy",
+        "path_positions": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_control/positions.npy",
+        "path_indices": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_control/indices.npy",
+        "path_offsets": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_control/offsets.npy",
+        "path_sdf": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_control/sdf.npy"
+      },
+      "mesh_detail_scale": 1,
+      "graph_sha256": "32c4ee5eecd09f1cadf09b78ffd97f7de93d964a4bf0175ad6f8eb51fc80476d",
+      "cache_hashes_before": {
+        "liquid.0001.npy": "fd608c591677a1769bfa35c988b0d23d21362472d2b3e5f1f46529659296a020",
+        "radius.0001.npy": "b4726ecd7cfa042993e32f4ed1df7982ab36b173871c271840e62856a4ce058d"
+      },
+      "source_cache_hashes_before": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "status": "passed",
+      "wall_s": 69.50449530000333,
+      "exit_code": 0,
+      "vertices": 16946,
+      "triangles": 33772,
+      "bounds_cells": [
+        [
+          561.9776611328125,
+          42.47846603393555,
+          286.3300476074219
+        ],
+        [
+          594.5623779296875,
+          60.26675033569336,
+          312.3418884277344
+        ]
+      ],
+      "local_control_match": true,
+      "local_fragment_vertices": 6,
+      "cache_hashes_after": {
+        "liquid.0001.npy": "fd608c591677a1769bfa35c988b0d23d21362472d2b3e5f1f46529659296a020",
+        "radius.0001.npy": "b4726ecd7cfa042993e32f4ed1df7982ab36b173871c271840e62856a4ce058d"
+      },
+      "source_cache_hashes_after": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      }
+    },
+    "local_refine": {
+      "git_sha": "bfe7d3f6363ad894462624d549b309cc7d10ef57",
+      "arm": "local_refine",
+      "inputs": {
+        "point_size": 0.5,
+        "detail_size": 0.5,
+        "offset": 0,
+        "smooth_iterations": 0,
+        "smoothing": 0.1,
+        "mcf_iterations": 10,
+        "mask_sigma": 2,
+        "mask_theta": 2,
+        "mask_zeta": 5,
+        "mask_floor": 0,
+        "mask_dilate": 1,
+        "liquid_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_refine/cache/liquid.####",
+        "radius_pattern": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_refine/cache/radius.####",
+        "frame": 1,
+        "path_probes": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_refine/probes.npy",
+        "path_positions": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_refine/positions.npy",
+        "path_indices": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_refine/indices.npy",
+        "path_offsets": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_refine/offsets.npy",
+        "path_sdf": "C:/Users/5d149/source/Anisim/out/runs/breaker_surface_correspondence_20261019/local_refine/sdf.npy"
+      },
+      "mesh_detail_scale": 1,
+      "graph_sha256": "b2ac0a712b08a4ac8bc021dbce28da78a24c8f9f4f929fbc7b72b2bbd13a2475",
+      "cache_hashes_before": {
+        "liquid.0001.npy": "fd608c591677a1769bfa35c988b0d23d21362472d2b3e5f1f46529659296a020",
+        "radius.0001.npy": "b4726ecd7cfa042993e32f4ed1df7982ab36b173871c271840e62856a4ce058d"
+      },
+      "source_cache_hashes_before": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "status": "passed",
+      "wall_s": 69.77277430001413,
+      "exit_code": 0,
+      "vertices": 71917,
+      "triangles": 143554,
+      "bounds_cells": [
+        [
+          561.943115234375,
+          42.404945373535156,
+          286.26275634765625
+        ],
+        [
+          594.6148681640625,
+          65.51082611083984,
+          312.3832702636719
+        ]
+      ],
+      "cache_hashes_after": {
+        "liquid.0001.npy": "fd608c591677a1769bfa35c988b0d23d21362472d2b3e5f1f46529659296a020",
+        "radius.0001.npy": "b4726ecd7cfa042993e32f4ed1df7982ab36b173871c271840e62856a4ce058d"
+      },
+      "source_cache_hashes_after": {
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      }
+    }
+  },
+  "render_started": false,
+  "solver_started": false,
+  "promoted_geometry": null
+}

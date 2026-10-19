@@ -10,12 +10,19 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   reconstruction. Re-reading ST-FLIP Section 4 / Appendix B confirms an implicit
   density 0.5-isocontour rendered by ray marching, after union-of-spheres deposition
   at twice the simulation-grid resolution and feature-preserving curvature flow.
-  Our density-derived mask but SDF evolution, one-voxel mask dilation, Gaussian
-  pass and polygon extraction need a correspondence audit before more appearance
-  tuning. The frozen control uses 10 MCF iterations; the paper generally uses 30,
+  Our density-derived mask but SDF evolution, one-voxel mask dilation and polygon
+  extraction need a correspondence audit. The saved baseline actually disables
+  the Gaussian pass; the earlier mention here incorrectly used the generator
+  default. The frozen control uses 10 MCF iterations; the paper generally uses 30,
   but equal iteration counts do not establish equal numerical smoothing strength.
   Distinguish coarse field detail from polygon approximation on the circled
-  fragment. No diagnostic reconstruction, new rendering or simulation started.
+  fragment. The authorized [offline correspondence audit](breaker-surface-correspondence.md)
+  reproduced the control exactly. Finer meshing left the 8-triangle fragment
+  unchanged; local volume resampling changed both its tessellation and extent,
+  so neither is promoted. Its curvature mask remains saturated. No rendering or
+  simulation ran for the audit. Xue subsequently found both valid thin-foam looks
+  promising and requested paired views at new angles/distances and later cached
+  times before choosing; preserve both appearances for that observation.
 
 - **Thin surface foam now renders, but the ocean look remains open.** The
   [foam-layer study](breaker-foam-layer-study.md) corrected an ASS unit mismatch
