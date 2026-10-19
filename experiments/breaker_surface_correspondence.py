@@ -72,6 +72,10 @@ def graph(scale):
         ('read.data','sample.positions'),('surf.final_volume','sample.volume'),('far.output','sample.default')]]
     for name,source in [('positions','topo.point_position'),('indices','topo.face_vertex'),
                         ('offsets','topo.face_offset'),('sdf','sample.sampled_data')]:
+        if name in ('indices','offsets'):
+            nodes.append(dict(nodeName='cast_'+name,nodeType='Core::Type_Conversion::to_long'))
+            conns.append(dict(source=source,target='cast_'+name+'.from'))
+            source='cast_'+name+'.long'
         gen.writer(nodes,values,conns,ports,name,source,None)
     return dict(gen.HEADER,compounds=[dict(name='User::PFFlip::surface_correspondence',ports=ports,
                 compounds=[surf],compoundNodes=nodes,values=values,connections=conns)])
@@ -82,6 +86,10 @@ def run(arm):
     if arm=='fine':
         assert json.loads((OUT/'control/receipt.json').read_text())['frozen_control_match']
     out = OUT/arm
+    if arm=='smoke':
+        attempt=1
+        while out.exists():
+            attempt+=1;out=OUT/f'smoke_{attempt}'
     assert not out.exists(), out
     out.mkdir(parents=True)
     scale = .5 if arm=='fine' else 1
