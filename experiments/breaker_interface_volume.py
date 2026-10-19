@@ -48,7 +48,11 @@ def graph(out,export=False):
     setv('vol.detail_size','float',str(VOXEL)+'f')
     setv('vol.store_level_set','bool','false');setv('vol.store_fog_density','bool','true')
     setv('vol.fog_density','float','1f');setv('vol.rebuild_level_set','bool','false')
-    node('vp','Geometry::Properties::get_voxel_position');connect('vol.volume','vp.volume')
+    # A converter may already carry corner positions. Refresh explicitly: the
+    # getter otherwise returns that existing channel even when Center is asked.
+    node('centers','Geometry::Volume::update_voxel_position');connect('vol.volume','centers.volume')
+    setv('centers.voxel_offset','Geometry::Volume::VoxelOffset','Center')
+    node('vp','Geometry::Properties::get_voxel_position');connect('centers.out_volume','vp.volume')
     writer('positions','vp.voxel_position',out/('export_voxels.npy' if export else 'voxels.npy'))
     if not export:
         node('get','Geometry::Properties::get_geo_property');connect('vol.volume','get.geometry')
