@@ -14,6 +14,7 @@ import time
 import traceback
 
 import numpy as np
+sys.path.insert(0,str(Path(__file__).resolve().parent))
 import breaker_deep_water as base
 import breaker_foam_render as render
 from breaker_foam_layer import check_imported, ass_units
