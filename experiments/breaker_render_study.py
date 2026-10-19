@@ -1,7 +1,7 @@
 """One explicitly selected still per invocation; never runs the solver.
 
 The 24.9 s wavesea4 study: A control, B foam off, C also mist hidden,
-D C with less surface smoothing, E C with a brighter neutral environment.
+D C with less surface smoothing, E C with a four-times brighter environment.
 Outputs, scene files, hashes, full launch logs and settings stay under out/.
 Run each arm once and inspect it before continuing. The candidate accepts
 the letter of the chosen preview and changes only image resolution.
@@ -83,7 +83,7 @@ def main():
                str(ROOT / "maya/render_surface_preview.ps1"), "-Cache", str(cache),
                "-Out", str(output), "-Name", "breaker", "-Frames", "1",
                "-Obj", str(cache / "beach.obj"), "-Preset", "paper_clean",
-               "-MaxMinutes", "10"]
+               "-MaxMinutes", "12"]
     started = time.perf_counter()
     print(f"START {label}: {width}x{height}, cache 24.9 s, {output}", flush=True)
     with (output / "launch.log").open("w", encoding="utf-8") as log:
