@@ -147,6 +147,44 @@ def launch(view,arm):
     render.check(folder)
 
 
+def report():
+    from PIL import Image,ImageDraw,ImageFont
+    font=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',22)
+    small=ImageFont.truetype('C:/Windows/Fonts/arial.ttf',16)
+    results={};contact=Image.new('RGB',(960,4*310),(20,23,28));draw=ImageDraw.Draw(contact)
+    labels={'wide':'24.9 s | wider side | 24 m view',
+            'oblique':'24.9 s | elevated oblique | 18 m view',
+            'later26':'26.025 s | side | 18 m view','later28':'28.025 s | side | 18 m view'}
+    for row,view in enumerate(VIEWS):
+        out=OUT/view;states=[];checks={}
+        pair=Image.new('RGB',(1920,590),(20,23,28));d=ImageDraw.Draw(pair)
+        for col,arm in enumerate(['A','B']):
+            folder=out/arm;checks[arm]=json.loads((folder/'image_check.json').read_text())
+            assert checks[arm]['status']=='passed'
+            states.append(json.loads((folder/'state.json').read_text()))
+            image=Image.open(folder/'beauty_view.png').convert('RGB')
+            d.text((col*960+10,8),labels[view]+' | '+('A uniform thin surface' if arm=='A' else 'B clustered foam'),font=font,fill='white')
+            pair.paste(image,(col*960,50));contact.paste(image.resize((480,270),Image.Resampling.LANCZOS),(col*480,row*310+40))
+        differing=[k for k in states[0] if states[0][k]!=states[1][k]]
+        assert set(differing)=={'foam_ass_sha256','foam_arm'},differing
+        pair.save(out/'comparison.png')
+        draw.text((8,row*310+4),labels[view]+'     A: uniform (left) / B: clustered (right)',font=small,fill='white')
+        results[view]=dict(settings=VIEWS[view],images=checks,changed_state_keys=differing,
+                           geometry=states[0]['geometry'])
+    contact.save(OUT/'comparison.png')
+    base.save(OUT/'analysis.json',dict(status='passed',render_count=8,simulation=False,mist=False,
+              views=results,geometry_audit_candidates_used=False,
+              foam_note='Per-frame static curvature mask and existing A/B appearance; no persistent foam simulation.',
+              startup_failure='One owned GUI launch stopped before scene loading because runpy lacked the script import path; preserved under wide/A/failed_launch_01.'))
+
+
+def show_plan():
+    base.save(OUT/'plan.json',dict(views=VIEWS,render_count=8,resolution=[960,540],
+              user_request='Paired A/B views at different angles, distances and cached times after 24.9 s.',
+              estimated_total_minutes=[40,60],notify_before_exceeding_minutes=60,
+              simulation=False,mist=False,geometry_audit_candidates_used=False))
+
+
 if __name__=='__main__':
     if os.environ.get('FOAM_VIEW_WORKER'):
         view=os.environ['FOAM_VIEW_NAME']
@@ -154,6 +192,10 @@ if __name__=='__main__':
         else:render.render(OUT/view/os.environ['FOAM_VIEW_ARM'])
     else:
         parser=argparse.ArgumentParser(description=__doc__)
-        parser.add_argument('action',choices=['prepare','A','B']);parser.add_argument('view',choices=list(VIEWS))
+        parser.add_argument('action',choices=['prepare','A','B','report','plan']);parser.add_argument('view',choices=list(VIEWS),nargs='?')
         args=parser.parse_args()
-        prepare(args.view) if args.action=='prepare' else launch(args.view,args.action)
+        if args.action=='report':report()
+        elif args.action=='plan':show_plan()
+        else:
+            assert args.view
+            prepare(args.view) if args.action=='prepare' else launch(args.view,args.action)
