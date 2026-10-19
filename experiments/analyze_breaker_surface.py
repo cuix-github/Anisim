@@ -91,11 +91,11 @@ def main():
     assert verification["exit_code"] == 0
     probes = np.load(OUT / "probes.npz")
     p, radii = probes["positions"], probes["radii"]
-    meshes, closest, metrics = {}, {}, {}
+    meshes, closest, metrics, components = {}, {}, {}, {}
     for stage in STAGES:
         meshes[stage] = np.load(OUT / (stage + "_mesh.npz"))
         closest[stage] = np.load(OUT / (stage + "_closest.npz"))
-        metrics[stage], _ = mesh_metrics(meshes[stage])
+        metrics[stage], components[stage] = mesh_metrics(meshes[stage])
     local, distances = {}, {}
     for stage in STAGES:
         delta = (p - closest[stage]["points"]) * .25
@@ -113,6 +113,20 @@ def main():
                 (closest[stage]["points"] - closest["raw"]["points"])[near_raw] * .25, axis=1)),
             "flagged_particle_distance_m": quantiles(distances[stage][radii > 1e-9]),
         }
+    surface_correspondence = {}
+    for source, target in (("raw", "control"), ("control", "raw")):
+        measured = np.load(OUT / (source + "_to_" + target + ".npz"))
+        points = meshes[source]["points"] * .25
+        d = np.linalg.norm(points - measured["closest"] * .25, axis=1)
+        roi = ((points[:, 0] >= 134) & (points[:, 0] <= 152) &
+               (points[:, 1] >= 13) & (points[:, 1] <= 23) &
+               (points[:, 2] >= 63) & (points[:, 2] <= 75))
+        surface_correspondence[source + "_to_" + target] = {
+            "roi_vertices": int(roi.sum()), "roi_distance_m": quantiles(d[roi]),
+            "roi_fraction_over_0_125m": float((d[roi] > .125).mean()),
+            "roi_fraction_over_0_25m": float((d[roi] > .25).mean()),
+            "roi_fraction_over_0_5m": float((d[roi] > .5).mean()),
+        }
     # Assert the actual graph changes, including defaults that Maya may omit.
     graphs = {s: json.loads((OUT / (s + "_graph.json")).read_text())["compounds"][0] for s in STAGES}
     changes = {}
@@ -126,7 +140,7 @@ def main():
         changes[a + "_to_" + b] = diff
     result = dict(status="passed", run=receipt, execution=worker, static_verification=verification, geometry=metrics,
                   near_raw_unflagged_probes=int(near_raw.sum()), flagged_probes=int((radii > 1e-9).sum()),
-                  correspondence=comparisons, adjacent_graph_changes=changes,
+                  correspondence=comparisons, surface_correspondence=surface_correspondence, adjacent_graph_changes=changes,
                   artifacts_sha256={f.name: hashlib.sha256(f.read_bytes()).hexdigest()
                                     for f in OUT.iterdir() if f.suffix in (".npz", ".mb")},
                   limits=["Closest-normal side is a local test, not a global inside/winding test.",
