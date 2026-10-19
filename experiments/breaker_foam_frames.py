@@ -24,7 +24,9 @@ FRAMES={'control':None,'later26':4,'later28':6}
 
 
 def mesh(name):
-    commit=surface.clean_sha();out=OUT/name;assert not out.exists();out.mkdir(parents=True)
+    commit=surface.clean_sha()
+    if name!='control':assert json.loads((OUT/'control/mesh_receipt.json').read_text())['status']=='passed'
+    out=OUT/name;assert not out.exists();out.mkdir(parents=True)
     frame=FRAMES[name];cache=out/'cache';cache.mkdir()
     origin=base.CACHE if frame is None else SOURCE
     number=1 if frame is None else frame
