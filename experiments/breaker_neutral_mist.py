@@ -33,11 +33,13 @@ SKY_INTENSITY = .44 / .171667  # Match baseline dome mean RGB; not total illumin
 
 
 def prepare(out):
+    # These scene helpers set BIFROST_LIB_CONFIG_FILES at import time. Import
+    # before Maya prepends its shipped libraries during standalone.initialize.
+    sys.path.insert(0,str(ROOT/'maya'))
+    from build_surface_scene import graph
     import maya.standalone
     maya.standalone.initialize(name='python')
     import maya.cmds as c
-    sys.path.insert(0,str(ROOT/'maya'))
-    from build_surface_scene import graph
     started=time.perf_counter()
     try:
         for plugin in ('bifrostGraph','mtoa'):
