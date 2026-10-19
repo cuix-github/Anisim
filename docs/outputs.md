@@ -2,6 +2,14 @@
 
 Everything a script writes lands under `out\` at the repository root, which git ignores. Nothing in it is in the repository; this page says what is there, what it is for, and which folders are canonical. `graphs\runs.py` is the code's single idea of where a run's files live; `runs.py report` prints what is on disk. Sizes are from 2026-10-15.
 
+The 2026-10-19 [Deep Water candidate](breaker-deep-water-study.md) lives in
+`out/runs/breaker_deep_water_20261019/`: `original/` and `side/` contain the two
+960 by 540 previews, static scenes, raw component EXRs, hashes and successful
+receipts. `comparison.png`, `aov_panels.png` and `analysis.json` record the
+comparison and offline checks. The candidate was not accepted as an improvement.
+It reuses the validated local scene from `breaker_optical_aovs_20261019_v3/B/`;
+there is no new simulation cache or surface reconstruction.
+
 ## One folder per run
 
 Since 2026-10-16 a run writes everything it produces under one folder named by its tag:

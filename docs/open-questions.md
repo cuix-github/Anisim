@@ -4,6 +4,15 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **The Deep Water / Physical Sky candidate is not an accepted look.** The
+  [two 24.9 s previews](breaker-deep-water-study.md) retain the frozen geometry
+  and add a true side view. They are darker and more saturated blue; the broad
+  glassy shapes remain. Independent EXR conversion confirms correct PNG display,
+  and the blue is concentrated in transmission paths. No simulation, meshing or
+  whitewater pass was repeated. Section 7's spray density resolution is a separate
+  spatial representation, not camera pixel supersampling; our disabled mist path
+  borrows that idea but does not duplicate the paper's full spray/foam pipeline.
+
 - **The breaker's rendering still looks glassy.** The 2026-10-19 [frozen-cache study](breaker-render-study.md) rendered five isolated previews and one presentation candidate at 24.9 s. Curvature foam contributes hard white patches; mist obscures sheets; less MCF retains more relief and ripples; a brighter environment improves visibility but keeps strong blue reflections. The candidate still falls short of realism. `breaker_inspect` is diagnostic, not a replacement default. The surface reconstruction, normals, reflection/transmission setup and representation of escaped particles need to be distinguished before another simulation is justified; none was rerun for this study.
 
 - **A CFL-bound substep.** Every long run steps at a fixed dt. The 512 run's air reached 900 to 1450 cells per second and crossed 76 to 123 cells in one substep, past anything the push-out reaches, which is how a handful of air particles ended up inside a boulder for one frame; the 2D long runs' splashes made particles at 120 to 460 cells per second in every arm. Fine for an A/B between solvers, not for a quality claim.
