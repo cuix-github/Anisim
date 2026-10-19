@@ -75,8 +75,8 @@ def prepare(out):
         c.setAttr(fog+'.subsurfaceType',randomwalk)
         mix=c.shadingNode('aiMixShader',asShader=True,name='interfaceMix')
         c.connectAttr('water.outColor',mix+'.shader1');c.connectAttr(fog+'.outColor',mix+'.shader2')
-        gain=c.shadingNode('multDoubleLinear',asUtility=True,name='interfaceEnable')
-        c.connectAttr(read+'.outColorR',gain+'.input1');c.connectAttr(gain+'.output',mix+'.mix')
+        gain=c.shadingNode('aiMultiply',asUtility=True,name='interfaceEnable')
+        c.connectAttr(read+'.outColor',gain+'.input1');c.connectAttr(gain+'.outColorR',mix+'.mix')
         c.connectAttr(mix+'.outColor','waterSG.surfaceShader',force=True)
         # Verify persisted vertex/face-vertex colors before any licensed render.
         actual=np.asarray(mesh.getVertexColors(colorSet='interfaceMask'))[:,0]
@@ -93,7 +93,7 @@ def prepare(out):
                'defaultColorMgtGlobals':['wsn','vtn']}
         for arm in ['A','B']:
             folder=out/arm;folder.mkdir()
-            c.setAttr(gain+'.input2',int(arm=='B'))
+            c.setAttr(gain+'.input2',*[int(arm=='B')]*3,type='double3')
             c.setAttr('opticalEXR.prefix',(folder/'optics').as_posix(),type='string')
             c.setAttr('defaultArnoldRenderOptions.log_filename',(folder/'arnold.log').as_posix(),type='string')
             state={node:{attr:c.getAttr(node+'.'+attr) for attr in attrs} for node,attrs in nodes.items()}
@@ -102,6 +102,12 @@ def prepare(out):
             assert state['geometry']==before
             base.save(folder/'state.json',state)
             c.file(rename=str(folder/'candidate.mb'));c.file(save=True,type='mayaBinary',force=True)
+            # Export only: this does not trace rays or consume a render.
+            c.arnoldExportAss(f=str(folder/'scene_check.ass'),mask=24)
+            exported=(folder/'scene_check.ass').read_text()
+            assert 'user_data_rgb' in exported and 'interfaceMaskReader' in exported
+            assert 'multiply' in exported and 'declare interfaceMask' in exported
+            base.save(folder/'export_check.json',dict(status='passed',ass_sha256=base.sha(folder/'scene_check.ass')))
         base.save(out/'prepare.json',dict(status='passed',wall_s=time.perf_counter()-started))
         base.exit_worker(0)
     except BaseException:
@@ -118,7 +124,7 @@ def render(folder):
         assert not c.ls(type='bifrostGraphShape')
         assert c.getAttr('baked_control.visibility')
         assert not c.getAttr('baked_raw.visibility') and not c.getAttr('baked_no_mcf.visibility')
-        assert c.getAttr('interfaceEnable.input2')==int(folder.name=='B')
+        assert c.getAttr('interfaceEnable.input2')[0]==tuple([int(folder.name=='B')]*3)
         state=json.loads((folder/'state.json').read_text());assert base.geometry(c)==state['geometry']
         start=time.perf_counter();c.arnoldRender(seq='1',w=960,h=540,cam='persp',srv=False)
         result['render_call_s']=time.perf_counter()-start
@@ -134,7 +140,9 @@ def render(folder):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('mode',choices=['prepare','A','B'])
-    parser.add_argument('--out',type=Path,default=OUT);args=parser.parse_args();out=args.out.resolve()
+    parser.add_argument('--out',type=Path,default=OUT)
+    parser.add_argument('--control',type=Path,help='Reuse a previously validated A; requires identical optical/geometry state')
+    args=parser.parse_args();out=args.out.resolve()
     assert not base.git('status','--porcelain'),'Commit instrument first'
     assert base.sha(base.SOURCE)==base.SOURCE_SHA
     assert json.loads((MASK/'mask_review.json').read_text())['status']=='passed'
@@ -152,9 +160,15 @@ def main():
     else:
         assert json.loads((out/'prepare.json').read_text())['status']=='passed'
         if args.mode=='B':
-            a=json.loads((out/'A/receipt.json').read_text());assert a['status']=='passed'
-            assert a['git_sha']==base.git('rev-parse','HEAD')
-            assert json.loads((out/'A/control_check.json').read_text())['status']=='passed'
+            control=args.control.resolve() if args.control else out/'A'
+            a=json.loads((control/'receipt.json').read_text());assert a['status']=='passed'
+            assert json.loads((control/'control_check.json').read_text())['status']=='passed'
+            assert base.sha(control/'beauty.png')==a['png_sha256']
+            assert base.sha(control/a['worker']['exr'])==a['exr_sha256']
+            prior_state=json.loads((control/'state.json').read_text())
+            new_state=json.loads((out/'A/state.json').read_text())
+            assert all(prior_state[k]==new_state[k] for k in prior_state if k!='interfaceEnable')
+            if not args.control:assert a['git_sha']==base.git('rev-parse','HEAD')
         launcher=r"""
 $ErrorActionPreference = 'Stop'
 if (Get-Process maya,mayapy -ErrorAction SilentlyContinue) { throw 'Another Maya process is open' }
@@ -170,6 +184,7 @@ exit $p.ExitCode
         command=['powershell.exe','-NoProfile','-ExecutionPolicy','Bypass','-File',str(folder/'launch.ps1')];timeout=630
     receipt=dict(status='running',mode=args.mode,git_sha=base.git('rev-parse','HEAD'),cache_sha256=hashes,
                  source_sha256=base.SOURCE_SHA,mask_sha256=mask_hash,started_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
+    if args.mode=='B':receipt.update(control_path=str(control),control_receipt_sha256=base.sha(control/'receipt.json'))
     base.save(path,receipt);start=time.perf_counter()
     try:
         with (folder/(args.mode+'_launch.log')).open('w') as log:
