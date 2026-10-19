@@ -1,0 +1,295 @@
+{
+  "status": "passed",
+  "scene_differences": {
+    "A_to_B": {
+      "changed_nodes": [
+        "foamCurvature"
+      ],
+      "removed_connections": [
+        "connectAttr \"waterFoamMix.out\" \"waterSG.ss\";"
+      ],
+      "added_connections": [
+        "connectAttr \"water.out\" \"waterSG.ss\";"
+      ],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    },
+    "B_to_C": {
+      "changed_nodes": [
+        "particleMistShape"
+      ],
+      "removed_connections": [],
+      "added_connections": [],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    },
+    "C_to_D": {
+      "changed_nodes": [
+        "particleMistShape",
+        "particleSurfaceShape"
+      ],
+      "removed_connections": [],
+      "added_connections": [],
+      "changed_graph_values": {
+        "particleSurfaceShape": {
+          "particle_surface.mcf_iterations": [
+            "30L",
+            "10L"
+          ]
+        },
+        "particleMistShape": {
+          "particle_mist.mcf_iterations": [
+            "30L",
+            "10L"
+          ]
+        }
+      }
+    },
+    "C_to_E": {
+      "changed_nodes": [
+        "sky"
+      ],
+      "removed_connections": [],
+      "added_connections": [],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    },
+    "D_to_candidate_D": {
+      "changed_nodes": [
+        "persp",
+        "perspShape",
+        "sky"
+      ],
+      "removed_connections": [],
+      "added_connections": [],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    },
+    "original_to_A": {
+      "changed_nodes": [
+        "persp",
+        "perspShape"
+      ],
+      "removed_connections": [],
+      "added_connections": [],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    }
+  },
+  "renders": [
+    {
+      "arm": "A",
+      "git_sha": "a02539c3f212ae240ec53f176a1b35ab33b925f7",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T05:55:24Z",
+      "wall_s": 610.751,
+      "exit_code": 0,
+      "image_sha256": "46177a6e4e6721ea2e845edc4697a5f9cad22bb3c3ba387985aed6cc2c0246e1",
+      "scene_sha256": "3cd4d2fbf71ad63efe8aeecd81db7d51658a72565bbf42e88b532cd327cd23a2",
+      "notes": "scene opened in 4.6 s\nframe 1: 62.7 s -> breaker.0001.png\n",
+      "water_triangles": 274090
+    },
+    {
+      "arm": "B",
+      "git_sha": "685acd5cba6b08dd6585b0193674d1e5985ec409",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0",
+        "SURF_FOAM_STRENGTH": "0"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T06:06:35Z",
+      "wall_s": 567.264,
+      "exit_code": 0,
+      "image_sha256": "b01c14cfe8c045a5af1f2470af20cea3a45fe2ce0c8ae1312b75b9df687afa0b",
+      "scene_sha256": "229ff16bcc41ec3820c74d114a6e8f0592240874d0510d31766d181e648149fc",
+      "notes": "scene opened in 4.7 s\nframe 1: 41.5 s -> breaker.0001.png\n",
+      "water_triangles": 274090
+    },
+    {
+      "arm": "C",
+      "git_sha": "685acd5cba6b08dd6585b0193674d1e5985ec409",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0",
+        "SURF_FOAM_STRENGTH": "0",
+        "SURF_MIST_VISIBLE": "0"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T06:16:20Z",
+      "wall_s": 291.153,
+      "exit_code": 0,
+      "image_sha256": "f3628ef6f77c50d4776ae57b953363983e62130efdbc0c2a713dbbe5ee874415",
+      "scene_sha256": "64b2d7d7a372d2b5c92ec79260bd46d2d987f5c851dabb250da73d8010a55cd8",
+      "notes": "scene opened in 4.7 s\nframe 1: 15.1 s -> breaker.0001.png\n",
+      "water_triangles": 274090
+    },
+    {
+      "arm": "D",
+      "git_sha": "685acd5cba6b08dd6585b0193674d1e5985ec409",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0",
+        "SURF_FOAM_STRENGTH": "0",
+        "SURF_MIST_VISIBLE": "0",
+        "SURF_MCF_ITERS": "10"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T06:21:48Z",
+      "wall_s": 290.756,
+      "exit_code": 0,
+      "image_sha256": "43ce447346fc21685dd73b9af06d62d447b47e1915d39b07db69edeb0f4894c9",
+      "scene_sha256": "70a3a40c23ece6dc36e64900114917e9e25d142a599a521d20a7688aa64341ee",
+      "notes": "scene opened in 4.9 s\nframe 1: 16.4 s -> breaker.0001.png\n",
+      "water_triangles": 292516
+    },
+    {
+      "arm": "E",
+      "git_sha": "685acd5cba6b08dd6585b0193674d1e5985ec409",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0",
+        "SURF_FOAM_STRENGTH": "0",
+        "SURF_MIST_VISIBLE": "0",
+        "SURF_SKY_COLOR": "0.12 0.14 0.18"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T06:27:19Z",
+      "wall_s": 292.361,
+      "exit_code": 0,
+      "image_sha256": "842a9cd28bca69151f1a43a773eef2701f1c553a2691d3727bb222c149e7648e",
+      "scene_sha256": "4489bb4d474427873d7f25ff6621ac3dbbe3933dee691e65278792897abe7638",
+      "notes": "scene opened in 4.6 s\nframe 1: 14.8 s -> breaker.0001.png\n",
+      "water_triangles": 274090
+    },
+    {
+      "arm": "candidate_D",
+      "git_sha": "b5561bebdb63f76155593f5de8d89436e6b1f0fa",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "breaker_inspect",
+      "overrides": {
+        "SURF_WIDTH": "1920",
+        "SURF_HEIGHT": "1080",
+        "SURF_CAMERA": "624 76 248 574 58 274",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T06:33:26Z",
+      "wall_s": 361.589,
+      "exit_code": 0,
+      "image_sha256": "4b26b787058482c6e081836ea20d6cb2a5a6bad2bccbac1784fe12335137ec61",
+      "scene_sha256": "c4b856e1f00e771857d76ae058fdb107c62bb47e4416a871775a2fd43a3cfa69",
+      "notes": "scene opened in 4.6 s\nframe 1: 84.8 s -> breaker.0001.png\n",
+      "water_triangles": 292516
+    }
+  ],
+  "scope": "Five frozen-cache previews and one presentation candidate; no simulation or cache edits.",
+  "total_render_wall_s": 2413.874,
+  "candidate_verdict": "Diagnostic only: sheets and holes are visible, but strong glassy/metallic appearance remains; not promoted to default.",
+  "positive_radius_particles": 1192,
+  "candidate_scene_inputs": {
+    "foam_strength": 0,
+    "mist_visible": 0,
+    "mcf_iterations": 10,
+    "sky_color": [
+      0.06,
+      0.07,
+      0.09
+    ],
+    "sky_intensity": 12
+  }
+}
