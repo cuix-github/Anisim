@@ -16,8 +16,13 @@ import breaker_six_views as study
 import breaker_deep_water as base
 import breaker_surface_correspondence as surface
 
-TILES = [(10, 50), (38, 62), (50, 78)]
-JOINS = [44, 56]
+def tile_plan(name):
+    if name == 'pre':
+        # Retain the two completed inputs; split the last high-memory region.
+        return [(10, 50), (38, 62), (50, 72), (60, 78)], [44, 56, 66]
+    # Twenty-metre inputs approximate the proven 18 m local-cache working set.
+    # Eight-metre cores leave six metres of context on either side of each join.
+    return [(10+i*8, 30+i*8) for i in range(7)], [24+i*8 for i in range(6)]
 
 
 def stitch(p0, t0, p1, t1, plane):
@@ -85,7 +90,8 @@ def run_tile(name, index):
     assert study.read(study.OUT/'tile_control.json')['frozen_triangles_exact']
     spec = study.FRAMES[name]
     # The high-lip side needs narrower tiles; each join retains 6 m context.
-    zlo, zhi = TILES[index]
+    tiles, _ = tile_plan(name)
+    zlo, zhi = tiles[index]
     root = study.OUT/'frames'/name
     folder = root/'tiles'/str(index)
     assert not folder.exists()
@@ -147,13 +153,14 @@ def run_tile(name, index):
 def assemble(name):
     surface.clean_sha()
     root = study.OUT/'frames'/name
-    tiles = [root/'tiles'/str(i) for i in range(len(TILES))]
+    bounds, joins = tile_plan(name)
+    tiles = [root/'tiles'/str(i) for i in range(len(bounds))]
     receipts = [study.read(folder/'receipt.json') for folder in tiles]
     assert all(r['status'] == 'passed' for r in receipts)
     meshes = [(np.load(folder/'positions.npy'), np.load(folder/'indices.npy').reshape(-1, 3)) for folder in tiles]
     p, t = meshes[0]
     seams = []
-    for (other_p, other_t), plane in zip(meshes[1:], JOINS):
+    for (other_p, other_t), plane in zip(meshes[1:], joins):
         p, t, seam = stitch(p, t, other_p, other_t, plane=plane*4)
         seams.append(seam)
     base.save(root/'seam_check.json', dict(status='passed', joins=seams))
@@ -179,16 +186,29 @@ def assemble(name):
     print(json.dumps(study.read(root/'mesh_receipt.json'), indent=2))
 
 
+def run_frame(name):
+    tiles, _ = tile_plan(name)
+    for index in range(len(tiles)):
+        receipt = study.OUT/'frames'/name/'tiles'/str(index)/'receipt.json'
+        if receipt.exists():
+            assert study.read(receipt)['status'] == 'passed', 'Preserve and investigate failed tile before retrying'
+        else:
+            run_tile(name, index)
+    assemble(name)
+
+
 if __name__ == '__main__':
     import argparse
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action', choices=['control', 'tile', 'assemble'])
+    parser.add_argument('action', choices=['control', 'tile', 'assemble', 'frame'])
     parser.add_argument('name', choices=list(study.FRAMES), nargs='?')
-    parser.add_argument('index', type=int, choices=list(range(len(TILES))), nargs='?')
+    parser.add_argument('index', type=int, choices=list(range(7)), nargs='?')
     args = parser.parse_args()
     if args.action == 'control':
         control()
     elif args.action == 'tile':
         run_tile(args.name, args.index)
-    else:
+    elif args.action == 'assemble':
         assemble(args.name)
+    else:
+        run_frame(args.name)
