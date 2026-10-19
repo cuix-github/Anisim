@@ -23,7 +23,7 @@ RADIUS=.0225  # metres; 4.5 cm total thickness, not physical bubble diameter
 OFFSET=.0075 # centre relative to the sampled water surface, metres
 AREA=.014**2 # integration area per quadrature point, square metres
 TAU=.8       # target normal optical depth at full mask before overlaps/curvature
-STEP=.005    # 5 mm in metres; quarter-centimetre scene units are NOT used
+STEP=.005    # 5 mm in metres; converted to scene units only on export
 
 
 def noise(p,length,seed):

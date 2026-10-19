@@ -165,10 +165,12 @@ def check(folder):
     view=np.asarray(Image.open(folder/'beauty_view.png').convert('RGB'),float);delta=np.abs(png-view)
     assert delta.mean()<=1 and (delta.max(2)>8).mean()<.01
     shares={k:float(data[k].sum(dtype=float)/total) for k in COMPONENTS}
-    assert shares['volume']>1e-5,'Foam volume did not contribute';assert shares['sss']==0
     result=dict(status='passed',aov_closure_relative_l1=closure,component_raw_rgb_share=shares,
                 display_mean_abs_levels=float(delta.mean()),render_call_s=receipt['worker']['render_call_s'],process_s=receipt['process_s'])
+    if shares['volume']<=1e-5:result.update(status='failed',error='Foam volume did not contribute')
+    if shares['sss']!=0:result.update(status='failed',error='Unexpected SSS contribution')
     base.save(folder/'image_check.json',result);print(json.dumps(result,indent=2))
+    assert result['status']=='passed',result
 
 
 def report(out):

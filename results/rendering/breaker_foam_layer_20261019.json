@@ -1,0 +1,153 @@
+{
+  "status": "replacement_pair_prepared_awaiting_extra_render_approval",
+  "simulation_rerun": false,
+  "render_calls_completed": 1,
+  "valid_foam_previews": 0,
+  "layer": {
+    "status": "numeric_passed_visual_review_pending",
+    "git_sha": "28f3b5cf23dfa2a73ded5e47fb13eee78e158b53",
+    "mask_sha256": "df83be54f1ba6e73f4ba0426fbb991a68fce5f476e72f4640736fc770ee47cf5",
+    "layer_sha256": "4babfbdeb3bc11ff38eb53cdb49b2695c0d919c5a317bc652d0d06dca3bc63ce",
+    "points": 324601,
+    "sphere_diameter_m": 0.045,
+    "center_offset_m": 0.0075,
+    "distance_to_source_surface_upper_bound_m": 0.03,
+    "nominal_inward_extent_m": 0.015,
+    "nominal_outward_extent_m": 0.03,
+    "crop_edge_min_m": 0.5857113948707644,
+    "normal_optical_depth_parameter": 0.8,
+    "integrated_extinction_m2": [
+      16.818932871386068,
+      16.81893287138607
+    ],
+    "clustering_length_m": [
+      0.24,
+      0.065
+    ],
+    "zero_weight_fraction_B": 0.6230017775669207,
+    "factor_percentiles": [
+      0.0,
+      0.0,
+      0.0,
+      1.371710183299902,
+      4.465113287241027,
+      4.465113287241027
+    ],
+    "exports": {
+      "A": {
+        "status": "passed",
+        "points": 322649,
+        "logical_points": 324601,
+        "groups": 64,
+        "density_representation": "64 constant-density bins; zero-density points omitted",
+        "density_quantization_relative_l1": 0.011660005636048257,
+        "budget_relative_error": 1.223722395265973e-09,
+        "integrated_extinction_m2": 16.818932891967776,
+        "point_radius_m": 0.0225,
+        "step_m": 0.005,
+        "density_range_per_m": [
+          0.0,
+          3.2861217462235413
+        ],
+        "ass_sha256": "08e3b0a030bf3aef4503d88f8aa199f2881bcc4d50e993a60dcb39a46abc3633"
+      },
+      "B": {
+        "status": "passed",
+        "points": 121636,
+        "logical_points": 324601,
+        "groups": 64,
+        "density_representation": "64 constant-density bins; zero-density points omitted",
+        "density_quantization_relative_l1": 0.018761252458436694,
+        "budget_relative_error": 2.7499711740984762e-09,
+        "integrated_extinction_m2": 16.818932825134496,
+        "point_radius_m": 0.0225,
+        "step_m": 0.005,
+        "density_range_per_m": [
+          0.0,
+          14.672811850413424
+        ],
+        "ass_sha256": "ff6251702b2ae9f1c36339245f9aa5d57a973d2d30a6b8f5c9206b9a9b53117c"
+      }
+    },
+    "simulation": false,
+    "physical_bubble_model": false,
+    "wall_s": 7.965660999994725
+  },
+  "review": {
+    "status": "passed",
+    "reviewer": "assistant",
+    "reviewed_utc": "2026-10-19T19:31:55Z",
+    "observations": [
+      "Side and top support plots reviewed; broad calm body and crop boundaries remain unselected.",
+      "Point-level view shows continuous support in A and porous clusters in B; no claim that the triangle-average plot resolves the fine field.",
+      "Geometry bound: every point sphere stays within 3 cm of its source water surface; nearest crop edge is at least 0.5857 m.",
+      "Both arms have the same points, radii and integrated extinction; only density distribution changes.",
+      "Native Arnold readback preserves positions/radii exactly and explicit density-group values; density quantization L1 errors are 1.17% / 1.88%, summed primitive-extinction budget errors below 3e-9.",
+      "Support is identical to the already reviewed v3 layer (same layer.npz hash). Scalar shader density replaces the ineffective per-point data lookup; rendered effect remains to be checked."
+    ],
+    "render_authorization": "User explicitly approved uniform and clustered close side comparisons, 24.9 s cache, corrected baseline, mist off, no simulation."
+  },
+  "failed_A": {
+    "status": "failed",
+    "reason": "Volume AOV is exactly zero; mean absolute raw beauty difference vs baseline is 5.88e-7. Export/readback checks did not validate live shading.",
+    "render_call_s": 12.507278200006112
+  },
+  "geometry_fragment": {
+    "raw": {
+      "component": 182421,
+      "vertices": 6,
+      "triangles": 8,
+      "pixel_center": [
+        462.9976921256636,
+        193.7408243815104
+      ],
+      "bounds_m": [
+        [
+          144.45851135253906,
+          14.63204574584961,
+          75.58274841308594
+        ],
+        [
+          144.68190002441406,
+          14.767251968383789,
+          75.72484588623047
+        ]
+      ],
+      "extent_m": [
+        0.223388671875,
+        0.1352062225341797,
+        0.14209747314453125
+      ],
+      "nearby_particles_in_padded_AABB": 2
+    },
+    "control": {
+      "component": 142790,
+      "vertices": 6,
+      "triangles": 8,
+      "pixel_center": [
+        463.03467159981847,
+        193.96595255533853
+      ],
+      "bounds_m": [
+        [
+          144.48179626464844,
+          14.632614135742188,
+          75.60437774658203
+        ],
+        [
+          144.6524658203125,
+          14.745379447937012,
+          75.71623229980469
+        ]
+      ],
+      "extent_m": [
+        0.1706695556640625,
+        0.11276531219482422,
+        0.11185455322265625
+      ],
+      "nearby_particles_in_padded_AABB": 2
+    },
+    "interpretation": "Angular silhouette exists in raw and smoothed meshes. Nearby particles are location evidence, not proof of their exact meshing contribution. This does not diagnose all attached crest corners."
+  },
+  "start_utc": "2026-10-19T19:17:15Z"
+}

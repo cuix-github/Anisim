@@ -4,6 +4,15 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Thin surface foam is prepared but not yet a valid comparison.** The
+  [foam-layer study](breaker-foam-layer-study.md) passed spatial and export
+  checks, but its first A produced no volume scattering. B was withheld; an
+  explicit-density alternative is ready, awaiting an additional render allowance.
+  A separate offline audit found that the user-circled floating diamond has
+  only six vertices and eight triangles before and after smoothing. That is a
+  reconstruction limitation for this fragment, not a diagnosis of all crest
+  corners or proof that the solver needs rerunning.
+
 - **Curvature-selected scattering works, but the white regions remain chunky.** The 2026-10-19
   [interface study](breaker-interface-study.md) passed a curvature-mask check,
   but the proposed thin VDB band failed roundtrip validation. A stock randomwalk
