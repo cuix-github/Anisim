@@ -17,7 +17,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / "out/runs/wavesea4/cache/breaking_section"
 SOURCE = ROOT / "out/runs/breaker_shading_study_20261019/A/breaker.ma"
-OUT = ROOT / "out/runs/breaker_surface_diagnosis_20261019"
+OUT = ROOT / "out/runs/breaker_surface_diagnosis_20261019_v2"
 STAGES = [("control", 10, .1), ("no_mcf", 0, .1), ("raw", 0, 0.)]
 
 
@@ -45,6 +45,8 @@ def worker(out):
     graph = "particleSurfaceShape"
     original_graph = json.loads(c.getAttr(graph + ".sc"))
     converter = c.createNode("bifrostGeoToMaya", name="diagnosisConverter")
+    # This converter defaults to recomputing Maya normals. Preserve Bifrost's instead.
+    c.setAttr(converter + ".transferNormals", True)
     c.connectAttr(graph + ".mesh", converter + ".bifrostGeo")
     live = c.createNode("mesh", name="diagnosisLiveShape")
     c.connectAttr(converter + ".mayaMesh[0]", live + ".inMesh")
@@ -78,6 +80,7 @@ def worker(out):
 
     for stage, mcf, smoothing in STAGES:
         ts = time.perf_counter()
+        print("EVALUATING", stage, flush=True)
         if stage != "control":
             c.vnnNode(graph, "/particle_surface", setPortDefaultValues=("mcf_iterations", str(mcf)))
             c.vnnNode(graph, "/particle_surface", setPortDefaultValues=("smoothing", str(smoothing)))
@@ -92,7 +95,10 @@ def worker(out):
             assert stage_graph == original_graph
         duplicate = c.duplicate(c.listRelatives(live, parent=True)[0], name="baked_" + stage)[0]
         c.delete(duplicate, constructionHistory=True)
-        copy_data = arrays(mesh_fn(duplicate))
+        copy_fn = mesh_fn(duplicate)
+        copy_fn.lockFaceVertexNormals(np.repeat(np.arange(len(data["face_counts"])),
+                                                data["face_counts"]).tolist(), data["face_vertices"].tolist())
+        copy_data = arrays(copy_fn)
         for key in data:
             assert np.array_equal(data[key], copy_data[key]), (stage, key, "bake differs")
         c.sets(duplicate, edit=True, forceElement="waterSG")
@@ -126,8 +132,16 @@ def worker(out):
     assert not c.ls(type="bifrostGraphShape")
     for stage, _, _ in STAGES:
         saved = np.load(out / (stage + "_mesh.npz"))
-        for key, value in arrays(mesh_fn("baked_" + stage)).items():
+        reloaded = arrays(mesh_fn("baked_" + stage))
+        for key, value in reloaded.items():
+            if key in ("normals", "normal_ids"):
+                continue  # Maya may compact/reorder the normal table on disk.
             assert np.array_equal(saved[key], value), (stage, key, "reload differs")
+        before = saved["normals"][saved["normal_ids"]]
+        after = reloaded["normals"][reloaded["normal_ids"]]
+        error = float(np.max(np.abs(before - after)))
+        result["stages"][stage]["reload_corner_normal_max_error"] = error
+        assert np.allclose(before, after, rtol=0, atol=2e-6), (stage, error, "reload normals differ")
     result["baked_reload_verify_s"] = time.perf_counter() - tr
     result["baked_bytes"] = (out / "baked_breaker.mb").stat().st_size
     result["worker_wall_s"] = time.perf_counter() - t0
