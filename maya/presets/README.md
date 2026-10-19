@@ -49,7 +49,7 @@ The test, one knob at a time on the basin's 18 s frame with the paper look's cam
 | `SURF_LOOK` | `ocean`: dark absorbing water, a near-black sky the camera does not see, a dark floor; anything else is the pale default |
 | `SURF_WATER_DEPTH` | how far light travels in the water before the transmission colour takes over, in cells |
 | `SURF_WATER_COLOR` | the transmission colour |
-| `SURF_WATER_ROUGHNESS` | water specular roughness, 0 to 1; default 0.03 preserves the original; the proposed 0.12 arm is not visually validated |
+| `SURF_WATER_ROUGHNESS` | water specular roughness, 0 to 1; default 0.03 preserves the original; the 2026-10-19 0.12 comparison softened reflections but did not establish a realistic ocean preset |
 | `SURF_DIAGNOSTIC_MATTE` | 1 assigns a neutral diffuse material to the existing surface geometry for inspection; default 0 preserves normal material assignment; mist visibility remains separate |
 | `SURF_SUN_ROTATE` | the sun's direction; the preset puts it low behind the spray so the mist is lit from behind |
 | `SURF_SUN_INTENSITY`, `SURF_SKY_INTENSITY` | the two lights |

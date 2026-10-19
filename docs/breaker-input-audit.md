@@ -3,8 +3,9 @@
 On 2026-10-19, the particle playback was reported to show much more structure than
 the water render. The follow-up inspected the existing 24.9 s cache, source graphs,
 saved Maya scenes and Arnold logs, and compared real wave photographs with the
-paper reference. No Maya scene was evaluated, no simulation or render was started,
-and no production defaults were changed.
+paper reference. This initial inspection evaluated no Maya scene and started no
+simulation or render. A separately approved three-render comparison followed, as
+recorded below. Production defaults remain unchanged.
 
 `experiments/audit_breaker_render_inputs.py` reads the existing inputs and writes a
 numeric audit and two side-view particle plots. The verified run is in
@@ -79,21 +80,54 @@ textures were applied means it would be wrong to claim its fine detail comes fro
 noise map. Our viewport uses speed-dependent particle colours; that diagnostic
 contrast cannot be equated with a physically shaded water surface.
 
-The next bounded experiment should separate geometry from shading before refining
-the entire reconstruction grid. A proposed three-image comparison keeps the existing
+The next bounded experiment compared geometry and shading before refining
+the entire reconstruction grid. The approved three-image comparison kept the existing
 cache, A-E camera, 960 x 540 resolution, 10 MCF iterations, and foam/mist visibility
 off: (1) reproduce D, (2) assign a neutral matte surface to the identical geometry,
 (3) use the original water shader with only roughness changed from 0.03 to 0.12.
 The opt-in builder controls `SURF_DIAGNOSTIC_MATTE=1` and
-`SURF_WATER_ROUGHNESS=0.12` prepare those two changes. Their defaults preserve the
-existing assignment and roughness; they have been syntax-checked but not evaluated
-in Maya or visually validated.
+`SURF_WATER_ROUGHNESS=0.12` implement those two changes. Their defaults preserve the
+existing assignment and roughness; both were exercised in the approved batch.
 The matte image asks what relief and discontinuities actually reach the renderer;
 the roughness arm asks how much of the coarse appearance is sharp reflection. It
 cannot establish that roughness alone is the final ocean look. All three need a
 fixed camera and unchanged cache hashes. Estimated end-to-end work is 20-30 minutes
 based on the previous roughly five-minute full launches, with notice before extending
-past 30 minutes. This proposal has not been run or approved as a new render batch.
+past 30 minutes. The batch was explicitly approved and completed within that budget.
+
+The three renders ran serially from clean commit `8022f8c`, with the same cache,
+camera, lights, reconstruction settings and AA 4. They live in
+`out/runs/breaker_shading_study_20261019/{A,B,C}/`. Their total launch/evaluation/render
+wall was 863.270 s (14.39 minutes); setup and inspection are additional.
+
+| Arm | One change | Full launch/evaluation/render | Frame render call |
+| --- | --- | --- | --- |
+| A | Reproduce the prior D control | 306.905 s | 16.5 s |
+| B | Assign neutral matte surface | 274.745 s | 5.6 s |
+| C | Water roughness 0.03 to 0.12 | 281.620 s | 16.4 s |
+
+`experiments/verify_breaker_shading_study.py` passes. A is pixel-for-pixel identical
+to the previous D, and its parsed scene is unchanged. B adds only its diagnostic
+material and changes the surface assignment; C changes only the water roughness.
+Graph values are unchanged and Arnold reports 292,516 water triangles in each arm.
+All source, scene and image hashes were checked. This verifies the configured
+geometry and its triangle count; explicit mesh vertices were not exported or hashed.
+The small receipt is `results/rendering/breaker_shading_20261019.json`.
+
+B shows holes and broken edges alongside broad smooth sheets. It also has a
+limitation: under the unchanged lighting, 8.71 percent of the foreground diagnostic
+ROI (x >= 250, y >= 170 in the 960 x 540 image) clips to 255 in all RGB channels.
+Those highlights cannot establish missing fine geometry or normals. C softens some
+reflection boundaries and changes small highlights, but the dark, thick, glass-like
+appearance remains. Roughness 0.12 is not promoted as an ocean preset. These images
+do not establish how much detail meshing lost, do not exhaust the lighting or
+transmission possibilities, and do not show that the simulation must be rerun.
+
+No fourth image or higher-resolution reconstruction was started. A useful next
+measurement is correspondence between particles and the unsmoothed/smoothed surface
+on the same curl patch, with normal information and adequate unclipped diagnostic
+exposure. Saving that evaluated mesh once would also avoid paying for reconstruction
+on every subsequent material experiment; this is a proposal, not a completed change.
 
 If geometry remains suspect, measure particle-to-surface coverage and normal detail
 on a bounded, padded curl patch before changing reconstruction resolution. Halving
