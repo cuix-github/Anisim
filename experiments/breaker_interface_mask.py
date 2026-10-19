@@ -87,7 +87,7 @@ def analytic_gates():
                 plane_max_abs_H=float(np.max(np.abs(ph))),status='passed')
 
 
-def diagrams(p,t,mask,out):
+def diagrams(p,t,mask,out,center=(145.5,13.5,70),width_m=15):
     import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
@@ -95,9 +95,10 @@ def diagrams(p,t,mask,out):
     color=plt.get_cmap('inferno')(mask[t].mean(axis=1))
     theta=np.radians(12); u=-p[:,0]*np.cos(theta)-p[:,2]*np.sin(theta)
     depth=-p[:,0]*np.sin(theta)+p[:,2]*np.cos(theta)
-    center_u=-145.5*np.cos(theta)-70*np.sin(theta)
-    views=[('Side / exact 15 m render framing',np.column_stack([u,p[:,1]]),depth,
-            (center_u-7.5,center_u+7.5),(13.5-4.21875,13.5+4.21875)),
+    center_u=-center[0]*np.cos(theta)-center[2]*np.sin(theta)
+    half_height=width_m*540/960/2
+    views=[(f'Side / exact {width_m:g} m render framing',np.column_stack([u,p[:,1]]),depth,
+            (center_u-width_m/2,center_u+width_m/2),(center[1]-half_height,center[1]+half_height)),
            ('Top / full crop; artificial edges must remain dark',p[:,[0,2]],-p[:,1],
             (p[:,0].min(),p[:,0].max()),(p[:,2].min(),p[:,2].max()))]
     fig,axs=plt.subplots(2,1,figsize=(12,10),facecolor='#171b21')

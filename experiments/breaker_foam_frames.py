@@ -124,7 +124,9 @@ def mask(name):
     tm=m[t].mean(1);assert tm[(cut[t].min(1)<.5)].max()==0
     np.savez_compressed(folder/'mask.npz',points_m=p,triangles=t,normals=n,curvature=filtered,
                         raw_curvature=h,mask=m,cut_distance_m=cut)
-    masklib.diagrams(p,t,m,folder)
+    from breaker_foam_views import VIEWS
+    spec=VIEWS[name]
+    masklib.diagrams(p,t,m,folder,center=spec['target_m'],width_m=spec['width_m'])
     receipt=dict(status='numeric_passed_visual_review_pending',time_s=json.loads((out/'mesh_receipt.json').read_text())['time_s'],
                  selected_area_m2=float(ta[tm>.05].sum()),strong_area_m2=float(ta[tm>.5].sum()),
                  cut_max=0,height_gate_m=[12.25,13],mesh_sha256=base.sha(out/'mesh.npz'))
@@ -132,6 +134,8 @@ def mask(name):
 
 
 def layer(name):
+    from breaker_foam_views import VIEWS
+    spec=VIEWS[name];foam.VIEW_CENTER=spec['target_m'];foam.VIEW_WIDTH=spec['width_m']
     folder=OUT/name;foam.MASK=folder/'mask';foam.build(folder/'foam')
 
 

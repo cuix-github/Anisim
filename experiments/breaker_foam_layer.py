@@ -25,6 +25,8 @@ AREA=.014**2 # integration area per quadrature point, square metres
 TAU=.8       # target normal optical depth at full mask before overlaps/curvature
 STEP=.005    # 5 mm in metres; converted to scene units only on export
 MAYA_METERS_PER_UNIT=.01  # Match the frozen Maya ASS; simulation metre is 4 scene units.
+VIEW_CENTER=(145.5,13.5,70)  # Diagnostics only; no effect on layer construction.
+VIEW_WIDTH=15
 
 
 def ass_units(path):
@@ -46,8 +48,9 @@ def noise(p,length,seed):
 
 def project(p):
     theta=np.radians(12);u=-p[:,0]*np.cos(theta)-p[:,2]*np.sin(theta)
-    cu=-145.5*np.cos(theta)-70*np.sin(theta)
-    return np.column_stack([(u-cu+7.5)*64,(17.71875-p[:,1])*64])
+    cu=-VIEW_CENTER[0]*np.cos(theta)-VIEW_CENTER[2]*np.sin(theta)
+    scale=960/VIEW_WIDTH;top=VIEW_CENTER[1]+VIEW_WIDTH*540/960/2
+    return np.column_stack([(u-cu+VIEW_WIDTH/2)*scale,(top-p[:,1])*scale])
 
 
 def arnold():
