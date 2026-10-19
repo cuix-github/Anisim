@@ -17,7 +17,7 @@ import time
 ROOT = Path(__file__).resolve().parents[1]
 CACHE = ROOT / "out/runs/wavesea4/cache/breaking_section"
 SOURCE = ROOT / "out/runs/breaker_shading_study_20261019/A/breaker.ma"
-OUT = ROOT / "out/runs/breaker_surface_diagnosis_20261019_v2"
+OUT = ROOT / "out/runs/breaker_surface_diagnosis_20261019_v3"
 STAGES = [("control", 10, .1), ("no_mcf", 0, .1), ("raw", 0, 0.)]
 
 
@@ -93,6 +93,7 @@ def worker(out):
         if stage == "control":
             assert len(data["triangles"]) == 292516, "Control disagrees with prior Arnold triangle count"
             assert stage_graph == original_graph
+        np.savez_compressed(out / (stage + "_mesh.npz"), **data)
         duplicate = c.duplicate(c.listRelatives(live, parent=True)[0], name="baked_" + stage)[0]
         c.delete(duplicate, constructionHistory=True)
         copy_fn = mesh_fn(duplicate)
@@ -100,10 +101,15 @@ def worker(out):
                                                 data["face_counts"]).tolist(), data["face_vertices"].tolist())
         copy_data = arrays(copy_fn)
         for key in data:
+            if key in ("normals", "normal_ids"):
+                continue
             assert np.array_equal(data[key], copy_data[key]), (stage, key, "bake differs")
+        before = data["normals"][data["normal_ids"]]
+        copied = copy_data["normals"][copy_data["normal_ids"]]
+        copy_error = float(np.max(np.abs(before - copied)))
+        assert np.allclose(before, copied, rtol=0, atol=2e-6), (stage, copy_error, "bake normals differ")
         c.sets(duplicate, edit=True, forceElement="waterSG")
         c.setAttr(duplicate + ".visibility", int(stage == "control"))
-        np.savez_compressed(out / (stage + "_mesh.npz"), **data)
         # Exact closest points on the converted mesh. The signed projection below
         # is a local normal-side test, NOT a global winding-number inside test.
         tq = time.perf_counter()
@@ -118,7 +124,7 @@ def worker(out):
         result["stages"][stage] = dict(mcf_iterations=mcf, mesher_smoothing=smoothing,
             vertices=len(data["points"]), triangles=len(data["triangles"]),
             evaluation_s=evaluation_s, closest_query_s=time.perf_counter() - tq,
-            wall_s=time.perf_counter() - ts)
+            wall_s=time.perf_counter() - ts, bake_corner_normal_max_error=copy_error)
         print("STAGE", stage, json.dumps(result["stages"][stage]), flush=True)
         (out / "worker_progress.json").write_text(json.dumps(result, indent=2))
 
@@ -154,30 +160,32 @@ def worker(out):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--worker", type=Path)
+    parser.add_argument("--out", type=Path, default=OUT)
     args = parser.parse_args()
     if args.worker:
         worker(args.worker)
         return
+    out = args.out.resolve()
     assert not git("status", "--porcelain"), "Commit the instrument before running"
-    assert not OUT.exists(), "Never overwrite a previous experiment"
+    assert not out.exists(), "Never overwrite a previous experiment"
     prior = json.loads((SOURCE.parent / "receipt.json").read_text())
     hashes = {p.name: digest(p) for p in sorted(CACHE.iterdir()) if p.is_file()}
     assert hashes == prior["input_sha256"] and digest(SOURCE) == prior["scene_sha256"]
     for name in ("maya/particle_surface.json", "maya/particle_mist.json"):
         assert git("rev-parse", "HEAD:" + name) == git("rev-parse", prior["git_sha"] + ":" + name)
-    OUT.mkdir(parents=True)
+    out.mkdir(parents=True)
     receipt = {"git_sha": git("rev-parse", "HEAD"), "input_sha256": hashes,
                "scene_sha256": digest(SOURCE), "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                "status": "running", "timeout_s": 600}
-    (OUT / "receipt.json").write_text(json.dumps(receipt, indent=2))
+    (out / "receipt.json").write_text(json.dumps(receipt, indent=2))
     ts = time.perf_counter()
-    with (OUT / "worker.log").open("w") as log:
+    with (out / "worker.log").open("w") as log:
         try:
             run = subprocess.run([r"C:\Program Files\Autodesk\Maya2027\bin\mayapy.exe", str(Path(__file__)),
-                                  "--worker", str(OUT)], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=600)
+                                  "--worker", str(out)], cwd=ROOT, stdout=log, stderr=subprocess.STDOUT, timeout=600)
             receipt["exit_code"] = run.returncode
             assert run.returncode == 0, "Worker failed; inspect worker.log"
-            result = json.loads((OUT / "worker_result.json").read_text())
+            result = json.loads((out / "worker_result.json").read_text())
             assert result["status"] == "passed"
             assert hashes == {p.name: digest(p) for p in sorted(CACHE.iterdir()) if p.is_file()}
             assert digest(SOURCE) == receipt["scene_sha256"]
@@ -186,7 +194,7 @@ def main():
             receipt["wall_s"] = time.perf_counter() - ts
             if receipt["status"] == "running":
                 receipt["status"] = "failed"
-            (OUT / "receipt.json").write_text(json.dumps(receipt, indent=2))
+            (out / "receipt.json").write_text(json.dumps(receipt, indent=2))
     print(json.dumps(receipt, indent=2))
 
 
