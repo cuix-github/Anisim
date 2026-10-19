@@ -24,10 +24,13 @@ CACHE = base.ROOT / 'out/runs/wavesea4/cache/overview'
 OLD = base.ROOT / 'out/runs/breaker_foam_views_20261019'
 PROTOTYPE = base.ROOT / 'out/runs/breaker_foam_mix_20261019/C'
 FRAMES = {
-    'pre': dict(source=CACHE, frame=1, time_s=23.025, target=[129, 13, 68], rotation=[-18, 140, 0], width=24),
+    'pre': dict(source=CACHE, frame=1, time_s=23.025, target=[129, 13, 68], rotation=[-18, 140, 0], width=24,
+                xmin=120, wide_target=[140, 12.5, 44]),
     'break': dict(source=base.ROOT/'out/runs/wavesea4/cache/breaking_overview', frame=1,
-                  time_s=24.9, target=[145.5, 13.5, 70], rotation=[-15, 140, 0], width=22),
-    'shore': dict(source=CACHE, frame=5, time_s=27.025, target=[157, 12.75, 65], rotation=[-30, 90, 0], width=24),
+                  time_s=24.9, target=[145.5, 13.5, 70], rotation=[-15, 140, 0], width=22,
+                  xmin=132, wide_target=[151, 12.5, 44]),
+    'shore': dict(source=CACHE, frame=5, time_s=27.025, target=[157, 12.75, 65], rotation=[-30, 90, 0], width=24,
+                  xmin=142, wide_target=[159, 13, 44]),
 }
 ALPHA = .8
 
@@ -80,7 +83,7 @@ def mesh(name):
     folder.mkdir(parents=True)
     (folder/'cache').mkdir()
     p = np.load(spec['source']/f"liquid.{spec['frame']:04}.npy", mmap_mode='r')
-    keep = p[:, 0] >= 116*4
+    keep = (p[:, 0] >= spec['xmin']*4) & (p[:, 2] >= 10*4) & (p[:, 2] < 78*4)
     hashes = {}
     for kind in ['liquid', 'radius', 'speed']:
         source = spec['source']/f"{kind}.{spec['frame']:04}.npy"
@@ -102,7 +105,7 @@ def mesh(name):
     env['PATH'] = str(surface.BIF/'bin')+';'+str(surface.BIF/'thirdparty/bin')+';'+env['PATH']
     receipt = dict(status='running', git_sha=sha, time_s=spec['time_s'], source=str(spec['source']),
                    source_frame=spec['frame'], source_hashes=hashes, inputs=inputs,
-                   particles=count, crop_x_min_m=116, full_z_width_m=80, simulation=False)
+                   particles=count, crop_x_min_m=spec['xmin'], crop_z_m=[10, 78], simulation=False)
     base.save(folder/'mesh_receipt.json', receipt)
     started = time.perf_counter()
     minimum = free_gb()
@@ -223,9 +226,9 @@ def build_layer(name):
 
 def view_spec(name, view):
     spec = FRAMES[name]
-    return dict(time_s=spec['time_s'], width_m=64 if view == 'wide' else spec['width'],
-                rotation=[-55, 90, 0] if view == 'wide' else spec['rotation'],
-                target_m=[144, 12.5, 40] if view == 'wide' else spec['target'])
+    return dict(time_s=spec['time_s'], width_m=56 if view == 'wide' else spec['width'],
+                rotation=[-65, 90, 0] if view == 'wide' else spec['rotation'],
+                target_m=spec['wide_target'] if view == 'wide' else spec['target'])
 
 
 def camera_plot(name):
@@ -245,7 +248,7 @@ def camera_plot(name):
         xy = (p-spec['target_m']) @ np.stack([right, up], axis=1)
         half = spec['width_m']/2
         visible = (np.abs(xy[:, 0]) < half) & (np.abs(xy[:, 1]) < half*540/960)
-        edge = (p[:, 0] < 116.4) | (p[:, 2] < .4) | (p[:, 2] > 79.6)
+        edge = (p[:, 0] < FRAMES[name]['xmin']+.4) | (p[:, 2] < 10.4) | (p[:, 2] > 77.6)
         above_bed = p[:, 1] > (p[:, 0]-36)*.1+.3
         stride = max(1, len(p)//120000)
         ax.scatter(xy[::stride, 0], xy[::stride, 1], s=.1, c=p[::stride, 1], cmap='Blues', vmin=10, vmax=17)
