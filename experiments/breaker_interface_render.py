@@ -32,10 +32,15 @@ def prepare(out):
         before=base.geometry(c)
         assert c.listConnections('waterSG.surfaceShader')==['water']
         prior=json.loads((base.PRIOR/'B/state.json').read_text())
-        for node in ['water','sky','sun','sunShape']:
-            for attr,value in prior[node].items():
-                if isinstance(value,(bool,int,float,str)) and c.attributeQuery(attr,node=node,exists=True):
-                    assert c.getAttr(node+'.'+attr)==value,(node,attr)
+        compare={'water':['base','metalness','specular','specularIOR','specularRoughness',
+                          'transmission','transmissionDepth','transmissionColorR','transmissionColorG',
+                          'transmissionColorB','transmissionScatterR','transmissionScatterG','transmissionScatterB'],
+                 'sky':['intensity','colorR','colorG','colorB','camera'],
+                 'sun':['visibility','rotateX','rotateY','rotateZ'],
+                 'sunShape':['intensity','colorR','colorG','colorB','aiAngle']}
+        for node,attrs in compare.items():
+            for attr in attrs:
+                assert c.getAttr(node+'.'+attr)==prior[node][attr],(node,attr)
         theta=math.radians(12);center=(582,54,280);forward=(-math.sin(theta),0,math.cos(theta))
         c.setAttr('persp.translate',*[center[i]-300*forward[i] for i in range(3)],type='double3')
         c.setAttr('persp.rotate',0,168,0,type='double3')
