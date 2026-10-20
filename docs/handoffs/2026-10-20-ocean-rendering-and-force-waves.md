@@ -10,6 +10,8 @@
 
 交接前的技术分支是 `codex/force-wave-previews`，基于 `origin/main` 的 `d186ed8`。截至整理前的最近提交是 `7f73e65`，其后只有 `maya/build_wave_2d_scene.py` 的显示修复尚未提交；本次交接会保存它，明确作为未验收的候选。以最终 Git 状态和 PR 为准，不要假设新 agent 切到 main 就能看到这些代码。
 
+本次交接保存于 **[Anisim draft PR 43](https://github.com/cuix-github/Anisim/pull/43)**，其中也包含此前的新施力实现和未验收的 Maya 显示候选。它保持 draft，不能当成已验收的生产功能。
+
 此前仍开放的 PR：
 
 | PR | 内容 | 注意事项 |
