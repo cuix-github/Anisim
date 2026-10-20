@@ -1,0 +1,160 @@
+{
+  "status": "passed",
+  "control_pixels_identical_to_prior_D": true,
+  "scene_differences": {
+    "prior_D_to_A": {
+      "changed_nodes": [],
+      "removed_connections": [],
+      "added_connections": [],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    },
+    "A_to_B": {
+      "changed_nodes": [
+        "surfaceDiagnosticMatte"
+      ],
+      "removed_connections": [
+        "connectAttr \"water.out\" \"waterSG.ss\";"
+      ],
+      "added_connections": [
+        "connectAttr \"surfaceDiagnosticMatte.msg\" \":defaultShaderList1.s\" -na;",
+        "connectAttr \"surfaceDiagnosticMatte.out\" \"waterSG.ss\";"
+      ],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    },
+    "A_to_C": {
+      "changed_nodes": [
+        "water"
+      ],
+      "removed_connections": [],
+      "added_connections": [],
+      "changed_graph_values": {
+        "particleSurfaceShape": {},
+        "particleMistShape": {}
+      }
+    }
+  },
+  "matte_foreground_roi": {
+    "x_from": 250,
+    "y_from": 170,
+    "all_rgb_255_fraction": 0.08706128663875143
+  },
+  "total_launch_evaluation_render_wall_s": 863.27,
+  "renders": {
+    "A": {
+      "arm": "A",
+      "git_sha": "8022f8c50994da98f509cea33f1d3da1ae50210b",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0",
+        "SURF_FOAM_STRENGTH": "0",
+        "SURF_MIST_VISIBLE": "0",
+        "SURF_MCF_ITERS": "10",
+        "SURF_WATER_ROUGHNESS": "0.03",
+        "SURF_DIAGNOSTIC_MATTE": "0"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T07:22:55Z",
+      "wall_s": 306.905,
+      "exit_code": 0,
+      "image_sha256": "fb5a50139e74b902bdf6ec7a74d7fead2632c758081ebba7cbf53553857a0881",
+      "scene_sha256": "aca704061a5334f90f542174236d21e6a79215064f4d1896c205e4e7ce501ca9",
+      "notes": "scene opened in 4.8 s\nframe 1: 16.5 s -> breaker.0001.png\n",
+      "water_triangles": 292516
+    },
+    "B": {
+      "arm": "B",
+      "git_sha": "8022f8c50994da98f509cea33f1d3da1ae50210b",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0",
+        "SURF_FOAM_STRENGTH": "0",
+        "SURF_MIST_VISIBLE": "0",
+        "SURF_MCF_ITERS": "10",
+        "SURF_WATER_ROUGHNESS": "0.03",
+        "SURF_DIAGNOSTIC_MATTE": "1"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T07:28:30Z",
+      "wall_s": 274.745,
+      "exit_code": 0,
+      "image_sha256": "defd0b4660bb1cfb5ad7da7aa826e8d918ed2594a3546afe9c3c048c6d4862fe",
+      "scene_sha256": "a014bf1222fc2c0cce073371fe9f9037b9446aab14a1473c166fe0b03673ec97",
+      "notes": "scene opened in 4.5 s\nframe 1: 5.6 s -> breaker.0001.png\n",
+      "water_triangles": 292516
+    },
+    "C": {
+      "arm": "C",
+      "git_sha": "8022f8c50994da98f509cea33f1d3da1ae50210b",
+      "cache": "out\\runs\\wavesea4\\cache\\breaking_section",
+      "time_s": 24.9,
+      "input_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "preset": "paper_clean",
+      "overrides": {
+        "SURF_WIDTH": "960",
+        "SURF_HEIGHT": "540",
+        "SURF_CAMERA": "596 76 188 570 58 256",
+        "SURF_METRES_PER_CELL": "0.25",
+        "SURF_THREADS": "0",
+        "SURF_GPU": "0",
+        "SURF_FOAM_STRENGTH": "0",
+        "SURF_MIST_VISIBLE": "0",
+        "SURF_MCF_ITERS": "10",
+        "SURF_WATER_ROUGHNESS": "0.12",
+        "SURF_DIAGNOSTIC_MATTE": "0"
+      },
+      "status": "passed",
+      "started_utc": "2026-10-19T07:33:21Z",
+      "wall_s": 281.62,
+      "exit_code": 0,
+      "image_sha256": "3e44cb73a6bced8bcef047e1d9bbb7bd211c049385a7c339e299c74c3b791de8",
+      "scene_sha256": "4a4051b981b9210ba71e3372a28b9454ef756a95d5567ac1ddf0d8f0aa66677b",
+      "notes": "scene opened in 4.4 s\nframe 1: 16.4 s -> breaker.0001.png\n",
+      "water_triangles": 292516
+    }
+  },
+  "limits": [
+    "The production mesh vertices were not exported or hashed.",
+    "Matte highlights clip under the unchanged lighting; they cannot settle fine normal detail.",
+    "No new simulation, surface-resolution arm, spray emission or extra image was run."
+  ]
+}

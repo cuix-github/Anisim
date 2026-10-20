@@ -16,6 +16,7 @@ SURF_MASK_DILATE, SURF_MIST_VISIBLE (0 hides the rendered volume only),
 SURF_LOOK, SURF_WATER_DEPTH,
 SURF_SKY_INTENSITY, SURF_SKY_VISIBLE, SURF_SKY_COLOR (linear RGB),
 SURF_FOAM_STRENGTH (0 bypasses the curvature foam; 1 keeps the original),
+SURF_WATER_ROUGHNESS (0.03), SURF_DIAGNOSTIC_MATTE (0; 1 assigns neutral matte),
 SURF_SUN_INTENSITY, SURF_SUN_ROTATE, SURF_WATER_COLOR,
 SURF_CAMERA_PATH (a camera.json: {"frames": [[ex, ey, ez, tx, ty, tz], ...]} in cells, frame
 f the list's entry f - 1, keyed on the camera so it tracks; the fixed SURF_CAMERA otherwise);
@@ -149,8 +150,14 @@ def build(cmds):
     # absorbs within metres, a near-black sky, the sun low behind the spray (backlit,
     # toward a camera on the -z side), a dark floor; the default look is unchanged
     ocean = E.get("SURF_LOOK", "") == "ocean"
+    roughness = env("SURF_WATER_ROUGHNESS", 0.03)
+    if not 0.0 <= roughness <= 1.0:
+        raise ValueError("SURF_WATER_ROUGHNESS must be between 0 and 1")
+    diagnostic_matte = env("SURF_DIAGNOSTIC_MATTE", 0, int)
+    if diagnostic_matte not in (0, 1):
+        raise ValueError("SURF_DIAGNOSTIC_MATTE must be 0 or 1")
     water = shader(cmds, "aiStandardSurface", "water", base=0.0, specular=1.0,
-                   specularRoughness=0.03, specularIOR=1.33, transmission=1.0,
+                   specularRoughness=roughness, specularIOR=1.33, transmission=1.0,
                    transmissionColor=tuple(float(v) for v in E.get("SURF_WATER_COLOR", "").split())
                    or ((0.22, 0.42, 0.46) if ocean else (0.7, 0.88, 0.94)),
                    transmissionDepth=env("SURF_WATER_DEPTH", 6.0 if ocean else 60.0))
@@ -167,7 +174,12 @@ def build(cmds):
     cmds.connectAttr(water + ".outColor", mix + ".shader1")
     cmds.connectAttr(foam + ".outColor", mix + ".shader2")
     cmds.connectAttr(curv + ".outColorR", mix + ".mix")
-    assign(cmds, water if foam_strength == 0 else mix, shape, "waterSG")
+    surface_material = water if foam_strength == 0 else mix
+    if diagnostic_matte:
+        surface_material = shader(cmds, "aiStandardSurface", "surfaceDiagnosticMatte",
+                                  base=1.0, baseColor=(0.5, 0.5, 0.5), specular=0.0,
+                                  transmission=0.0)
+    assign(cmds, surface_material, shape, "waterSG")
     # mist: a white scattering fog read from the spray density channel (its stored
     # value is the extinction per cell over SPRAY_EPS)
     fog = cmds.shadingNode("aiStandardVolume", asShader=True, name="mistFog")
