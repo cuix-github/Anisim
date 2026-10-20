@@ -29,6 +29,12 @@ local outputs and is not hosted on GitHub. Its builder and the grouped breaker
 instruments live under `experiments/rendering/`; historical script paths remain
 compatible. No simulation or render is needed to regenerate the gallery.
 
+The October 20 [force-driven sea plan](docs/force-wave-scene-plan.md) records
+the agreed 2D/coarse-3D preview direction and a 30-second production budget
+of approximately fifteen hours. The old 18–30-second continuation is cancelled;
+its automation was deleted. The replacement force generator and scene remain
+to be implemented and validated; no replacement production run is scheduled.
+
 ## How to run
 
 Windows, Maya 2027 with Bifrost 3.1, Visual Studio 2022, Python 3.13.
