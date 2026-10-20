@@ -1,0 +1,43 @@
+{
+  "status": "passed",
+  "moved_implementations": 25,
+  "grouped_studies": 8,
+  "algorithm_ast_unchanged_except_repository_root": true,
+  "import_modes": [
+    "legacy",
+    "grouped",
+    "package"
+  ],
+  "runtime_imports_per_mode": 24,
+  "static_only": [
+    "breaker_camera_probe"
+  ],
+  "historical_files_unchanged": 53068,
+  "scenes_byte_identical": 187,
+  "scene_path_strings": 83,
+  "newly_missing_scene_paths": 0,
+  "missing_local_document_links": 0,
+  "gallery_entries": 1195,
+  "gallery_source_media": 2786,
+  "registry_variants": 5,
+  "simulation": false,
+  "rendering": false,
+  "maya_scene_evaluation": false,
+  "scope": "Static paths, byte hashes, AST equivalence and guarded imports; no rendering or scene evaluation.",
+  "browser": {
+    "status": "passed",
+    "selected_cards": 10,
+    "video_entries": 18,
+    "sequence_cards_on_first_page": 13,
+    "filter_and_search": true,
+    "detail_and_asset_links": true,
+    "video_metadata_loaded": true,
+    "frame_selection": true,
+    "mobile_no_horizontal_overflow": true,
+    "page_errors": [],
+    "remote_requests": [],
+    "simulation": false,
+    "arnold_rendering": false
+  },
+  "media_note": "Synthetic test fixtures excluded; one pre-existing undecodable temporary PNG remains in place and is labeled."
+}

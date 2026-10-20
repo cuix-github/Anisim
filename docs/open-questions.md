@@ -6,7 +6,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 - **Intermediate foam and wider views (2026-10-19).** Xue reacted to the
   25/75 uniform/clustered preview with “This is WOW!” and authorized six more
-  views with 20/80 density. The [six-view study](breaker-six-view-study.md) is
+  views with 20/80 density. The [six-view study](rendering/studies/breaker-six-view-study.md) is
   complete at 23.025, 24.9 and 27.025 s, pairing 56 m wide framing with 22–24 m
   details. All six pass alignment, scattering, AOV and display checks; source
   caches are unchanged and mist stays off. The agent favors the 24.9 s detail,
@@ -18,7 +18,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 - **Water scale and boundary presentation (2026-10-19).** Earlier side views
   exposed artificial crop walls, as documented in the
-  [eight-view study](breaker-foam-view-study.md). Wider water now removes the
+  [eight-view study](rendering/studies/breaker-foam-view-study.md). Wider water now removes the
   large directly visible side wall from the tested main sight lines, but coarse
   primary-ray checks do not measure refraction paths. Glassy water remains,
   the first overhead view flattens the wave, and the shore wide view exposes
@@ -39,7 +39,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   default. The frozen control uses 10 MCF iterations; the paper generally uses 30,
   but equal iteration counts do not establish equal numerical smoothing strength.
   Distinguish coarse field detail from polygon approximation on the circled
-  fragment. The authorized [offline correspondence audit](breaker-surface-correspondence.md)
+  fragment. The authorized [offline correspondence audit](rendering/studies/breaker-surface-correspondence.md)
   reproduced the control exactly. Finer meshing left the 8-triangle fragment
   unchanged; local volume resampling changed both its tessellation and extent,
   so neither is promoted. Its curvature mask remains saturated. No rendering or
@@ -48,7 +48,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   times before choosing; preserve both appearances for that observation.
 
 - **Thin surface foam now renders, but the ocean look remains open.** The
-  [foam-layer study](breaker-foam-layer-study.md) corrected an ASS unit mismatch
+  [foam-layer study](rendering/studies/breaker-foam-layer-study.md) corrected an ASS unit mismatch
   after two ineffective A attempts. Expanded-procedural checks now verify actual
   imported points, radii and transforms. The newly approved A passed scattering
   before B ran; both images are valid. B breaks up A's continuous white coating,
@@ -62,7 +62,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   corners or proof that the solver needs rerunning.
 
 - **Curvature-selected scattering works, but the white regions remain chunky.** The 2026-10-19
-  [interface study](breaker-interface-study.md) passed a curvature-mask check,
+  [interface study](rendering/studies/breaker-interface-study.md) passed a curvature-mask check,
   but the proposed thin VDB band failed roundtrip validation. A stock randomwalk
   SSS alternative was prepared; its first B render received a constant-zero
   mask and was identical to control in raw beauty. The native Arnold connection
@@ -74,7 +74,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 - **The refined water/mist candidate is still not an accepted look.** After the
   first Deep Water / Physical Sky package proved too blue, the authorized
-  [neutral-color / finer-mist follow-up](breaker-neutral-mist-study.md) restored
+  [neutral-color / finer-mist follow-up](rendering/studies/breaker-neutral-mist-study.md) restored
   baseline absorption, reduced tinted scattering and tightened the side view
   from 45.76 m to 15 m. Its two previews use the same 24.9 s cache and frozen
   visible mesh. The water is less blue but still turquoise/glassy, and finer
@@ -84,7 +84,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   history by 24.9 s. No solver continuation was run. The full evidence and
   limits are in the linked study.
 
-- **The breaker's rendering still looks glassy.** The 2026-10-19 [frozen-cache study](breaker-render-study.md) rendered five isolated previews and one presentation candidate at 24.9 s. Curvature foam contributes hard white patches; mist obscures sheets; less MCF retains more relief and ripples; a brighter environment improves visibility but keeps strong blue reflections. The candidate still falls short of realism. `breaker_inspect` is diagnostic, not a replacement default. The surface reconstruction, normals, reflection/transmission setup and representation of escaped particles need to be distinguished before another simulation is justified; none was rerun for this study.
+- **The breaker's rendering still looks glassy.** The 2026-10-19 [frozen-cache study](rendering/studies/breaker-render-study.md) rendered five isolated previews and one presentation candidate at 24.9 s. Curvature foam contributes hard white patches; mist obscures sheets; less MCF retains more relief and ripples; a brighter environment improves visibility but keeps strong blue reflections. The candidate still falls short of realism. `breaker_inspect` is diagnostic, not a replacement default. The surface reconstruction, normals, reflection/transmission setup and representation of escaped particles need to be distinguished before another simulation is justified; none was rerun for this study.
 
 - **A CFL-bound substep.** Every long run steps at a fixed dt. The 512 run's air reached 900 to 1450 cells per second and crossed 76 to 123 cells in one substep, past anything the push-out reaches, which is how a handful of air particles ended up inside a boulder for one frame; the 2D long runs' splashes made particles at 120 to 460 cells per second in every arm. Fine for an A/B between solvers, not for a quality claim.
 - **Animated mesh colliders.** The node moves one kind of solid since 2026-10-16: the piston wavemaker, a plate in rigid translation computed inside the step from the substep index (`gates/validate_piston_node.py`, locked against the reference's plate). A collider mesh an artist animates is not that: it needs the collider's level set per frame from the graph, a velocity from two of them, and the substep's position in between. Not needed for the wavemaker, and since 2026-10-17 not needed for a directional sea either: the wave zone (`zone_*` ports, `waves`) writes any list of oblique trains without a paddle. Open until a shot asks for a moving object in the water.

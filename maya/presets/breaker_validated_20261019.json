@@ -117,8 +117,9 @@
       991
     ],
     "density_bins": 64,
-    "source": "experiments/breaker_foam_layer.py",
-    "source_sha256": "73bc51f08bbdee8b95c0dc40e60dda305b9ee1652dc71891b4443457a5fdfe5c"
+    "source": "experiments/rendering/breaker/breaker_foam_layer.py",
+    "source_sha256": "73bc51f08bbdee8b95c0dc40e60dda305b9ee1652dc71891b4443457a5fdfe5c",
+    "source_at_validation": "experiments/breaker_foam_layer.py"
   },
   "units": {
     "scene_units_per_simulation_m": 4,

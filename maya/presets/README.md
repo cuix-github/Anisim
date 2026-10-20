@@ -61,13 +61,13 @@ white coating. Invalid masks, failed VDB preparation and the early foam unit
 mismatch are failed attempts, not additional working presets. Their evidence
 is preserved in the linked studies, not silently promoted into this registry.
 
-See the [surface study](../../docs/breaker-render-study.md),
-[Deep Water study](../../docs/breaker-deep-water-study.md),
-[neutral/mist study](../../docs/breaker-neutral-mist-study.md),
-[interface study](../../docs/breaker-interface-study.md),
-[thin-foam study](../../docs/breaker-foam-layer-study.md),
-[paired views](../../docs/breaker-foam-view-study.md) and
-[six views and 60/40 follow-up](../../docs/breaker-six-view-study.md).
+See the [surface study](../../docs/rendering/studies/breaker-render-study.md),
+[Deep Water study](../../docs/rendering/studies/breaker-deep-water-study.md),
+[neutral/mist study](../../docs/rendering/studies/breaker-neutral-mist-study.md),
+[interface study](../../docs/rendering/studies/breaker-interface-study.md),
+[thin-foam study](../../docs/rendering/studies/breaker-foam-layer-study.md),
+[paired views](../../docs/rendering/studies/breaker-foam-view-study.md) and
+[six views and 60/40 follow-up](../../docs/rendering/studies/breaker-six-view-study.md).
 These stills have no transported foam history and do not establish a final
 sequence look or exact reproduction of the papers' rendering method.
 
@@ -77,7 +77,7 @@ A preset is a PowerShell file here that sets the launcher's environment knobs, e
 
 `paper.ps1` is the look settled on 2026-10-16/17: the breaking-wave stills of PF-FLIP and ST-FLIP on our particles. Two knobs belong to the scene and are not in the preset: `SURF_METRES_PER_CELL` (the simulation's cell in metres, 0.25 for the breaker) and `SURF_CAMERA`.
 
-`breaker_inspect.ps1` is the water-only diagnostic candidate from the [24.9 s comparison](../../docs/breaker-render-study.md), 2026-10-19. It bypasses curvature foam, hides the existing mist, uses 10 MCF iterations and doubles the original ocean environment RGB. It exposes sheets and holes but still looks glassy; it is not a replacement for `paper_clean` or an accepted realistic ocean look. Hiding mist also hides its escaped particles; it never changes the cache or returns those particles to the surface.
+`breaker_inspect.ps1` is the water-only diagnostic candidate from the [24.9 s comparison](../../docs/rendering/studies/breaker-render-study.md), 2026-10-19. It bypasses curvature foam, hides the existing mist, uses 10 MCF iterations and doubles the original ocean environment RGB. It exposes sheets and holes but still looks glassy; it is not a replacement for `paper_clean` or an accepted realistic ocean look. Hiding mist also hides its escaped particles; it never changes the cache or returns those particles to the surface.
 
 `paper_clean.ps1` is the same look, clean on calm water (2026-10-18). On the breaker every frame was a break, so the paper look's rule that any water the smoothed surface leaves out is a droplet cloud read as white water. On the wave basin's calm 2.8 m swell at 18 s, far from breaking and with no wind, the same rule painted the surface as snow: a real swell like it is glassy. Two knobs remove the dots, one render and one cache:
 

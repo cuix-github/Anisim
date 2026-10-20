@@ -22,6 +22,13 @@ Why these papers, in three sentences. PF-FLIP fills the air with FLIP particles 
 
 The full record of every milestone, with its numbers, stands in [docs/history.md](docs/history.md). The settled decisions and their reversals are in [docs/decisions.md](docs/decisions.md), what is still open in [docs/open-questions.md](docs/open-questions.md), every chart and image with what it shows in [docs/evidence.md](docs/evidence.md), and the layout of the local run outputs in [docs/outputs.md](docs/outputs.md).
 
+For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
+the [validated setups](maya/presets/README.md) and the local
+[media gallery](out/gallery/index.html). The gallery is generated from existing
+local outputs and is not hosted on GitHub. Its builder and the grouped breaker
+instruments live under `experiments/rendering/`; historical script paths remain
+compatible. No simulation or render is needed to regenerate the gallery.
+
 ## How to run
 
 Windows, Maya 2027 with Bifrost 3.1, Visual Studio 2022, Python 3.13.
