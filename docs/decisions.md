@@ -26,6 +26,24 @@ Four decisions were settled at the start. Two were later reversed by measurement
 
 ## Rules of the repository
 
+**Rendering scope, Xue's explicit direction on 2026-10-19.** First reproduce the
+PF-FLIP and ST-FLIP demo appearance as closely as the Bifrost implementation and
+available cache permit; incremental improvements come after a satisfactory
+reproduction. Do not develop the newly proposed hybrid particle classifier or
+sphere/ellipsoid replacement scheme as the next step. Retain the valid clustered
+foam comparison as experimental evidence, but do not extend its procedural noise
+as though it were the paper's method: both papers explicitly exclude procedural
+textures. Prioritize conformance of particle-derived surface reconstruction,
+feature-preserving smoothing, interface scattering and the paper's spray path.
+Arnold-specific numerical approximations must be labelled and validated; the
+papers do not supply a complete material/lighting preset. This direction
+did not initially authorize another run. Later on October 19 Xue authorized
+offline reconstruction and scattering checks together, still deferring spray
+and solver changes. After seeing the valid A/B foam images on desktop, he judged
+both promising and requested additional paired angles, distances and later cached
+frames before selecting either. That observation study should preserve both
+existing looks; it does not turn procedural B into a claim of paper fidelity.
+
 - Every change lands through its own pull request; the repository squash-merges, so a branch whose pull request merged is never pushed onto again.
 - The repository stores code and small numeric evidence (JSON receipts, charts, frame sheets). Videos, rendered frames, caches and Maya scenes stay in the ignored `out/` (rule set 2026-10-13; the videos committed before then were untracked the same day).
 - Every solver feature ships with its gate: lockstep against the 2D reference, a system gate through the real graph, then physics anchors. Compatibility paths (nz=1, st=0, adapt=0, dump_every=1) stay bit-identical to what the old gates measured.

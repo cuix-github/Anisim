@@ -4,6 +4,86 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Intermediate foam and wider views (2026-10-19).** Xue reacted to the
+  25/75 uniform/clustered preview with “This is WOW!” and authorized six more
+  views with 20/80 density. The [six-view study](rendering/studies/breaker-six-view-study.md) is
+  complete at 23.025, 24.9 and 27.025 s, pairing 56 m wide framing with 22–24 m
+  details. All six pass alignment, scattering, AOV and display checks; source
+  caches are unchanged and mist stays off. The agent favors the 24.9 s detail,
+  while Xue's review of this batch is pending. This is not a final ocean preset
+  or a claim that the procedural foam distribution reproduces the paper.
+  A later authorized 60/40 comparison of the same 24.9 s, 22 m detail also
+  passes: fuller, more connected foam trades away some granular breakup.
+  Both images are retained; no final ratio or sequence look is selected.
+
+- **Water scale and boundary presentation (2026-10-19).** Earlier side views
+  exposed artificial crop walls, as documented in the
+  [eight-view study](rendering/studies/breaker-foam-view-study.md). Wider water now removes the
+  large directly visible side wall from the tested main sight lines, but coarse
+  primary-ray checks do not measure refraction paths. Glassy water remains,
+  the first overhead view flattens the wave, and the shore wide view exposes
+  the finite beach model's straight end. The shore foam is concentrated along
+  the front rather than a persistent wake; the curvature/height mask has no
+  transported history. Resolve these presentation and temporal limits before
+  promoting a whole-sequence look. No new simulation is authorized by this batch.
+
+- **Reproduce the papers before adding new render design (Xue, 2026-10-19).**
+  The proposed hybrid particle classifier and analytic droplet replacements are
+  deferred. Procedurally clustered foam remains a look experiment, not the target
+  reconstruction. Re-reading ST-FLIP Section 4 / Appendix B confirms an implicit
+  density 0.5-isocontour rendered by ray marching, after union-of-spheres deposition
+  at twice the simulation-grid resolution and feature-preserving curvature flow.
+  Our density-derived mask but SDF evolution, one-voxel mask dilation and polygon
+  extraction need a correspondence audit. The saved baseline actually disables
+  the Gaussian pass; the earlier mention here incorrectly used the generator
+  default. The frozen control uses 10 MCF iterations; the paper generally uses 30,
+  but equal iteration counts do not establish equal numerical smoothing strength.
+  Distinguish coarse field detail from polygon approximation on the circled
+  fragment. The authorized [offline correspondence audit](rendering/studies/breaker-surface-correspondence.md)
+  reproduced the control exactly. Finer meshing left the 8-triangle fragment
+  unchanged; local volume resampling changed both its tessellation and extent,
+  so neither is promoted. Its curvature mask remains saturated. No rendering or
+  simulation ran for the audit. Xue subsequently found both valid thin-foam looks
+  promising and requested paired views at new angles/distances and later cached
+  times before choosing; preserve both appearances for that observation.
+
+- **Thin surface foam now renders, but the ocean look remains open.** The
+  [foam-layer study](rendering/studies/breaker-foam-layer-study.md) corrected an ASS unit mismatch
+  after two ineffective A attempts. Expanded-procedural checks now verify actual
+  imported points, radii and transforms. The newly approved A passed scattering
+  before B ran; both images are valid. B breaks up A's continuous white coating,
+  while the large fragment silhouettes and glassy bulk remain. Four calls total,
+  two valid previews; no solver or remeshing in that original comparison.
+  Xue subsequently requested the eight paired views described above; those are
+  complete, with later-frame reconstruction from existing caches and no solver.
+  A separate offline audit found that the user-circled floating diamond has
+  only six vertices and eight triangles before and after smoothing. That is a
+  reconstruction limitation for this fragment, not a diagnosis of all crest
+  corners or proof that the solver needs rerunning.
+
+- **Curvature-selected scattering works, but the white regions remain chunky.** The 2026-10-19
+  [interface study](rendering/studies/breaker-interface-study.md) passed a curvature-mask check,
+  but the proposed thin VDB band failed roundtrip validation. A stock randomwalk
+  SSS alternative was prepared; its first B render received a constant-zero
+  mask and was identical to control in raw beauty. The native Arnold connection
+  was repaired and one explicitly approved replacement B rendered with a nonzero
+  SSS contribution. The broken lip whitens, but its patches remain thick and the
+  broad body still looks glassy. Cache and geometry are unchanged; mist is off.
+  This validates the local shading path, not a final ocean look or the failed VDB
+  band. No solver ran, and no additional render was started.
+
+- **The refined water/mist candidate is still not an accepted look.** After the
+  first Deep Water / Physical Sky package proved too blue, the authorized
+  [neutral-color / finer-mist follow-up](rendering/studies/breaker-neutral-mist-study.md) restored
+  baseline absorption, reduced tinted scattering and tightened the side view
+  from 45.76 m to 15 m. Its two previews use the same 24.9 s cache and frozen
+  visible mesh. The water is less blue but still turquoise/glassy, and finer
+  mist remains isolated flecks instead of continuous crest spray. AOVs confirm
+  that mist is active. A fifth-chunk continuation from 24 s is feasible in
+  principle, but needs launcher/exporter changes and adds only 0.9 s of spray
+  history by 24.9 s. No solver continuation was run. The full evidence and
+  limits are in the linked study.
+
 - **The optical check found a PNG export problem, but not a complete ocean look.**
   The [24.9 s AOV comparison](breaker-optical-study.md) reproduced the control on
   static geometry and found the PNG driver exporting untransformed linear ACEScg.
@@ -16,7 +96,7 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 - **Where the breaker loses visible detail.** The 2026-10-19 [input audit and subsequent shading comparison](breaker-input-audit.md) confirm that 1,192 of the frozen crop's 811,717 particles are excluded from the mesh by their radius channel and disappear when mist is hidden. Survival of the remaining particles in the reconstructed mesh is unmeasured. The small gate removes its marked droplet before meshing, so its missing vertices cannot isolate voxelization loss. The candidate's configured 12.5 cm surface voxels project to about 16 pixels at its camera target; pressure-cell size alone is not a matched visual-resolution comparison. Three approved previews reproduced the prior D pixel-for-pixel, showed holes and broad smooth sheets under a matte material (with clipped highlights), and changed roughness from 0.03 to 0.12 without a major realism improvement. Graph parameters and triangle counts match. Mesh correspondence, normals and reflection/transmission remain open; no simulation or finer reconstruction was run.
 
-- **The breaker's rendering still looks glassy.** The 2026-10-19 [frozen-cache study](breaker-render-study.md) rendered five isolated previews and one presentation candidate at 24.9 s. Curvature foam contributes hard white patches; mist obscures sheets; less MCF retains more relief and ripples; a brighter environment improves visibility but keeps strong blue reflections. The candidate still falls short of realism. `breaker_inspect` is diagnostic, not a replacement default. The surface reconstruction, normals, reflection/transmission setup and representation of escaped particles need to be distinguished before another simulation is justified; none was rerun for this study.
+- **The breaker's rendering still looks glassy.** The 2026-10-19 [frozen-cache study](rendering/studies/breaker-render-study.md) rendered five isolated previews and one presentation candidate at 24.9 s. Curvature foam contributes hard white patches; mist obscures sheets; less MCF retains more relief and ripples; a brighter environment improves visibility but keeps strong blue reflections. The candidate still falls short of realism. `breaker_inspect` is diagnostic, not a replacement default. The surface reconstruction, normals, reflection/transmission setup and representation of escaped particles need to be distinguished before another simulation is justified; none was rerun for this study.
 
 - **A CFL-bound substep.** Every long run steps at a fixed dt. The 512 run's air reached 900 to 1450 cells per second and crossed 76 to 123 cells in one substep, past anything the push-out reaches, which is how a handful of air particles ended up inside a boulder for one frame; the 2D long runs' splashes made particles at 120 to 460 cells per second in every arm. Fine for an A/B between solvers, not for a quality claim.
 - **Animated mesh colliders.** The node moves one kind of solid since 2026-10-16: the piston wavemaker, a plate in rigid translation computed inside the step from the substep index (`gates/validate_piston_node.py`, locked against the reference's plate). A collider mesh an artist animates is not that: it needs the collider's level set per frame from the graph, a velocity from two of them, and the substep's position in between. Not needed for the wavemaker, and since 2026-10-17 not needed for a directional sea either: the wave zone (`zone_*` ports, `waves`) writes any list of oblique trains without a paddle. Open until a shot asks for a moving object in the water.

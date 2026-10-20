@@ -2,7 +2,70 @@
 
 Everything a script writes lands under `out\` at the repository root, which git ignores. Nothing in it is in the repository; this page says what is there, what it is for, and which folders are canonical. `graphs\runs.py` is the code's single idea of where a run's files live; `runs.py report` prints what is on disk. Sizes are from 2026-10-15.
 
+The [validated render setup registry](../maya/presets/README.md) now provides
+one entry point for the five working thin-foam variants, their common water
+and lighting, camera groups and exact local artifacts. The accompanying JSON
+records frozen scenes rather than adding a launcher preset.
+
+A read-only inventory on October 19 found 52,123 files using about 609.69 GiB
+under `out/`, with 55 direct run folders, including 38 breaker-study folders.
+The 2,006 PNGs, 19 MP4s and 29 EXRs there total about 1.63 GiB; the large storage
+cost is primarily simulation arrays. These are logical file sizes, not a disk
+allocation or duplicate-content audit. Git tracks 39 existing PNG charts/frame
+sheets totaling 9.77 MiB. Another 726 ignored media files remain outside `out/`
+in the old droplet/three-FLIP frame folders and `results/3d/p2g`; the opening
+layout rule describes the intended layout, not a completed legacy migration.
+The local inventory is `out/repo_inventory_20261019.json`. No data was moved,
+deleted, deduplicated or rerendered during this inventory. The subsequently
+approved organization groups implementation and study documentation, retaining
+old entry paths. The [local gallery](../out/gallery/index.html) indexes existing
+media and generates thumbnails under `out/gallery/`; all historical result and
+simulation paths stay unchanged. `out/repo_organization_20261019/` holds the
+before/after file, scene-reference and layout checks. Legacy data migration
+remains deferred.
+
+The 2026-10-19 [Deep Water candidate](rendering/studies/breaker-deep-water-study.md) lives in
+`out/runs/breaker_deep_water_20261019/`: `original/` and `side/` contain the two
+960 by 540 previews, static scenes, raw component EXRs, hashes and successful
+receipts. `comparison.png`, `aov_panels.png` and `analysis.json` record the
+comparison and offline checks. The candidate was not accepted as an improvement.
+It reuses the validated local scene from `breaker_optical_aovs_20261019_v3/B/`;
+there is no new simulation cache or surface reconstruction.
+
+The later [neutral water and finer mist study](rendering/studies/breaker-neutral-mist-study.md)
+lives in `out/runs/breaker_neutral_mist_20261019_v2/`, with two closer-inspection
+previews and offline checks. The unversioned-suffix folder preserves the failed
+first preparation. The successful folder also retains the original PNG-collection
+failure plus its separate verified recovery; that image was not rerendered.
+`chunk5_audit.json` records checkpoint availability and timing estimates only.
+
 ## One folder per run
+
+The intermediate foam preview lives in `out/runs/breaker_foam_mix_20261019/`.
+`C/beauty_view.png` is the single new 24.9 s, 18 m oblique image, using
+25 percent uniform plus 75 percent clustered volume density. `C/candidate.mb`
+uses `C/foam.ass`; retain both. `layer.npz`, `density_check.png`, alignment and
+image checks, and `analysis.json` preserve the experiment. Existing A/B images
+in `breaker_foam_views_20261019/oblique/` are its controls, not newly rendered.
+
+The [thin-foam study](rendering/studies/breaker-foam-layer-study.md) retains failed support checks
+under out/runs/breaker_foam_layer_20261019/, scene-preparation checks under _v2,
+the ineffective first A under _v3, and the ineffective explicit-density A under
+_v4, including its failed image check and unit-mismatch audit. B never rendered;
+that round stopped after the approved replacement A failed. The subsequently
+approved unit repair stopped in _v5 on an unavailable Maya display bounding box
+without rendering; _v6 contains the valid A/B images, expanded-geometry alignment
+checks, comparison.png, comparison_small.png and analysis.json. The existing-mesh corner audit and focused
+eight-triangle fragment plot are in out/runs/breaker_corner_audit_20261019/.
+
+The [interface-scattering study](rendering/studies/breaker-interface-study.md) retains its mask
+in out/runs/breaker_interface_scatter_20261019/ and unvalidated volume attempts
+through _v9. The initial SSS A and failed-effect B are in
+out/runs/breaker_interface_sss_20261019_v3/. The _v4 folder holds repaired scenes,
+ASS export checks, the approved replacement B, analysis.json and comparison.png.
+The comparison reuses v3/A; v4/A was not rendered. B now has a validated SSS
+contribution, but the white patches remain thick and the body glassy. These
+artifacts are a working scattering comparison, not an accepted ocean look.
 
 Since 2026-10-16 a run writes everything it produces under one folder named by its tag:
 
@@ -58,6 +121,28 @@ Listed, not deleted; deleting a run's data is the owner's call.
 
 ## The gates and the studies
 
+The fixed-camera 60/40 follow-up is in `out/runs/breaker_foam_mix60_20261019/`.
+It reuses the 24.9 s, 22 m scene; `C/beauty_view.png` is the single new image.
+The comparison sheets pair it with the existing 20/80 image, without a second
+render. Scene, alignment, density, AOV and timing receipts remain alongside it.
+
+The six 20/80 mixed-foam views are in `out/runs/breaker_six_views_20261019/`.
+`comparison.png` and `comparison_full.png` show three cached stages (23.025,
+24.9 and 27.025 s), each with a wide and detail camera. `shots/` holds the six
+licensed renders and their scene/AOV/alignment receipts; `frames/` holds final
+wider meshes, masks and foam, alongside preserved failed memory attempts and
+superseded unrendered preparations. `bounded_control/` proves that restricting
+only the dense-mask calculation leaves the control geometry exact. See the
+[six-view study](rendering/studies/breaker-six-view-study.md) for composition limits and timings.
+
+The paired foam viewing study is `out/runs/breaker_foam_views_20261019/`: `wide`
+and `oblique` retain the 24.9 s assets; `later26` and `later28` use existing caches
+at 26.025 and 28.025 s. Every view has A/B scenes, licensed renders, image checks
+and a full-size pair; the root contact sheet contains eight previews. `frames/`
+retains reconstruction, normal controls and pre-render mask/layer checks.
+`crop_audit.png` identifies the visible artificial water-crop side using existing
+position/normal AOVs, without new rendering. [Findings and limits](rendering/studies/breaker-foam-view-study.md).
+
 The frozen optical comparison is `out/runs/breaker_optical_aovs_20261019_v3/`.
 It contains two 960 x 540 renders, their raw multi-channel EXRs, static scenes,
 full receipts including output-collection recovery, extracted channels and
@@ -74,6 +159,6 @@ hashes and independent reopening checks remain beside them. The earlier director
 without a suffix and `_v2` retain failed instrumentation runs.
 [Measurements and limitations](breaker-surface-diagnosis.md).
 
-The frozen 24.9 s render study is `out/runs/breaker_render_study_20261019/`: `A` through `E` contain the five 960 x 540 previews, `candidate_D` the 1920 x 1080 inspection candidate, and `comparison.png` the labeled contact sheet. Each arm keeps its saved scene, complete launch log, Arnold/Maya logs and hashed receipt. `verified_study.json` holds the independent scene audit. The source cache at `out/runs/wavesea4/cache/breaking_section` was not rewritten. [Settings, findings and reproduction](breaker-render-study.md).
+The frozen 24.9 s render study is `out/runs/breaker_render_study_20261019/`: `A` through `E` contain the five 960 x 540 previews, `candidate_D` the 1920 x 1080 inspection candidate, and `comparison.png` the labeled contact sheet. Each arm keeps its saved scene, complete launch log, Arnold/Maya logs and hashed receipt. `verified_study.json` holds the independent scene audit. The source cache at `out/runs/wavesea4/cache/breaking_section` was not rewritten. [Settings, findings and reproduction](rendering/studies/breaker-render-study.md).
 
 Each gate's and study's working folder stays at the `out\` root under its own name, as before: `out\loop3_<gate run>` for the loop gates (`resume_*`, `lsn_*`, `st3d`, ...), `out\step_in` and `out\step_out` and their kin for the node gates, `out\play_gate`, `out\p2g_gate`, `out\level_set_node`, `out\threading`, `out\adaptive_*`, `out\bore_suite`. The report lists them under "everything else" with a label each. `out\loop3_D_finale_c1` is the canonical profiling state, the mid-bore finale every speed receipt resumes from; it stays where CLAUDE.md names it. Ask before regenerating it.

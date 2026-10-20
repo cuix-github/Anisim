@@ -1,0 +1,475 @@
+{
+  "status": "passed",
+  "render_count": 6,
+  "uniform_fraction": 0.2,
+  "clustered_fraction": 0.8,
+  "simulation": false,
+  "mist": false,
+  "completed_utc": "2026-10-20T00:28:46.480827+00:00",
+  "shots": {
+    "pre_wide": {
+      "view": {
+        "time_s": 23.025,
+        "width_m": 56,
+        "rotation": [
+          -65,
+          90,
+          0
+        ],
+        "target_m": [
+          140,
+          12.5,
+          44
+        ]
+      },
+      "check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.316346001218048e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.09884684126669423,
+          "transmission": 0.8913983410644761,
+          "diffuse": 0.00515072515139706,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.004604093132841104,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.23763631687242798,
+        "render_call_s": 19.72793069999898,
+        "process_s": 29.817556699970737
+      },
+      "git_sha": "2577dfcc2d9f8287fdfd2943d19ca5db29bb22fa",
+      "scene_sha256": "9ed287853be9190b0334cd3251f1bc2cc074d0135dd1ce3f418856dceb3244ce",
+      "foam_ass_sha256": "cc1ce8f57740c369e13d3d0ada70b4baff4ebc4e3f33af784225fa0cc9df3429",
+      "display_png_sha256": "cb3f876c3cd54fe385924766d22287a0cd1e2d1503bf6ccbce0f5103e722d5c6",
+      "alignment_status": "passed"
+    },
+    "pre_detail": {
+      "view": {
+        "time_s": 23.025,
+        "width_m": 24,
+        "rotation": [
+          -18,
+          140,
+          0
+        ],
+        "target_m": [
+          129,
+          13,
+          58
+        ]
+      },
+      "check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.765605790565646e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.36535590957408415,
+          "transmission": 0.5170712449664319,
+          "diffuse": 0.10586526514638324,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.01170757866979651,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.23189750514403293,
+        "render_call_s": 47.664542499987874,
+        "process_s": 56.647835699957795
+      },
+      "git_sha": "2577dfcc2d9f8287fdfd2943d19ca5db29bb22fa",
+      "scene_sha256": "2090145346c223f46212dc90c381dda97d0e61db11d9701be033a5f1036fb8ea",
+      "foam_ass_sha256": "cc1ce8f57740c369e13d3d0ada70b4baff4ebc4e3f33af784225fa0cc9df3429",
+      "display_png_sha256": "7479e38783fbfb479ad6798875d6353b4d9c17aaa90814384279fb3a0b87b8c7",
+      "alignment_status": "passed"
+    },
+    "break_wide": {
+      "view": {
+        "time_s": 24.9,
+        "width_m": 56,
+        "rotation": [
+          -40,
+          90,
+          0
+        ],
+        "target_m": [
+          147,
+          13.5,
+          44
+        ]
+      },
+      "check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.219812502166437e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.15309869330020145,
+          "transmission": 0.5557749715486013,
+          "diffuse": 0.26376360152569817,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.027362734557156595,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.2631327160493827,
+        "render_call_s": 90.14123289997224,
+        "process_s": 99.45261540001957
+      },
+      "git_sha": "bfdee20d7c8b09d613d0c3d326b2f7cfe87256e3",
+      "scene_sha256": "cbffcec3c0cc1c9b2eebbcd980005a6eea04e4926d7bce08354383b2e870aacb",
+      "foam_ass_sha256": "c1d351f4e30a794c7d4d77ef992070589b9798337860d84ac77bda461d3d2de4",
+      "display_png_sha256": "2ce991e98ea238420255d3a38ffedb0d88e7cab9774d3d97e2091fcb678b0329",
+      "alignment_status": "passed"
+    },
+    "break_detail": {
+      "view": {
+        "time_s": 24.9,
+        "width_m": 22,
+        "rotation": [
+          -15,
+          140,
+          0
+        ],
+        "target_m": [
+          145.5,
+          13.5,
+          58
+        ]
+      },
+      "check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.609961683720369e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.40509939790391564,
+          "transmission": 0.4552808071886494,
+          "diffuse": 0.05017789071047065,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.08944190441740496,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.23979295267489711,
+        "render_call_s": 360.17891789996065,
+        "process_s": 369.38460170000326
+      },
+      "git_sha": "bfdee20d7c8b09d613d0c3d326b2f7cfe87256e3",
+      "scene_sha256": "5a613664713192707c0f0ce4e7c12f19543e6d5b447b5357e76942ccf7a5ea9a",
+      "foam_ass_sha256": "c1d351f4e30a794c7d4d77ef992070589b9798337860d84ac77bda461d3d2de4",
+      "display_png_sha256": "2611f9149b3a312ba9c80890d2016805b6fd05815b0bf83427ba509c95ae5a9e",
+      "alignment_status": "passed"
+    },
+    "shore_wide": {
+      "view": {
+        "time_s": 27.025,
+        "width_m": 56,
+        "rotation": [
+          -40,
+          90,
+          0
+        ],
+        "target_m": [
+          164,
+          13.5,
+          44
+        ]
+      },
+      "check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.193109945688028e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.11735486011700187,
+          "transmission": 0.4258110967236815,
+          "diffuse": 0.4029201027450286,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.05391394212053265,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.23206983024691358,
+        "render_call_s": 106.72394080000231,
+        "process_s": 115.25415699998848
+      },
+      "git_sha": "bfdee20d7c8b09d613d0c3d326b2f7cfe87256e3",
+      "scene_sha256": "56de86e9180deeb33b486e8e4b6a958ff22988c240b023eaf93b0fe712c8d92f",
+      "foam_ass_sha256": "08a8fba26cb98d07eed7c6d5e8b24dbb9a7c7b9f239a35b08bcf80c385bb5a28",
+      "display_png_sha256": "0b9217cf1f4f530bd533f6a3d9174f1bac7545eec5913771f83eeddfdaf30ab0",
+      "alignment_status": "passed"
+    },
+    "shore_detail": {
+      "view": {
+        "time_s": 27.025,
+        "width_m": 24,
+        "rotation": [
+          -30,
+          90,
+          0
+        ],
+        "target_m": [
+          157,
+          12.75,
+          65
+        ]
+      },
+      "check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.347971711876516e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.17218358469707412,
+          "transmission": 0.4772109328947588,
+          "diffuse": 0.24906724609026334,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.10153823805539644,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.2393775720164609,
+        "render_call_s": 240.15483800001675,
+        "process_s": 248.86165289999917
+      },
+      "git_sha": "bfdee20d7c8b09d613d0c3d326b2f7cfe87256e3",
+      "scene_sha256": "e7910d123288a9f1442beb7386279b5b62b07e26f44f0f00c59f8e6106b98e12",
+      "foam_ass_sha256": "08a8fba26cb98d07eed7c6d5e8b24dbb9a7c7b9f239a35b08bcf80c385bb5a28",
+      "display_png_sha256": "8725cdd8645d223565b2d1079ad09633099875a27c68c038733604c79ec5068c",
+      "alignment_status": "passed"
+    }
+  },
+  "frames": {
+    "pre": {
+      "time_s": 23.025,
+      "source_frame": 1,
+      "source_hashes": {
+        "liquid": "4ed3a27159c9096fa0de222a46b16ddb4fa25aec09c9212e6a52a59a1df6862a",
+        "radius": "878393d9597a94c47a13293edd24d76935bdd7227e0e7e5a12963d62dd406f71"
+      },
+      "particles": 2696236,
+      "vertices": 419338,
+      "triangles": 838476,
+      "mesh_sha256": "90d1077570aade44370acff9727fbf764ba351281fef6b214282c530ed65d33b",
+      "crop_x_min_m": 120,
+      "crop_z_m": [
+        10,
+        78
+      ],
+      "process_s": 20.02286860003369,
+      "minimum_free_gib": 37.86387634277344,
+      "source_cache": "out/runs/wavesea4/cache/overview",
+      "camera_probe": {
+        "wide": {
+          "rays": 32400,
+          "water_hits": 32297,
+          "visible_cut_hits": 0,
+          "fraction": 0.0
+        },
+        "detail": {
+          "rays": 32400,
+          "water_hits": 27036,
+          "visible_cut_hits": 81,
+          "fraction": 0.002996005326231691
+        }
+      },
+      "foam_layer_sha256": "718bb7992a1a51627e100573cd8829be24e5bd3d2524e0ffbbc8ae4d7b839976",
+      "sphere_diameter_m": 0.045,
+      "outward_extent_m": 0.03,
+      "inward_extent_m": 0.015,
+      "C_export": {
+        "status": "passed",
+        "meters_per_unit": 0.01,
+        "points": 59622,
+        "logical_points": 59622,
+        "groups": 64,
+        "density_representation": "64 constant-density bins; zero-density points omitted",
+        "density_quantization_relative_l1": 0.03819574829016885,
+        "budget_relative_error": 7.351531662595617e-09,
+        "integrated_extinction_m2": 3.93087932529208,
+        "point_radius_m": 0.0225,
+        "step_m": 0.005,
+        "density_range_per_m": [
+          4.457530458511451e-08,
+          13.545720415628747
+        ],
+        "ass_sha256": "cc1ce8f57740c369e13d3d0ada70b4baff4ebc4e3f33af784225fa0cc9df3429"
+      }
+    },
+    "break": {
+      "time_s": 24.9,
+      "source_frame": 1,
+      "source_hashes": {
+        "liquid": "3afaa053e3124a97b285dd10be456f4c8a6dc8100a06908a7587d2d57b11c32e",
+        "radius": "8ce4827171a203312cf59f05c2fb4f9c8b85796f4ef513a2bd3612286812f436"
+      },
+      "particles": 4391381,
+      "vertices": 594229,
+      "triangles": 1188078,
+      "mesh_sha256": "87e9c6d5c95a095a578fd046601dc9d8eb900b95fdfd38b43a97dfb08e1a7568",
+      "crop_x_min_m": 110,
+      "crop_z_m": [
+        10,
+        78
+      ],
+      "process_s": 26.06314199999906,
+      "minimum_free_gib": 36.86028289794922,
+      "source_cache": "out/runs/wavesea4/cache/breaking_overview",
+      "camera_probe": {
+        "wide": {
+          "rays": 32400,
+          "water_hits": 24814,
+          "visible_cut_hits": 0,
+          "fraction": 0.0
+        },
+        "detail": {
+          "rays": 32400,
+          "water_hits": 29879,
+          "visible_cut_hits": 48,
+          "fraction": 0.00160647946718431
+        }
+      },
+      "foam_layer_sha256": "39ab93895a9ead8da4ea2b514ccaa0e58fbfece9aa10d46cf15354d57b774cbf",
+      "sphere_diameter_m": 0.045,
+      "outward_extent_m": 0.03,
+      "inward_extent_m": 0.015,
+      "C_export": {
+        "status": "passed",
+        "meters_per_unit": 0.01,
+        "points": 984932,
+        "logical_points": 986201,
+        "groups": 64,
+        "density_representation": "64 constant-density bins; zero-density points omitted",
+        "density_quantization_relative_l1": 0.04540420202913184,
+        "budget_relative_error": 3.984464628396728e-09,
+        "integrated_extinction_m2": 43.75310147450809,
+        "point_radius_m": 0.0225,
+        "step_m": 0.005,
+        "density_range_per_m": [
+          0.0,
+          12.485567337011485
+        ],
+        "ass_sha256": "c1d351f4e30a794c7d4d77ef992070589b9798337860d84ac77bda461d3d2de4"
+      }
+    },
+    "shore": {
+      "time_s": 27.025,
+      "source_frame": 5,
+      "source_hashes": {
+        "liquid": "f16f81d8cf974f0870afe316bf7cac4af8761d1cc180dbb6af484d221ffb841f",
+        "radius": "2fe07ec10181c73a4a3615d90aea77a5fb750f5fa95df1793530c787af192d58"
+      },
+      "particles": 1729268,
+      "vertices": 346784,
+      "triangles": 691984,
+      "mesh_sha256": "835689b8acda9e6f39656a583afee8524451d8d77fe4f5d9eb99042b84659369",
+      "crop_x_min_m": 132,
+      "crop_z_m": [
+        10,
+        78
+      ],
+      "process_s": 20.05123809998622,
+      "minimum_free_gib": 37.18099594116211,
+      "source_cache": "out/runs/wavesea4/cache/overview",
+      "camera_probe": {
+        "wide": {
+          "rays": 32400,
+          "water_hits": 15921,
+          "visible_cut_hits": 0,
+          "fraction": 0.0
+        },
+        "detail": {
+          "rays": 32400,
+          "water_hits": 23621,
+          "visible_cut_hits": 0,
+          "fraction": 0.0
+        }
+      },
+      "foam_layer_sha256": "41d4cb191bfd7da0a07e996878126d774e719dc8fcd82bdb01f4d939650cdee3",
+      "sphere_diameter_m": 0.045,
+      "outward_extent_m": 0.03,
+      "inward_extent_m": 0.015,
+      "C_export": {
+        "status": "passed",
+        "meters_per_unit": 0.01,
+        "points": 927329,
+        "logical_points": 929305,
+        "groups": 64,
+        "density_representation": "64 constant-density bins; zero-density points omitted",
+        "density_quantization_relative_l1": 0.02908162267331195,
+        "budget_relative_error": 8.021196817744428e-10,
+        "integrated_extinction_m2": 71.13939570648802,
+        "point_radius_m": 0.0225,
+        "step_m": 0.005,
+        "density_range_per_m": [
+          0.0,
+          12.832257729419414
+        ],
+        "ass_sha256": "08a8fba26cb98d07eed7c6d5e8b24dbb9a7c7b9f239a35b08bcf80c385bb5a28"
+      },
+      "collapsed_component": {
+        "vertices": [
+          112261,
+          112461,
+          113114,
+          113116,
+          113117,
+          113120
+        ],
+        "faces": 8,
+        "diameter_m": 4.2649612623790745e-06,
+        "reason": "Zero-area disconnected component has undefined normals; original arrays retained."
+      }
+    }
+  },
+  "bounded_control": {
+    "position_max_error_cells": 0.0,
+    "exact_faces": true,
+    "geometry_preserved": true,
+    "process_s": 12.016728800022975,
+    "minimum_free_gib": 39.83121871948242,
+    "unbounded_control_process_s": 80.34292239998467,
+    "unbounded_control_minimum_free_gib": 20.023956298828125
+  },
+  "failed_reconstruction_attempts": [
+    {
+      "path": "frames/pre_bounded_attempt_02/mesh_receipt.json",
+      "elapsed_s": 24.060863899998367,
+      "reason": "Owned process stopped at RAM/time guard"
+    },
+    {
+      "path": "frames/pre_full_attempt_01/mesh_receipt.json",
+      "elapsed_s": 28.060034300026018,
+      "reason": "Owned process stopped at RAM/time guard"
+    },
+    {
+      "path": "frames/pre/tiles/1_failed_40m/receipt.json",
+      "elapsed_s": 24.044128900044598,
+      "reason": "RAM/time guard"
+    },
+    {
+      "path": "frames/pre/tiles/2/receipt.json",
+      "elapsed_s": 172.17226999998093,
+      "reason": "RAM/time guard"
+    },
+    {
+      "path": "frames/pre/tiles/2_failed_28m/receipt.json",
+      "elapsed_s": 166.68029119999846,
+      "reason": "RAM/time guard"
+    }
+  ],
+  "total_render_call_s": 864.5914027999388,
+  "total_process_s": 919.418419399939,
+  "max_aov_closure": 8.765605790565646e-08,
+  "max_display_mean_abs_levels": 0.2631327160493827,
+  "all_source_hashes_unchanged": true,
+  "limitations": [
+    "Static curvature/height foam mask has no transported history.",
+    "No physical bubble model or paper-fidelity claim for procedural density.",
+    "The first overhead view flattens the wave; shore wide shows the finite beach end.",
+    "Primary-ray crop checks do not establish refracted-ray coverage."
+  ]
+}

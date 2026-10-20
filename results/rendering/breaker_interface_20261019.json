@@ -1,0 +1,225 @@
+{
+  "status": "replacement_validated_look_unaccepted",
+  "simulation_rerun": false,
+  "render_count": 3,
+  "mask": {
+    "status": "numeric_checks_passed_visual_review_pending",
+    "gates": {
+      "unit_sphere_area_mean_H": 1.0000121984799633,
+      "unit_sphere_median_H": 0.9980734031650157,
+      "plane_max_abs_H": 0.0,
+      "status": "passed"
+    },
+    "mesh_sha256": "619d71d297c5259de3fda029bf2e202ef8a2673e8b3c692e38ed5f0a62ce22c1",
+    "git_sha": "d40ab8c507f4e5a051cc9d269c3808921389c646",
+    "total_area_m2": 1962.6838733585564,
+    "selected_area_m2": 39.78369296753098,
+    "strong_area_m2": 19.404489205355695,
+    "weighted_area_fraction": 0.010789130986030075,
+    "selected_area_fraction": 0.020270046290976493,
+    "calm_max_weight": 0.0,
+    "cut_max_weight": 0.0,
+    "selected_triangles": 9523,
+    "filter": {
+      "iterations": 4,
+      "edge_gaussian_sigma_m": 0.125,
+      "blend": 0.5
+    },
+    "curvature_ramp_per_m": [
+      2,
+      4
+    ],
+    "cut_exclusion_m": [
+      0.6,
+      1.0
+    ],
+    "height_gate_m": [
+      12.25,
+      13.0
+    ],
+    "H_percentiles": [
+      -109.20062903314307,
+      -2.129442309618538,
+      -0.09696788694277678,
+      0.03557702587019711,
+      0.22633232691942218,
+      7.482948701484967,
+      1239.0081202174215
+    ],
+    "wall_s": 3.9401856000185944
+  },
+  "A": {
+    "status": "passed",
+    "aov_closure_relative_l1": 8.888858203931915e-08,
+    "component_raw_rgb_share": {
+      "specular": 0.20242249871420182,
+      "transmission": 0.4564214510660213,
+      "diffuse": 0.3411560494848729,
+      "sss": 0.0,
+      "coat": 0.0,
+      "sheen": 0.0,
+      "emission": 0.0,
+      "volume": 0.0,
+      "background": 0.0
+    },
+    "display_mean_abs_levels": 0.10424125514403292,
+    "render_call_s": 12.490908199979458,
+    "process_s": 23.357993199955672,
+    "renderer_license": "valid"
+  },
+  "B_failed_effect": {
+    "status": "failed",
+    "aov_closure_relative_l1": 8.888858203931915e-08,
+    "component_raw_rgb_share": {
+      "specular": 0.20242249871420182,
+      "transmission": 0.4564214510660213,
+      "diffuse": 0.3411560494848729,
+      "sss": 0.0,
+      "coat": 0.0,
+      "sheen": 0.0,
+      "emission": 0.0,
+      "volume": 0.0,
+      "background": 0.0
+    },
+    "display_mean_abs_levels": 0.10424125514403292,
+    "render_call_s": 12.791074900014792,
+    "process_s": 21.495272500033025,
+    "renderer_license": "valid",
+    "error": "SSS mask did not reach rendered shading"
+  },
+  "volume_roundtrip_validated": false,
+  "repaired_scene_export_validated": true,
+  "accepted_look": false,
+  "first_pair_raw_beauty_A_B_exact": true,
+  "mask_review": {
+    "status": "passed",
+    "reviewer": "assistant",
+    "reviewed_utc": "2026-10-19T18:17:47Z",
+    "image_sha256": "c999f966a90cea6f081e2df3e9be95f4d8a111cbc386eab15dfecc5da3f1bd6a",
+    "observations": [
+      "Side and top plots inspected: selection follows the broken lip; broad body remains dark.",
+      "All four crop-plane edge bands remain dark.",
+      "2.03 percent of the full closed mesh area exceeds weight 0.05; numerical calm and cut-region maxima are zero."
+    ],
+    "scope": "Permission to proceed comes from the user; this records technical mask review only."
+  },
+  "replacement_B": {
+    "status": "passed",
+    "aov_closure_relative_l1": 8.997838331718575e-08,
+    "component_raw_rgb_share": {
+      "specular": 0.16785000127351118,
+      "transmission": 0.35953228805040355,
+      "diffuse": 0.2838031992595313,
+      "sss": 0.18881451212543598,
+      "coat": 0.0,
+      "sheen": 0.0,
+      "emission": 0.0,
+      "volume": 0.0,
+      "background": 0.0
+    },
+    "display_mean_abs_levels": 0.10367412551440329,
+    "render_call_s": 14.238836099975742,
+    "process_s": 23.556408699951135,
+    "renderer_license": "valid"
+  },
+  "replacement_B_receipt": {
+    "status": "passed",
+    "mode": "B",
+    "git_sha": "70f2151b77534c13e3cd639c467e185c600766ba",
+    "cache_sha256": {
+      "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+      "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+      "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+      "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+      "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+    },
+    "source_sha256": "d1ddd4682c46f04e76aae5586d2cf74215617e0d4012318393e26404e81e6100",
+    "mask_sha256": "df83be54f1ba6e73f4ba0426fbb991a68fce5f476e72f4640736fc770ee47cf5",
+    "started_utc": "2026-10-19T18:58:51Z",
+    "control_path": "C:\\Users\\5d149\\source\\Anisim\\out\\runs\\breaker_interface_sss_20261019_v3\\A",
+    "control_receipt_sha256": "ff04898924528d097fc837cb82ed9bda124050d7d38ea0ae811cf7e961e4f17d",
+    "exit_code": 0,
+    "worker": {
+      "status": "passed",
+      "render_call_s": 14.238836099975742,
+      "exr": "optics.0001.exr",
+      "worker_s": 16.471852399990894
+    },
+    "png_sha256": "35f13f8501d7563c9ad144704184f4f43578d375dd96663a7a2794d689378797",
+    "exr_sha256": "b049a93e01d6165d5f05e0172197a3562cb0d73a83eaedaeb803fdbaa1757b67",
+    "process_s": 23.556408699951135
+  },
+  "replacement_comparison": {
+    "status": "passed",
+    "simulation_rerun": false,
+    "mesh_rebuilt": false,
+    "mist": false,
+    "comparison_images": 2,
+    "control_path": "out\\runs\\breaker_interface_sss_20261019_v3\\A",
+    "control_reused": true,
+    "changed_nodes": [
+      "interfaceEnable"
+    ],
+    "geometry_exact_between_arms": true,
+    "prior_geometry_matching_fields": [
+      "vertices",
+      "triangles",
+      "bounds"
+    ],
+    "N_exact": false,
+    "P_exact": true,
+    "N_max_abs_difference": 1.1920928955078125e-07,
+    "arms": {
+      "A": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.888858203931915e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.20242249871420182,
+          "transmission": 0.4564214510660213,
+          "diffuse": 0.3411560494848729,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.0,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.10424125514403292,
+        "render_call_s": 12.490908199979458,
+        "process_s": 23.357993199955672,
+        "renderer_license": "valid"
+      },
+      "B": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.997838331718575e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.16785000127351118,
+          "transmission": 0.35953228805040355,
+          "diffuse": 0.2838031992595313,
+          "sss": 0.18881451212543598,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.0,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.10367412551440329,
+        "render_call_s": 14.238836099975742,
+        "process_s": 23.556408699951135,
+        "renderer_license": "valid"
+      }
+    },
+    "approximation": "curvature-gated randomwalk SSS, radius scale 5 cm; no separate VDB band",
+    "mask_sha256": "df83be54f1ba6e73f4ba0426fbb991a68fce5f476e72f4640736fc770ee47cf5"
+  },
+  "visual_review": {
+    "status": "completed",
+    "reviewed_by": "assistant",
+    "completed_by_utc": "2026-10-19T19:00:58Z",
+    "observations": [
+      "Broken lip and curled fragments whiten; broad water body remains glassy.",
+      "White areas still read as thick smooth patches, not fine foam.",
+      "No accepted ocean preset; no conclusion that solver resolution is the limiting factor."
+    ]
+  }
+}

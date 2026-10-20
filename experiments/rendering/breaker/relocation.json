@@ -1,0 +1,172 @@
+{
+  "before_commit": "c9a4d36798261b8004dee84e1af09fa4df7a4d8c",
+  "scripts": [
+    {
+      "old": "experiments/analyze_breaker_deep_water.py",
+      "new": "experiments/rendering/breaker/analyze_breaker_deep_water.py",
+      "sha256": "a1fd26cac4c7d1b852ed0ad191f6a17d1c313b04cf827d898309ed2c8e905ea4"
+    },
+    {
+      "old": "experiments/analyze_breaker_interface.py",
+      "new": "experiments/rendering/breaker/analyze_breaker_interface.py",
+      "sha256": "0ce2b75760a32c64eb7836d0a971bfece139a3882504f4362bcf7c9b0fc2a959"
+    },
+    {
+      "old": "experiments/analyze_breaker_neutral_mist.py",
+      "new": "experiments/rendering/breaker/analyze_breaker_neutral_mist.py",
+      "sha256": "531e97df769245eabcd15a07578aef7aefcd0a0ee1d5a8adaba7be2b608e8f78"
+    },
+    {
+      "old": "experiments/breaker_bounded_mesh.py",
+      "new": "experiments/rendering/breaker/breaker_bounded_mesh.py",
+      "sha256": "974ab1032babc95bedd82ec9e3a7aad8928e2e8af77c6f9f94d077755a467ef1"
+    },
+    {
+      "old": "experiments/breaker_camera_probe.py",
+      "new": "experiments/rendering/breaker/breaker_camera_probe.py",
+      "sha256": "daee5ab9319bbfbbd6c1aa23b9d50058748b5e0b889b4eaf014641a131605131"
+    },
+    {
+      "old": "experiments/breaker_corner_audit.py",
+      "new": "experiments/rendering/breaker/breaker_corner_audit.py",
+      "sha256": "b00cff1094f865338c324dc34bfddb88d6ae90c043ba500a38896f6a7176f5bf"
+    },
+    {
+      "old": "experiments/breaker_corner_detail.py",
+      "new": "experiments/rendering/breaker/breaker_corner_detail.py",
+      "sha256": "fdc14c2df9fa1afd6d5dd50acedbad6137b5d8552b84fa0bcaa8124e97220a93"
+    },
+    {
+      "old": "experiments/breaker_crop_audit.py",
+      "new": "experiments/rendering/breaker/breaker_crop_audit.py",
+      "sha256": "aed57fea403717e478d153a9a1f0f0e4a3c49a9e6b3606ea740cc78a3955c46a"
+    },
+    {
+      "old": "experiments/breaker_deep_water.py",
+      "new": "experiments/rendering/breaker/breaker_deep_water.py",
+      "sha256": "4c272e2947238e63ee2e21e6dd7a29a5cb77b1135fb6cebdc2ec850f747da3c7"
+    },
+    {
+      "old": "experiments/breaker_foam_frames.py",
+      "new": "experiments/rendering/breaker/breaker_foam_frames.py",
+      "sha256": "01e94e681b34a2a6f34967d5f6f183c3b6e5dd0a4049d071b2c6d8cb4b19772b"
+    },
+    {
+      "old": "experiments/breaker_foam_layer.py",
+      "new": "experiments/rendering/breaker/breaker_foam_layer.py",
+      "sha256": "73bc51f08bbdee8b95c0dc40e60dda305b9ee1652dc71891b4443457a5fdfe5c"
+    },
+    {
+      "old": "experiments/breaker_foam_mix.py",
+      "new": "experiments/rendering/breaker/breaker_foam_mix.py",
+      "sha256": "2ec1328c31663a0abf371149c9b5b85c23269deb1a4e9ee9e89e5fe0d429f71a"
+    },
+    {
+      "old": "experiments/breaker_foam_mix60.py",
+      "new": "experiments/rendering/breaker/breaker_foam_mix60.py",
+      "sha256": "f98b7b88b8a6002b0a71de50b129e9ce9123fc257eb0738ccaa879f26213a991"
+    },
+    {
+      "old": "experiments/breaker_foam_render.py",
+      "new": "experiments/rendering/breaker/breaker_foam_render.py",
+      "sha256": "674e317e05834dcf52107981e21b20ed4f5eea8fad2f6f30a015c6afbaf33255"
+    },
+    {
+      "old": "experiments/breaker_foam_views.py",
+      "new": "experiments/rendering/breaker/breaker_foam_views.py",
+      "sha256": "ed9c687cd4900db91c6d48f2f9956698bd0e7dce6f6afeef05a241f2433fcb48"
+    },
+    {
+      "old": "experiments/breaker_interface_mask.py",
+      "new": "experiments/rendering/breaker/breaker_interface_mask.py",
+      "sha256": "687187a03b8d73b89a118f1bb118959c92b20daaa35ba8cd4189c03604005160"
+    },
+    {
+      "old": "experiments/breaker_interface_render.py",
+      "new": "experiments/rendering/breaker/breaker_interface_render.py",
+      "sha256": "a8f7776a887584d11bd1f9db4f7236846a7831b0637d17d73dfba205907e8f5c"
+    },
+    {
+      "old": "experiments/breaker_interface_volume.py",
+      "new": "experiments/rendering/breaker/breaker_interface_volume.py",
+      "sha256": "7d9b1070ed7a2851fc55852960f5f30ebf3d8922d74b7b827492c95dba931f6b"
+    },
+    {
+      "old": "experiments/breaker_neutral_mist.py",
+      "new": "experiments/rendering/breaker/breaker_neutral_mist.py",
+      "sha256": "66d4d50180b3b13e8fdcdbfa353143e4957a1c70ab8c21936bdd61b63dcf3724"
+    },
+    {
+      "old": "experiments/breaker_render_study.py",
+      "new": "experiments/rendering/breaker/breaker_render_study.py",
+      "sha256": "fc501318863287823e3270d5146c9e74d47843a3b29129d16a911d1d4b898b92"
+    },
+    {
+      "old": "experiments/breaker_six_views.py",
+      "new": "experiments/rendering/breaker/breaker_six_views.py",
+      "sha256": "7a247b00d6cf84278fdfc58dc5be9209ea6ea0f9a25303c3c556718bb98102b8"
+    },
+    {
+      "old": "experiments/breaker_surface_correspondence.py",
+      "new": "experiments/rendering/breaker/breaker_surface_correspondence.py",
+      "sha256": "45b74cd84e80c5b27613e66b0cbbe468f0d4f2297b01c1af9c00b9317aca2479"
+    },
+    {
+      "old": "experiments/breaker_tile_bounds.py",
+      "new": "experiments/rendering/breaker/breaker_tile_bounds.py",
+      "sha256": "70c9155994f21a28fd58d309dcc2ca168ddf5344fb1bb0819d64ea9ed03be016"
+    },
+    {
+      "old": "experiments/breaker_tiled_mesh.py",
+      "new": "experiments/rendering/breaker/breaker_tiled_mesh.py",
+      "sha256": "26ef0f5e28682d4e7f64107292b5091e018e4d607c2734522fe89b93602695a4"
+    },
+    {
+      "old": "experiments/verify_breaker_render_study.py",
+      "new": "experiments/rendering/breaker/verify_breaker_render_study.py",
+      "sha256": "d3cb9366c2447b3e1c7b58381adaa9f0865b7b3c1bab896ff5e5053e29a1d1b2"
+    }
+  ],
+  "documents": [
+    {
+      "old": "docs/breaker-deep-water-study.md",
+      "new": "docs/rendering/studies/breaker-deep-water-study.md",
+      "sha256": "ebf177de8b77eb90043e068f70728df49b956a8920c90842d6f74e1cdb772fb6"
+    },
+    {
+      "old": "docs/breaker-foam-layer-study.md",
+      "new": "docs/rendering/studies/breaker-foam-layer-study.md",
+      "sha256": "bb8ca3d28257e9a0f159eaf68ef487d5d56ae8e66716171e935e6c5696564f84"
+    },
+    {
+      "old": "docs/breaker-foam-view-study.md",
+      "new": "docs/rendering/studies/breaker-foam-view-study.md",
+      "sha256": "f72b55c43edfe6dcdbbda96bf6a9e5e283891b498ae1afd12458e2a184fe5d1f"
+    },
+    {
+      "old": "docs/breaker-interface-study.md",
+      "new": "docs/rendering/studies/breaker-interface-study.md",
+      "sha256": "6e5959592374f55a3f2e0c180fc89df580278567bd7a439c936688ac36e872f4"
+    },
+    {
+      "old": "docs/breaker-neutral-mist-study.md",
+      "new": "docs/rendering/studies/breaker-neutral-mist-study.md",
+      "sha256": "ff5796bf107fe86361bdbd09b310072471cae212b6dda890897229aaf894bcce"
+    },
+    {
+      "old": "docs/breaker-render-study.md",
+      "new": "docs/rendering/studies/breaker-render-study.md",
+      "sha256": "b3a0c057cd6bb0f861b3078b25061168d56d219d4ba9d58a5631780c02db6726"
+    },
+    {
+      "old": "docs/breaker-six-view-study.md",
+      "new": "docs/rendering/studies/breaker-six-view-study.md",
+      "sha256": "178d6a05e883a0a4aa2fa76dc78cd400fe8e225d6ee3fc463561136aa22eb528"
+    },
+    {
+      "old": "docs/breaker-surface-correspondence.md",
+      "new": "docs/rendering/studies/breaker-surface-correspondence.md",
+      "sha256": "1ee868762a20f34a50648da554cdab02aec4f5a295f2a7a1793337c1605fe92e"
+    }
+  ]
+}

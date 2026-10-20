@@ -1,0 +1,133 @@
+{
+  "status": "passed",
+  "render_count": 2,
+  "simulation_rerun": false,
+  "reconstruction_rerun": false,
+  "arms": {
+    "original": {
+      "render_call_s": 78.2029214000213,
+      "process_s": 89.57284969999455,
+      "aov_closure_relative_l1": 9.08953093101462e-08,
+      "png_matches_ocio_view": {
+        "mean_abs_levels": 0.17876993312757203,
+        "fraction_over_8": 0.0,
+        "max_abs_levels": 1.0
+      },
+      "component_raw_rgb_share": {
+        "specular": 0.38554465770721436,
+        "transmission": 0.5670889019966125,
+        "diffuse": 0.04736645519733429,
+        "sss": 0.0,
+        "coat": 0.0,
+        "sheen": 0.0,
+        "emission": 0.0,
+        "volume": 0.0,
+        "background": 0.0
+      },
+      "prior_N_exact": false,
+      "prior_P_exact": true,
+      "prior_N_max_abs_difference": 1.7881393432617188e-07,
+      "prior_N_mean_abs_difference": 8.448776789293788e-09,
+      "mean_linear_specular_rgb": [
+        0.014254500158131123,
+        0.014317578636109829,
+        0.01402275636792183
+      ],
+      "mean_linear_transmission_rgb": [
+        0.005127617623656988,
+        0.010080135427415371,
+        0.04743894934654236
+      ],
+      "baseline_mean_linear_specular_rgb": [
+        0.02444959618151188,
+        0.028402263298630714,
+        0.035682011395692825
+      ],
+      "baseline_mean_linear_transmission_rgb": [
+        0.03481141850352287,
+        0.04914679005742073,
+        0.05555346608161926
+      ]
+    },
+    "side": {
+      "render_call_s": 17.595419400022365,
+      "process_s": 27.35386249999283,
+      "aov_closure_relative_l1": 9.326715290279612e-08,
+      "png_matches_ocio_view": {
+        "mean_abs_levels": 0.14368505658436215,
+        "fraction_over_8": 0.0,
+        "max_abs_levels": 1.0
+      },
+      "component_raw_rgb_share": {
+        "specular": 0.0722488984465599,
+        "transmission": 0.7341618537902832,
+        "diffuse": 0.19358916580677032,
+        "sss": 0.0,
+        "coat": 0.0,
+        "sheen": 0.0,
+        "emission": 0.0,
+        "volume": 0.0,
+        "background": 0.0
+      }
+    }
+  },
+  "between_images_changed_nodes": [
+    "persp",
+    "perspShape"
+  ],
+  "geometry": {
+    "vertices": 146326,
+    "triangles": 292516,
+    "bounds": [
+      479.7057189941406,
+      33.332767486572266,
+      239.67364501953125,
+      637.517333984375,
+      66.8351058959961,
+      312.3418884277344
+    ],
+    "points_normals_topology_sha256": [
+      "8d0919d8c5f98b3182d080b34287b2126dcdb3cadd6378065a55a1df471d1694",
+      "1a28544fb36fdf00cb73c0003bbe0a3c6251d2b7742c092fe8c7235cd399c17f",
+      "bdf4008e31646147a526e84aae610fba71fd4afd451c7466308d7e355ece935a",
+      "1e893abb9abbb2922b3cfcbcb0d9f8ca14e50a5091ee3587a1c66a69f80d2902"
+    ]
+  },
+  "material": {
+    "base": 0.0,
+    "metalness": 0.0,
+    "specular": 1.0,
+    "specularIOR": 1.3329999446868896,
+    "specularRoughness": 0.11999999731779099,
+    "transmission": 1.0,
+    "transmissionDepth": 10.0,
+    "transmissionColor": [
+      [
+        0.7440000176429749,
+        0.9400832056999207,
+        1.0
+      ]
+    ],
+    "transmissionScatter": [
+      [
+        0.06750000268220901,
+        0.13404014706611633,
+        0.5
+      ]
+    ],
+    "transmissionScatterAnisotropy": 0.75,
+    "transmissionExtraRoughness": 0.0,
+    "thinWalled": false
+  },
+  "sky": {
+    "elevation": 30.0,
+    "azimuth": 160.0,
+    "turbidity": 6.0,
+    "sunSize": 5.0,
+    "intensity": 1.0,
+    "enableSun": true,
+    "enableSky": true
+  },
+  "side_view_dot_dominant_wave": 2.7755575615628914e-17,
+  "render_source_sha": "f571d24aed7aba965415467d9c7160434dd84c66"
+}

@@ -1,0 +1,476 @@
+{
+  "status": "unit_aligned_pair_valid_look_not_accepted",
+  "simulation_rerun": false,
+  "render_calls_completed": 4,
+  "valid_foam_previews": 2,
+  "layer": {
+    "status": "numeric_passed_visual_review_pending",
+    "git_sha": "28f3b5cf23dfa2a73ded5e47fb13eee78e158b53",
+    "mask_sha256": "df83be54f1ba6e73f4ba0426fbb991a68fce5f476e72f4640736fc770ee47cf5",
+    "layer_sha256": "4babfbdeb3bc11ff38eb53cdb49b2695c0d919c5a317bc652d0d06dca3bc63ce",
+    "points": 324601,
+    "sphere_diameter_m": 0.045,
+    "center_offset_m": 0.0075,
+    "distance_to_source_surface_upper_bound_m": 0.03,
+    "nominal_inward_extent_m": 0.015,
+    "nominal_outward_extent_m": 0.03,
+    "crop_edge_min_m": 0.5857113948707644,
+    "normal_optical_depth_parameter": 0.8,
+    "integrated_extinction_m2": [
+      16.818932871386068,
+      16.81893287138607
+    ],
+    "clustering_length_m": [
+      0.24,
+      0.065
+    ],
+    "zero_weight_fraction_B": 0.6230017775669207,
+    "factor_percentiles": [
+      0.0,
+      0.0,
+      0.0,
+      1.371710183299902,
+      4.465113287241027,
+      4.465113287241027
+    ],
+    "exports": {
+      "A": {
+        "status": "passed",
+        "points": 322649,
+        "logical_points": 324601,
+        "groups": 64,
+        "density_representation": "64 constant-density bins; zero-density points omitted",
+        "density_quantization_relative_l1": 0.011660005636048257,
+        "budget_relative_error": 1.223722395265973e-09,
+        "integrated_extinction_m2": 16.818932891967776,
+        "point_radius_m": 0.0225,
+        "step_m": 0.005,
+        "density_range_per_m": [
+          0.0,
+          3.2861217462235413
+        ],
+        "ass_sha256": "08e3b0a030bf3aef4503d88f8aa199f2881bcc4d50e993a60dcb39a46abc3633"
+      },
+      "B": {
+        "status": "passed",
+        "points": 121636,
+        "logical_points": 324601,
+        "groups": 64,
+        "density_representation": "64 constant-density bins; zero-density points omitted",
+        "density_quantization_relative_l1": 0.018761252458436694,
+        "budget_relative_error": 2.7499711740984762e-09,
+        "integrated_extinction_m2": 16.818932825134496,
+        "point_radius_m": 0.0225,
+        "step_m": 0.005,
+        "density_range_per_m": [
+          0.0,
+          14.672811850413424
+        ],
+        "ass_sha256": "ff6251702b2ae9f1c36339245f9aa5d57a973d2d30a6b8f5c9206b9a9b53117c"
+      }
+    },
+    "simulation": false,
+    "physical_bubble_model": false,
+    "wall_s": 7.965660999994725
+  },
+  "review": {
+    "status": "passed",
+    "reviewer": "assistant",
+    "reviewed_utc": "2026-10-19T19:31:55Z",
+    "observations": [
+      "Side and top support plots reviewed; broad calm body and crop boundaries remain unselected.",
+      "Point-level view shows continuous support in A and porous clusters in B; no claim that the triangle-average plot resolves the fine field.",
+      "Geometry bound: every point sphere stays within 3 cm of its source water surface; nearest crop edge is at least 0.5857 m.",
+      "Both arms have the same points, radii and integrated extinction; only density distribution changes.",
+      "Native Arnold readback preserves positions/radii exactly and explicit density-group values; density quantization L1 errors are 1.17% / 1.88%, summed primitive-extinction budget errors below 3e-9.",
+      "Support is identical to the already reviewed v3 layer (same layer.npz hash). Scalar shader density replaces the ineffective per-point data lookup; rendered effect remains to be checked."
+    ],
+    "render_authorization": "User explicitly approved uniform and clustered close side comparisons, 24.9 s cache, corrected baseline, mist off, no simulation."
+  },
+  "failed_A": {
+    "status": "failed",
+    "reason": "Volume AOV is exactly zero; mean absolute raw beauty difference vs baseline is 5.88e-7. Export/readback checks did not validate live shading.",
+    "render_call_s": 12.507278200006112
+  },
+  "geometry_fragment": {
+    "raw": {
+      "component": 182421,
+      "vertices": 6,
+      "triangles": 8,
+      "pixel_center": [
+        462.9976921256636,
+        193.7408243815104
+      ],
+      "bounds_m": [
+        [
+          144.45851135253906,
+          14.63204574584961,
+          75.58274841308594
+        ],
+        [
+          144.68190002441406,
+          14.767251968383789,
+          75.72484588623047
+        ]
+      ],
+      "extent_m": [
+        0.223388671875,
+        0.1352062225341797,
+        0.14209747314453125
+      ],
+      "nearby_particles_in_padded_AABB": 2
+    },
+    "control": {
+      "component": 142790,
+      "vertices": 6,
+      "triangles": 8,
+      "pixel_center": [
+        463.03467159981847,
+        193.96595255533853
+      ],
+      "bounds_m": [
+        [
+          144.48179626464844,
+          14.632614135742188,
+          75.60437774658203
+        ],
+        [
+          144.6524658203125,
+          14.745379447937012,
+          75.71623229980469
+        ]
+      ],
+      "extent_m": [
+        0.1706695556640625,
+        0.11276531219482422,
+        0.11185455322265625
+      ],
+      "nearby_particles_in_padded_AABB": 2
+    },
+    "interpretation": "Angular silhouette exists in raw and smoothed meshes. Nearby particles are location evidence, not proof of their exact meshing contribution. This does not diagnose all attached crest corners."
+  },
+  "start_utc": "2026-10-19T19:17:15Z",
+  "B_rendered": true,
+  "replacement_A": {
+    "receipt": {
+      "status": "passed",
+      "mode": "A",
+      "git_sha": "ee3a07047e4f9735e3f20725a6f04128055e5b72",
+      "cache_sha256": {
+        "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+        "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+        "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+        "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+        "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+      },
+      "source_sha256": "d1ddd4682c46f04e76aae5586d2cf74215617e0d4012318393e26404e81e6100",
+      "control_receipt_sha256": "ff04898924528d097fc837cb82ed9bda124050d7d38ea0ae811cf7e961e4f17d",
+      "started_utc": "2026-10-19T19:50:49Z",
+      "exit_code": 0,
+      "worker": {
+        "status": "passed",
+        "render_call_s": 11.998720599978697,
+        "worker_s": 14.005325299978722,
+        "exr": "optics.0001.exr"
+      },
+      "png_sha256": "f03169835625c8b5d4a1983ee43df796a300a3a5851e1570d63f2f671d7cd781",
+      "exr_sha256": "759a04bdb03de4353e57792aa9843bb06b9834af340277f5bc61dd4635664621",
+      "foam_ass_sha256": "08e3b0a030bf3aef4503d88f8aa199f2881bcc4d50e993a60dcb39a46abc3633",
+      "process_s": 21.085869000002276
+    },
+    "image_check": {
+      "status": "failed",
+      "aov_closure_relative_l1": 8.8896214319158e-08,
+      "component_raw_rgb_share": {
+        "specular": 0.20242187084389068,
+        "transmission": 0.4564233807303498,
+        "diffuse": 0.3411547477030854,
+        "sss": 0.0,
+        "coat": 0.0,
+        "sheen": 0.0,
+        "emission": 0.0,
+        "volume": 0.0,
+        "background": 0.0
+      },
+      "display_mean_abs_levels": 0.10413644547325103,
+      "render_call_s": 11.998720599978697,
+      "process_s": 21.085869000002276,
+      "error": "Foam volume did not contribute"
+    },
+    "unit_audit": {
+      "status": "unit_mismatch_confirmed_from_headers_and_render_bounds",
+      "child_meters_per_unit": 1.0,
+      "parent_meters_per_unit": 0.01,
+      "child_to_parent_scale": 100.0,
+      "native_point_bounds": [
+        [
+          554.6063232421875,
+          48.629371643066406,
+          241.95751953125
+        ],
+        [
+          635.2332153320312,
+          66.927734375,
+          310.05718994140625
+        ]
+      ],
+      "predicted_imported_bounds": [
+        [
+          55460.63232421875,
+          4862.937164306641,
+          24195.751953125
+        ],
+        [
+          63523.321533203125,
+          6692.7734375,
+          31005.718994140625
+        ]
+      ],
+      "render_log_bounds": "00:00:02  1594MB         |  scene bounds: (-1720 -1 -800) -> (63523.3203 6692.77344 31005.7188)",
+      "note": "No render or scene mutation. Actual image remains invalid; no corrected scene was rendered."
+    }
+  },
+  "prior_stop_reason": "User approved B only if replacement A passed; replacement A failed its nonzero-volume check.",
+  "unit_aligned_pair": {
+    "start_utc": "2026-10-19T19:58:22Z",
+    "overrun_notice_utc": "2026-10-19T20:04:55Z",
+    "analysis": {
+      "status": "passed",
+      "arms": {
+        "A": {
+          "status": "passed",
+          "aov_closure_relative_l1": 8.9357042282832e-08,
+          "component_raw_rgb_share": {
+            "specular": 0.16368874167579964,
+            "transmission": 0.4534619922247773,
+            "diffuse": 0.2828227492141654,
+            "sss": 0.0,
+            "coat": 0.0,
+            "sheen": 0.0,
+            "emission": 0.0,
+            "volume": 0.1000265163625365,
+            "background": 0.0
+          },
+          "display_mean_abs_levels": 0.10822337962962963,
+          "render_call_s": 185.3932746000355,
+          "process_s": 194.63082840002608
+        },
+        "B": {
+          "status": "passed",
+          "aov_closure_relative_l1": 8.829446970196646e-08,
+          "component_raw_rgb_share": {
+            "specular": 0.17248125306036116,
+            "transmission": 0.4562518522096841,
+            "diffuse": 0.29634884413683926,
+            "sss": 0.0,
+            "coat": 0.0,
+            "sheen": 0.0,
+            "emission": 0.0,
+            "volume": 0.0749180500252536,
+            "background": 0.0
+          },
+          "display_mean_abs_levels": 0.10606995884773662,
+          "render_call_s": 107.52551009994932,
+          "process_s": 116.34768050001003
+        }
+      },
+      "changed_state_keys": [
+        "foam_ass_sha256",
+        "foam_arm"
+      ],
+      "simulation_rerun": false,
+      "mesh_rebuilt": false,
+      "mist": false,
+      "layer": {
+        "status": "numeric_passed_visual_review_pending",
+        "git_sha": "864bd488354c31df06b9aea454c164a9c1cb0489",
+        "mask_sha256": "df83be54f1ba6e73f4ba0426fbb991a68fce5f476e72f4640736fc770ee47cf5",
+        "layer_sha256": "4babfbdeb3bc11ff38eb53cdb49b2695c0d919c5a317bc652d0d06dca3bc63ce",
+        "points": 324601,
+        "sphere_diameter_m": 0.045,
+        "center_offset_m": 0.0075,
+        "distance_to_source_surface_upper_bound_m": 0.03,
+        "nominal_inward_extent_m": 0.015,
+        "nominal_outward_extent_m": 0.03,
+        "crop_edge_min_m": 0.5857113948707644,
+        "normal_optical_depth_parameter": 0.8,
+        "integrated_extinction_m2": [
+          16.818932871386068,
+          16.81893287138607
+        ],
+        "clustering_length_m": [
+          0.24,
+          0.065
+        ],
+        "zero_weight_fraction_B": 0.6230017775669207,
+        "factor_percentiles": [
+          0.0,
+          0.0,
+          0.0,
+          1.371710183299902,
+          4.465113287241027,
+          4.465113287241027
+        ],
+        "exports": {
+          "A": {
+            "status": "passed",
+            "meters_per_unit": 0.01,
+            "points": 322649,
+            "logical_points": 324601,
+            "groups": 64,
+            "density_representation": "64 constant-density bins; zero-density points omitted",
+            "density_quantization_relative_l1": 0.011660005636048257,
+            "budget_relative_error": 1.223722395265973e-09,
+            "integrated_extinction_m2": 16.818932891967776,
+            "point_radius_m": 0.0225,
+            "step_m": 0.005,
+            "density_range_per_m": [
+              0.0,
+              3.2861217462235413
+            ],
+            "ass_sha256": "8b1543df48e227744d4000f7480995c1f1367ebfa22e7c6bde8dad808e7f080c"
+          },
+          "B": {
+            "status": "passed",
+            "meters_per_unit": 0.01,
+            "points": 121636,
+            "logical_points": 324601,
+            "groups": 64,
+            "density_representation": "64 constant-density bins; zero-density points omitted",
+            "density_quantization_relative_l1": 0.018761252458436694,
+            "budget_relative_error": 2.7499711740984762e-09,
+            "integrated_extinction_m2": 16.818932825134496,
+            "point_radius_m": 0.0225,
+            "step_m": 0.005,
+            "density_range_per_m": [
+              0.0,
+              14.672811850413424
+            ],
+            "ass_sha256": "719991b6726a6e9adea1d12e759ead614596d01301c12bb801d6ed84503cc27e"
+          }
+        },
+        "simulation": false,
+        "physical_bubble_model": false,
+        "wall_s": 0.5270660999813117,
+        "source_layer": "out\\runs\\breaker_foam_layer_20261019_v4",
+        "preparation_git_sha": "fdf0e3853c02c18f1025a97b12b7788ba49af756"
+      },
+      "source_control": "C:\\Users\\5d149\\source\\Anisim\\out\\runs\\breaker_interface_sss_20261019_v3\\A",
+      "raw_beauty_mean_absolute_difference": 0.007088151294738054
+    },
+    "arms": {
+      "A": {
+        "receipt": {
+          "status": "passed",
+          "mode": "A",
+          "git_sha": "fdf0e3853c02c18f1025a97b12b7788ba49af756",
+          "cache_sha256": {
+            "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+            "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+            "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+            "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+            "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+          },
+          "source_sha256": "d1ddd4682c46f04e76aae5586d2cf74215617e0d4012318393e26404e81e6100",
+          "control_receipt_sha256": "ff04898924528d097fc837cb82ed9bda124050d7d38ea0ae811cf7e961e4f17d",
+          "started_utc": "2026-10-19T20:02:34Z",
+          "exit_code": 0,
+          "worker": {
+            "status": "passed",
+            "render_call_s": 185.3932746000355,
+            "worker_s": 187.39592979999725,
+            "exr": "optics.0001.exr"
+          },
+          "png_sha256": "b5aa1614d1e67e834cb909740efbe96b8c8b2c84374a1ce3360d02427f041923",
+          "exr_sha256": "f59e766a8c79cb288ebaf938a2a739645a488d82ad3a23cb1da678b34c388412",
+          "foam_ass_sha256": "8b1543df48e227744d4000f7480995c1f1367ebfa22e7c6bde8dad808e7f080c",
+          "process_s": 194.63082840002608
+        },
+        "alignment": {
+          "status": "passed",
+          "method": "AiProceduralExpand of exported parent scene; no rendering",
+          "child_meters_per_unit": 0.01,
+          "parent_meters_per_unit": 0.01,
+          "import_scale": 1.0,
+          "expanded_points": 322649,
+          "expanded_world_bounds": [
+            [
+              554.6063232421875,
+              48.629371643066406,
+              241.95751953125
+            ],
+            [
+              635.2332153320312,
+              66.927734375,
+              310.05718994140625
+            ]
+          ],
+          "center_to_source_surface_max_m": 0.0075084276202143614,
+          "sphere_to_source_surface_upper_bound_m": 0.03000842762021436,
+          "expanded_transform_chain_identity": true,
+          "layer_sha256": "4babfbdeb3bc11ff38eb53cdb49b2695c0d919c5a317bc652d0d06dca3bc63ce",
+          "foam_ass_sha256": "8b1543df48e227744d4000f7480995c1f1367ebfa22e7c6bde8dad808e7f080c",
+          "parent_ass_sha256": "6c8fd6a9c1f39e6f81bedeccffed2a48a52a11d8e2193ef916a9e14b81e274ee"
+        }
+      },
+      "B": {
+        "receipt": {
+          "status": "passed",
+          "mode": "B",
+          "git_sha": "fdf0e3853c02c18f1025a97b12b7788ba49af756",
+          "cache_sha256": {
+            "beach.obj": "50e4fae8cc976edb954dc9125a57c9081ac13b22b06b7f4e1f75d3ac94a11d88",
+            "cache.json": "139c4f57bba6f39dd59b3d6c43189b91cc85fbd72af6254b257b77b62cd23054",
+            "liquid.0001.npy": "bd7eda8e3197f989eccf7ce5e919ba9daab593fa6dcd4637206697785f4f207f",
+            "radius.0001.npy": "61ef6813f2f5dd4351d3eda05368c45c9067923f3693507753a90345819a60df",
+            "speed.0001.npy": "7b4310f387667cec6a1dd8855bc0ccaea38f2d8cafacdfd7cd25088311a59bb5"
+          },
+          "source_sha256": "d1ddd4682c46f04e76aae5586d2cf74215617e0d4012318393e26404e81e6100",
+          "control_receipt_sha256": "ff04898924528d097fc837cb82ed9bda124050d7d38ea0ae811cf7e961e4f17d",
+          "started_utc": "2026-10-19T20:06:12Z",
+          "exit_code": 0,
+          "worker": {
+            "status": "passed",
+            "render_call_s": 107.52551009994932,
+            "worker_s": 109.66807309997967,
+            "exr": "optics.0001.exr"
+          },
+          "png_sha256": "12a8ada62073a4c61cd670821fdec9b1f75e63cf306fa66432e42a5981c76ee6",
+          "exr_sha256": "a762e0e1dc97771f9da19397efb5e0a0b816e4a6740d1f3ba51dc017d782a99a",
+          "foam_ass_sha256": "719991b6726a6e9adea1d12e759ead614596d01301c12bb801d6ed84503cc27e",
+          "process_s": 116.34768050001003
+        },
+        "alignment": {
+          "status": "passed",
+          "method": "AiProceduralExpand of exported parent scene; no rendering",
+          "child_meters_per_unit": 0.01,
+          "parent_meters_per_unit": 0.01,
+          "import_scale": 1.0,
+          "expanded_points": 121636,
+          "expanded_world_bounds": [
+            [
+              554.7101440429688,
+              48.634368896484375,
+              241.97021484375
+            ],
+            [
+              635.2301025390625,
+              66.927734375,
+              310.04925537109375
+            ]
+          ],
+          "center_to_source_surface_max_m": 0.007508265018291622,
+          "sphere_to_source_surface_upper_bound_m": 0.03000826501829162,
+          "expanded_transform_chain_identity": true,
+          "layer_sha256": "4babfbdeb3bc11ff38eb53cdb49b2695c0d919c5a317bc652d0d06dca3bc63ce",
+          "foam_ass_sha256": "719991b6726a6e9adea1d12e759ead614596d01301c12bb801d6ed84503cc27e",
+          "parent_ass_sha256": "8be62375a5583360614757331e534f7687d7f862d0827fb76c75376f568c3492"
+        }
+      }
+    },
+    "regression_check": "Prior mismatched-unit v4 asset rejected before rendering",
+    "visual_assessment": "A has continuous white patches; B has granular broken coverage. Large fragment outlines and glassy bulk persist; no accepted ocean preset.",
+    "preparation_only_failure": "v5 Maya standalone display bounding box was empty; no render. Replaced by native procedural expansion in v6.",
+    "recorded_utc": "2026-10-19T20:10:05Z"
+  }
+}

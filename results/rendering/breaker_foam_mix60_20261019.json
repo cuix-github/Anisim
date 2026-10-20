@@ -1,0 +1,130 @@
+{
+  "status": "passed",
+  "new_render_count": 1,
+  "image": {
+    "status": "passed",
+    "aov_closure_relative_l1": 8.598400429998581e-08,
+    "component_raw_rgb_share": {
+      "specular": 0.3984714257086887,
+      "transmission": 0.4499205619290481,
+      "diffuse": 0.04929799437405474,
+      "sss": 0.0,
+      "coat": 0.0,
+      "sheen": 0.0,
+      "emission": 0.0,
+      "volume": 0.10231001798337384,
+      "background": 0.0
+    },
+    "display_mean_abs_levels": 0.24014081790123457,
+    "render_call_s": 404.21583330002613,
+    "process_s": 413.732115199964
+  },
+  "layer": {
+    "status": "passed",
+    "alpha_B": 0.4,
+    "equation": "density_C = 0.60 * density_A + 0.40 * density_B",
+    "source_hashes": {
+      "beauty.png": "3028e47dfa602daa7c4498615cfa5d88ff8405603d9a1b85edec5dc989d8bd8f",
+      "optics.0001.exr": "c3b479c4c2eb29413f0f494491b7b9358f2404d42a6212d7f284ff6738042fb7",
+      "candidate.mb": "5a613664713192707c0f0ce4e7c12f19543e6d5b447b5357e76942ccf7a5ea9a",
+      "foam.ass": "c1d351f4e30a794c7d4d77ef992070589b9798337860d84ac77bda461d3d2de4",
+      "liquid": "3afaa053e3124a97b285dd10be456f4c8a6dc8100a06908a7587d2d57b11c32e",
+      "radius": "8ce4827171a203312cf59f05c2fb4f9c8b85796f4ef513a2bd3612286812f436"
+    },
+    "source_layer_sha256": "39ab93895a9ead8da4ea2b514ccaa0e58fbfece9aa10d46cf15354d57b774cbf",
+    "layer_sha256": "c4291c59ff5ea3d9180be1895b3c06fb2a150c35d1b8fe3429df42dbba768102",
+    "integrated_extinction_m2": [
+      43.75310130017541,
+      43.7531013001754,
+      43.7531013001754
+    ],
+    "density_export": {
+      "status": "passed",
+      "meters_per_unit": 0.01,
+      "points": 984932,
+      "logical_points": 986201,
+      "groups": 64,
+      "density_representation": "64 constant-density bins; zero-density points omitted",
+      "density_quantization_relative_l1": 0.03064628291753151,
+      "budget_relative_error": 1.7137206392285123e-09,
+      "integrated_extinction_m2": 43.75310137515599,
+      "point_radius_m": 0.0225,
+      "step_m": 0.005,
+      "density_range_per_m": [
+        0.0,
+        7.885834013089461
+      ],
+      "ass_sha256": "099f0f56b81cbddbde1819e7e5b79d97dd86dbee7bd2186f743c1d3e96312a66"
+    },
+    "support": "Unchanged samples, radius and surface support",
+    "git_sha": "2eb653b91f97194de7bea4be0076d5f18916cff5",
+    "simulation": false,
+    "render_count_authorized": 1
+  },
+  "preparation": {
+    "status": "passed",
+    "changed_state_keys": [
+      "foam_ass_sha256",
+      "foam_layer_sha256",
+      "alpha_B"
+    ]
+  },
+  "alignment": {
+    "status": "passed",
+    "method": "AiProceduralExpand of exported parent scene; no rendering",
+    "child_meters_per_unit": 0.01,
+    "parent_meters_per_unit": 0.01,
+    "import_scale": 1.0,
+    "expanded_points": 984932,
+    "expanded_world_bounds": [
+      [
+        554.5516357421875,
+        48.629310607910156,
+        41.986236572265625
+      ],
+      [
+        637.8618774414062,
+        66.91477966308594,
+        310.05767822265625
+      ]
+    ],
+    "center_to_source_surface_max_m": 0.007508406733114975,
+    "sphere_to_source_surface_upper_bound_m": 0.030008406733114973,
+    "expanded_transform_chain_identity": true,
+    "layer_sha256": "c4291c59ff5ea3d9180be1895b3c06fb2a150c35d1b8fe3429df42dbba768102",
+    "foam_ass_sha256": "099f0f56b81cbddbde1819e7e5b79d97dd86dbee7bd2186f743c1d3e96312a66",
+    "parent_ass_sha256": "6d60f0be546fa4cc1713bfb7009ad6d34f36f7939ee144a81fc01c145b229f1f"
+  },
+  "receipt": {
+    "status": "passed",
+    "git_sha": "2eb653b91f97194de7bea4be0076d5f18916cff5",
+    "alpha_B": 0.4,
+    "source_hashes": {
+      "beauty.png": "3028e47dfa602daa7c4498615cfa5d88ff8405603d9a1b85edec5dc989d8bd8f",
+      "optics.0001.exr": "c3b479c4c2eb29413f0f494491b7b9358f2404d42a6212d7f284ff6738042fb7",
+      "candidate.mb": "5a613664713192707c0f0ce4e7c12f19543e6d5b447b5357e76942ccf7a5ea9a",
+      "foam.ass": "c1d351f4e30a794c7d4d77ef992070589b9798337860d84ac77bda461d3d2de4",
+      "liquid": "3afaa053e3124a97b285dd10be456f4c8a6dc8100a06908a7587d2d57b11c32e",
+      "radius": "8ce4827171a203312cf59f05c2fb4f9c8b85796f4ef513a2bd3612286812f436"
+    },
+    "started_utc": "2026-10-20T01:09:12Z",
+    "exit_code": 0,
+    "worker": {
+      "status": "passed",
+      "render_call_s": 404.21583330002613,
+      "worker_s": 406.6711148000322,
+      "exr": "optics.0001.exr"
+    },
+    "png_sha256": "aa5b9f7fd3f1dc53435e4c262ad0b40c4002508f5dc625d405cb8d40aceb6daa",
+    "exr_sha256": "17c39bbf79a3ae5f8bba37e3d63cdec528909ca606f4186fa8e1eaf77051dbd5",
+    "process_s": 413.732115199964
+  },
+  "simulation": false,
+  "remeshing": false,
+  "mist": false,
+  "source_control": "C:\\Users\\5d149\\source\\Anisim\\out\\runs\\breaker_six_views_20261019\\shots\\break_detail\\C",
+  "temporal_validation": false,
+  "paper_method_claim": false,
+  "visual_review": "60/40 connects foam patches and softens internal variation; some patches become fuller and more matte. 20/80 retains stronger granular breakup. Bulk water remains glossy. Neither is a final sequence preset.",
+  "preflight_note": "Offline control assertion initially used (1 - .8), but source used literal .2. Corrected to reproduce source float arithmetic exactly before any density export or render. No simulation or render occurred."
+}

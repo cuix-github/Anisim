@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anisim · Render Library</title>
+<style>
+:root{color-scheme:dark;--bg:#101718;--panel:#1a2426;--line:#314143;--text:#edf3f2;--muted:#a8b9b9;--accent:#83d9ca}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.6 system-ui,"Microsoft YaHei",sans-serif}
+header,main,footer{max-width:1440px;margin:auto;padding:28px 36px}header{border-bottom:1px solid var(--line)}
+.eyebrow{letter-spacing:.16em;color:var(--accent);font-size:12px}h1{font-weight:500;font-size:36px;margin:8px 0}p{margin:8px 0;color:var(--muted)}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}.nav{display:flex;gap:22px;margin-top:20px;flex-wrap:wrap}
+.filters{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 22px}.tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px}
+button,input,select{font:inherit;background:var(--panel);color:var(--text);border:1px solid var(--line);padding:9px 13px;border-radius:6px}
+button{cursor:pointer}button:hover{border-color:var(--accent)}button.active{background:var(--accent);color:#102522;border-color:var(--accent)}
+input{flex:1;min-width:220px}select{max-width:240px}label{display:flex;gap:8px;align-items:center;color:var(--muted)}
+.count{color:var(--muted);font-size:13px;margin-bottom:18px}.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:9px;overflow:hidden;min-width:0}
+.preview{display:block;width:100%;padding:0;border:0;border-radius:0;aspect-ratio:16/9;background:#080d0e;overflow:hidden}
+.preview img{display:block;width:100%;height:100%;object-fit:contain}.placeholder{display:grid;place-items:center;height:100%;font-size:34px;color:var(--accent)}
+.info{padding:16px}.title{font-weight:600;margin:0 0 7px;overflow-wrap:anywhere}.meta{color:var(--accent);min-height:24px;font-size:13px}
+.study{font-size:12px;color:var(--muted);overflow-wrap:anywhere}.badge{display:inline-block;padding:2px 7px;border-radius:4px;background:#2b383a;color:#c4d0d0;font-size:11px;margin:10px 5px 0 0}
+.passed{background:#234a40;color:#b9eed8}.failed{background:#52332b;color:#ffd4be}.empty{padding:60px;text-align:center;color:var(--muted);grid-column:1/-1}
+footer{font-size:12px;color:var(--muted);border-top:1px solid var(--line)}dialog{width:min(1260px,96vw);max-height:95vh;padding:20px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:12px}
+dialog::backdrop{background:#000c}.dialogbar{display:flex;align-items:center;justify-content:space-between;gap:20px}.dialogbar h2{font-size:19px;font-weight:500;margin:0}
+.large{width:100%;height:min(64vh,720px);object-fit:contain;background:#080d0e;margin-top:16px}.detailpath{font:12px/1.5 monospace;overflow-wrap:anywhere;color:var(--muted)}
+.links{display:flex;flex-wrap:wrap;gap:16px;margin:16px 0}.sequence{width:100%;margin:12px 0}.page{display:flex;justify-content:center;margin:30px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}header,main,footer{padding:24px}}@media(max-width:600px){.grid{grid-template-columns:1fr}h1{font-size:28px}header,main,footer{padding:18px}.large{height:45vh}}
+</style>
+<header><div class="eyebrow">ANISIM / LOCAL RENDER LIBRARY</div><h1>海浪实验 · 渲染档案</h1>
+<p>从画面回到配置、场景和验证记录。历史文件保留原位；当前候选尚未成为最终 preset。</p>
+<nav class="nav"><a id="setup" target="_blank">已验证配置</a><a id="registry" target="_blank">参数与结果索引</a><a id="guide" target="_blank">实验导航</a></nav></header>
+<main><div class="tabs" id="tabs"></div><div class="filters">
+<input id="search" aria-label="搜索实验" placeholder="搜索实验名称、镜头、配置或路径…">
+<select id="time" aria-label="模拟时间"><option value="">所有模拟时间</option></select>
+<select id="ratio" aria-label="泡沫比例"><option value="">所有泡沫比例</option></select>
+<select id="status" aria-label="验证状态"><option value="">所有验证状态</option><option value="passed">检查通过</option><option value="failed">检查失败</option><option value="unreadable">媒体不可读取</option><option value="unreviewed">未标注 / 诊断资料</option></select>
+<button id="reset">重置</button></div><div class="count" id="count" aria-live="polite"></div><div class="grid" id="grid"></div><div class="page"><button id="more" hidden>显示更多</button></div></main>
+<footer id="footer"></footer>
+<dialog id="detail"><div class="dialogbar"><h2 id="detailtitle"></h2><button id="close" aria-label="关闭详情">关闭 ×</button></div><div id="viewer"></div><p id="detailnote"></p><div class="detailpath" id="detailpath"></div><div class="links" id="links"></div></dialog>
+<script>
+const DATA=/*__MANIFEST__*/;
+const $=id=>document.getElementById(id), labels={render:'渲染图',comparison:'对比图',video:'视频',sequence:'帧序列',diagnostic:'实验诊断'},statusLabels={passed:'检查通过',failed:'检查失败',unreviewed:'未标注',unreadable:'媒体不可读取'};
+let tab='selected',limit=36,filtered=[];
+function el(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
+function ratio(e){return e.ratio?`U${Math.round(e.ratio[0]*100)} / C${Math.round(e.ratio[1]*100)}`:''}
+function metadata(e){return [e.time_s!==null?`${e.time_s} s`:'',e.width_m!==null?`${e.width_m} m`:'',ratio(e)].filter(Boolean).join(' · ')}
+for(const key of ['setup','registry','guide'])$(key).href=DATA[key];
+for(const [key,text] of [['selected','当前候选'],['all','全部档案'],['comparison','对比图'],['video','视频'],['sequence','帧序列'],['diagnostic','实验诊断']]){const b=el('button',text);b.dataset.tab=key;b.onclick=()=>{tab=key;limit=36;draw()};$('tabs').append(b)}
+for(const val of [...new Set(DATA.entries.map(e=>e.time_s).filter(v=>v!==null))].sort((a,b)=>a-b)){const o=el('option',`${val} s`);o.value=val;$('time').append(o)}
+for(const val of [...new Set(DATA.entries.map(ratio).filter(Boolean))].sort()){const o=el('option',val);o.value=val;$('ratio').append(o)}
+function show(e){$('detailtitle').textContent=e.title+' '+metadata(e);$('detailnote').textContent=e.note;$('detailpath').textContent=e.path;$('viewer').replaceChildren();$('links').replaceChildren();
+const item=el(e.kind==='video'?'video':'img');item.className='large';item.src=e.url;if(e.kind==='video'){item.controls=true;item.preload='metadata'}else{item.alt=e.title} $('viewer').append(item);
+if(e.members.length){const select=el('select');select.className='sequence';select.setAttribute('aria-label','选择帧');for(const m of e.members){const o=el('option',m.name);o.value=m.url;select.append(o)}select.onchange=()=>item.src=select.value;$('viewer').append(select)}
+for(const link of [{label:'打开原图 / 媒体',url:e.url},...e.links]){const a=el('a',link.label);a.href=link.url;a.target='_blank';a.rel='noopener';$('links').append(a)}$('detail').showModal()}
+$('close').onclick=()=>$('detail').close();$('detail').addEventListener('close',()=>{$('viewer').replaceChildren()});
+function draw(){const q=$('search').value.toLowerCase().trim();filtered=DATA.entries.filter(e=>(tab==='all'||(tab==='selected'?e.selected:e.kind===tab))&&(!q||[e.title,e.study,e.path,metadata(e)].join(' ').toLowerCase().includes(q))&&(!$('time').value||String(e.time_s)===$('time').value)&&(!$('ratio').value||ratio(e)===$('ratio').value)&&(!$('status').value||e.validation===$('status').value));
+document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));$('grid').replaceChildren();$('count').textContent=`${filtered.length} 项 · 来源 ${DATA.source_media_count} 个媒体文件；连续帧已归组。U = uniform，C = clustered。`;
+for(const e of filtered.slice(0,limit)){const card=el('article',undefined,'card'),button=el('button',undefined,'preview');button.setAttribute('aria-label','查看 '+e.title);button.onclick=()=>show(e);if(e.thumbnail){const img=el('img');img.src=e.thumbnail;img.alt=e.title;img.loading='lazy';button.append(img)}else button.append(el('span',e.kind==='video'?'▶':'◇','placeholder'));card.append(button);const info=el('div',undefined,'info');info.append(el('div',e.title,'title'),el('div',metadata(e),'meta'),el('div',e.study,'study'),el('span',labels[e.kind],'badge'),el('span',statusLabels[e.validation],'badge '+e.validation));if(e.members.length)info.append(el('span',`${e.members.length} 帧`,'badge'));card.append(info);$('grid').append(card)}
+if(!filtered.length)$('grid').append(el('div','没有符合条件的记录。试试清除筛选。','empty'));$('more').hidden=filtered.length<=limit}
+for(const id of ['search','time','ratio','status'])$(id).addEventListener(id==='search'?'input':'change',()=>{limit=36;draw()});$('more').onclick=()=>{limit+=36;draw()};$('reset').onclick=()=>{for(const id of ['search','time','ratio','status'])$(id).value='';tab='selected';limit=36;draw()};
+$('footer').textContent=`本地索引 · ${DATA.entry_count} 项档案 · ${DATA.selected_count} 项当前候选 · 不运行模拟或渲染，不移动源文件。验证通过不等于外观已获最终确认。`;draw();
+</script></html>
