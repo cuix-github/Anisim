@@ -2,6 +2,24 @@
 
 Everything a script writes lands under `out\` at the repository root, which git ignores. Nothing in it is in the repository; this page says what is there, what it is for, and which folders are canonical. `graphs\runs.py` is the code's single idea of where a run's files live; `runs.py report` prints what is on disk. Sizes are from 2026-10-15.
 
+The [validated render setup registry](../maya/presets/README.md) now provides
+one entry point for the five working thin-foam variants, their common water
+and lighting, camera groups and exact local artifacts. The accompanying JSON
+records frozen scenes rather than adding a launcher preset.
+
+A read-only inventory on October 19 found 52,123 files using about 609.69 GiB
+under `out/`, with 55 direct run folders, including 38 breaker-study folders.
+The 2,006 PNGs, 19 MP4s and 29 EXRs there total about 1.63 GiB; the large storage
+cost is primarily simulation arrays. These are logical file sizes, not a disk
+allocation or duplicate-content audit. Git tracks 39 existing PNG charts/frame
+sheets totaling 9.77 MiB. Another 726 ignored media files remain outside `out/`
+in the old droplet/three-FLIP frame folders and `results/3d/p2g`; the opening
+layout rule describes the intended layout, not a completed legacy migration.
+The local inventory is `out/repo_inventory_20261019.json`. No data was moved,
+deleted, deduplicated or rerendered during this inventory. Organization is
+under discussion; existing scene references and experimental receipts must
+remain resolvable when a migration is approved.
+
 The 2026-10-19 [Deep Water candidate](breaker-deep-water-study.md) lives in
 `out/runs/breaker_deep_water_20261019/`: `original/` and `side/` contain the two
 960 by 540 previews, static scenes, raw component EXRs, hashes and successful

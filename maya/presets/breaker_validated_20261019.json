@@ -1,0 +1,388 @@
+{
+  "recorded_on": "2026-10-19",
+  "kind": "validated frozen-scene registry; not a launcher preset",
+  "common_scene_settings": {
+    "water": {
+      "base": 0.0,
+      "metalness": 0.0,
+      "specular": 1.0,
+      "specularIOR": 1.3300000429153442,
+      "specularRoughness": 0.029999999329447746,
+      "transmission": 1.0,
+      "transmissionColor": [
+        [
+          0.30000001192092896,
+          0.550000011920929,
+          0.6000000238418579
+        ]
+      ],
+      "transmissionDepth": 40.0,
+      "transmissionScatter": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "thinWalled": false
+    },
+    "sky": {
+      "color": [
+        [
+          0.029999999329447746,
+          0.03500000014901161,
+          0.04500000178813934
+        ]
+      ],
+      "intensity": 12.0,
+      "camera": 0.0
+    },
+    "sun": {
+      "visibility": true,
+      "rotate": [
+        [
+          -40.0,
+          160.0,
+          0.0
+        ]
+      ]
+    },
+    "sunShape": {
+      "color": [
+        [
+          1.0,
+          0.949999988079071,
+          0.8600000143051147
+        ]
+      ],
+      "intensity": 6.0
+    },
+    "defaultArnoldDriver": {
+      "colorManagement": 1
+    },
+    "defaultArnoldRenderOptions": {
+      "AASamples": 4,
+      "GISpecularDepth": 3,
+      "GITransmissionDepth": 8,
+      "GITotalDepth": 10,
+      "GIVolumeDepth": 3,
+      "GIVolumeSamples": 2
+    },
+    "defaultColorMgtGlobals": {
+      "wsn": "ACEScg",
+      "vtn": "ACES 1.0 SDR-video (sRGB)"
+    }
+  },
+  "resolution": [
+    960,
+    540
+  ],
+  "mist": false,
+  "renderer": "Arnold 7.5.1.1 / MtoA 5.6.1.1 / Maya 2027",
+  "reconstruction": {
+    "simulation_m_per_cell": 0.25,
+    "particle_sphere_radius_cells": 0.5,
+    "surface_voxel_cells": 0.5,
+    "gaussian_passes": 0,
+    "masked_mcf_iterations": 10,
+    "exact_geometry": "Pinned by each scene_state; wider and narrow crops differ. Preserve frozen meshes for material comparisons."
+  },
+  "foam": {
+    "representation": "Native Arnold volume points on existing curvature/height-selected surface samples",
+    "density_equation": "uniform_weight * density_A + clustered_weight * density_B",
+    "same_total_primitive_extinction_within_same_geometry": true,
+    "image_blend": false,
+    "physical_bubble_model": false,
+    "transported_history": false,
+    "radius_m": 0.0225,
+    "center_offset_m": 0.0075,
+    "inward_extent_m": 0.015,
+    "outward_extent_m": 0.03,
+    "normal_optical_depth_parameter": 0.8,
+    "quadrature_area_m2": 0.00019600000000000002,
+    "step_m": 0.005,
+    "scatter": 0.98,
+    "scatter_color": [
+      1,
+      1,
+      1
+    ],
+    "anisotropy": 0.2,
+    "cluster_lengths_m": [
+      0.24,
+      0.065
+    ],
+    "cluster_seeds": [
+      774,
+      991
+    ],
+    "density_bins": 64,
+    "source": "experiments/breaker_foam_layer.py",
+    "source_sha256": "73bc51f08bbdee8b95c0dc40e60dda305b9ee1652dc71891b4443457a5fdfe5c"
+  },
+  "units": {
+    "scene_units_per_simulation_m": 4,
+    "ass_meters_per_unit": 0.01,
+    "require_matching_parent_child_units": true
+  },
+  "variants": [
+    {
+      "id": "uniform",
+      "uniform_weight": 1.0,
+      "clustered_weight": 0.0,
+      "time_s": 24.9,
+      "camera": {
+        "time_s": 24.9,
+        "width_m": 18,
+        "rotation": [
+          -10,
+          145,
+          0
+        ],
+        "target_m": [
+          145.5,
+          13.5,
+          70
+        ]
+      },
+      "folder": "out/runs/breaker_foam_views_20261019/oblique/A",
+      "scene_sha256": "80cc5a520d0998104f1e05d054f561eb399eb539afdd180e8ac5bf1ee7ac70a3",
+      "foam_ass_sha256": "8b1543df48e227744d4000f7480995c1f1367ebfa22e7c6bde8dad808e7f080c",
+      "display_image": "out/runs/breaker_foam_views_20261019/oblique/A/beauty_view.png",
+      "display_image_sha256": "4ec47c335d23daad68eaa03d424257cd4f44a640232bd37d0dca0c9e541965b1",
+      "scene_state": "out/runs/breaker_foam_views_20261019/oblique/A/state.json",
+      "source_receipt": "out/runs/breaker_foam_views_20261019/oblique/A/receipt.json",
+      "image_check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 9.021357797575225e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.2862706091812111,
+          "transmission": 0.3583143430509535,
+          "diffuse": 0.2691890083908539,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.08622603956184834,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.22666087962962964,
+        "render_call_s": 247.4398442999809,
+        "process_s": 256.6835505000199
+      },
+      "assessment": "Useful continuous control; some opaque matte patches.",
+      "final_look_selected": false
+    },
+    {
+      "id": "clustered",
+      "uniform_weight": 0.0,
+      "clustered_weight": 1.0,
+      "time_s": 24.9,
+      "camera": {
+        "time_s": 24.9,
+        "width_m": 18,
+        "rotation": [
+          -10,
+          145,
+          0
+        ],
+        "target_m": [
+          145.5,
+          13.5,
+          70
+        ]
+      },
+      "folder": "out/runs/breaker_foam_views_20261019/oblique/B",
+      "scene_sha256": "3f814df5762f003483c08e9f5d750b05f54ba5ed578944bded72049fdb1eff2f",
+      "foam_ass_sha256": "719991b6726a6e9adea1d12e759ead614596d01301c12bb801d6ed84503cc27e",
+      "display_image": "out/runs/breaker_foam_views_20261019/oblique/B/beauty_view.png",
+      "display_image_sha256": "053af81c36a1ded41bed6f451975da758dbb6f1a2d1ad0ed43800c76ffa553fe",
+      "scene_state": "out/runs/breaker_foam_views_20261019/oblique/B/state.json",
+      "source_receipt": "out/runs/breaker_foam_views_20261019/oblique/B/receipt.json",
+      "image_check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 9.075094221721713e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.2944095776727466,
+          "transmission": 0.3651210961935924,
+          "diffuse": 0.2771856180494402,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.0632837081806727,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.22609503600823044,
+        "render_call_s": 146.10136030003196,
+        "process_s": 154.9267493999796
+      },
+      "assessment": "Preferred pure endpoint during earlier review; granular gaps.",
+      "final_look_selected": false
+    },
+    {
+      "id": "mix_u25_c75",
+      "uniform_weight": 0.25,
+      "clustered_weight": 0.75,
+      "time_s": 24.9,
+      "camera": {
+        "time_s": 24.9,
+        "width_m": 18,
+        "rotation": [
+          -10,
+          145,
+          0
+        ],
+        "target_m": [
+          145.5,
+          13.5,
+          70
+        ]
+      },
+      "folder": "out/runs/breaker_foam_mix_20261019/C",
+      "scene_sha256": "30d65897b0052dad7b9528b1bf2ada0c3e618a7f8a6fed620200db5bc6ded767",
+      "foam_ass_sha256": "06b5161047032f859ac6c07c5a06999f33b1b60471456fb0114bc8594fecfa2b",
+      "display_image": "out/runs/breaker_foam_mix_20261019/C/beauty_view.png",
+      "display_image_sha256": "67f2d69360e948642f4f8d568269d529c6d4cebcb113ffb5a87f1acc4e4d4b15",
+      "scene_state": "out/runs/breaker_foam_mix_20261019/C/state.json",
+      "source_receipt": "out/runs/breaker_foam_mix_20261019/C/receipt.json",
+      "image_check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 9.041140723323597e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.2906524701175318,
+          "transmission": 0.3629158871162034,
+          "diffuse": 0.27363236085885806,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.07279928195194203,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.22548482510288065,
+        "render_call_s": 229.54788900003769,
+        "process_s": 238.95503069995902
+      },
+      "assessment": "Enthusiastic user response; starting point for later viewing study.",
+      "final_look_selected": false
+    },
+    {
+      "id": "mix_u20_c80",
+      "uniform_weight": 0.2,
+      "clustered_weight": 0.8,
+      "time_s": 24.9,
+      "camera": {
+        "time_s": 24.9,
+        "width_m": 22,
+        "rotation": [
+          -15,
+          140,
+          0
+        ],
+        "target_m": [
+          145.5,
+          13.5,
+          58
+        ]
+      },
+      "folder": "out/runs/breaker_six_views_20261019/shots/break_detail/C",
+      "scene_sha256": "5a613664713192707c0f0ce4e7c12f19543e6d5b447b5357e76942ccf7a5ea9a",
+      "foam_ass_sha256": "c1d351f4e30a794c7d4d77ef992070589b9798337860d84ac77bda461d3d2de4",
+      "display_image": "out/runs/breaker_six_views_20261019/shots/break_detail/C/beauty_view.png",
+      "display_image_sha256": "2611f9149b3a312ba9c80890d2016805b6fd05815b0bf83427ba509c95ae5a9e",
+      "scene_state": "out/runs/breaker_six_views_20261019/shots/break_detail/C/state.json",
+      "source_receipt": "out/runs/breaker_six_views_20261019/shots/break_detail/C/receipt.json",
+      "image_check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.609961683720369e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.40509939790391564,
+          "transmission": 0.4552808071886494,
+          "diffuse": 0.05017789071047065,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.08944190441740496,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.23979295267489711,
+        "render_call_s": 360.17891789996065,
+        "process_s": 369.38460170000326
+      },
+      "assessment": "Six-view family; strongest agent presentation candidate is the 24.9 s detail.",
+      "final_look_selected": false
+    },
+    {
+      "id": "mix_u60_c40",
+      "uniform_weight": 0.6,
+      "clustered_weight": 0.4,
+      "time_s": 24.9,
+      "camera": {
+        "time_s": 24.9,
+        "width_m": 22,
+        "rotation": [
+          -15,
+          140,
+          0
+        ],
+        "target_m": [
+          145.5,
+          13.5,
+          58
+        ]
+      },
+      "folder": "out/runs/breaker_foam_mix60_20261019/C",
+      "scene_sha256": "4f9f922ef081a91eb7880ff6099f258bacd3512b8aadfb754df0838e4261244d",
+      "foam_ass_sha256": "099f0f56b81cbddbde1819e7e5b79d97dd86dbee7bd2186f743c1d3e96312a66",
+      "display_image": "out/runs/breaker_foam_mix60_20261019/C/beauty_view.png",
+      "display_image_sha256": "8f69f4de4a72275b96c8c6e8ddc51cfe5c22d2fc053e06af37fb0262e176b95a",
+      "scene_state": "out/runs/breaker_foam_mix60_20261019/C/state.json",
+      "source_receipt": "out/runs/breaker_foam_mix60_20261019/C/receipt.json",
+      "image_check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.598400429998581e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.3984714257086887,
+          "transmission": 0.4499205619290481,
+          "diffuse": 0.04929799437405474,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.10231001798337384,
+          "background": 0.0
+        },
+        "display_mean_abs_levels": 0.24014081790123457,
+        "render_call_s": 404.21583330002613,
+        "process_s": 413.732115199964
+      },
+      "assessment": "More continuity and fuller matte patches; user comparison pending.",
+      "final_look_selected": false
+    }
+  ],
+  "comparison_groups": [
+    {
+      "ids": [
+        "uniform",
+        "clustered",
+        "mix_u25_c75"
+      ],
+      "same_camera_and_geometry": true
+    },
+    {
+      "ids": [
+        "mix_u20_c80",
+        "mix_u60_c40"
+      ],
+      "same_camera_and_geometry": true
+    }
+  ],
+  "limits": [
+    "No final look selected",
+    "Five variants are not five identical-camera tests; use comparison_groups",
+    "Validated stills do not establish temporal consistency",
+    "Procedural foam is an appearance study, not a demonstrated exact paper reconstruction"
+  ]
+}
