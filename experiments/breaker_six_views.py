@@ -24,10 +24,10 @@ CACHE = base.ROOT / 'out/runs/wavesea4/cache/overview'
 OLD = base.ROOT / 'out/runs/breaker_foam_views_20261019'
 PROTOTYPE = base.ROOT / 'out/runs/breaker_foam_mix_20261019/C'
 FRAMES = {
-    'pre': dict(source=CACHE, frame=1, time_s=23.025, target=[129, 13, 68], rotation=[-18, 140, 0], width=24,
+    'pre': dict(source=CACHE, frame=1, time_s=23.025, target=[129, 13, 58], rotation=[-18, 140, 0], width=24,
                 xmin=120, wide_target=[140, 12.5, 44]),
     'break': dict(source=base.ROOT/'out/runs/wavesea4/cache/breaking_overview', frame=1,
-                  time_s=24.9, target=[145.5, 13.5, 70], rotation=[-15, 140, 0], width=22,
+                  time_s=24.9, target=[145.5, 13.5, 58], rotation=[-15, 140, 0], width=22,
                   xmin=132, wide_target=[151, 12.5, 44]),
     'shore': dict(source=CACHE, frame=5, time_s=27.025, target=[157, 12.75, 65], rotation=[-30, 90, 0], width=24,
                   xmin=142, wide_target=[159, 13, 44]),
@@ -189,6 +189,9 @@ def mask(name):
     lo, hi = p.min(0), p.max(0)
     cut = np.minimum.reduce([p[:, 0]-lo[0], hi[0]-p[:, 0], p[:, 2]-lo[2], hi[2]-p[:, 2]])
     m = masklib.smoothstep(2, 4, np.abs(filtered))*masklib.smoothstep(.6, 1, cut)*masklib.smoothstep(12.25, 13, p[:, 1])
+    # Exclude a complete boundary-crossing triangle as well as its vertices.
+    # Otherwise interpolation can leak a faint value across the exclusion band.
+    m[np.unique(t[cut[t].min(1) < .5])] = 0
     tm = m[t].mean(1)
     assert tm[cut[t].min(1) < .5].max() == 0
     np.savez_compressed(folder/'mask.npz', points_m=p, triangles=t, normals=n, curvature=filtered,
