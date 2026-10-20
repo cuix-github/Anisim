@@ -99,6 +99,11 @@ Listed, not deleted; deleting a run's data is the owner's call.
 
 ## The gates and the studies
 
+The fixed-camera 60/40 follow-up is in `out/runs/breaker_foam_mix60_20261019/`.
+It reuses the 24.9 s, 22 m scene; `C/beauty_view.png` is the single new image.
+The comparison sheets pair it with the existing 20/80 image, without a second
+render. Scene, alignment, density, AOV and timing receipts remain alongside it.
+
 The six 20/80 mixed-foam views are in `out/runs/breaker_six_views_20261019/`.
 `comparison.png` and `comparison_full.png` show three cached stages (23.025,
 24.9 and 27.025 s), each with a wide and detail camera. `shots/` holds the six

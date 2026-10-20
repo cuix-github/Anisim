@@ -102,3 +102,34 @@ paths are diagnostic history, not the path used by these six images. New
 rendering requires a new user-approved scope; existing receipts prevent spending
 another call on any of these six shots.
 
+
+## Fixed-camera 60/40 follow-up
+
+A subsequent request authorized one 60 percent uniform / 40 percent clustered
+preview of the existing 24.9 s, 22 m detail. `breaker_foam_mix60.py` reuses its
+frozen scene and samples, changing only extinction density to 0.6 A + 0.4 B.
+Camera, geometry, normals, water, lighting, foam radius and total primitive
+extinction are unchanged. This is a density mixture, not an image blend.
+
+The offline control first stopped because its exact comparison used `1 - .8`
+where the source used literal `.2`. Matching the source arithmetic reproduced
+the control exactly; no density export or render preceded that correction.
+The note remains in the run folder. Expanded-import checks again verify all
+984,932 active samples, identity transforms and a maximum 3.001 cm extent
+from the source surface. The 64-bin density export has 3.06 percent relative
+L1 quantization error and 1.71e-9 relative total-budget error.
+
+The single licensed render passed in 404.22 s (413.73 s with process startup),
+with nonzero volume, zero SSS, component closure 8.60e-8 and mean display
+difference 0.2402 of an 8-bit level. Cache hashes remain unchanged. There was
+no simulation, mist, remeshing or repeat render.
+
+Visual inspection finds more connected and softer whitewater, with some fuller,
+more matte patches. The earlier 20/80 retains stronger granular breakup. The
+change does not remove the glossy bulk water or add transported foam history.
+The choice between these appearances remains open for review.
+
+The new image is `out/runs/breaker_foam_mix60_20261019/C/beauty_view.png`.
+`comparison.png` pairs the original on the left with the new image on the right;
+`comparison_vertical.png` preserves the same order from top to bottom.
+Numeric evidence is `results/rendering/breaker_foam_mix60_20261019.json`.

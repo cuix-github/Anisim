@@ -12,6 +12,9 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   caches are unchanged and mist stays off. The agent favors the 24.9 s detail,
   while Xue's review of this batch is pending. This is not a final ocean preset
   or a claim that the procedural foam distribution reproduces the paper.
+  A later authorized 60/40 comparison of the same 24.9 s, 22 m detail also
+  passes: fuller, more connected foam trades away some granular breakup.
+  Both images are retained; no final ratio or sequence look is selected.
 
 - **Water scale and boundary presentation (2026-10-19).** Earlier side views
   exposed artificial crop walls, as documented in the
