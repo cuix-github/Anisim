@@ -23,7 +23,7 @@ def main():
     plan = json.loads((run / "inputs/plan.json").read_text())
     length, height = plan.get("domain_m", [172, 24])[:2]
     nz = plan["grid"][2]
-    width = plan.get("domain_m", [172, 24, 1])[2] if nz > 1 else 0
+    basin_width = plan.get("domain_m", [172, 24, 1])[2] if nz > 1 else 0
     toe, slope = plan.get("beach_toe_m", 36), plan.get("beach_slope", .1)
     cache = run / "cache/full"
     index = json.loads((cache / "cache.json").read_text())
@@ -117,11 +117,12 @@ def main():
     c.setAttr("perspShape.orthographicWidth", detail_width)
     if nz > 1:
         c.curve(name="far_beach_profile", d=1,
-                p=[(0, 0, width), (toe, 0, width), (length, (length - toe) * slope, width)])
+                p=[(0, 0, basin_width), (toe, 0, basin_width),
+                   (length, (length - toe) * slope, basin_width)])
         for name, eye, target in (
-                ("overview", (length * .5, 90, width + 130), (length * .5, 10, width / 2)),
-                ("breaker_detail", (145, 50, width + 55), (105, 12, width / 2)),
-                ("persp", (145, 50, width + 55), (105, 12, width / 2))):
+                ("overview", (length * .5, 90, basin_width + 130), (length * .5, 10, basin_width / 2)),
+                ("breaker_detail", (145, 50, basin_width + 55), (105, 12, basin_width / 2)),
+                ("persp", (145, 50, basin_width + 55), (105, 12, basin_width / 2))):
             c.setAttr(name + ".translate", *eye)
             c.setAttr(c.listRelatives(name, shapes=True)[0] + ".orthographic", False)
             locator = c.spaceLocator()[0]

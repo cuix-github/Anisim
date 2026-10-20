@@ -29,6 +29,11 @@ local outputs and is not hosted on GitHub. Its builder and the grouped breaker
 instruments live under `experiments/rendering/`; historical script paths remain
 compatible. No simulation or render is needed to regenerate the gallery.
 
+The new [force-driven wave previews](docs/force-wave-preview.md) replace the
+velocity-target wave zone with pre-projection acceleration. They are particle
+previews for scene approval, with independent force and checkpoint gates;
+production resolution and start time remain undecided.
+
 ## How to run
 
 Windows, Maya 2027 with Bifrost 3.1, Visual Studio 2022, Python 3.13.

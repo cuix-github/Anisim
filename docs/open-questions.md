@@ -4,6 +4,15 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Force-driven replacement scene (2026-10-20).** The approved one-hour budget covers a
+  two-dimensional and coarse three-dimensional particle preview, with old
+  caches retained and no rendering. The [preview study](force-wave-preview.md)
+  implements 1,000 spectral force components, independently checks the
+  pre-projection force path and checkpoint clock, and calibrates one wave.
+  The mixed 2D scene produces breaking and escaped water but little extra spray;
+  rear-wall pile-up remains a boundary concern. Inspect both dimensionalities
+  before accepting the scene or scheduling the next production simulation.
+
 - **Intermediate foam and wider views (2026-10-19).** Xue reacted to the
   25/75 uniform/clustered preview with “This is WOW!” and authorized six more
   views with 20/80 density. The [six-view study](rendering/studies/breaker-six-view-study.md) is
