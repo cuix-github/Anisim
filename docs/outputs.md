@@ -66,6 +66,14 @@ display transform; `comparison.png` compares specular depth 1 and 3;
 `aov_panels.png` separates the image components. Earlier setup failures stay in
 the unsuffixed and `_v2` folders. [Findings and validation](breaker-optical-study.md).
 
+The geometry-only diagnosis is in `out/runs/breaker_surface_diagnosis_20261019_v3/`:
+`baked_breaker.mb` contains static control, no-MCF and raw meshes (only the control
+is visible), with camera, lights and materials; `curl_sections.png` compares
+particles and unlit geometric sections. Mesh arrays, closest-point queries,
+hashes and independent reopening checks remain beside them. The earlier directory
+without a suffix and `_v2` retain failed instrumentation runs.
+[Measurements and limitations](breaker-surface-diagnosis.md).
+
 The frozen 24.9 s render study is `out/runs/breaker_render_study_20261019/`: `A` through `E` contain the five 960 x 540 previews, `candidate_D` the 1920 x 1080 inspection candidate, and `comparison.png` the labeled contact sheet. Each arm keeps its saved scene, complete launch log, Arnold/Maya logs and hashed receipt. `verified_study.json` holds the independent scene audit. The source cache at `out/runs/wavesea4/cache/breaking_section` was not rewritten. [Settings, findings and reproduction](breaker-render-study.md).
 
 Each gate's and study's working folder stays at the `out\` root under its own name, as before: `out\loop3_<gate run>` for the loop gates (`resume_*`, `lsn_*`, `st3d`, ...), `out\step_in` and `out\step_out` and their kin for the node gates, `out\play_gate`, `out\p2g_gate`, `out\level_set_node`, `out\threading`, `out\adaptive_*`, `out\bore_suite`. The report lists them under "everything else" with a label each. `out\loop3_D_finale_c1` is the canonical profiling state, the mid-bore finale every speed receipt resumes from; it stays where CLAUDE.md names it. Ask before regenerating it.
