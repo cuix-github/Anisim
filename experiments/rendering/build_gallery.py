@@ -55,7 +55,10 @@ def study(path):
 
 
 def study_doc(name):
-    mapping = [('six_views', 'breaker-six-view-study.md'),
+    if name.startswith('wave2d_'):
+        return ROOT / 'docs/wave-feature-diagnostics.md'
+    mapping = [('mix60_perspective', 'breaker-perspective-study.md'),
+               ('six_views', 'breaker-six-view-study.md'),
                ('mix60', 'breaker-six-view-study.md'),
                ('foam_mix', 'breaker-foam-view-study.md'),
                ('foam_views', 'breaker-foam-view-study.md'),
@@ -141,13 +144,16 @@ def build():
         for name, label in [('state.json', '场景参数'), ('image_check.json', '图像检查'),
                             ('receipt.json', '运行记录'), ('candidate.mb', 'Maya 场景'),
                             ('optical.mb', 'Maya 场景'), ('foam.ass', '泡沫 ASS'),
-                            ('beauty.png', '原始 PNG'), ('optics.0001.exr', 'EXR')]:
+                            ('beauty.png', '原始 PNG'), ('optics.0001.exr', 'EXR'),
+                            ('scenes/wave_2d.ma', 'Maya 粒子场景'),
+                            ('receipts/particle_audit.json', '粒子检查')]:
             if (path.parent / name).is_file():
                 links.append(dict(label=label, url=url(path.parent / name)))
         entries.append(dict(id=identity, path=rel, url=url(path), thumbnail=thumb,
                             title=selected['id'] if selected else (path.parent.name + ' · ' + path.stem),
                             study=study(path), kind=kind, validation=validation, selected=bool(selected),
-                            time_s=camera.get('time_s'), width_m=camera.get('width_m'), ratio=ratio,
+                            time_s=camera.get('time_s'),
+                            width_m=camera.get('width_m', camera.get('target_plane_width_m')), ratio=ratio,
                             note=selected.get('assessment', '') if selected else '', links=links,
                             members=[dict(name=p.name, url=url(p)) for p in members]))
     entries.sort(key=lambda e: (not e['selected'], e['study'], e['path']))
