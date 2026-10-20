@@ -51,13 +51,13 @@ def controls():
 
 def build():
     assert not base.git('status', '--porcelain'), 'Commit instrument first'
-    assert not OUT.exists()
+    assert not (OUT / 'layer.npz').exists(), 'Preserve any completed density build'
     hashes = controls()
-    (OUT / 'C').mkdir(parents=True)
+    (OUT / 'C').mkdir(parents=True, exist_ok=True)
     with np.load(LAYER / 'layer.npz') as z:
         arrays = {key: z[key] for key in z.files}
     a, b = arrays['density_A_per_m'], arrays['density_B_per_m']
-    assert np.array_equal(arrays['density_C_per_m'], (1 - .8) * a + .8 * b)
+    assert np.array_equal(arrays['density_C_per_m'], .2 * a + .8 * b)
     assert np.array_equal(a * 1 + b * 0, a)
     assert np.array_equal(a * 0 + b * 1, b)
     c = (1 - ALPHA_B) * a + ALPHA_B * b
@@ -94,7 +94,7 @@ def prepare_worker():
             assert json.loads(json.dumps(actual)) == before[node], node
         assert c.listConnections('waterSG.surfaceShader') == ['water']
         assert not c.getAttr('baked_raw.visibility') and not c.getAttr('baked_no_mcf.visibility')
-        assert list(c.exactWorldBoundingBox('beach')) == before['beach_bounds']
+        assert list(c.exactWorldBoundingBox('colliders')) == before['beach_bounds']
         c.setAttr('foamLayerShape.dso', (folder / 'foam.ass').as_posix(), type='string')
         c.setAttr('opticalEXR.prefix', (folder / 'optics').as_posix(), type='string')
         c.setAttr('defaultArnoldRenderOptions.log_filename', (folder / 'arnold.log').as_posix(), type='string')
