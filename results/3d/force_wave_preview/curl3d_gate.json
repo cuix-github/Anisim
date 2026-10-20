@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "grid": [
+    16,
+    12,
+    8
+  ],
+  "max_velocity_errors": {
+    "u": 4.656612873077393e-10,
+    "v": 1.2906774260468268e-10,
+    "w": 4.656612873077393e-10
+  },
+  "statistics": {
+    "iterations_used": 7.0,
+    "final_residual": 1.34116e-07,
+    "max_divergence_after": 6.53774e-17,
+    "max_speed": 0.00908319
+  }
+}

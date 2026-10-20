@@ -289,6 +289,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float spray_cfl, const Amino::Array<float>& spray_in,
              float zone_length, float zone_depth, float zone_ramp,
              const Amino::Array<float>& waves,
+             int external_forces,
+             const Amino::Array<float>& liquid_acceleration_u,
+             const Amino::Array<float>& liquid_acceleration_v,
+             const Amino::Array<float>& liquid_acceleration_w,
+             const Amino::Array<float>& linear_drag_u,
+             const Amino::Array<float>& linear_drag_v,
+             const Amino::Array<float>& linear_drag_w,
              const Amino::Array<float>& tau_in,
              const Amino::Array<float>& u_wt, const Amino::Array<float>& v_wt,
              const Amino::Array<float>& w_wt,
@@ -360,6 +367,41 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nu = static_cast<size_t>(NX + 1) * NY * NZ;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
+
+    // Generic external fields, independent of the scene recipe. Accelerations
+    // are cells/s^2, multiplied by the measured liquid fraction. Drag is 1/s,
+    // acting on both phases. A scalar broadcasts; enabled empty/malformed or
+    // nonfinite fields are errors (a missing cache must not silently stop forcing).
+    if (external_forces) {
+        auto validField = [](const Amino::Array<float>& a, size_t n, bool drag) {
+            if (a.size() != 1 && a.size() != n) return false;
+            for (size_t i = 0; i < a.size(); ++i)
+                if (!std::isfinite(a[i]) || (drag && a[i] < 0.0f)) return false;
+            return true;
+        };
+        if (!validField(liquid_acceleration_u, nu, false) ||
+            !validField(liquid_acceleration_v, nv, false) ||
+            !validField(liquid_acceleration_w, nw, false) ||
+            !validField(linear_drag_u, nu, true) ||
+            !validField(linear_drag_v, nv, true) ||
+            !validField(linear_drag_w, nw, true)) {
+            using namespace Amino::MessageLiterals;
+            services.logError("step_3d: invalid external acceleration/drag field; nothing simulated"_amt);
+            std::fprintf(stderr, "step_3d: error: invalid external acceleration/drag field; nothing simulated\n");
+            out_positions = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+            out_velocities = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+            out_pos_synced = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+            for (auto* o : {&out_mass, &out_mom_x, &out_mom_y, &out_mom_z, &out_u, &out_v,
+                           &out_w, &pressure, &out_escaped, &tau_out, &scale_out, &radius_out,
+                           &spray_out, &out_phase_state, &out_wt, &out_wtph})
+                *o = Amino::newClassPtr<Amino::Array<float>>();
+            mask_fine = Amino::newClassPtr<Amino::Array<bool>>();
+            mask_coarse = Amino::newClassPtr<Amino::Array<bool>>();
+            iterations_used = -1;
+            final_residual = max_divergence_after = max_speed = 0.0f;
+            return;
+        }
+    }
 
     // ---- channels -> face velocities (u = mom/mass where mass > 0).
     Vec u(nu, 0.0), v(nv, 0.0), w(nw, 0.0);
@@ -725,6 +767,21 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
 
     // ---- gravity on y faces, then walls.
     for (size_t c = 0; c < nv; ++c) v[c] += gravity * dt;
+    if (external_forces) {
+        auto force = [&](Vec& vel, const Vec& phase, const Vec& wt,
+                         const Amino::Array<float>& a, const Amino::Array<float>& drag) {
+            const long long n = static_cast<long long>(vel.size());
+#pragma omp parallel for schedule(static)
+            for (long long c = 0; c < n; ++c) {
+                const double acc = a[a.size() == 1 ? 0 : c];
+                const double rate = drag[drag.size() == 1 ? 0 : c];
+                vel[c] = (vel[c] + dt * liquidOf(phase, wt, c) * acc) / (1.0 + dt * rate);
+            }
+        };
+        force(u, chP_u, chW_u, liquid_acceleration_u, linear_drag_u);
+        force(v, chP_v, chW_v, liquid_acceleration_v, linear_drag_v);
+        force(w, chP_w, chW_w, liquid_acceleration_w, linear_drag_w);
+    }
     walls(u, v, w, true);
 
     // ---- face coefficients beta = 1/rho(phi), walls zero.

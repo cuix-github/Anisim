@@ -1,0 +1,19 @@
+{
+  "recorded_after_runs": true,
+  "note": "Physics source, runner and DLL unchanged during previews. Documentation and playback builder edited separately. Hashes identify local files after completion.",
+  "base_commit": "d186ed8",
+  "physics_and_runner_commit": "7bbec63",
+  "sha256": {
+    "nodes/src/PFFlipSolve.h": "012c41bb60832274deb5ba642a4645fd0f22736d2b1984e2aee76a1265f03468",
+    "nodes/src/PFFlipSolve3.cpp": "f522570900bcbdc48e60c5956e16db6bc3077ef92650c77abb36629ec37cc003",
+    "graphs/sim_3d_fused.json": "91c8afd62153fe2052f16e095f0faa1121ba871b8c48e25c59c9117575722509",
+    "experiments/force_wave_preview.py": "24550618d53c7108276d09830b8bcde4db7010803a8c1787ffb2d0f6d00ba8e5",
+    "graphs/loop3d.py": "6e5b974455cb758559e47f40d3635b7a741d711486f147037dbff9ff19695d39",
+    "nodes/build/PFFlipSpike-1.0.0/lib/PFFlipSpikeOps.dll": "286069cd19841788db7cdabada04349b45fe8780436205d1549fd019fd567a92"
+  },
+  "threads": {
+    "2d": 8,
+    "3d": 32
+  },
+  "openblas_threads": 8
+}

@@ -1,0 +1,70 @@
+{
+  "inspected": "Full checkpoint states at 5 s intervals, not every substep",
+  "limitation": "Highest particle is not crest height. Liquid includes escaped droplets. This is not a convergence test.",
+  "checkpoints": [
+    {
+      "time_s": 5.0,
+      "non_emitted_liquid_particles": 9604,
+      "liquid_speed_p99_m_s": 1.9587082862854004,
+      "liquid_speed_max_m_s": 2.0710060596466064,
+      "liquid_max_displacement_cells_per_step": 0.08629192411899567,
+      "rear_highest_liquid_m": 11.56302547454834,
+      "downstream_highest_liquid_m": 12.59684944152832,
+      "liquid_within_1m_of_ceiling": 0
+    },
+    {
+      "time_s": 10.0,
+      "non_emitted_liquid_particles": 9604,
+      "liquid_speed_p99_m_s": 4.602602958679199,
+      "liquid_speed_max_m_s": 5.608785152435303,
+      "liquid_max_displacement_cells_per_step": 0.23369938135147095,
+      "rear_highest_liquid_m": 15.451239585876465,
+      "downstream_highest_liquid_m": 13.539070129394531,
+      "liquid_within_1m_of_ceiling": 0
+    },
+    {
+      "time_s": 15.0,
+      "non_emitted_liquid_particles": 9604,
+      "liquid_speed_p99_m_s": 6.355625152587891,
+      "liquid_speed_max_m_s": 15.7018404006958,
+      "liquid_max_displacement_cells_per_step": 0.6542433500289917,
+      "rear_highest_liquid_m": 9.96600341796875,
+      "downstream_highest_liquid_m": 15.860711097717285,
+      "liquid_within_1m_of_ceiling": 0
+    },
+    {
+      "time_s": 20.0,
+      "non_emitted_liquid_particles": 9602,
+      "liquid_speed_p99_m_s": 5.261889457702637,
+      "liquid_speed_max_m_s": 9.181982040405273,
+      "liquid_max_displacement_cells_per_step": 0.3825826048851013,
+      "rear_highest_liquid_m": 19.96320343017578,
+      "downstream_highest_liquid_m": 16.29521369934082,
+      "liquid_within_1m_of_ceiling": 0
+    },
+    {
+      "time_s": 25.0,
+      "non_emitted_liquid_particles": 9599,
+      "liquid_speed_p99_m_s": 3.9155592918395996,
+      "liquid_speed_max_m_s": 4.976820945739746,
+      "liquid_max_displacement_cells_per_step": 0.20736753940582275,
+      "rear_highest_liquid_m": 10.073968887329102,
+      "downstream_highest_liquid_m": 16.2729434967041,
+      "liquid_within_1m_of_ceiling": 0
+    },
+    {
+      "time_s": 30.0,
+      "non_emitted_liquid_particles": 9597,
+      "liquid_speed_p99_m_s": 4.236405849456787,
+      "liquid_speed_max_m_s": 12.420140266418457,
+      "liquid_max_displacement_cells_per_step": 0.5175058841705322,
+      "rear_highest_liquid_m": 12.760613441467285,
+      "downstream_highest_liquid_m": 16.675251007080078,
+      "liquid_within_1m_of_ceiling": 0
+    }
+  ],
+  "sampled_peak_escaped_beyond_source": 95,
+  "sampled_peak_extra_spray_beyond_source": 1,
+  "elapsed_including_bake_export_s": 42.73029999999562,
+  "graph_calls_including_startup_io_s": 39.8224078999483
+}

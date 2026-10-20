@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "final_state_bit_identical": true,
+  "wrong_clock_velocity_difference": 0.005327874794602394,
+  "compared_channels": [
+    "final",
+    "final_velocities",
+    "final_mass",
+    "final_momx",
+    "final_momy",
+    "final_momz",
+    "final_tau",
+    "final_wt",
+    "final_wtph",
+    "final_scale",
+    "final_phase",
+    "final_radius",
+    "final_spray"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "off_bit_identical": true,
+  "lockstep": {
+    "grid": 4.265004600843836e-07,
+    "positions": 3.8132949669034133e-06,
+    "velocities": 3.9285765688658325e-07
+  },
+  "statistics": {
+    "iterations_used": 8.0,
+    "final_residual": 4.91132e-07,
+    "max_divergence_after": 2.75137e-07,
+    "max_speed": 0.116643
+  },
+  "nonfinite_rejected": true
+}
