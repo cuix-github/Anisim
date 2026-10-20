@@ -77,7 +77,7 @@ class Files(unittest.TestCase):
                 validate_plan(plan)
 
 
-def physics(root):
+def physics(root, source):
     import validate_spray_node as spray
     spray.OUT = str(root / "spray")
     Path(spray.OUT).mkdir(parents=True, exist_ok=False)
@@ -91,20 +91,21 @@ def physics(root):
     # Resume with all requested settings and the actual beach/wave zone, using
     # the small nz=1 scene. This is stronger than just checking fields exist.
     import wave_basin as basin
-    source = ROOT / "out/runs/wave2d_spray_20261020"
     plan = json.loads((source / "inputs/plan.json").read_text())
+    last = json.loads((source / "receipts/summary.json").read_text())["chunks"][-1]
+    offset = last["offset"] + last["steps"]
     run = basin.Run(plan["cells_per_metre"])
     run.grid, run.dt = tuple(plan["grid"]), plan["dt"]
-    init = load_final_state(str(source / "dumps/c5"))
+    init = load_final_state(str(source / f"dumps/c{last['chunk']}"))
     common = dict(extra_ports=plan["ports"], fused=True, final_state=True,
                   dump_every=1, solid=(basin.beach_phi(run, basin.scene(run)), 2),
                   waves=np.asarray(plan["waves"], np.float32))
     paths = {}
-    for tag, steps, offset, state in (("full", 4, 1440, init), ("first", 2, 1440, init)):
+    for tag, steps, state in (("full", 4, init), ("first", 2, init)):
         paths[tag], _, _ = run_bifrost3(tag, *run.grid, None, steps, run.dt,
             init_arrays=state, step_offset=offset, out_dir=str(root / tag), **common)
     paths["resumed"], _, _ = run_bifrost3("resumed", *run.grid, None, 2, run.dt,
-        init_arrays=load_final_state(paths["first"]), step_offset=1442,
+        init_arrays=load_final_state(paths["first"]), step_offset=offset + 2,
         out_dir=str(root / "resumed"), **common)
     for name in ("final",) + tuple("final_" + x for x in FINAL_STATE):
         np.testing.assert_array_equal(np.load(Path(paths["full"]) / (name + ".npy")),
@@ -116,13 +117,17 @@ def physics(root):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--physics", action="store_true")
+    ap.add_argument("--resume-source", type=Path,
+                    help="Completed wave_2d run used for the beach/zone restart gate")
     ap.add_argument("--out", type=Path, required=True)
     args = ap.parse_args()
+    if args.physics and not args.resume_source:
+        ap.error("--physics requires --resume-source")
     args.out = args.out.resolve()
     args.out.mkdir(parents=True, exist_ok=False)
     result = unittest.TextTestRunner(verbosity=2).run(unittest.defaultTestLoader.loadTestsFromTestCase(Files))
     record = dict(passed=result.wasSuccessful(), file_tests=result.testsRun)
     if record["passed"] and args.physics:
-        record["physics"] = physics(args.out)
+        record["physics"] = physics(args.out, args.resume_source.resolve())
     atomic_json(args.out / "receipt.json", record)
     sys.exit(0 if record["passed"] else 1)

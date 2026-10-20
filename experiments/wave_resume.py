@@ -128,6 +128,9 @@ def validate_plan(plan):
     gate = json.loads(Path(plan["gates"]).read_text())
     if gate.get("passed") is not True:
         raise ValueError("Preflight gates have not passed")
+    for rel, digest in gate.get("runtime_hashes", {}).items():
+        if sha(runtime / rel) != digest:
+            raise ValueError(f"Runtime no longer matches physics validation: {rel}")
     return root
 
 
@@ -212,7 +215,12 @@ def supervise(plan):
             i = spec["index"]
             receipt = root / "receipts" / f"c{i}.json"
             if receipt.exists():
-                status["completed_until_s"] = json.loads(receipt.read_text())["end_s"]
+                done = json.loads(receipt.read_text())
+                end_s = (spec["offset"] + spec["steps"]) * plan["dt"]
+                if (done["segment"] != i or done["offset"] != spec["offset"] or
+                        done["end_s"] != end_s or done["runtime_commit"] != plan["code_commit"]):
+                    raise ValueError(f"Completion receipt does not match plan: {receipt}")
+                status["completed_until_s"] = end_s
                 continue
             free = shutil.disk_usage(root).free / GIB
             if free < plan["disk_reserve_gib"] + 25:
