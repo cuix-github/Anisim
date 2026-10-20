@@ -1,0 +1,63 @@
+{
+  "passed": true,
+  "best_simultaneous_frame": {
+    "frame": 939,
+    "time_s": 39.104166666666664,
+    "water": 36468,
+    "highest_non_escaped_point_above_still_m": 6.35698127746582,
+    "droplets": 371,
+    "droplets_beyond_zone": 363,
+    "droplets_near_top_or_far_wall": 0,
+    "spray": 134,
+    "spray_beyond_zone": 133,
+    "spray_near_top_or_far_wall": 0
+  },
+  "frames_with_both_populations": 571,
+  "max_near_boundary": {
+    "droplets": 0,
+    "spray": 0
+  },
+  "peaks": {
+    "spray_beyond_zone": {
+      "frame": 939,
+      "time_s": 39.104166666666664,
+      "water": 36468,
+      "highest_non_escaped_point_above_still_m": 6.35698127746582,
+      "droplets": 371,
+      "droplets_beyond_zone": 363,
+      "droplets_near_top_or_far_wall": 0,
+      "spray": 134,
+      "spray_beyond_zone": 133,
+      "spray_near_top_or_far_wall": 0
+    },
+    "droplets_beyond_zone": {
+      "frame": 1299,
+      "time_s": 54.104166666666664,
+      "water": 36071,
+      "highest_non_escaped_point_above_still_m": 4.793397903442383,
+      "droplets": 745,
+      "droplets_beyond_zone": 742,
+      "droplets_near_top_or_far_wall": 0,
+      "spray": 84,
+      "spray_beyond_zone": 84,
+      "spray_near_top_or_far_wall": 0
+    },
+    "highest_non_escaped_point_above_still_m": {
+      "frame": 946,
+      "time_s": 39.39583333333333,
+      "water": 36449,
+      "highest_non_escaped_point_above_still_m": 10.332693099975586,
+      "droplets": 390,
+      "droplets_beyond_zone": 380,
+      "droplets_near_top_or_far_wall": 0,
+      "spray": 130,
+      "spray_beyond_zone": 129,
+      "spray_near_top_or_far_wall": 0
+    }
+  },
+  "plan": {
+    "wave_height_scale": 2.0,
+    "emit_rate": 1.0,
+    "emit_grad_threshold": 10.0
+  }
+}
