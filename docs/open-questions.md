@@ -4,28 +4,25 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
-- **Intermediate foam appearance (2026-10-19).** After reviewing the paired
-  views, Xue leaned toward B clustered but wanted some of A's continuity without
-  its broad matte coating. One explicitly authorized 24.9 s, 18 m oblique
-  preview mixes volume density as 25 percent A plus 75 percent B, keeping total
-  extinction, geometry, lighting and water optics fixed. It passed alignment,
-  scattering and display checks; visual review finds a modest intermediate
-  result with remaining broad patches. It is awaiting Xue's comparison, not a
-  new accepted preset or a claim of paper fidelity. The result and limitations
-  are in the [view study](breaker-foam-view-study.md#one-intermediate-foam-preview).
+- **Intermediate foam and wider views (2026-10-19).** Xue reacted to the
+  25/75 uniform/clustered preview with “This is WOW!” and authorized six more
+  views with 20/80 density. The [six-view study](breaker-six-view-study.md) is
+  complete at 23.025, 24.9 and 27.025 s, pairing 56 m wide framing with 22–24 m
+  details. All six pass alignment, scattering, AOV and display checks; source
+  caches are unchanged and mist stays off. The agent favors the 24.9 s detail,
+  while Xue's review of this batch is pending. This is not a final ocean preset
+  or a claim that the procedural foam distribution reproduces the paper.
 
-- **Water scale and visible crop sides (2026-10-19).** Xue finds the white crest
-  close to the target but the whole image still reads as a small fish tank. The
-  [eight-view foam study](breaker-foam-view-study.md) confirms that much of the
-  glassy side-view wall is near the artificial front crop boundary: 54.2% and
-  61.8% of selected transmitted samples in two side images, versus 12.6% in the
-  oblique image. These are thresholded AOV samples, not total image coverage.
-  The 18–24 m local views also magnify similar absolute cell sizes much more than
-  the reference's kilometre-wide presentation. Prioritize a fuller cached-water
-  composition with artificial sides outside the important sight lines before
-  another material sweep; estimate reconstruction memory first. No expanded
-  reconstruction or extra render has started. Both foam appearances remain
-  candidates. Their instantaneous masks do not provide persistent surface foam.
+- **Water scale and boundary presentation (2026-10-19).** Earlier side views
+  exposed artificial crop walls, as documented in the
+  [eight-view study](breaker-foam-view-study.md). Wider water now removes the
+  large directly visible side wall from the tested main sight lines, but coarse
+  primary-ray checks do not measure refraction paths. Glassy water remains,
+  the first overhead view flattens the wave, and the shore wide view exposes
+  the finite beach model's straight end. The shore foam is concentrated along
+  the front rather than a persistent wake; the curvature/height mask has no
+  transported history. Resolve these presentation and temporal limits before
+  promoting a whole-sequence look. No new simulation is authorized by this batch.
 
 - **Reproduce the papers before adding new render design (Xue, 2026-10-19).**
   The proposed hybrid particle classifier and analytic droplet replacements are

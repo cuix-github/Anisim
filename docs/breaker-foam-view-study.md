@@ -108,7 +108,8 @@ pair and full-size `comparison.png`; the root contact sheet shows all eight.
 checks. `crop_audit.png` and its JSON record the boundary evidence. Numeric
 receipts are committed in `results/rendering/breaker_foam_views_20261019.json`.
 All original source-cache hashes remain unchanged. No final ocean preset is
-selected, and the next expanded-water render remains a proposal.
+selected. The later [six-view study](breaker-six-view-study.md) carries out the
+expanded-water proposal using the existing caches.
 
 ## One intermediate foam preview
 
@@ -143,7 +144,9 @@ hashes are unchanged; mist is off. A/B controls were reused without rendering.
 Visual review finds a modest intermediate result: B's granular structure remains,
 while some gaps gain a thinner continuous white layer. Broad white patches and
 the glossy main water remain; this single image does not establish C as superior
-to B, a final ocean look, or temporally coherent foam. Xue's review is pending.
+to B, a final ocean look, or temporally coherent foam. Xue subsequently reacted
+with “This is WOW!” and requested the [six-view follow-up](breaker-six-view-study.md)
+with 20 percent uniform and 80 percent clustered density.
 The output is `out/runs/breaker_foam_mix_20261019/C/beauty_view.png`, with the
 frozen scene, foam ASS, density diagnostics and numeric receipts beside it.
 Compact evidence is in `results/rendering/breaker_foam_mix_20261019.json`.

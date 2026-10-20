@@ -99,6 +99,15 @@ Listed, not deleted; deleting a run's data is the owner's call.
 
 ## The gates and the studies
 
+The six 20/80 mixed-foam views are in `out/runs/breaker_six_views_20261019/`.
+`comparison.png` and `comparison_full.png` show three cached stages (23.025,
+24.9 and 27.025 s), each with a wide and detail camera. `shots/` holds the six
+licensed renders and their scene/AOV/alignment receipts; `frames/` holds final
+wider meshes, masks and foam, alongside preserved failed memory attempts and
+superseded unrendered preparations. `bounded_control/` proves that restricting
+only the dense-mask calculation leaves the control geometry exact. See the
+[six-view study](breaker-six-view-study.md) for composition limits and timings.
+
 The paired foam viewing study is `out/runs/breaker_foam_views_20261019/`: `wide`
 and `oblique` retain the 24.9 s assets; `later26` and `later28` use existing caches
 at 26.025 and 28.025 s. Every view has A/B scenes, licensed renders, image checks
