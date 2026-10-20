@@ -28,9 +28,9 @@ FRAMES = {
                 xmin=120, wide_target=[140, 12.5, 44]),
     'break': dict(source=base.ROOT/'out/runs/wavesea4/cache/breaking_overview', frame=1,
                   time_s=24.9, target=[145.5, 13.5, 58], rotation=[-15, 140, 0], width=22,
-                  xmin=132, wide_target=[151, 12.5, 44]),
+                  xmin=110, wide_target=[147, 13.5, 44]),
     'shore': dict(source=CACHE, frame=5, time_s=27.025, target=[157, 12.75, 65], rotation=[-30, 90, 0], width=24,
-                  xmin=142, wide_target=[161, 13, 44]),
+                  xmin=132, wide_target=[164, 13.5, 44]),
 }
 ALPHA = .8
 
@@ -230,7 +230,7 @@ def build_layer(name):
 def view_spec(name, view):
     spec = FRAMES[name]
     return dict(time_s=spec['time_s'], width_m=56 if view == 'wide' else spec['width'],
-                rotation=[-65, 90, 0] if view == 'wide' else spec['rotation'],
+                rotation=[-65 if name == 'pre' else -40, 90, 0] if view == 'wide' else spec['rotation'],
                 target_m=spec['wide_target'] if view == 'wide' else spec['target'])
 
 
