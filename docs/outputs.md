@@ -58,6 +58,14 @@ Listed, not deleted; deleting a run's data is the owner's call.
 
 ## The gates and the studies
 
+The frozen optical comparison is `out/runs/breaker_optical_aovs_20261019_v3/`.
+It contains two 960 x 540 renders, their raw multi-channel EXRs, static scenes,
+full receipts including output-collection recovery, extracted channels and
+offline color-corrected views. `color_comparison.png` isolates the missing PNG
+display transform; `comparison.png` compares specular depth 1 and 3;
+`aov_panels.png` separates the image components. Earlier setup failures stay in
+the unsuffixed and `_v2` folders. [Findings and validation](breaker-optical-study.md).
+
 The geometry-only diagnosis is in `out/runs/breaker_surface_diagnosis_20261019_v3/`:
 `baked_breaker.mb` contains static control, no-MCF and raw meshes (only the control
 is visible), with camera, lights and materials; `curl_sections.png` compares

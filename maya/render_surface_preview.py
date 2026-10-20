@@ -48,6 +48,11 @@ def render(frames):
     cmds.setAttr("defaultRenderGlobals.putFrameBeforeExt", 1)
     cmds.setAttr("defaultRenderGlobals.imageFilePrefix", name, type="string")
     cmds.setAttr("defaultArnoldDriver.ai_translator", "png", type="string")
+    # PNG is a display image. Retaining the driver's EXR default (Use Output
+    # Transform) with outputTransformEnabled=False writes linear ACEScg values
+    # into an ordinary PNG. Keep the scene's selected view transform explicit.
+    color_modes = cmds.attributeQuery("colorManagement", node="defaultArnoldDriver", listEnum=True)[0].split(":")
+    cmds.setAttr("defaultArnoldDriver.colorManagement", color_modes.index("Use View Transform"))
     cmds.setAttr("defaultResolution.width", width)
     cmds.setAttr("defaultResolution.height", height)
     cmds.setAttr("defaultResolution.deviceAspectRatio", width / float(height))
