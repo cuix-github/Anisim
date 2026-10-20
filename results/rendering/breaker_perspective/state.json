@@ -1,0 +1,150 @@
+{
+  "water": {
+    "base": 0.0,
+    "metalness": 0.0,
+    "specular": 1.0,
+    "specularIOR": 1.3300000429153442,
+    "specularRoughness": 0.029999999329447746,
+    "transmission": 1.0,
+    "transmissionColor": [
+      [
+        0.30000001192092896,
+        0.550000011920929,
+        0.6000000238418579
+      ]
+    ],
+    "transmissionDepth": 40.0,
+    "transmissionScatter": [
+      [
+        0.0,
+        0.0,
+        0.0
+      ]
+    ],
+    "thinWalled": false
+  },
+  "sky": {
+    "color": [
+      [
+        0.029999999329447746,
+        0.03500000014901161,
+        0.04500000178813934
+      ]
+    ],
+    "intensity": 12.0,
+    "camera": 0.0
+  },
+  "sun": {
+    "visibility": true,
+    "rotate": [
+      [
+        -40.0,
+        160.0,
+        0.0
+      ]
+    ]
+  },
+  "sunShape": {
+    "color": [
+      [
+        1.0,
+        0.949999988079071,
+        0.8600000143051147
+      ]
+    ],
+    "intensity": 6.0
+  },
+  "persp": {
+    "translate": [
+      [
+        820.3540612059384,
+        153.52761804100828,
+        -103.97684467753913
+      ]
+    ],
+    "rotate": [
+      [
+        -14.999999999999998,
+        140.0,
+        0.0
+      ]
+    ]
+  },
+  "perspShape": {
+    "orthographic": false,
+    "orthographicWidth": 88.0,
+    "focalLength": 64.28571428571429,
+    "horizontalFilmAperture": 1.4173228346456694,
+    "verticalFilmAperture": 0.797244094488189,
+    "filmFit": 1,
+    "depthOfField": false
+  },
+  "defaultArnoldDriver": {
+    "colorManagement": 1
+  },
+  "defaultArnoldRenderOptions": {
+    "AASamples": 4,
+    "GISpecularDepth": 3,
+    "GITransmissionDepth": 8,
+    "GITotalDepth": 10,
+    "GIVolumeDepth": 3,
+    "GIVolumeSamples": 2
+  },
+  "defaultColorMgtGlobals": {
+    "wsn": "ACEScg",
+    "vtn": "ACES 1.0 SDR-video (sRGB)"
+  },
+  "geometry": {
+    "vertices": 594229,
+    "triangles": 1188078,
+    "bounds": [
+      439.70269775390625,
+      29.310199737548828,
+      39.68077087402344,
+      641.2633666992188,
+      66.8351058959961,
+      312.3418884277344
+    ],
+    "points_normals_topology_sha256": [
+      "c42123af0f93f343d337d1b6c8b21eaf602c5f6014442fad16f057931f55522e",
+      "92f225f30647992d8cac9b5bc30b58031a6aed46ce663ed3aab61f9e035f3754",
+      "2f310c34eea9a1fac563a998f125ab3b0cf20cb6b32558fa94fdc0743d62ea4a",
+      "4486815355b4801fb09ec85ee8277166a0911ddcde9a586dd180edeb0ffb5cf3"
+    ]
+  },
+  "foam_ass_sha256": "099f0f56b81cbddbde1819e7e5b79d97dd86dbee7bd2186f743c1d3e96312a66",
+  "foam_layer_sha256": "c4291c59ff5ea3d9180be1895b3c06fb2a150c35d1b8fe3429df42dbba768102",
+  "foam_arm": "C",
+  "alpha_B": 0.4,
+  "mist": false,
+  "view": {
+    "time_s": 24.9,
+    "target_m": [
+      143.0,
+      12.5,
+      48.0
+    ],
+    "eye_m": [
+      205.0885153014846,
+      38.38190451025207,
+      -25.994211169384783
+    ],
+    "distance_m": 100.0,
+    "target_plane_width_m": 56.0,
+    "height_above_still_water_m": 26.38190451025207,
+    "resolution": [
+      1920,
+      1080
+    ],
+    "perspective": true,
+    "extent": "Existing 50x68 m reconstruction; not the entire 172x80 m basin"
+  },
+  "beach_bounds": [
+    144.0,
+    0.0,
+    0.0,
+    688.0,
+    54.400001525878906,
+    320.0
+  ]
+}

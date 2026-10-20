@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "aov_closure_relative_l1": 8.827322134236505e-08,
+  "component_raw_rgb_share": {
+    "specular": 0.3030478942300062,
+    "transmission": 0.27162172004603247,
+    "diffuse": 0.3953680056880156,
+    "sss": 0.0,
+    "coat": 0.0,
+    "sheen": 0.0,
+    "emission": 0.0,
+    "volume": 0.029962380305619492,
+    "background": 0.0
+  },
+  "display_mean_abs_levels": 0.2616303369341564,
+  "render_call_s": 370.0006691000308,
+  "process_s": 380.2528078999603
+}

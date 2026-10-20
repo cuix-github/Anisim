@@ -1,0 +1,57 @@
+{
+  "passed": true,
+  "control": {
+    "stock": {
+      "final_max_diff": 0.0,
+      "frames_diagnostics_bit_exact": true,
+      "negative_control_difference": "particle counts/shapes differ"
+    },
+    "fused": {
+      "final_max_diff": 0.0,
+      "frames_diagnostics_bit_exact": true,
+      "negative_control_difference": "particle counts/shapes differ"
+    }
+  },
+  "spray": {
+    "passed": true,
+    "file_tests": 3,
+    "physics": {
+      "off": {
+        "unset_identical": true,
+        "spray_all_zero": true,
+        "droplets": 60
+      },
+      "lockstep": {
+        "grid": 0.0001327546826505599,
+        "positions": 4.360726919117042e-06,
+        "velocities": 0.00011567376467877533,
+        "escape_mismatches": 0,
+        "spray_mismatches": 0,
+        "droplets": 60,
+        "radius_rel": 9.042107614327117e-08,
+        "spray": 26,
+        "count": 19206,
+        "emitted": 6,
+        "deleted": 0,
+        "iterations": 10.0
+      },
+      "loop": {
+        "spray_first": 0,
+        "spray_last": 2,
+        "spray_max": 5,
+        "fresh_max": 1,
+        "placed": true,
+        "others_match_without": true,
+        "massless": true,
+        "others_identical_3d": true,
+        "resumed_spray": 2
+      },
+      "beach_zone_spray_resume_bit_exact": true
+    }
+  },
+  "runtime_hashes": {
+    "nodes/build/PFFlipSpike-1.0.0/lib/PFFlipSpikeOps.dll": "017893aa27e9dc4ea84e561657848a43c9e11159a9cba98bd85e1c19e934e699",
+    "graphs/sim_3d_fused.json": "857223fd8e36a456e8bbfd56f93823ae5143152174dae7881e016b930c248e5a",
+    "graphs/sim_3d.json": "a6380bffb6a41a83e9c043e910d11410ecf7ce4671b309361c2dc5fd8b017501"
+  }
+}

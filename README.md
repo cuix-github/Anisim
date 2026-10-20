@@ -29,6 +29,12 @@ local outputs and is not hosted on GitHub. Its builder and the grouped breaker
 instruments live under `experiments/rendering/`; historical script paths remain
 compatible. No simulation or render is needed to regenerate the gallery.
 
+The [wave-feature diagnostic and October 20 continuation](docs/wave-feature-diagnostics.md)
+record the small Maya particle demo, its stronger 60-second replacement, and
+the separately scheduled 18–30-second 3D spray run. The
+[distant perspective observation](docs/rendering/studies/breaker-perspective-study.md)
+reuses the 24.9-second cache and 60/40 foam appearance.
+
 ## How to run
 
 Windows, Maya 2027 with Bifrost 3.1, Visual Studio 2022, Python 3.13.
