@@ -30,7 +30,7 @@ FRAMES = {
                   time_s=24.9, target=[145.5, 13.5, 58], rotation=[-15, 140, 0], width=22,
                   xmin=132, wide_target=[151, 12.5, 44]),
     'shore': dict(source=CACHE, frame=5, time_s=27.025, target=[157, 12.75, 65], rotation=[-30, 90, 0], width=24,
-                  xmin=142, wide_target=[159, 13, 44]),
+                  xmin=142, wide_target=[161, 13, 44]),
 }
 ALPHA = .8
 
