@@ -1,0 +1,134 @@
+"""Build a particle playback scene with the actual configured solver graph beside it.
+
+mayapy maya/build_wave_2d_scene.py <run directory>
+The solver compound has no connected outputs: timeline playback evaluates only
+cached particles. Its inputs are complete for manual, explicitly requested evaluation.
+"""
+import json
+import os
+from pathlib import Path
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+CONFIGS = [ROOT / "nodes/build/PFFlipSpike-1.0.0/PFFlipSpikePackConfig.json",
+           ROOT / "maya/pfflip_sim_config.json", ROOT / "maya/pfflip_graphs_config.json"]
+os.environ["BIFROST_LIB_CONFIG_FILES"] = ";".join(map(str, CONFIGS))
+for key in ("MAYA_DISABLE_CER", "MAYA_DISABLE_CIP", "MAYA_DISABLE_CLIC_IPM"):
+    os.environ[key] = "1"
+
+
+def main():
+    run = Path(sys.argv[1]).resolve()
+    plan = json.loads((run / "inputs/plan.json").read_text())
+    cache = run / "cache/full"
+    index = json.loads((cache / "cache.json").read_text())
+    import maya.standalone
+    maya.standalone.initialize(name="python")
+    import maya.cmds as c
+    c.loadPlugin("bifrostGraph")
+    c.file(new=True, force=True)
+    c.currentUnit(linear="m", time="film")
+    for layer, color, size in (("water", (0.06, 0.4, 0.85), 0.075),
+                               ("droplets", (0.35, 0.95, 1.0), 0.1),
+                               ("spray", (1.0, 0.65, 0.1), 0.13),
+                               ("air", (0.4, 0.4, 0.4), 0.04)):
+        shape = c.createNode("bifrostGraphShape", name=layer + "ParticlesShape")
+        parent = c.listRelatives(shape, parent=True)[0]
+        parent = c.rename(parent, layer + "_cached_particles")
+        shape = c.listRelatives(parent, shapes=True)[0]
+        # Bifrost's points arrive in Maya's internal centimetres, irrespective of
+        # the UI linear unit. The playback cache deliberately stores metres.
+        c.setAttr(parent + ".scale", 100, 100, 100)
+        node = c.vnnCompound(shape, "/", addNode="PFFlipGraphs,User::PFFlip,particle_play")[0]
+        c.vnnNode(shape, "/input", createOutputPort=("frame", "float"))
+        c.vnnNode(shape, "/output", createInputPort=("points", "Object"))
+        c.vnnConnect(shape, "/input.frame", "/" + node + ".frame")
+        c.vnnConnect(shape, "/" + node + ".points", "/output.points")
+        for port, value in (("liquid_pattern", str(cache / layer / "liquid.####").replace("\\", "/")),
+                            ("speed_pattern", str(cache / layer / "speed.####").replace("\\", "/")),
+                            ("point_size", str(size)), ("speed_scale", "20"),
+                            ("slow_color", ",".join(map(str, color))),
+                            ("fast_color", ",".join(map(str, color)))):
+            c.vnnNode(shape, "/" + node, setPortDefaultValues=(port, value))
+        c.connectAttr("time1.outTime", shape + ".frame")
+        if layer == "air":
+            c.setAttr(shape + ".visibility", False)
+    shape = c.createNode("bifrostGraphShape", name="waveSolverGraphShape")
+    parent = c.rename(c.listRelatives(shape, parent=True)[0], "wave_solver_OPEN_IN_BIFROST")
+    shape = c.listRelatives(parent, shapes=True)[0]
+    node = c.vnnCompound(shape, "/", addNode="PFFlipSim,User::PFFlip,sim_3d_fused")[0]
+    compound = json.loads((ROOT / "graphs/sim_3d_fused.json").read_text())["compounds"][0]
+    manual = run / "manual_solver_output"
+    manual.mkdir(exist_ok=True)
+    values = dict(plan["ports"], nx=plan["grid"][0], ny=plan["grid"][1], nz=1,
+                  dt=plan["dt"], substeps=round(plan["seconds"] / plan["dt"]),
+                  step_offset=0, dump_every=2, solid_mode=2)
+    for port in compound["ports"]:
+        name = port["portName"]
+        if name.startswith("path_final_"):
+            short = name[len("path_final_"):]
+            values[name] = str(manual / ("final.npy" if short == "positions" else f"final_{short}.npy"))
+        elif name.startswith("path_"):
+            values[name] = str(run / "dumps/c0" / (name[5:] + ".npy"))
+        elif name.endswith("_pattern"):
+            prefix = "frame" if name == "pos_pattern" else name.removesuffix("_pattern")
+            values[name] = str(manual / (prefix + ".####"))
+    for key, value in values.items():
+        c.vnnNode(shape, "/" + node, setPortDefaultValues=(key, str(value).replace("\\", "/")))
+    c.addAttr(shape, longName="purpose", dataType="string")
+    c.setAttr(shape + ".purpose", "Actual custom solver graph. No outputs connected; playback reads cache only.",
+              type="string")
+    # A metre-scale beach outline provides scale without rendering a water surface.
+    c.curve(name="beach_profile", d=1, p=[(0, 0, 0), (36, 0, 0), (172, 13.6, 0)])
+    c.curve(name="still_water_12m", d=1, p=[(0, 12, 0), (156, 12, 0)])
+    c.curve(name="domain_172m_by_24m", d=1,
+            p=[(0, 0, 0), (172, 0, 0), (172, 24, 0), (0, 24, 0), (0, 0, 0)])
+    for name, center, width in (("overview_172m", (86, 12, 180), 185),
+                                 ("breaker_detail", (129, 12, 100), 90)):
+        cam, camshape = c.camera(name=name)
+        c.setAttr(cam + ".translate", *center)
+        c.setAttr(camshape + ".orthographic", True)
+        c.setAttr(camshape + ".orthographicWidth", width)
+        c.setAttr(camshape + ".farClipPlane", 1000)
+        c.setAttr(camshape + ".nearClipPlane", 0.01)
+    c.setAttr("persp.translate", 129, 12, 100)
+    c.setAttr("persp.rotate", 0, 0, 0)
+    c.setAttr("perspShape.orthographic", True)
+    c.setAttr("perspShape.orthographicWidth", 90)
+    for panel in c.getPanel(type="modelPanel") or []:
+        c.modelEditor(panel, edit=True, camera="breaker_detail", grid=False,
+                      displayAppearance="smoothShaded")
+    c.playbackOptions(min=1, max=index["frames"], ast=1, aet=index["frames"],
+                      playbackSpeed=1, maxPlaybackSpeed=1)
+    # Force representative frames to evaluate in Maya and verify visible geometry.
+    audit = []
+    for frame in (1, 240, 480, min(600, index["frames"]), index["frames"]):
+        t0 = time.perf_counter()
+        c.currentTime(frame)
+        bounds = c.exactWorldBoundingBox("water_cached_particles")
+        import numpy as np
+        points = np.load(cache / "water" / f"liquid.{frame:04d}.npy")
+        expected = np.r_[points.min(axis=0), points.max(axis=0)]
+        if not np.allclose(bounds, expected, atol=1e-4):
+            raise RuntimeError(f"Playback unit/bounds mismatch at {frame}: {bounds} vs {expected}")
+        audit.append(dict(frame=frame, evaluation_s=time.perf_counter() - t0, bounds_m=bounds))
+    c.currentTime(min(600, index["frames"]))
+    c.select("wave_solver_OPEN_IN_BIFROST")
+    scene = run / "scenes/wave_2d.ma"
+    scene.parent.mkdir(exist_ok=True)
+    c.file(rename=str(scene))
+    c.file(save=True, type="mayaAscii")
+    (run / "receipts/maya_scene.json").write_text(json.dumps(
+        dict(status="passed", scene=str(scene), graph=node, evaluations=audit), indent=2))
+    launch = run / "open_in_maya.bat"
+    launch.write_text('@echo off\nsetlocal\nset "BIFROST_LIB_CONFIG_FILES=' +
+                     ";".join(map(str, CONFIGS)) + '"\nstart "" "C:\\Program Files\\Autodesk\\Maya2027\\bin\\maya.exe" "' +
+                     str(scene) + '"\n', encoding="utf-8")
+    print("SAVED", scene, flush=True)
+    import ctypes
+    ctypes.windll.kernel32.TerminateProcess(ctypes.windll.kernel32.GetCurrentProcess(), 0)
+
+
+if __name__ == "__main__":
+    main()

@@ -69,7 +69,7 @@ def prepare(out):
         base.save(out/'prepare.json',dict(status='failed',error=traceback.format_exc()));base.exit_worker(1)
 
 
-def render(folder):
+def render(folder, resolution=(960, 540)):
     import maya.cmds as c
     start=time.perf_counter()
     try:
@@ -82,7 +82,7 @@ def render(folder):
         state=json.loads((folder/'state.json').read_text());assert base.geometry(c)==state['geometry']
         assert c.listConnections('waterSG.surfaceShader')==['water']
         assert base.sha(Path(c.getAttr('foamLayerShape.dso')))==state['foam_ass_sha256']
-        renderstart=time.perf_counter();c.arnoldRender(seq='1',w=960,h=540,cam='persp',srv=False)
+        renderstart=time.perf_counter();c.arnoldRender(seq='1',w=resolution[0],h=resolution[1],cam='persp',srv=False)
         render_s=time.perf_counter()-renderstart
         pngs=list((folder/'tmp').rglob('*.png'));assert len(pngs)==1,pngs
         shutil.move(str(pngs[0]),folder/'beauty.png')
@@ -153,14 +153,16 @@ exit $p.ExitCode
         receipt['process_s']=time.perf_counter()-start;base.save(path,receipt);print(json.dumps(receipt,indent=2))
 
 
-def check(folder):
+def check(folder, resolution=(960, 540)):
     from PIL import Image
     receipt=json.loads((folder/'receipt.json').read_text());assert receipt['status']=='passed'
     assert base.sha(folder/'beauty.png')==receipt['png_sha256']
     exr=folder/receipt['worker']['exr'];assert base.sha(exr)==receipt['exr_sha256']
     info=subprocess.check_output([OIIO,'--info','-v',str(exr)],text=True)
     (folder/'exr_info.txt').write_text(info)
-    assert '960 x  540, 54 channel, float openexr' in info and 'arnold/license_state: "valid"' in info
+    import re
+    assert re.search(rf'{resolution[0]}\s*x\s*{resolution[1]}, 54 channel, float openexr', info)
+    assert 'arnold/license_state: "valid"' in info
     log=(folder/'arnold.1.log').read_text();assert 'ERROR' not in log and '| render done' in log
     data={}
     for layer in LAYERS:
