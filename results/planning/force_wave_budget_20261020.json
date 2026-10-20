@@ -1,0 +1,138 @@
+{
+  "measured_at": "2026-10-20T00:41:09.383309-04:00",
+  "status": "planning_only_no_new_simulation_or_schedule",
+  "historical": {
+    "source": "out/runs/wavesea4/receipts/c0.json through c4.json",
+    "thread_evidence": "out/night/sea_night2.log: OMP_NUM_THREADS=32",
+    "threads": 32,
+    "grid": [
+      688,
+      96,
+      320
+    ],
+    "cells": 21135360,
+    "dt_s": 0.025,
+    "steps": 1200,
+    "simulated_s": 30.0,
+    "wall_hours": 16.892583333333334,
+    "mean_step_s": 50.67775,
+    "chunk_mean_step_s": [
+      31.19,
+      50.13,
+      54.4,
+      58.35,
+      59.32
+    ],
+    "new_force_spray_configuration_measured": false
+  },
+  "candidates": [
+    {
+      "nominal_domain_m": [
+        180,
+        32,
+        72
+      ],
+      "actual_domain_m": [
+        180.0,
+        32.1,
+        72.0
+      ],
+      "dx_m": 0.3,
+      "grid": [
+        600,
+        107,
+        240
+      ],
+      "cells": 15408000,
+      "dt_s": 0.020833333333333332,
+      "steps": 1440,
+      "cell_step_scaling_hours": 14.778,
+      "scenarios_including_one_hour_cache_checks": {
+        "1": 15.778,
+        "1.25": 19.472,
+        "1.5": 23.167
+      },
+      "step_time_limit_with_one_hour_reserved_s": 35.0
+    },
+    {
+      "nominal_domain_m": [
+        180,
+        32,
+        72
+      ],
+      "actual_domain_m": [
+        180.0,
+        32.0,
+        72.0
+      ],
+      "dx_m": 0.3333333333333333,
+      "grid": [
+        540,
+        96,
+        216
+      ],
+      "cells": 11197440,
+      "dt_s": 0.020833333333333332,
+      "steps": 1440,
+      "cell_step_scaling_hours": 10.74,
+      "scenarios_including_one_hour_cache_checks": {
+        "1": 11.74,
+        "1.25": 14.424,
+        "1.5": 17.109
+      },
+      "step_time_limit_with_one_hour_reserved_s": 35.0
+    },
+    {
+      "nominal_domain_m": [
+        180,
+        32,
+        72
+      ],
+      "actual_domain_m": [
+        180.25,
+        32.199999999999996,
+        72.1
+      ],
+      "dx_m": 0.35,
+      "grid": [
+        515,
+        92,
+        206
+      ],
+      "cells": 9760280,
+      "dt_s": 0.020833333333333332,
+      "steps": 1440,
+      "cell_step_scaling_hours": 9.361,
+      "scenarios_including_one_hour_cache_checks": {
+        "1": 10.361,
+        "1.25": 12.701,
+        "1.5": 15.042
+      },
+      "step_time_limit_with_one_hour_reserved_s": 35.0
+    }
+  ],
+  "model_limitations": "Linear cell-step scaling screens candidates only. New forcing, particle occupancy, pressure iterations, timestep stability and dump cadence differ. Multipliers are sensitivity scenarios, not measured overhead or confidence intervals.",
+  "storage": {
+    "assumed_total_particles": 32000000,
+    "assumed_exact_dump_fps": 12,
+    "assumed_frames": 360,
+    "raw_gib": 472.069,
+    "checkpoint_inputs_and_outputs_gib": 60.797,
+    "display_copy_gib": 18.775,
+    "other_allowance_gib": 60,
+    "estimated_gib": 611.641,
+    "planning_cap_gib": 650,
+    "free_disk_reserve_gib": 250,
+    "limitations": "Particle count, spray growth and I/O speed unmeasured. The 650 GiB cap is a planning target, not an implemented guard. Playback thinning/export has not been implemented. No compression or deletion savings are assumed."
+  },
+  "inventory": {
+    "meaning": "Logical file sizes; not allocated blocks or a duplicate audit",
+    "free_gib": 1168.592,
+    "out_gib": 635.858,
+    "unreadable_files": 0,
+    "wavesea4_cache_gib": 9.47,
+    "wavesea4_dumps_gib": 439.309
+  },
+  "remaining_gib_after_planning_cap_and_reserve": 268.592,
+  "delete_required_by_this_envelope": false
+}
