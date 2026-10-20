@@ -17,7 +17,7 @@ import breaker_deep_water as base
 def graph(cache):
     p=np.load(cache/'liquid.0001.npy',mmap_mode='r')
     r=np.load(cache/'radius.0001.npy',mmap_mode='r')
-    p=p[r<=1e-8]
+    p=p[r<1e-9]
     step=surface.KNOBS['detail_size']
     lo=np.floor(p.min(0)/step)*step-32
     hi=np.ceil(p.max(0)/step)*step+32
@@ -102,10 +102,33 @@ def frame(name):
     with (root/'normal.log').open('w') as log:
         proc=subprocess.run([study.render.MAYAPY,str(Path(study.__file__).resolve())],env=env,stdout=log,stderr=subprocess.STDOUT,timeout=180)
     assert proc.returncode==0
+    finish(name)
+
+
+def finish(name):
+    surface.clean_sha()
+    spec=study.FRAMES[name];root=study.OUT/'frames'/name
+    receipt=study.read(root/'bounded_reconstruction/receipt.json')
+    p=np.load(root/'positions.npy');t=np.load(root/'indices.npy').reshape(-1,3)
     n=np.load(root/'normals.npy');assert n.shape==p.shape and np.isfinite(n).all()
+    bad=np.flatnonzero(np.abs(np.linalg.norm(n,axis=1)-1)>1e-4)
+    if len(bad):
+        # Remove only a wholly disconnected, numerically collapsed component.
+        faces=np.isin(t,bad).any(1)
+        assert np.isin(t[faces],bad).all()
+        diameter=float(np.linalg.norm(np.ptp(p[bad],axis=0))*.25)
+        assert diameter<1e-5 and len(bad)<=8
+        base.save(root/'collapsed_component.json',dict(vertices=bad.tolist(),faces=int(faces.sum()),diameter_m=diameter,
+                  reason='Zero-area disconnected component has undefined normals; original arrays retained.'))
+        keep=np.ones(len(p),bool);keep[bad]=False
+        remap=np.cumsum(keep)-1
+        p,n,t=p[keep],n[keep],remap[t[~faces]]
     assert np.max(np.abs(np.linalg.norm(n,axis=1)-1))<1e-4
     np.savez_compressed(root/'mesh.npz',points=p,triangles=t,normals=n)
+    hashes={k:base.sha(spec['source']/f"{k}.{spec['frame']:04}.npy") for k in ['liquid','radius']}
+    count=len(np.load(root/'bounded_cache/liquid.0001.npy',mmap_mode='r'))
     for k,h in hashes.items():assert base.sha(spec['source']/f"{k}.{spec['frame']:04}.npy")==h
+    receipt.update(vertices=len(p),triangles=len(t),collapsed_vertices_removed=len(bad))
     base.save(root/'mesh_receipt.json',dict(receipt,time_s=spec['time_s'],source=str(spec['source']),
               source_frame=spec['frame'],source_hashes=hashes,crop_x_min_m=spec['xmin'],crop_z_m=[10,78],
               particles=count,mesh_sha256=base.sha(root/'mesh.npz'),simulation=False,
@@ -115,6 +138,8 @@ def frame(name):
 
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('action',choices=['control','pre','break','shore'])
+    parser.add_argument('action',choices=['control','pre','break','shore','finish_shore'])
     a=parser.parse_args().action
-    control() if a=='control' else frame(a)
+    if a=='control':control()
+    elif a=='finish_shore':finish('shore')
+    else:frame(a)
