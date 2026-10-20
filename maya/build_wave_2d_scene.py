@@ -23,6 +23,18 @@ def main():
     plan = json.loads((run / "inputs/plan.json").read_text())
     cache = run / "cache/full"
     index = json.loads((cache / "cache.json").read_text())
+    import numpy as np
+    inspection = run / "receipts/particle_audit.json"
+    start_frame = (json.loads(inspection.read_text())["best_simultaneous_frame"]["frame"]
+                   if inspection.exists() else min(600, index["frames"]))
+    events = np.concatenate([np.load(cache / layer / f"liquid.{start_frame:04d}.npy")
+                             for layer in ("droplets", "spray")])
+    events = events[events[:, 0] > 34]
+    if len(events):
+        lo, hi = np.percentile(events[:, 0], [2, 98])
+        detail_x, detail_width = float((lo + hi) / 2), float(np.clip(hi - lo + 20, 60, 150))
+    else:
+        detail_x, detail_width = 129, 90
     import maya.standalone
     maya.standalone.initialize(name="python")
     import maya.cmds as c
@@ -85,17 +97,17 @@ def main():
     c.curve(name="domain_172m_by_24m", d=1,
             p=[(0, 0, 0), (172, 0, 0), (172, 24, 0), (0, 24, 0), (0, 0, 0)])
     for name, center, width in (("overview_172m", (86, 12, 180), 185),
-                                 ("breaker_detail", (129, 12, 100), 90)):
+                                 ("breaker_detail", (detail_x, 12, 100), detail_width)):
         cam, camshape = c.camera(name=name)
         c.setAttr(cam + ".translate", *center)
         c.setAttr(camshape + ".orthographic", True)
         c.setAttr(camshape + ".orthographicWidth", width)
         c.setAttr(camshape + ".farClipPlane", 1000)
         c.setAttr(camshape + ".nearClipPlane", 0.01)
-    c.setAttr("persp.translate", 129, 12, 100)
+    c.setAttr("persp.translate", detail_x, 12, 100)
     c.setAttr("persp.rotate", 0, 0, 0)
     c.setAttr("perspShape.orthographic", True)
-    c.setAttr("perspShape.orthographicWidth", 90)
+    c.setAttr("perspShape.orthographicWidth", detail_width)
     for panel in c.getPanel(type="modelPanel") or []:
         c.modelEditor(panel, edit=True, camera="breaker_detail", grid=False,
                       displayAppearance="smoothShaded")
@@ -103,24 +115,30 @@ def main():
                       playbackSpeed=1, maxPlaybackSpeed=1)
     # Force representative frames to evaluate in Maya and verify visible geometry.
     audit = []
-    for frame in (1, 240, 480, min(600, index["frames"]), index["frames"]):
+    for frame in sorted(set((1, index["frames"] // 4, index["frames"] // 2,
+                             3 * index["frames"] // 4, start_frame, index["frames"]))):
         t0 = time.perf_counter()
         c.currentTime(frame)
-        bounds = c.exactWorldBoundingBox("water_cached_particles")
-        import numpy as np
-        points = np.load(cache / "water" / f"liquid.{frame:04d}.npy")
-        expected = np.r_[points.min(axis=0), points.max(axis=0)]
-        if not np.allclose(bounds, expected, atol=1e-4):
-            raise RuntimeError(f"Playback unit/bounds mismatch at {frame}: {bounds} vs {expected}")
-        audit.append(dict(frame=frame, evaluation_s=time.perf_counter() - t0, bounds_m=bounds))
-    c.currentTime(min(600, index["frames"]))
+        layers = {}
+        for layer in ("water", "droplets", "spray"):
+            points = np.load(cache / layer / f"liquid.{frame:04d}.npy")
+            if len(points):
+                bounds = c.exactWorldBoundingBox(layer + "_cached_particles")
+                expected = np.r_[points.min(axis=0), points.max(axis=0)]
+                if not np.allclose(bounds, expected, atol=1e-4):
+                    raise RuntimeError(f"Playback unit/bounds mismatch: {layer} frame {frame}")
+                layers[layer] = dict(particles=len(points), bounds_m=bounds)
+        audit.append(dict(frame=frame, evaluation_s=time.perf_counter() - t0, layers=layers))
+    c.currentTime(start_frame)
     c.select("wave_solver_OPEN_IN_BIFROST")
     scene = run / "scenes/wave_2d.ma"
     scene.parent.mkdir(exist_ok=True)
     c.file(rename=str(scene))
     c.file(save=True, type="mayaAscii")
     (run / "receipts/maya_scene.json").write_text(json.dumps(
-        dict(status="passed", scene=str(scene), graph=node, evaluations=audit), indent=2))
+        dict(status="passed", scene=str(scene), graph=node, evaluations=audit,
+             start_frame=start_frame, detail_center_x_m=detail_x,
+             detail_width_m=detail_width), indent=2))
     launch = run / "open_in_maya.bat"
     launch.write_text('@echo off\nsetlocal\nset "BIFROST_LIB_CONFIG_FILES=' +
                      ";".join(map(str, CONFIGS)) + '"\nstart "" "C:\\Program Files\\Autodesk\\Maya2027\\bin\\maya.exe" "' +
