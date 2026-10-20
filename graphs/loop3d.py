@@ -57,7 +57,8 @@ def load_final_state(d):
 def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
                  extra_ports=None, seed_fn=None, obstacles=None, fused=False,
                  dump_every=1, init_arrays=None, final_state=False, step_offset=0,
-                 dumps=DUMPS, solid=None, out_dir=None, waves=None, release_init=False):
+                 dumps=DUMPS, solid=None, out_dir=None, waves=None, release_init=False,
+                 log_prefix=None):
     """init_arrays resumes from a saved state instead of seeding; final_state also
     writes the whole state at the end (final_<name>.npy beside final.npy); a
     resumed run passes step_offset = substeps already run, so the ST jitter
@@ -137,7 +138,18 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
               for x in ("--set-port", nm + "_pattern", (d + f"/{nm}.####").replace("\\", "/"))]]
     for k, path in paths.items():
         args += ["--set-port", "path_" + k, path]
-    res = subprocess.run(args, capture_output=True, text=True)
+    if log_prefix is None:
+        res = subprocess.run(args, capture_output=True, text=True)
+    else:
+        # Long unattended runs need diagnostics even if bifcmd dies mid-chunk.
+        # The default path remains unchanged for existing gates and experiments.
+        os.makedirs(os.path.dirname(os.path.abspath(log_prefix)), exist_ok=True)
+        with open(log_prefix + ".stdout.log", "w") as stdout, open(log_prefix + ".stderr.log", "w") as stderr:
+            res = subprocess.run(args, stdout=stdout, stderr=stderr, text=True)
+        with open(log_prefix + ".stdout.log", errors="replace") as f:
+            res.stdout = f.read()
+        with open(log_prefix + ".stderr.log", errors="replace") as f:
+            res.stderr = f.read()
     last = ((substeps - 1) // dump_every) * dump_every
     if res.returncode != 0 or not os.path.exists(os.path.join(d, f"frame.{last:04d}.npy")):
         sys.stderr.write(res.stdout[-3000:] + res.stderr[-2000:])
