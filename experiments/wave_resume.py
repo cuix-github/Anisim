@@ -154,7 +154,7 @@ def worker(plan, segment, attempt):
         solid=(basin.beach_phi(run, basin.scene(run)), 2), dumps=DUMPS + ("vel",),
         fused=True, out_dir=str(d), waves=np.asarray(plan["waves"], np.float32),
         log_prefix=str(root / "logs" / f"c{segment}_a{attempt}_bifcmd"))
-    if not np.isfinite(diag).all() or (diag[:, 0] < 0).any():
+    if not np.isfinite(diag).all() or (diag[:, 0] < 0).any() or (diag[:, 1] > 1.05e-6).any():
         raise ValueError("Invalid solver diagnostics")
     validation = checkpoint(d)
     record = dict(segment=segment, attempt=attempt, checkpoint=str(d), validation=validation,
@@ -170,6 +170,21 @@ def stop_tree(process):
     if process.poll() is None:
         subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"], capture_output=True, check=False)
         process.wait(timeout=30)
+
+
+def owned_processes(runtime):
+    """Detect an orphan from this exact frozen runtime before another launch."""
+    script = ("Get-CimInstance Win32_Process | Where-Object { "
+              "$_.Name -in @('python.exe','bifcmd.exe','cmd.exe') } | "
+              "Select-Object ProcessId,Name,CommandLine | ConvertTo-Json -Compress")
+    result = subprocess.run(["powershell.exe", "-NoProfile", "-Command", script],
+                            capture_output=True, text=True, check=True)
+    rows = json.loads(result.stdout) if result.stdout.strip() else []
+    if isinstance(rows, dict):
+        rows = [rows]
+    marker = str(Path(runtime).resolve()).replace("\\", "/").lower()
+    return [row for row in rows if row["ProcessId"] != os.getpid() and marker in
+            (row.get("CommandLine") or "").replace("\\", "/").lower()]
 
 
 def supervise(plan):
@@ -189,6 +204,10 @@ def supervise(plan):
     status = dict(state="running", pid=os.getpid(), completed_until_s=18, tag=plan["tag"])
     child = None
     try:
+        orphans = owned_processes(plan["runtime"])
+        if orphans:
+            raise ValueError(f"Existing processes for this runtime; inspect before restart: {orphans}")
+        ctypes.windll.kernel32.SetThreadExecutionState(0x80000001)
         for spec in plan["segments"]:
             i = spec["index"]
             receipt = root / "receipts" / f"c{i}.json"
@@ -248,6 +267,7 @@ def supervise(plan):
         raise
     finally:
         atomic_json(root / "status.json", status)
+        ctypes.windll.kernel32.SetThreadExecutionState(0x80000000)
         lock.close()
 
 
