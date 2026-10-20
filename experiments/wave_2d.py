@@ -42,6 +42,8 @@ def main():
     ap.add_argument("--wave-height-scale", type=float, default=1.0)
     ap.add_argument("--emit-grad-threshold", type=float, default=10.0)
     ap.add_argument("--emit-rate", type=float, default=0.05)
+    ap.add_argument("--length-m", type=float, default=basin.LX)
+    ap.add_argument("--height-m", type=float, default=basin.LY)
     ap.add_argument("--until", type=float, help="Pause at a chunk boundary for inspection")
     ap.add_argument("--resume", action="store_true")
     args = ap.parse_args()
@@ -52,7 +54,9 @@ def main():
                 args.emit_grad_threshold, args.emit_rate)):
         ap.error("Durations, resolution, wave scale and emitter settings must be positive")
     run = basin.Run(args.cpm)
-    run.grid = (round(basin.LX * args.cpm), round(basin.LY * args.cpm), 1)
+    if args.length_m < basin.LX or args.height_m < basin.LY:
+        ap.error("The diagnostic domain must contain the original basin")
+    run.grid = (round(args.length_m * args.cpm), round(args.height_m * args.cpm), 1)
     run.dt, run.tag = 1 / 48, args.tag
     paths = RunPaths(run.tag)
     root = Path(paths.root)
@@ -63,6 +67,7 @@ def main():
     plan = dict(tag=run.tag, grid=run.grid, dt=run.dt, seconds=args.seconds,
                 ports=ports, cells_per_metre=run.cpm, waves=wave_array.tolist(),
                 wave_height_scale=args.wave_height_scale,
+                domain_m=[run.grid[0] / run.cpm, run.grid[1] / run.cpm, 1 / run.cpm],
                 interpretation="Unidirectional nz=1 diagnostic, not the 3D solution",
                 source_graph="graphs/sim_3d_fused.json",
                 adaptive_pressure="Uniform: adaptive pressure does not support the solid beach")
@@ -132,7 +137,7 @@ def main():
             d /= layer
         atomic_json(d / "cache.json", dict(frames=len(counts), fps=24, times_s=times,
                     counts=[c[layer] for c in counts], units="metres",
-                    grid=[basin.LX, basin.LY, 1 / run.cpm], source=run.tag,
+                    grid=plan["domain_m"], source=run.tag,
                     interpolation="none; exact solver snapshots every 2 substeps"))
     atomic_json(root / "receipts" / "summary.json",
                 dict(wall_s=prior_wall + time.monotonic() - start, chunks=records,

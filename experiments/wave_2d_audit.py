@@ -10,6 +10,7 @@ from wave_features import atomic_json
 def audit(root):
     cache = root / "cache/full"
     plan = json.loads((root / "inputs/plan.json").read_text())
+    length, height = plan.get("domain_m", [172, 24])[:2]
     indices = {layer: json.loads((cache / layer / "cache.json").read_text())
                for layer in ("water", "droplets", "spray")}
     records = []
@@ -22,16 +23,18 @@ def audit(root):
             record[layer] = len(p)
             if layer != "water":
                 # Ten metres beyond the wave zone excludes direct forcing.
-                record[layer + "_beyond_zone"] = int(np.count_nonzero(p[:, 0] > 34))
+                record[layer + "_beyond_zone"] = int(np.count_nonzero(
+                    (p[:, 0] > 34) & (p[:, 0] < length - 10) & (p[:, 1] < height - 2)))
             else:
                 region = p[(p[:, 0] > 34) & (p[:, 0] < 150)]
-                record["highest_bulk_above_still_m"] = float(region[:, 1].max() - 12)
+                record["highest_non_escaped_point_above_still_m"] = float(region[:, 1].max() - 12)
         records.append(record)
     best = max(records, key=lambda r: min(r["spray_beyond_zone"], r["droplets_beyond_zone"]))
     summary = dict(passed=best["spray_beyond_zone"] >= 50 and best["droplets_beyond_zone"] >= 200,
                    best_simultaneous_frame=best,
                    peaks={key: max(records, key=lambda r: r[key]) for key in
-                          ("spray_beyond_zone", "droplets_beyond_zone", "highest_bulk_above_still_m")},
+                          ("spray_beyond_zone", "droplets_beyond_zone",
+                           "highest_non_escaped_point_above_still_m")},
                    plan=dict(wave_height_scale=plan["wave_height_scale"],
                              emit_rate=plan["ports"]["emit_rate"],
                              emit_grad_threshold=plan["ports"]["emit_grad_threshold"]))
@@ -50,7 +53,8 @@ def audit(root):
             ax.scatter(p[:, 0], p[:, 1], s=size, c=color, label=layer, linewidths=0)
         ax.plot([36, 172], [0, 13.6], c="#d6be92", lw=2)
         ax.axhline(12, c="grey", ls="--", lw=.5)
-        ax.set(xlim=(34, 172), ylim=(0, 24), xlabel="x (metres)", ylabel="y (metres)")
+        ax.set(xlim=(34, min(190, length)), ylim=(0, min(32, height)),
+               xlabel="x (metres)", ylabel="y (metres)")
         rec = records[frame - 1]
         ax.set_title(f"{rec['time_s']:.2f} s | beyond wave zone: "
                      f"{rec['droplets_beyond_zone']} escaped / {rec['spray_beyond_zone']} emitted")

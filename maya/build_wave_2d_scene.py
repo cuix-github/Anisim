@@ -21,6 +21,7 @@ for key in ("MAYA_DISABLE_CER", "MAYA_DISABLE_CIP", "MAYA_DISABLE_CLIC_IPM"):
 def main():
     run = Path(sys.argv[1]).resolve()
     plan = json.loads((run / "inputs/plan.json").read_text())
+    length, height = plan.get("domain_m", [172, 24])[:2]
     cache = run / "cache/full"
     index = json.loads((cache / "cache.json").read_text())
     import numpy as np
@@ -92,11 +93,12 @@ def main():
     c.setAttr(shape + ".purpose", "Actual custom solver graph. No outputs connected; playback reads cache only.",
               type="string")
     # A metre-scale beach outline provides scale without rendering a water surface.
-    c.curve(name="beach_profile", d=1, p=[(0, 0, 0), (36, 0, 0), (172, 13.6, 0)])
+    c.curve(name="beach_profile", d=1,
+            p=[(0, 0, 0), (36, 0, 0), (length, (length - 36) * .1, 0)])
     c.curve(name="still_water_12m", d=1, p=[(0, 12, 0), (156, 12, 0)])
-    c.curve(name="domain_172m_by_24m", d=1,
-            p=[(0, 0, 0), (172, 0, 0), (172, 24, 0), (0, 24, 0), (0, 0, 0)])
-    for name, center, width in (("overview_172m", (86, 12, 180), 185),
+    c.curve(name="domain_outline", d=1,
+            p=[(0, 0, 0), (length, 0, 0), (length, height, 0), (0, height, 0), (0, 0, 0)])
+    for name, center, width in (("overview", (length / 2, height / 2, 180), length * 1.08),
                                  ("breaker_detail", (detail_x, 12, 100), detail_width)):
         cam, camshape = c.camera(name=name)
         c.setAttr(cam + ".translate", *center)
