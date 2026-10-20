@@ -22,6 +22,9 @@ def main():
     run = Path(sys.argv[1]).resolve()
     plan = json.loads((run / "inputs/plan.json").read_text())
     length, height = plan.get("domain_m", [172, 24])[:2]
+    nz = plan["grid"][2]
+    width = plan.get("domain_m", [172, 24, 1])[2] if nz > 1 else 0
+    toe, slope = plan.get("beach_toe_m", 36), plan.get("beach_slope", .1)
     cache = run / "cache/full"
     index = json.loads((cache / "cache.json").read_text())
     import numpy as np
@@ -41,7 +44,8 @@ def main():
     import maya.cmds as c
     c.loadPlugin("bifrostGraph")
     c.file(new=True, force=True)
-    c.currentUnit(linear="m", time="film")
+    fps = index.get("fps", 24)
+    c.currentUnit(linear="m", time="film" if fps == 24 else f"{fps}fps")
     for layer, color, size in (("water", (0.06, 0.4, 0.85), 0.075),
                                ("droplets", (0.35, 0.95, 1.0), 0.1),
                                ("spray", (1.0, 0.65, 0.1), 0.13),
@@ -74,7 +78,7 @@ def main():
     compound = json.loads((ROOT / "graphs/sim_3d_fused.json").read_text())["compounds"][0]
     manual = run / "manual_solver_output"
     manual.mkdir(exist_ok=True)
-    values = dict(plan["ports"], nx=plan["grid"][0], ny=plan["grid"][1], nz=1,
+    values = dict(plan["ports"], nx=plan["grid"][0], ny=plan["grid"][1], nz=nz,
                   dt=plan["dt"], substeps=round(plan["seconds"] / plan["dt"]),
                   step_offset=0, dump_every=2, solid_mode=2)
     for port in compound["ports"]:
@@ -87,6 +91,7 @@ def main():
         elif name.endswith("_pattern"):
             prefix = "frame" if name == "pos_pattern" else name.removesuffix("_pattern")
             values[name] = str(manual / (prefix + ".####"))
+    values.update(plan.get("force_paths", {}))
     for key, value in values.items():
         c.vnnNode(shape, "/" + node, setPortDefaultValues=(key, str(value).replace("\\", "/")))
     c.addAttr(shape, longName="purpose", dataType="string")
@@ -94,8 +99,8 @@ def main():
               type="string")
     # A metre-scale beach outline provides scale without rendering a water surface.
     c.curve(name="beach_profile", d=1,
-            p=[(0, 0, 0), (36, 0, 0), (length, (length - 36) * .1, 0)])
-    c.curve(name="still_water_12m", d=1, p=[(0, 12, 0), (156, 12, 0)])
+            p=[(0, 0, 0), (toe, 0, 0), (length, (length - toe) * slope, 0)])
+    c.curve(name="still_water_12m", d=1, p=[(0, 12, 0), (min(length, toe + 12 / slope), 12, 0)])
     c.curve(name="domain_outline", d=1,
             p=[(0, 0, 0), (length, 0, 0), (length, height, 0), (0, height, 0), (0, 0, 0)])
     for name, center, width in (("overview", (length / 2, height / 2, 180), length * 1.08),
@@ -110,6 +115,20 @@ def main():
     c.setAttr("persp.rotate", 0, 0, 0)
     c.setAttr("perspShape.orthographic", True)
     c.setAttr("perspShape.orthographicWidth", detail_width)
+    if nz > 1:
+        c.curve(name="far_beach_profile", d=1,
+                p=[(0, 0, width), (toe, 0, width), (length, (length - toe) * slope, width)])
+        for name, eye, target in (
+                ("overview", (length * .5, 90, width + 130), (length * .5, 10, width / 2)),
+                ("breaker_detail", (145, 50, width + 55), (105, 12, width / 2)),
+                ("persp", (145, 50, width + 55), (105, 12, width / 2))):
+            c.setAttr(name + ".translate", *eye)
+            c.setAttr(c.listRelatives(name, shapes=True)[0] + ".orthographic", False)
+            locator = c.spaceLocator()[0]
+            c.setAttr(locator + ".translate", *target)
+            constraint = c.aimConstraint(locator, name, aimVector=(0, 0, -1), upVector=(0, 1, 0),
+                                        worldUpType="vector", worldUpVector=(0, 1, 0))[0]
+            c.delete(constraint, locator)
     for panel in c.getPanel(type="modelPanel") or []:
         c.modelEditor(panel, edit=True, camera="breaker_detail", grid=False,
                       displayAppearance="smoothShaded")
@@ -133,7 +152,7 @@ def main():
         audit.append(dict(frame=frame, evaluation_s=time.perf_counter() - t0, layers=layers))
     c.currentTime(start_frame)
     c.select("wave_solver_OPEN_IN_BIFROST")
-    scene = run / "scenes/wave_2d.ma"
+    scene = run / ("scenes/wave_3d.ma" if nz > 1 else "scenes/wave_2d.ma")
     scene.parent.mkdir(exist_ok=True)
     c.file(rename=str(scene))
     c.file(save=True, type="mayaAscii")
