@@ -94,11 +94,19 @@ def prepare():
     assert read(OUT / "state.json")["perspShape"]["orthographic"] is False
 
 
-def launch():
+def launch(retry_unstarted=False):
     assert not base.git("status", "--porcelain")
     prepared = read(OUT / "prepare.json")
     assert prepared["status"] == "passed"
     assert prepared["scene_sha256"] == base.sha(OUT / "candidate.mb")
+    if retry_unstarted:
+        # The first launcher was blocked by PowerShell before Maya was created.
+        # Preserve that evidence; this does not authorize a second ray-tracing call.
+        assert read(OUT / "receipt.json")["status"] == "failed"
+        assert "running scripts is disabled" in (OUT / "launch.log").read_text()
+        assert not list(OUT.glob("arnold*.log")) and not (OUT / "worker_result.json").exists()
+        (OUT / "receipt.json").rename(OUT / "unstarted_receipt.json")
+        (OUT / "launch.log").rename(OUT / "unstarted_launch.log")
     assert not (OUT / "receipt.json").exists(), "Only one new render authorized"
     # Use the known Maya launch quoting. Allow the separate lightweight 2D viewer.
     launcher = (SOURCE / "launch.ps1").read_text()
@@ -115,7 +123,7 @@ def launch():
     t0 = time.monotonic()
     try:
         with (OUT / "launch.log").open("w") as log:
-            subprocess.run(["powershell.exe", "-NoProfile", "-File", str(OUT / "launch.ps1")],
+            subprocess.run(["powershell.exe", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(OUT / "launch.ps1")],
                            env=env, cwd=base.ROOT, stdout=log, stderr=log, check=True, timeout=2740)
         worker = read(OUT / "worker_result.json")
         assert worker["status"] == "passed"
@@ -137,5 +145,6 @@ if __name__ == "__main__":
         prepare_worker() if mode == "prepare" else render.render(OUT, resolution=RESOLUTION)
     else:
         parser = argparse.ArgumentParser()
-        parser.add_argument("action", choices=("prepare", "render"))
-        {"prepare": prepare, "render": launch}[parser.parse_args().action]()
+        parser.add_argument("action", choices=("prepare", "render", "retry-unstarted"))
+        {"prepare": prepare, "render": launch,
+         "retry-unstarted": lambda: launch(retry_unstarted=True)}[parser.parse_args().action]()
