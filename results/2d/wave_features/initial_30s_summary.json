@@ -1,0 +1,72 @@
+{
+  "wall_s": 115.84814410004765,
+  "chunks": [
+    {
+      "chunk": 0,
+      "offset": 0,
+      "steps": 240,
+      "wall_s": 13.111977399967145,
+      "end_s": 5.0,
+      "max_spray": 0,
+      "iterations_max": 13.0
+    },
+    {
+      "chunk": 1,
+      "offset": 240,
+      "steps": 240,
+      "wall_s": 13.50818679999793,
+      "end_s": 10.0,
+      "max_spray": 0,
+      "iterations_max": 21.0
+    },
+    {
+      "chunk": 2,
+      "offset": 480,
+      "steps": 240,
+      "wall_s": 13.643191899987869,
+      "end_s": 15.0,
+      "max_spray": 0,
+      "iterations_max": 13.0
+    },
+    {
+      "chunk": 3,
+      "offset": 720,
+      "steps": 240,
+      "wall_s": 13.580568599980325,
+      "end_s": 20.0,
+      "max_spray": 0,
+      "iterations_max": 15.0
+    },
+    {
+      "chunk": 4,
+      "offset": 960,
+      "steps": 240,
+      "wall_s": 13.530376099981368,
+      "end_s": 25.0,
+      "max_spray": 1,
+      "iterations_max": 24.0
+    },
+    {
+      "chunk": 5,
+      "offset": 1200,
+      "steps": 240,
+      "wall_s": 13.412052200001199,
+      "end_s": 30.0,
+      "max_spray": 2,
+      "iterations_max": 20.0
+    }
+  ],
+  "max_counts": {
+    "full": 36862,
+    "water": 36861,
+    "droplets": 147,
+    "spray": 2,
+    "air": 20472,
+    "fresh_spray_without_radius": 0
+  },
+  "frames": 720,
+  "cache_times_s": [
+    0.020833333333333332,
+    29.979166666666664
+  ]
+}

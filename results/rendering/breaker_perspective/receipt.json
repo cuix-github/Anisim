@@ -1,0 +1,15 @@
+{
+  "status": "passed",
+  "git_sha": "49ccbe94d9c41ecd44e39d48f16890a4b27fbf6a",
+  "authorized_render_count": 1,
+  "started_utc": "2026-10-20T03:30:53Z",
+  "worker": {
+    "status": "passed",
+    "render_call_s": 370.0006691000308,
+    "worker_s": 372.5194522999809,
+    "exr": "optics.0001.exr"
+  },
+  "png_sha256": "d654ed10a282102c6f62341a217bdf8a7bc15b91667154bd7eb82aea4a1bfeee",
+  "exr_sha256": "3b01b6b5653a6e2456bc6047b2c7fe54aed6a08a38b15f627d3194a8497af710",
+  "process_s": 380.2528078999603
+}

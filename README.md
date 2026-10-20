@@ -29,6 +29,18 @@ local outputs and is not hosted on GitHub. Its builder and the grouped breaker
 instruments live under `experiments/rendering/`; historical script paths remain
 compatible. No simulation or render is needed to regenerate the gallery.
 
+The [wave-feature diagnostic and October 20 continuation](docs/wave-feature-diagnostics.md)
+record the small Maya particle demo, its stronger 60-second replacement, and
+the separately scheduled 18–30-second 3D spray run. The
+[distant perspective observation](docs/rendering/studies/breaker-perspective-study.md)
+reuses the 24.9-second cache and 60/40 foam appearance.
+
+The October 20 [force-driven sea plan](docs/force-wave-scene-plan.md) records
+the agreed 2D/coarse-3D preview direction and a 30-second production budget
+of approximately fifteen hours. The old 18–30-second continuation is cancelled;
+its automation was deleted. The force generator has since been implemented for
+the previews below; no replacement production run is scheduled.
+
 The new [force-driven wave previews](docs/force-wave-preview.md) replace the
 velocity-target wave zone with pre-projection acceleration. They are particle
 previews for scene approval, with independent force and checkpoint gates;

@@ -1,0 +1,84 @@
+{
+  "wall_s": 111.37033509998582,
+  "chunks": [
+    {
+      "chunk": 0,
+      "offset": 0,
+      "steps": 240,
+      "wall_s": 11.094635999994352,
+      "end_s": 5.0,
+      "max_spray": 0,
+      "max_droplets": 3,
+      "iterations_max": 12.0,
+      "residual_max": 9.881085816232371e-07
+    },
+    {
+      "chunk": 1,
+      "offset": 240,
+      "steps": 240,
+      "wall_s": 13.578306400042493,
+      "end_s": 10.0,
+      "max_spray": 0,
+      "max_droplets": 6,
+      "iterations_max": 21.0,
+      "residual_max": 9.935143907569e-07
+    },
+    {
+      "chunk": 2,
+      "offset": 480,
+      "steps": 240,
+      "wall_s": 11.486914600012824,
+      "end_s": 15.0,
+      "max_spray": 1,
+      "max_droplets": 11,
+      "iterations_max": 19.0,
+      "residual_max": 9.881557616608916e-07
+    },
+    {
+      "chunk": 3,
+      "offset": 720,
+      "steps": 240,
+      "wall_s": 11.72435019997647,
+      "end_s": 20.0,
+      "max_spray": 3,
+      "max_droplets": 69,
+      "iterations_max": 31.0,
+      "residual_max": 9.985491260522394e-07
+    },
+    {
+      "chunk": 4,
+      "offset": 960,
+      "steps": 240,
+      "wall_s": 11.59688189998269,
+      "end_s": 25.0,
+      "max_spray": 5,
+      "max_droplets": 226,
+      "iterations_max": 46.0,
+      "residual_max": 9.997140750783728e-07
+    },
+    {
+      "chunk": 5,
+      "offset": 1200,
+      "steps": 240,
+      "wall_s": 12.01857509999536,
+      "end_s": 30.0,
+      "max_spray": 6,
+      "max_droplets": 512,
+      "iterations_max": 44.0,
+      "residual_max": 9.981182529372745e-07
+    }
+  ],
+  "max_counts": {
+    "full": 36865,
+    "water": 36861,
+    "droplets": 512,
+    "spray": 6,
+    "air": 21621,
+    "fresh_spray_without_radius": 1
+  },
+  "frames": 720,
+  "cache_times_s": [
+    0.020833333333333332,
+    29.979166666666664
+  ]
+}
