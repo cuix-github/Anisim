@@ -28,6 +28,15 @@ def main():
     cache = run / "cache/full"
     index = json.loads((cache / "cache.json").read_text())
     import numpy as np
+    # Use identity DAG transforms: Bifrost viewport glyph sizes/transforms must
+    # use the same centimetre coordinates as Maya's internal representation.
+    display_cache = run / "cache/maya_cm"
+    for layer in ("water", "droplets", "spray", "air"):
+        dest = display_cache / layer
+        dest.mkdir(parents=True, exist_ok=True)
+        for frame in range(1, index["frames"] + 1):
+            src = cache / layer / f"liquid.{frame:04d}.npy"
+            np.save(dest / src.name, np.load(src) * np.float32(100))
     inspection = run / "receipts/particle_audit.json"
     start_frame = (json.loads(inspection.read_text())["best_simultaneous_frame"]["frame"]
                    if inspection.exists() else min(600, index["frames"]))
@@ -46,25 +55,25 @@ def main():
     c.file(new=True, force=True)
     fps = index.get("fps", 24)
     c.currentUnit(linear="m", time="film" if fps == 24 else f"{fps}fps")
-    for layer, color, size in (("water", (0.06, 0.4, 0.85), 0.2),
-                               ("droplets", (0.35, 0.95, 1.0), 0.3),
-                               ("spray", (1.0, 0.65, 0.1), 0.4),
+    for layer, color, size in (("water", (0.06, 0.4, 0.85), 0.12),
+                               ("droplets", (0.35, 0.95, 1.0), 0.18),
+                               ("spray", (1.0, 0.65, 0.1), 0.25),
                                ("air", (0.4, 0.4, 0.4), 0.04)):
         shape = c.createNode("bifrostGraphShape", name=layer + "ParticlesShape")
         parent = c.listRelatives(shape, parent=True)[0]
         parent = c.rename(parent, layer + "_cached_particles")
         shape = c.listRelatives(parent, shapes=True)[0]
-        # Bifrost's points arrive in Maya's internal centimetres, irrespective of
-        # the UI linear unit. The playback cache deliberately stores metres.
-        c.setAttr(parent + ".scale", 100, 100, 100)
         node = c.vnnCompound(shape, "/", addNode="PFFlipGraphs,User::PFFlip,particle_play")[0]
         c.vnnNode(shape, "/input", createOutputPort=("frame", "float"))
         c.vnnNode(shape, "/output", createInputPort=("points", "Object"))
         c.vnnConnect(shape, "/input.frame", "/" + node + ".frame")
         c.vnnConnect(shape, "/" + node + ".points", "/output.points")
-        for port, value in (("liquid_pattern", str(cache / layer / "liquid.####").replace("\\", "/")),
+        c.setAttr(shape + ".overrideEnabled", True)
+        c.setAttr(shape + ".overrideRGBColors", True)
+        c.setAttr(shape + ".overrideColorRGB", *color)
+        for port, value in (("liquid_pattern", str(display_cache / layer / "liquid.####").replace("\\", "/")),
                             ("speed_pattern", str(cache / layer / "speed.####").replace("\\", "/")),
-                            ("point_size", str(size)), ("speed_scale", "20"),
+                            ("point_size", str(size * 100)), ("speed_scale", "20"),
                             ("slow_color", "{" + ",".join(map(str, color)) + "}"),
                             ("fast_color", "{" + ",".join(map(str, color)) + "}")):
             c.vnnNode(shape, "/" + node, setPortDefaultValues=(port, value))
@@ -141,7 +150,7 @@ def main():
             c.delete(constraint, locator)
     for panel in c.getPanel(type="modelPanel") or []:
         c.modelEditor(panel, edit=True, camera=cameras["breaker_detail"], grid=False,
-                      displayAppearance="smoothShaded")
+                      displayAppearance="wireframe")
     c.playbackOptions(min=1, max=index["frames"], ast=1, aet=index["frames"],
                       playbackSpeed=1, maxPlaybackSpeed=1)
     # Force representative frames to evaluate in Maya and verify visible geometry.
@@ -161,7 +170,16 @@ def main():
                 layers[layer] = dict(particles=len(points), bounds_m=bounds)
         audit.append(dict(frame=frame, evaluation_s=time.perf_counter() - t0, layers=layers))
     c.currentTime(start_frame)
-    c.select("wave_solver_OPEN_IN_BIFROST")
+    c.select(clear=True)
+    viewport_setup = (
+        "import maya.cmds as c\n"
+        "def setup_wave_view():\n"
+        "    for p in c.getPanel(type='modelPanel') or []:\n"
+        "        c.modelEditor(p, edit=True, camera='persp', grid=False, "
+        "displayAppearance='wireframe', displayLights='default')\n"
+        "c.evalDeferred(setup_wave_view)\n")
+    c.scriptNode(name="wave_viewport_setup", scriptType=1,
+                 sourceType="python", beforeScript=viewport_setup)
     scene = run / (sys.argv[2] if len(sys.argv) > 2 else
                    ("scenes/wave_3d.ma" if nz > 1 else "scenes/wave_2d.ma"))
     scene.parent.mkdir(exist_ok=True)
