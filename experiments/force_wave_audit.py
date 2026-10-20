@@ -52,7 +52,10 @@ def audit(root):
     axs[2, 1].axhline(12, color="#777")
     axs[2, 1].set_title("Highest liquid particle beyond source (not wave height)", color="white")
     axs[2, 1].set_xlabel("Simulation time (s)", color="white")
-    fig.suptitle("Particle diagnostic | blue: bulk, cyan: escaped water, orange: emitted spray", color="white")
+    scope = ("\n3D diagnostic: blue is a central 12 m slice; cyan/orange project the full width"
+             if plan["grid"][2] > 1 else "")
+    fig.suptitle("Particle diagnostic | blue: bulk, cyan: escaped water, orange: emitted spray" + scope,
+                 color="white")
     fig.tight_layout()
     fig.savefig(root / "particle_diagnostic.png", dpi=140, facecolor=fig.get_facecolor())
     plt.close(fig)

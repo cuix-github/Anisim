@@ -46,9 +46,9 @@ def main():
     c.file(new=True, force=True)
     fps = index.get("fps", 24)
     c.currentUnit(linear="m", time="film" if fps == 24 else f"{fps}fps")
-    for layer, color, size in (("water", (0.06, 0.4, 0.85), 0.075),
-                               ("droplets", (0.35, 0.95, 1.0), 0.1),
-                               ("spray", (1.0, 0.65, 0.1), 0.13),
+    for layer, color, size in (("water", (0.06, 0.4, 0.85), 0.2),
+                               ("droplets", (0.35, 0.95, 1.0), 0.3),
+                               ("spray", (1.0, 0.65, 0.1), 0.4),
                                ("air", (0.4, 0.4, 0.4), 0.04)):
         shape = c.createNode("bifrostGraphShape", name=layer + "ParticlesShape")
         parent = c.listRelatives(shape, parent=True)[0]
@@ -65,9 +65,13 @@ def main():
         for port, value in (("liquid_pattern", str(cache / layer / "liquid.####").replace("\\", "/")),
                             ("speed_pattern", str(cache / layer / "speed.####").replace("\\", "/")),
                             ("point_size", str(size)), ("speed_scale", "20"),
-                            ("slow_color", ",".join(map(str, color))),
-                            ("fast_color", ",".join(map(str, color)))):
+                            ("slow_color", "{" + ",".join(map(str, color)) + "}"),
+                            ("fast_color", "{" + ",".join(map(str, color)) + "}")):
             c.vnnNode(shape, "/" + node, setPortDefaultValues=(port, value))
+        for port in ("slow_color", "fast_color"):
+            actual = c.vnnNode(shape, "/" + node, queryPortDefaultValues=port)
+            if not np.allclose(np.asarray(actual, float), color):
+                raise RuntimeError(f"Playback color failed to roundtrip: {layer}, {port}")
         c.connectAttr("time1.outTime", shape + ".frame")
         if layer == "air":
             c.setAttr(shape + ".visibility", False)
@@ -103,9 +107,11 @@ def main():
     c.curve(name="still_water_12m", d=1, p=[(0, 12, 0), (min(length, toe + 12 / slope), 12, 0)])
     c.curve(name="domain_outline", d=1,
             p=[(0, 0, 0), (length, 0, 0), (length, height, 0), (0, height, 0), (0, 0, 0)])
+    cameras = {"persp": "persp"}
     for name, center, width in (("overview", (length / 2, height / 2, 180), length * 1.08),
                                  ("breaker_detail", (detail_x, 12, 100), detail_width)):
         cam, camshape = c.camera(name=name)
+        cameras[name] = cam
         c.setAttr(cam + ".translate", *center)
         c.setAttr(camshape + ".orthographic", True)
         c.setAttr(camshape + ".orthographicWidth", width)
@@ -115,6 +121,8 @@ def main():
     c.setAttr("persp.rotate", 0, 0, 0)
     c.setAttr("perspShape.orthographic", True)
     c.setAttr("perspShape.orthographicWidth", detail_width)
+    c.setAttr("perspShape.farClipPlane", 1000)
+    c.setAttr("perspShape.nearClipPlane", .01)
     if nz > 1:
         c.curve(name="far_beach_profile", d=1,
                 p=[(0, 0, basin_width), (toe, 0, basin_width),
@@ -123,6 +131,7 @@ def main():
                 ("overview", (length * .5, 90, basin_width + 130), (length * .5, 10, basin_width / 2)),
                 ("breaker_detail", (145, 50, basin_width + 55), (105, 12, basin_width / 2)),
                 ("persp", (145, 50, basin_width + 55), (105, 12, basin_width / 2))):
+            name = cameras[name]
             c.setAttr(name + ".translate", *eye)
             c.setAttr(c.listRelatives(name, shapes=True)[0] + ".orthographic", False)
             locator = c.spaceLocator()[0]
@@ -131,7 +140,7 @@ def main():
                                         worldUpType="vector", worldUpVector=(0, 1, 0))[0]
             c.delete(constraint, locator)
     for panel in c.getPanel(type="modelPanel") or []:
-        c.modelEditor(panel, edit=True, camera="breaker_detail", grid=False,
+        c.modelEditor(panel, edit=True, camera=cameras["breaker_detail"], grid=False,
                       displayAppearance="smoothShaded")
     c.playbackOptions(min=1, max=index["frames"], ast=1, aet=index["frames"],
                       playbackSpeed=1, maxPlaybackSpeed=1)
@@ -153,14 +162,15 @@ def main():
         audit.append(dict(frame=frame, evaluation_s=time.perf_counter() - t0, layers=layers))
     c.currentTime(start_frame)
     c.select("wave_solver_OPEN_IN_BIFROST")
-    scene = run / ("scenes/wave_3d.ma" if nz > 1 else "scenes/wave_2d.ma")
+    scene = run / (sys.argv[2] if len(sys.argv) > 2 else
+                   ("scenes/wave_3d.ma" if nz > 1 else "scenes/wave_2d.ma"))
     scene.parent.mkdir(exist_ok=True)
     c.file(rename=str(scene))
     c.file(save=True, type="mayaAscii")
     (run / "receipts/maya_scene.json").write_text(json.dumps(
         dict(status="passed", scene=str(scene), graph=node, evaluations=audit,
              start_frame=start_frame, detail_center_x_m=detail_x,
-             detail_width_m=detail_width), indent=2))
+             detail_width_m=detail_width, cameras=cameras), indent=2))
     launch = run / "open_in_maya.bat"
     launch.write_text('@echo off\nsetlocal\nset "BIFROST_LIB_CONFIG_FILES=' +
                      ";".join(map(str, CONFIGS)) + '"\nstart "" "C:\\Program Files\\Autodesk\\Maya2027\\bin\\maya.exe" "' +

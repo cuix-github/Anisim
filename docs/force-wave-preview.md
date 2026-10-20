@@ -73,6 +73,12 @@ node: maximum grid error 4.27e-7, position error 3.82e-6 and velocity error
 These are small two-dimensional checks of the generic mechanism, not a
 convergence study of the ocean scene.
 
+A separate 16 × 12 × 8 single-phase anchor applies a discrete curl field
+with zero divergence and zero normal wall velocity. Projection must preserve
+`dt * acceleration`, including its varying z component. Maximum velocity
+error is 4.66e-10. This tests three-dimensional field indexing independently
+of the ocean recipe.
+
 The checkpoint gate compares a continuous 16-step run with two eight-step
 runs using the same absolute force clock. All 13 saved state channels match
 bit for bit. Resetting the force clock in the second segment is a negative
@@ -108,7 +114,42 @@ simulation timings; those headless times are not a measured GUI playback rate.
 The 3D cameras use perspective. The source band, beach and still water are
 useful scale references, not a rendered water surface.
 
+Both 30 s runs completed. The 2D run took 42.7 s including field baking and
+playback export (39.8 s across six graph calls). The 3D run took 594.5 s
+including baking/export (579.9 s across six graph calls), using 32 OpenMP
+threads. Graph-call times include Bifrost startup and disk output; these are
+workflow timings, not isolated solver performance comparisons.
+
+Beyond x=68 m, the maximum simultaneously present escaped-water counts in
+saved frames are 95 in 2D and 2,747 in 3D. Extra spray peaks at only 1 and 7,
+respectively. These are sampled populations, not cumulative emitted counts.
+The 3D plot projects escaped particles from all 72 m of width against a
+central 12 m slice of bulk water; use Maya perspective views to judge the
+actual spatial distribution.
+
+All simulation steps meet the configured pressure tolerance of 1e-6. At
+five-second checkpoint inspections, no liquid lies within one metre of the
+ceiling. The largest inspected liquid displacement per step is 0.65 cells in
+2D and 0.72 cells in 3D; these checkpoints do not bound every intervening
+substep. The rear wall reaches liquid particle heights of 20.0 m in 2D and
+23.4 m in 3D at 20 s, above the original 12 m surface. This is a material
+boundary defect for scene selection, not something to hide in the camera.
+The available evidence does not yet establish the intended open-sea
+interactions or enough spray for the final shot.
+
+Both Maya scenes pass world-bounds checks at six frames. Headless evaluation
+of those samples takes 2–28 ms in 2D and 20–44 ms in 3D. The original 3D
+scene-build attempt failed because Maya appended a suffix to camera names;
+the builder now uses the actual returned names. No simulation was repeated
+for that scene-only correction. Numeric receipts are in
+[`results/3d/force_wave_preview/`](../results/3d/force_wave_preview/).
+
 Production resolution, duration beyond the agreed 30 s, boundary treatment,
 source strength and eventual start time remain subject to inspection. Sparse
 spray at metre-sized cells cannot establish its production density. A successful
 pressure solve also does not establish timestep or spatial convergence.
+
+The first GUI inspection failed: almost no particles were visibly drawn despite
+correct headless bounds. The numeric Maya receipts above are not a playback
+acceptance. A direct-output display repair and a 0.5 m, 1/48 s two-dimensional
+preview are being checked separately; the original caches remain intact.

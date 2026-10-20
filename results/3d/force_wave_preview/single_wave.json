@@ -1,0 +1,22 @@
+{
+  "probes": {
+    "75": {
+      "height_m": 1.1270557020808383,
+      "phase": -1.7814443577592105,
+      "mean_particle_surface_m": 11.668705072390578
+    },
+    "95": {
+      "height_m": 1.0070731882904773,
+      "phase": 0.6054265839327789,
+      "mean_particle_surface_m": 11.609434715828039
+    }
+  },
+  "measured_wavelength_m": 52.647884704864715,
+  "linear_theory_wavelength_m": 50.69385420296277,
+  "wavelength_relative_error": 0.03854570800788992,
+  "fit_interval_s": [
+    20,
+    34.95833333333333
+  ],
+  "interpretation": "97.5th height percentile in each 5 m probe; harmonic fit; not a surface mesh"
+}

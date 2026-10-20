@@ -1,0 +1,21 @@
+{
+  "passed": true,
+  "checks": {
+    "off_plain_out": {
+      "out_u": true,
+      "out_v": true,
+      "out_w": true,
+      "pressure": true,
+      "out_positions": true,
+      "out_velocities": true
+    },
+    "off_zone_out": {
+      "out_u": true,
+      "out_v": true,
+      "out_w": true,
+      "pressure": true,
+      "out_positions": true,
+      "out_velocities": true
+    }
+  }
+}

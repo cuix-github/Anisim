@@ -126,7 +126,11 @@ def run(args):
     (root / "receipts").mkdir()
     (root / "logs").mkdir()
     start = time.monotonic()
-    dx, dt = args.dx, 1 / 24
+    dx, dt = args.dx, args.dt
+    display_fps = 1 / (2 * dt)
+    if not np.isclose(display_fps, round(display_fps)):
+        raise ValueError("Two-step cache output must yield an integer Maya frame rate")
+    display_fps = round(display_fps)
     length, height, width = (260, 32, dx) if args.single else (180, 32, dx if args.kind == "2d" else 72)
     grid = tuple(round(v / dx) for v in (length, height, width))
     rows = recipe(args.single, grid[2] == 1)
@@ -144,7 +148,7 @@ def run(args):
                 source_center_m=38, source_support_m=[14, 62], beach_toe_m=sc["toe"] * dx,
                 beach_slope=.2, still_depth_m=12, rows=rows.tolist(), gain=args.gain,
                 interpretation="Phase-weighted body acceleration before projection; no velocity target",
-                display_fps=12, adaptive_pressure="Uniform because the solid beach is present")
+                display_fps=display_fps, adaptive_pressure="Uniform because the solid beach is present")
     atomic_json(root / "inputs/plan.json", plan)
     init = basin.seed(run_spec, sc)
     if grid[2] == 1:
@@ -152,7 +156,7 @@ def run(args):
     solid = (basin.beach_phi(run_spec, sc), 2)
     records, chunks, frame = [], [], 0
     full = root / "cache/full"
-    chunk_steps = 120
+    chunk_steps = round(5 / dt)
     for chunk, offset in enumerate(range(0, steps, chunk_steps)):
         n = min(chunk_steps, steps - offset)
         d = root / "dumps" / f"c{chunk}"
@@ -175,7 +179,7 @@ def run(args):
         atomic_json(root / "receipts/progress.json", dict(chunks=chunks, frames=records, elapsed_s=time.monotonic() - start))
         print(json.dumps(chunks[-1]), flush=True)
         init = load_final_state(str(d))
-    atomic_json(full / "cache.json", dict(frames=frame, fps=12, units="metres",
+    atomic_json(full / "cache.json", dict(frames=frame, fps=display_fps, units="metres",
         times=[r["time_s"] for r in records], grid=grid, dt=dt, step=2,
         bulk_display_cap=120000, escaped_and_spray_not_decimated=True))
     best = max(records, key=lambda r: r["escaped_beyond_source"] + r["spray_beyond_source"])
@@ -192,11 +196,12 @@ if __name__ == "__main__":
     ap.add_argument("--kind", choices=("2d", "3d"), default="2d")
     ap.add_argument("--seconds", type=float, default=30)
     ap.add_argument("--dx", type=float, default=1)
+    ap.add_argument("--dt", type=float, default=1 / 24)
     ap.add_argument("--gain", type=float, default=1)
     ap.add_argument("--single", action="store_true")
     args = ap.parse_args()
     if not args.tag.replace("_", "").replace("-", "").isalnum():
         ap.error("Simple run tag required")
-    if not all(np.isfinite(x) and x > 0 for x in (args.seconds, args.dx, args.gain)):
+    if not all(np.isfinite(x) and x > 0 for x in (args.seconds, args.dx, args.dt, args.gain)):
         ap.error("Positive finite parameters required")
     run(args)
