@@ -468,6 +468,12 @@
      "portDefault": "0f"
     },
     {
+     "portName": "external_forces",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
      "portName": "solid_mode",
      "portDirection": "input",
      "portType": "int",
@@ -517,6 +523,42 @@
     },
     {
      "portName": "path_waves",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_liquid_acceleration_u",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_liquid_acceleration_v",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_liquid_acceleration_w",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_linear_drag_u",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_linear_drag_v",
+     "portDirection": "input",
+     "portType": "string",
+     "portDefault": ""
+    },
+    {
+     "portName": "path_linear_drag_w",
      "portDirection": "input",
      "portType": "string",
      "portDefault": ""
@@ -1087,6 +1129,11 @@
        "portType": "float"
       },
       {
+       "portName": "external_forces",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
        "portName": "mass_out2",
        "portDirection": "output",
        "portType": "array<float>"
@@ -1155,6 +1202,36 @@
        "portName": "spray_out2",
        "portDirection": "output",
        "portType": "array<float>"
+      },
+      {
+       "portName": "path_liquid_acceleration_u",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
+       "portName": "path_liquid_acceleration_v",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
+       "portName": "path_liquid_acceleration_w",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
+       "portName": "path_linear_drag_u",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
+       "portName": "path_linear_drag_v",
+       "portDirection": "input",
+       "portType": "string"
+      },
+      {
+       "portName": "path_linear_drag_w",
+       "portDirection": "input",
+       "portType": "string"
       },
       {
        "portName": "dump_every",
@@ -1652,6 +1729,34 @@
       {
        "nodeName": "swsc_w",
        "nodeType": "Geometry::Query::sample_volume"
+      },
+      {
+       "nodeName": "force_float",
+       "valueType": "array<float>"
+      },
+      {
+       "nodeName": "read_liquid_acceleration_u",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "read_liquid_acceleration_v",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "read_liquid_acceleration_w",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "read_linear_drag_u",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "read_linear_drag_v",
+       "nodeType": "File::NumPy::read_NumPy"
+      },
+      {
+       "nodeName": "read_linear_drag_w",
+       "nodeType": "File::NumPy::read_NumPy"
       },
       {
        "nodeName": "dg_pos",
@@ -3196,6 +3301,10 @@
        "target": "step.zone_ramp"
       },
       {
+       "source": ".external_forces",
+       "target": "step.external_forces"
+      },
+      {
        "source": ".waves",
        "target": "step.waves"
       },
@@ -3246,6 +3355,90 @@
       {
        "source": "step.spray_out",
        "target": ".spray_out2"
+      },
+      {
+       "source": ".path_liquid_acceleration_u",
+       "target": "read_liquid_acceleration_u.file_path"
+      },
+      {
+       "source": "force_float.output",
+       "target": "read_liquid_acceleration_u.type"
+      },
+      {
+       "source": "read_liquid_acceleration_u.data",
+       "target": "step.liquid_acceleration_u"
+      },
+      {
+       "source": "idx_off.output",
+       "target": "read_liquid_acceleration_u.frame"
+      },
+      {
+       "source": ".path_liquid_acceleration_v",
+       "target": "read_liquid_acceleration_v.file_path"
+      },
+      {
+       "source": "force_float.output",
+       "target": "read_liquid_acceleration_v.type"
+      },
+      {
+       "source": "read_liquid_acceleration_v.data",
+       "target": "step.liquid_acceleration_v"
+      },
+      {
+       "source": "idx_off.output",
+       "target": "read_liquid_acceleration_v.frame"
+      },
+      {
+       "source": ".path_liquid_acceleration_w",
+       "target": "read_liquid_acceleration_w.file_path"
+      },
+      {
+       "source": "force_float.output",
+       "target": "read_liquid_acceleration_w.type"
+      },
+      {
+       "source": "read_liquid_acceleration_w.data",
+       "target": "step.liquid_acceleration_w"
+      },
+      {
+       "source": "idx_off.output",
+       "target": "read_liquid_acceleration_w.frame"
+      },
+      {
+       "source": ".path_linear_drag_u",
+       "target": "read_linear_drag_u.file_path"
+      },
+      {
+       "source": "force_float.output",
+       "target": "read_linear_drag_u.type"
+      },
+      {
+       "source": "read_linear_drag_u.data",
+       "target": "step.linear_drag_u"
+      },
+      {
+       "source": ".path_linear_drag_v",
+       "target": "read_linear_drag_v.file_path"
+      },
+      {
+       "source": "force_float.output",
+       "target": "read_linear_drag_v.type"
+      },
+      {
+       "source": "read_linear_drag_v.data",
+       "target": "step.linear_drag_v"
+      },
+      {
+       "source": ".path_linear_drag_w",
+       "target": "read_linear_drag_w.file_path"
+      },
+      {
+       "source": "force_float.output",
+       "target": "read_linear_drag_w.type"
+      },
+      {
+       "source": "read_linear_drag_w.data",
+       "target": "step.linear_drag_w"
       },
       {
        "source": "idx_i.int",
@@ -4877,6 +5070,13 @@
        "valueName": "swsc_w.sampler",
        "valueType": "Geometry::Query::SamplerType",
        "value": "kLinear"
+      },
+      {
+       "valueName": "force_float.value",
+       "valueType": "array<float>",
+       "value": [
+        "0f"
+       ]
       }
      ],
      "iterateCompound": {
@@ -5527,6 +5727,10 @@
      "target": "loop.zone_ramp"
     },
     {
+     "source": ".external_forces",
+     "target": "loop.external_forces"
+    },
+    {
      "source": ".solid_mode",
      "target": "loop.solid_mode"
     },
@@ -5625,6 +5829,30 @@
     {
      "source": "r2_waves.data",
      "target": "loop.waves"
+    },
+    {
+     "source": ".path_liquid_acceleration_u",
+     "target": "loop.path_liquid_acceleration_u"
+    },
+    {
+     "source": ".path_liquid_acceleration_v",
+     "target": "loop.path_liquid_acceleration_v"
+    },
+    {
+     "source": ".path_liquid_acceleration_w",
+     "target": "loop.path_liquid_acceleration_w"
+    },
+    {
+     "source": ".path_linear_drag_u",
+     "target": "loop.path_linear_drag_u"
+    },
+    {
+     "source": ".path_linear_drag_v",
+     "target": "loop.path_linear_drag_v"
+    },
+    {
+     "source": ".path_linear_drag_w",
+     "target": "loop.path_linear_drag_w"
     },
     {
      "source": "loop.velocities_out",

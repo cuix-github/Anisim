@@ -731,6 +731,48 @@
           "portDirection": "input",
           "portType": "string",
           "portDefault": ""
+        },
+        {
+          "portName": "external_forces",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
+          "portName": "path_liquid_acceleration_u",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "path_liquid_acceleration_v",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "path_liquid_acceleration_w",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "path_linear_drag_u",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "path_linear_drag_v",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "path_linear_drag_w",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
         }
       ],
       "compoundNodes": [
@@ -969,6 +1011,30 @@
         {
           "nodeName": "w_spray_out",
           "nodeType": "File::NumPy::write_NumPy"
+        },
+        {
+          "nodeName": "r_liquid_acceleration_u",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_liquid_acceleration_v",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_liquid_acceleration_w",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_linear_drag_u",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_linear_drag_v",
+          "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "r_linear_drag_w",
+          "nodeType": "File::NumPy::read_NumPy"
         }
       ],
       "connections": [
@@ -1851,6 +1917,82 @@
         {
           "source": "w_spray_out.success",
           "target": ".ok_spray_out"
+        },
+        {
+          "source": ".external_forces",
+          "target": "step.external_forces"
+        },
+        {
+          "source": ".path_liquid_acceleration_u",
+          "target": "r_liquid_acceleration_u.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_liquid_acceleration_u.type"
+        },
+        {
+          "source": "r_liquid_acceleration_u.data",
+          "target": "step.liquid_acceleration_u"
+        },
+        {
+          "source": ".path_liquid_acceleration_v",
+          "target": "r_liquid_acceleration_v.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_liquid_acceleration_v.type"
+        },
+        {
+          "source": "r_liquid_acceleration_v.data",
+          "target": "step.liquid_acceleration_v"
+        },
+        {
+          "source": ".path_liquid_acceleration_w",
+          "target": "r_liquid_acceleration_w.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_liquid_acceleration_w.type"
+        },
+        {
+          "source": "r_liquid_acceleration_w.data",
+          "target": "step.liquid_acceleration_w"
+        },
+        {
+          "source": ".path_linear_drag_u",
+          "target": "r_linear_drag_u.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_linear_drag_u.type"
+        },
+        {
+          "source": "r_linear_drag_u.data",
+          "target": "step.linear_drag_u"
+        },
+        {
+          "source": ".path_linear_drag_v",
+          "target": "r_linear_drag_v.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_linear_drag_v.type"
+        },
+        {
+          "source": "r_linear_drag_v.data",
+          "target": "step.linear_drag_v"
+        },
+        {
+          "source": ".path_linear_drag_w",
+          "target": "r_linear_drag_w.file_path"
+        },
+        {
+          "source": "t_flt.output",
+          "target": "r_linear_drag_w.type"
+        },
+        {
+          "source": "r_linear_drag_w.data",
+          "target": "step.linear_drag_w"
         }
       ],
       "values": [

@@ -756,7 +756,8 @@ def build3d():
                      ("spray_cfl", "float", "0f"),
                      # the wave zone (zone_length 0 = none; see step_3d), cells and seconds
                      ("zone_length", "float", "0f"), ("zone_depth", "float", "0f"),
-                     ("zone_ramp", "float", "0f")):
+                     ("zone_ramp", "float", "0f"),
+                     ("external_forces", "int", "0")):
         if n != "radius_coarse":
             body["ports"].append(P(n, "input", t))
             conns.append({"source": "." + n, "target": "step." + n})
@@ -823,6 +824,26 @@ def build3d():
             {"source": rt + ".output", "target": "r2_" + n + ".type"},
             {"source": "r2_" + n + ".data", "target": "loop." + tgt},
         ]
+
+    # A scene can bake external fields independently of the solver. Read each
+    # acceleration at the absolute substep index; drag is a static field.
+    body["compoundNodes"].append({"nodeName": "force_float", "valueType": "array<float>"})
+    body["values"].append({"valueName": "force_float.value", "valueType": "array<float>", "value": ["0f"]})
+    for family in ("liquid_acceleration", "linear_drag"):
+        for axis in "uvw":
+            name = family + "_" + axis
+            port = "path_" + name
+            body["ports"].append(P(port, "input", "string"))
+            top["ports"].append(P(port, "input", "string", ""))
+            top["connections"].append({"source": "." + port, "target": "loop." + port})
+            body["compoundNodes"].append({"nodeName": "read_" + name, "nodeType": "File::NumPy::read_NumPy"})
+            conns += [
+                {"source": "." + port, "target": "read_" + name + ".file_path"},
+                {"source": "force_float.output", "target": "read_" + name + ".type"},
+                {"source": "read_" + name + ".data", "target": "step." + name},
+            ]
+            if family == "liquid_acceleration":
+                conns.append({"source": "idx_off.output", "target": "read_" + name + ".frame"})
 
     # full-state dumps at the end of the run: with path_final_positions these are
     # everything a later run needs to resume (chunked runs across the background
