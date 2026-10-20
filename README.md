@@ -33,6 +33,9 @@ The new [force-driven wave previews](docs/force-wave-preview.md) replace the
 velocity-target wave zone with pre-projection acceleration. They are particle
 previews for scene approval, with independent force and checkpoint gates;
 production resolution and start time remain undecided.
+The [October 20 handoff](docs/handoffs/2026-10-20-ocean-rendering-and-force-waves.md)
+collects the validated rendering configurations and current preview state,
+including the unresolved Maya display issue.
 
 ## How to run
 

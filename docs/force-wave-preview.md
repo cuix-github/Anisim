@@ -102,8 +102,9 @@ particle checks. `particle_diagnostic.png` shows particle-only side views.
 
 `maya/build_wave_2d_scene.py` builds either dimensionality. The saved
 `scenes/wave_2d.ma` or `scenes/wave_3d.ma` and `open_in_maya.bat` load the
-four playback layers. Blue is bulk water, cyan is escaped water, orange is
-additional spray; grey air is hidden by default. Bulk-water display is limited
+four playback layers. Intended colors are blue for bulk water, cyan for escaped
+water and orange for additional spray; grey air is hidden by default. These
+colors and full GUI playback have not been accepted. Bulk-water display is limited
 to 120,000 points per frame, and air to 10,000, solely for viewport speed.
 Escaped water and emitted spray are not thinned. Original dumps retain all
 particles. Viewport point sizes are visualization aids, not physical radii.
@@ -151,5 +152,26 @@ pressure solve also does not establish timestep or spatial convergence.
 
 The first GUI inspection failed: almost no particles were visibly drawn despite
 correct headless bounds. The numeric Maya receipts above are not a playback
-acceptance. A direct-output display repair and a 0.5 m, 1/48 s two-dimensional
-preview are being checked separately; the original caches remain intact.
+acceptance. The user rejected the visible result and asked to prioritize a
+denser, clearly readable 2D preview before any further coarse 3D work.
+
+The replacement `out/runs/force_sea_2d_half_20261020/` has now completed:
+360×64×1 cells at 0.5 m, dt=1/48 s, 30 simulated seconds and 720 playback frames
+at 24 fps. It took 103.3 s including baking/export, with 95.2 s across the graph
+calls, using eight threads. Initial bulk water is about 38,400 particles.
+Beyond x=68 m, sampled escaped-water and extra-spray populations peak at 306
+and 3. The rear boundary still piles up: the highest inspected liquid particle
+in x<10 m reaches 23.73 m at 20 s against the initial 12 m surface.
+
+The latest scene candidate is `scenes/wave_2d_points.ma` in that run, and its
+`open_in_maya.bat` points there. The earlier `scenes/wave_2d.ma` remains a failed
+display variant. The builder copies positions to a centimetre display cache,
+uses identity parent transforms, and outputs points directly in wireframe.
+The six-frame bounds check passes, but the latest candidate has **not** passed
+GUI visibility or playback acceptance. Earlier scope/shaded variants failed
+visually despite passing bounds. No production launcher or replacement
+scheduled run is ready; original caches remain intact.
+
+The [October 20 handoff](handoffs/2026-10-20-ocean-rendering-and-force-waves.md)
+records the display diagnosis, exact candidate paths, rendering configurations,
+remaining scene defects and the next inspection steps.
