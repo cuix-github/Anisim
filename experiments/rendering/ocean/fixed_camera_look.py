@@ -209,17 +209,18 @@ def main():
     elif args.stage=='render':
         assert not (out/'receipt.json').exists(),'No repeated render in an existing arm'
         assert read(out/'prepare.json')['scene_sha256']==base.sha(out/'candidate.mb')
+        bootstrap=out/'bootstrap.mel'
+        python_code='import runpy; runpy.run_path('+repr(HERE.as_posix())+", run_name='__main__')"
+        bootstrap.write_text('python('+json.dumps(python_code)+');\n')
         launcher='''$ErrorActionPreference = 'Stop'
 if (Get-Process maya,mayapy,bifcmd -ErrorAction SilentlyContinue) { throw 'Another Maya or simulation process is active' }
-$pythonScript = $env:OCEAN_LOOK_SCRIPT -replace '\\\\', '/'
-$command = '\"python(\\\"import runpy; runpy.run_path(r\'\'\'' + $pythonScript + '\'\'\', run_name=\'\'__main__\'\')\\\")\"'
-$p = Start-Process -FilePath 'C:/Program Files/Autodesk/Maya2027/bin/maya.exe' -ArgumentList @('-command',$command) -PassThru -WindowStyle Hidden
+$p = Start-Process -FilePath 'C:/Program Files/Autodesk/Maya2027/bin/maya.exe' -ArgumentList @('-script',('\"' + $env:OCEAN_LOOK_BOOTSTRAP + '\"')) -PassThru -WindowStyle Hidden
 Write-Output "MAYA_PID $($p.Id)"
 if (-not $p.WaitForExit(1800000)) { Stop-Process -Id $p.Id -Force; throw 'Owned render exceeded 30 minutes' }
 exit $p.ExitCode
 '''
         (out/'launch.ps1').write_text(launcher)
-        env=dict(os.environ,OCEAN_LOOK_WORKER='render',OCEAN_LOOK_OUT=str(out),OCEAN_LOOK_SCRIPT=str(HERE),
+        env=dict(os.environ,OCEAN_LOOK_WORKER='render',OCEAN_LOOK_OUT=str(out),OCEAN_LOOK_BOOTSTRAP=str(bootstrap),
                  MAYA_DISABLE_CER='1',MAYA_DISABLE_CIP='1',MAYA_DISABLE_CLIC_IPM='1')
         receipt=dict(status='running',git_sha=base.git('rev-parse','HEAD'),
                      started_utc=time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()))
