@@ -54,7 +54,7 @@ def geometry_equal(a, b):
             [a[key][i] for i in (0, 2, 3)] == [b[key][i] for i in (0, 2, 3)])
 
 
-def environment(out):
+def environment(out, config):
     """Linear ACEScg radiance map; broad overcast structure, no water texture."""
     w, h = 2048, 1024
     theta = (np.arange(h)[:, None] + .5) / h * np.pi
@@ -63,9 +63,11 @@ def environment(out):
     x, z = np.sin(theta)*np.sin(phi), np.sin(theta)*np.cos(phi)
     up = np.clip(y, 0, 1)
     axis = np.array([-.45, .65, -.61237244]); axis /= np.linalg.norm(axis)
-    lobe = np.exp((axis[0]*x + axis[1]*y + axis[2]*z - 1) / .23)
+    settings=config.get('environment',{})
+    lobe = np.exp((axis[0]*x + axis[1]*y + axis[2]*z - 1) / settings.get('lobe_width',.23))
     structure = .10*np.sin(3*phi+1.2)*np.sin(theta)**2 + .06*np.cos(5*phi-2*theta)
-    top = .70 + .60*np.sqrt(up) + 2.2*lobe + structure
+    top = settings.get('base',.70) + settings.get('zenith',.60)*np.sqrt(up) + settings.get('lobe_strength',2.2)*lobe + structure
+    top = np.maximum(top,.01)
     lower = .06 + .20*np.exp(y/.12)
     blend = np.clip((y+.04)/.10, 0, 1); blend=blend*blend*(3-2*blend)
     radiance = (blend*top+(1-blend)*lower)[..., None]*np.array([.97, .99, 1.0])
@@ -77,7 +79,7 @@ def environment(out):
     target=out/'overcast.exr'
     subprocess.run([OIIO, str(p), '--attrib', 'oiio:ColorSpace', 'ACEScg',
                     '-d', 'half', '-o', str(target)], check=True)
-    return dict(type='analytic neutral overcast', resolution=[w,h],
+    return dict(type='analytic neutral overcast', resolution=[w,h], settings=settings,
                 color_space='linear ACEScg, read without conversion',
                 radiance_min=float(radiance.min()), radiance_max=float(radiance.max()),
                 radiance_mean_rgb=radiance.mean((0,1)).tolist(), sha256=base.sha(target))
@@ -112,6 +114,18 @@ def prepare_worker(source, out, config):
         for attr,v in water.items():
             if isinstance(v,(list,tuple)): c.setAttr('water.'+attr,*v,type='double3')
             else: c.setAttr('water.'+attr,v)
+        micro=config.get('micro_normal')
+        if micro:
+            noise=c.shadingNode('aiNoise',asTexture=True,name='oceanMicroNormalNoise')
+            c.setAttr(noise+'.scale',*micro['scale_per_scene_unit'],type='double3')
+            c.setAttr(noise+'.octaves',2)
+            enums=c.attributeQuery('coordSpace',node=noise,listEnum=True)[0].split(':')
+            world=next(i for i,s in enumerate(enums) if s.lower()=='world')
+            c.setAttr(noise+'.coordSpace',world)
+            bump=c.shadingNode('aiBump3d',asUtility=True,name='oceanMicroNormal')
+            c.setAttr(bump+'.bumpHeight',micro['height_scene_units'])
+            c.connectAttr(noise+'.outColorR',bump+'.bumpMap',force=True)
+            c.connectAttr(bump+'.outValue','water.normalCamera',force=True)
         file=c.shadingNode('file',asTexture=True,name='oceanOvercastRadiance')
         c.setAttr(file+'.fileTextureName',(out/'overcast.exr').as_posix(),type='string')
         c.setAttr(file+'.colorSpace','Raw',type='string')
@@ -145,7 +159,10 @@ def prepare_worker(source, out, config):
                      foam_ass_sha256=base.sha(out/'foam.ass'),mist=read(out/'mist_adjustment.json'),
                      source_scene_sha256=base.sha(source/'candidate.mb'),
                      simulation=False,new_whitewater=False,new_particles=False,
-                     new_surface_or_displacement=False)
+                     new_surface_or_displacement=False,render_only_micro_normal=micro)
+        if micro:
+            state['micro_normal_nodes']=capture(c,{'oceanMicroNormalNoise':['scale','octaves','coordSpace'],
+                                                   'oceanMicroNormal':['bumpHeight']})
         assert capture(c,CAMERA)==camera,'Camera changed'
         assert geometry_equal(before,state['geometry']),'Geometry changed'
         assert state['defaultColorMgtGlobals']==original['defaultColorMgtGlobals']
@@ -195,7 +212,7 @@ def main():
         assert not base.git('status','--porcelain'),'Commit instrument first'
         out.mkdir(parents=True); config=read(args.config) if args.config else {}
         base.save(out/'requested_config.json',config)
-        base.save(out/'environment.json',environment(out))
+        base.save(out/'environment.json',environment(out,config))
         shutil.copy2(source/'foam.ass',out/'foam.ass')
         base.save(out/'mist_adjustment.json',scale_mist(source/'mist.ass',out/'mist.ass',config.get('mist_density_multiplier',.15)))
         base.save(out/'provenance.json',dict(git_sha=base.git('rev-parse','HEAD'),instrument_sha256=base.sha(HERE),
