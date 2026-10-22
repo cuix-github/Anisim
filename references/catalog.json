@@ -1,0 +1,263 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-22",
+  "path_base": "repository root",
+  "local_paper_root": "references/papers",
+  "pdf_policy": "Local reading copies are excluded from Git; author-hosted availability is not assumed to grant redistribution rights.",
+  "scope": "Two core papers and the six works cited for spray/droplets and surface reconstruction in PF-FLIP Section 7. Download status and reading scope are separate.",
+  "counts": {
+    "entries": 8,
+    "complete_paper_pdfs": 5,
+    "preview_pdfs": 1,
+    "entries_without_local_pdf": 2
+  },
+  "papers": [
+    {
+      "id": "pf_flip_2025",
+      "title": "Adaptive Phase-Field-FLIP for Very Large Scale Two-Phase Fluid Simulation",
+      "authors": [
+        "Bernhard Braun",
+        "Jan Bender",
+        "Nils Thuerey"
+      ],
+      "year": 2025,
+      "doi": null,
+      "group": "01_core",
+      "primary_landing_url": "https://ge.in.tum.de/?p=3691",
+      "download_url": "https://ge.in.tum.de/download/Adaptive_Phase_Field_FLIP_preprint.pdf",
+      "relative_file": "references/papers/01_core/Adaptive_Phase_Field_FLIP_preprint.pdf",
+      "access_status": "downloaded_author_fulltext",
+      "artifact_extent": "full_author_paper",
+      "sha256": "a07fe47f3c7e666d2fce6060442f5e85a8e362a209b6022b8f66651920fff19b",
+      "bytes": 24507730,
+      "pages": 23,
+      "pages_scope": "Downloaded PDF page count",
+      "reading_scope": "Targeted rereading: Sections 3.4, 5, 6, 7, 8.1; ocean discussion in 8.3; Table 7 and bibliography. Visual check of PDF pp.15 and 20. Not a cover-to-cover reread.",
+      "role": "Core two-phase PF-FLIP, spatial adaptivity, pressure solver and Section 7 spray/reconstruction pipeline.",
+      "checked_date": "2026-10-22",
+      "validation": "PDF header, pypdf parse, title, page count and SHA-256 verified.",
+      "redistribution": "This repository keeps source links and metadata; downloaded PDFs remain local."
+    },
+    {
+      "id": "st_flip_2026",
+      "title": "Spatiotemporal FLIP for Fast Free-Surface and Two-Phase Simulation With Very Large Time Steps",
+      "authors": [
+        "Bernhard Braun",
+        "Rene Winchenbach",
+        "Jan Bender",
+        "Nils Thuerey"
+      ],
+      "year": 2026,
+      "doi": "10.1145/3811289",
+      "group": "01_core",
+      "primary_landing_url": "https://ge.in.tum.de/?p=4006",
+      "download_url": "https://ge.in.tum.de/download/ST-FLIP.pdf",
+      "relative_file": "references/papers/01_core/ST-FLIP.pdf",
+      "access_status": "downloaded_author_fulltext",
+      "artifact_extent": "full_author_paper",
+      "sha256": "5d97cfc4daa6279f0b009a6783c079f49f09cd185f79d7fd8de823c5f72b7cd4",
+      "bytes": 12385231,
+      "pages": 20,
+      "pages_scope": "Downloaded PDF page count",
+      "reading_scope": "Targeted rereading: title/abstract, implementation discussion p.9, two-phase results p.15, Appendices A/B p.20. Visual check of Appendix B. Not a cover-to-cover reread.",
+      "role": "Spatiotemporal FLIP sampling and Appendix B render-time water reconstruction.",
+      "checked_date": "2026-10-22",
+      "validation": "PDF header, pypdf parse, title, page count and SHA-256 verified.",
+      "redistribution": "This repository keeps source links and metadata; downloaded PDFs remain local."
+    },
+    {
+      "id": "gissler_2017",
+      "title": "Generalized drag force for particle-based simulations",
+      "authors": [
+        "Christoph Gissler",
+        "Stefan Band",
+        "Andreas Peer",
+        "Markus Ihmsen",
+        "Matthias Teschner"
+      ],
+      "year": 2017,
+      "doi": "10.1016/j.cag.2017.09.002",
+      "primary_landing_url": "https://doi.org/10.1016/j.cag.2017.09.002",
+      "group": "02_spray_and_droplets",
+      "access_status": "downloaded_author_fulltext",
+      "reading_scope": "Targeted reading: abstract and Sections 3, 4, 4.1, 4.2, author PDF pp.3-5; not full-paper review.",
+      "implementation_questions": [
+        "Compare radius, relative air velocity, Reynolds-number-dependent drag, integration and units.",
+        "PF cites this method; do not assume every particle-deformation/occlusion feature is required or adopted."
+      ],
+      "download_url": "https://cg.informatik.uni-freiburg.de/publications/2017_CAG_generalizedDragForce_v2.pdf",
+      "final_url": "https://cg.informatik.uni-freiburg.de/publications/2017_CAG_generalizedDragForce_v2.pdf",
+      "relative_file": "references/papers/02_spray_and_droplets/Gissler_2017_Generalized_Drag_Force.pdf",
+      "sha256": "0bc2a520305d3c5d22ae80e1565b96af11d8087e9f1fd9c275fa783c46b2a9e7",
+      "bytes": 18063377,
+      "pages": 12,
+      "nonempty_pages": 12,
+      "validation": "PDF header valid; pypdf parsing successful; all expected title/authors manually checked; nonempty page count recorded. Sirignano has intentional blank pages.",
+      "artifact_extent": "full_author_paper",
+      "checked_date": "2026-10-22",
+      "redistribution": "Local reading copy only; public availability is not a redistribution license. Do not commit PDFs to public repo.",
+      "role": "Aerodynamic drag for escaped droplet motion.",
+      "pages_scope": "Downloaded PDF page count"
+    },
+    {
+      "id": "song_2005",
+      "title": "Stable but nondissipative water",
+      "authors": [
+        "Oh-Young Song",
+        "Hyuncheol Shin",
+        "Hyeong-Seok Ko"
+      ],
+      "year": 2005,
+      "doi": "10.1145/1037957.1037962",
+      "primary_landing_url": "https://snu.elsevierpure.com/en/publications/stable-but-nondissipative-water/",
+      "group": "02_spray_and_droplets",
+      "access_status": "metadata_and_author_fulltext_web_only_pdf_download_unavailable",
+      "relative_file": null,
+      "sha256": null,
+      "pages": 17,
+      "download_url": null,
+      "author_fulltext_url": "https://www.researchgate.net/publication/220183677_Stable_but_nondissipative_water",
+      "failed_download_url": "https://www.researchgate.net/profile/Hyeong-Seok-Ko/publication/220183677_Stable_but_nondissipative_water/links/5704453c08aef745f7148f96/Stable-but-nondissipative-water.pdf",
+      "failure_reason": "Author-uploaded full text readable on web; PDF endpoint returned HTTP403. No access-control bypass attempted.",
+      "reading_scope": "Abstract and Section 5.1-5.4 targeted web-text reading; no local PDF, no full-paper review.",
+      "implementation_questions": [
+        "Original Song method includes pressure-gradient force, backreaction, merging and restitution; PF Section7 citation does not establish adoption of all these features."
+      ],
+      "checked_date": "2026-10-22",
+      "redistribution": "Local reading copy only; public availability is not a redistribution license. Do not commit PDFs to public repo.",
+      "role": "Lagrangian droplet treatment and gravity/drag integration precedent.",
+      "pages_scope": "Publication page range count; no local PDF validated",
+      "local_source_pointer": "references/papers/02_spray_and_droplets/song_2005_SOURCE.txt",
+      "local_access_record": "references/papers/02_spray_and_droplets/song_2005_access_status.json"
+    },
+    {
+      "id": "ihmsen_2012",
+      "title": "Unified spray, foam and air bubbles for particle-based fluids",
+      "author_pdf_title": "Unified Spray, Foam and Bubbles for Particle-Based Fluids",
+      "authors": [
+        "Markus Ihmsen",
+        "Nadir Akinci",
+        "Gizem Akinci",
+        "Matthias Teschner"
+      ],
+      "year": 2012,
+      "doi": "10.1007/s00371-012-0697-9",
+      "primary_landing_url": "https://doi.org/10.1007/s00371-012-0697-9",
+      "group": "02_spray_and_droplets",
+      "access_status": "downloaded_author_fulltext",
+      "reading_scope": "Abstract/introduction and Sections 3.1-3.2 targeted reading, PDF pp.1-5; figures and results not exhaustively audited.",
+      "implementation_questions": [
+        "Original source includes trapped-air, crest and kinetic-energy potentials plus sampled birth position/velocity; PF only specifies steep-gradient interface emission.",
+        "Separate what PF explicitly claims from features in its references."
+      ],
+      "download_url": "https://cg.informatik.uni-freiburg.de/publications/2012_CGI_sprayFoamBubbles.pdf",
+      "final_url": "https://cg.informatik.uni-freiburg.de/publications/2012_CGI_sprayFoamBubbles.pdf",
+      "relative_file": "references/papers/02_spray_and_droplets/Ihmsen_2012_Unified_Spray_Foam_Bubbles.pdf",
+      "sha256": "ed407365313c14b3bbaf481ec20ea07244d7cc83777b1a6e55238d8bc78315ad",
+      "bytes": 2328865,
+      "pages": 9,
+      "nonempty_pages": 9,
+      "validation": "PDF header valid; pypdf parsing successful; all expected title/authors manually checked; nonempty page count recorded. Sirignano has intentional blank pages.",
+      "artifact_extent": "full_author_paper",
+      "checked_date": "2026-10-22",
+      "redistribution": "Local reading copy only; public availability is not a redistribution license. Do not commit PDFs to public repo.",
+      "role": "Extra spray emission near energetic interface features.",
+      "pages_scope": "Downloaded PDF page count"
+    },
+    {
+      "id": "babinsky_sojka_2002",
+      "title": "Modeling drop size distributions",
+      "authors": [
+        "E. Babinsky",
+        "P. E. Sojka"
+      ],
+      "year": 2002,
+      "doi": "10.1016/S0360-1285(02)00004-7",
+      "primary_landing_url": "https://www.sciencedirect.com/science/article/abs/pii/S0360128502000047",
+      "group": "02_spray_and_droplets",
+      "access_status": "publisher_abstract_introduction_only_no_public_author_pdf_found",
+      "relative_file": null,
+      "sha256": null,
+      "pages": 27,
+      "download_url": null,
+      "reading_scope": "Publisher abstract and introduction only; full paper not read.",
+      "implementation_questions": [
+        "PF does not disclose log-normal mean, width, truncation or scene-specific sampling calibration in Section7.",
+        "Not evidence that a radius distribution alone predicts a physical ocean atomization spectrum."
+      ],
+      "checked_date": "2026-10-22",
+      "redistribution": "Local reading copy only; public availability is not a redistribution license. Do not commit PDFs to public repo.",
+      "role": "Justification/background for sampling per-droplet radius from a log-normal distribution.",
+      "pages_scope": "Publication page range count; no local PDF validated",
+      "local_source_pointer": "references/papers/02_spray_and_droplets/babinsky_sojka_2002_SOURCE.txt",
+      "local_access_record": "references/papers/02_spray_and_droplets/babinsky_sojka_2002_access_status.json"
+    },
+    {
+      "id": "sirignano_2010",
+      "title": "Fluid Dynamics and Transport of Droplets and Sprays",
+      "edition": "Second edition",
+      "authors": [
+        "William A. Sirignano"
+      ],
+      "year": 2010,
+      "doi": "10.1017/CBO9780511806728",
+      "isbn_print": "9780521884891",
+      "primary_landing_url": "https://www.cambridge.org/core/books/fluid-dynamics-and-transport-of-droplets-and-sprays/EEEF907721AE679B11BC62AA59C61DE2",
+      "group": "02_spray_and_droplets",
+      "access_status": "authorized_preview_only_full_book_requires_access",
+      "reading_scope": "Metadata/title and targeted Chapter2 Section2.1 reading: printed pp.21-24, especially Eq2.21 on p23; preview contains frontmatter and printed pp.1-29. Full book NOT downloaded or read.",
+      "implementation_questions": [
+        "Coefficient and environmental assumptions must be chosen; a formula citation is not parameter calibration.",
+        "Small-radius lifetime and consistent r-squared updates affect surviving fine mist."
+      ],
+      "download_url": "https://api.pageplace.de/preview/DT0400.9780511669545_A24404678/preview-9780511669545_A24404678.pdf",
+      "final_url": "https://api.pageplace.de/preview/DT0400.9780511669545_A24404678/preview-9780511669545_A24404678.pdf",
+      "relative_file": "references/papers/02_spray_and_droplets/Sirignano_2010_Droplets_Sprays_PREVIEW_ONLY.pdf",
+      "sha256": "6e30edfd11d271144bc881df18fbd80b3dbefe2ebf2f87818ec30a80ece0469b",
+      "bytes": 343886,
+      "pages": 49,
+      "nonempty_pages": 46,
+      "validation": "PDF header valid; pypdf parsing successful; all expected title/authors manually checked; nonempty page count recorded. Sirignano has intentional blank pages.",
+      "artifact_extent": "preview",
+      "checked_date": "2026-10-22",
+      "redistribution": "Local reading copy only; public availability is not a redistribution license. Do not commit PDFs to public repo.",
+      "role": "Physical droplet evaporation ODE, dr/dt proportional to -1/r.",
+      "pages_scope": "Downloaded PDF page count",
+      "local_source_pointer": "references/papers/02_spray_and_droplets/sirignano_2010_SOURCE.txt",
+      "local_access_record": "references/papers/02_spray_and_droplets/sirignano_2010_access_status.json"
+    },
+    {
+      "id": "bhattacharya_2011",
+      "title": "A Level-set Method for Skinning Animated Particle Data",
+      "authors": [
+        "Haimasree Bhatacharya",
+        "Yue Gao",
+        "Adam Bargteil"
+      ],
+      "author_spelling_note": "2011 paper title page and PF bibliography use Bhatacharya; author institutional page spells Bhattacharya. This is the exact 2011 SCA paper, not the expanded 2015 TVCG paper.",
+      "year": 2011,
+      "doi": "10.1145/2019406.2019409",
+      "primary_landing_url": "https://cal.cs.umbc.edu/Papers/Bhattacharya-2011-ALM/",
+      "group": "03_surface_reconstruction",
+      "access_status": "downloaded_author_fulltext",
+      "reading_scope": "Abstract and Section3.1 plus opening Section3.2 targeted reading, PDF p3; not full-paper review.",
+      "implementation_questions": [
+        "Compare constrained level-set smoothing and preservation bounds against current mesh smoothing.",
+        "This reconstructs surface geometry; it is not a spray birth or dynamics method."
+      ],
+      "download_url": "https://cal.cs.umbc.edu/Papers/Bhattacharya-2011-ALM/Bhattacharya-2011-ALM.pdf",
+      "final_url": "https://cal.cs.umbc.edu/Papers/Bhattacharya-2011-ALM/Bhattacharya-2011-ALM.pdf",
+      "relative_file": "references/papers/03_surface_reconstruction/Bhattacharya_2011_Level_Set_Skinning.pdf",
+      "sha256": "fba64269a78f260b623c818da3533de4424dbbb366a90c94c7ac3947b4e0a066",
+      "bytes": 28228036,
+      "pages": 8,
+      "nonempty_pages": 8,
+      "validation": "PDF header valid; pypdf parsing successful; all expected title/authors manually checked; nonempty page count recorded. Sirignano has intentional blank pages.",
+      "artifact_extent": "full_author_paper",
+      "checked_date": "2026-10-22",
+      "redistribution": "Local reading copy only; public availability is not a redistribution license. Do not commit PDFs to public repo.",
+      "role": "Water particle skinning and surface smoothing for render-time reconstruction.",
+      "pages_scope": "Downloaded PDF page count"
+    }
+  ]
+}
