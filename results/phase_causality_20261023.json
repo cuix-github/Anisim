@@ -1,0 +1,320 @@
+{
+  "scope": "Uniform non-ST phase_model=2, 64x80, 20480 particles, 6 seconds; escape/adapt/emission disabled. Diagnostics, not independent acceptance.",
+  "stage_sequence": {
+    "control_final_bit_identical": [
+      "final.npy",
+      "final_velocities.npy",
+      "final_mass.npy",
+      "final_momx.npy",
+      "final_momy.npy",
+      "final_momz.npy",
+      "final_tau.npy",
+      "final_wt.npy",
+      "final_wtph.npy",
+      "final_scale.npy",
+      "final_phase.npy",
+      "final_radius.npy",
+      "final_spray.npy"
+    ],
+    "arms": {
+      "shared_pressure": {
+        "first_mismatch": null,
+        "steps_checked": 2400,
+        "max_p2g_difference": 0.0,
+        "max_phi_difference": 0.0,
+        "final_momentum": {
+          "x": {
+            "max": 0.0,
+            "different": 0
+          },
+          "y": {
+            "max": 0.0,
+            "different": 0
+          }
+        },
+        "wall_seconds": 56.205641200067475
+      },
+      "shared_p2g_and_pressure": {
+        "first_mismatch": null,
+        "steps_checked": 2400,
+        "max_p2g_difference": 0.0,
+        "max_phi_difference": 0.0,
+        "final_momentum": {
+          "x": {
+            "max": 0.0,
+            "different": 0
+          },
+          "y": {
+            "max": 0.0,
+            "different": 0
+          }
+        },
+        "wall_seconds": 54.799493100028485
+      }
+    }
+  },
+  "first_independent_differences": {
+    "vel": {
+      "step": 0,
+      "time_start": 0.0,
+      "stages": {
+        "pre_velocity_max": 0.0,
+        "phi_max": 0.0,
+        "cell_tags_different": 0,
+        "projected_velocity_max": 4.186449797938252e-12,
+        "pos": {
+          "max": 0.0,
+          "different": 0
+        },
+        "vel": {
+          "max": 9.313225746154785e-10,
+          "different": 1147
+        }
+      }
+    },
+    "initial_stage_comparison": {
+      "pre_velocity_max": 0.0,
+      "phi_max": 0.0,
+      "cell_tags_different": 0,
+      "projected_velocity_max": 4.186449797938252e-12,
+      "pos": {
+        "max": 0.0,
+        "different": 0
+      },
+      "vel": {
+        "max": 9.313225746154785e-10,
+        "different": 1147
+      }
+    },
+    "pos": {
+      "step": 30,
+      "time_start": 0.07499999832361937,
+      "stages": {
+        "pre_velocity_max": 9.597091082946818e-08,
+        "phi_max": 0.0,
+        "cell_tags_different": 0,
+        "projected_velocity_max": 7.190391682065922e-08,
+        "pos": {
+          "max": 1.9073486328125e-06,
+          "different": 1
+        },
+        "vel": {
+          "max": 1.7881393432617188e-07,
+          "different": 24239
+        }
+      }
+    },
+    "cell_tag": {
+      "step": 1010,
+      "time_start": 2.524999943561852,
+      "cells": [
+        {
+          "index": [
+            55,
+            26
+          ],
+          "python": 0.4994272046489754,
+          "cpp": 0.500430185689249
+        }
+      ]
+    }
+  },
+  "independent_reproduces_retained_control": true,
+  "cell_tag_intervention": {
+    "cells_different": 1,
+    "arms": {
+      "own": {
+        "phase_max_difference": 0.0,
+        "projected_velocity_max_difference": 0.0
+      },
+      "only_cpp_cell_labels": {
+        "phase_max_difference": 0.7944210767745972,
+        "projected_velocity_max_difference": 0.7502177304986404
+      },
+      "all_cpp_face_phase": {
+        "phase_max_difference": 0.7944210767745972,
+        "projected_velocity_max_difference": 0.7506034196724087
+      }
+    },
+    "labels_only_vs_all_cpp_projected_max": 0.003426416946012978
+  },
+  "pressure_work_by_face": {
+    "water": {
+      "count": 6008,
+      "total_pressure_work": 2662463.5250304327,
+      "net_by_face_group": {
+        "pure_air_faces": 2633455.1357482104,
+        "mixed_faces": 36329.836469061825,
+        "pure_water_faces": -7321.447186837671
+      },
+      "max_impulse_by_face_group": {
+        "pure_air_faces": 8.675886643426216,
+        "mixed_faces": 2.3213289554926573,
+        "pure_water_faces": 2.344313282292728
+      }
+    },
+    "air": {
+      "count": 14472,
+      "total_pressure_work": 52819.503514500866,
+      "net_by_face_group": {
+        "pure_air_faces": 51549.35210989003,
+        "mixed_faces": 1090.2044041284553,
+        "pure_water_faces": 179.94700048237652
+      },
+      "max_impulse_by_face_group": {
+        "pure_air_faces": 46.06165566451639,
+        "mixed_faces": 5.52633953545337,
+        "pure_water_faces": 2.8207115379575205
+      }
+    },
+    "water_phi_05_09": {
+      "count": 498,
+      "total_pressure_work": 2572284.5617651595,
+      "net_by_face_group": {
+        "pure_air_faces": 2631904.595312169,
+        "mixed_faces": 15062.808261679187,
+        "pure_water_faces": -74682.84180868846
+      },
+      "max_impulse_by_face_group": {
+        "pure_air_faces": 8.675886643426216,
+        "mixed_faces": 2.3213289554926573,
+        "pure_water_faces": 2.344313282292728
+      }
+    },
+    "water_within_3_cells_of_side_wall": {
+      "count": 731,
+      "total_pressure_work": 2882138.025676421,
+      "net_by_face_group": {
+        "pure_air_faces": 2628085.5445388607,
+        "mixed_faces": 60623.252934231146,
+        "pure_water_faces": 193429.22820332993
+      },
+      "max_impulse_by_face_group": {
+        "pure_air_faces": 8.675886643426216,
+        "mixed_faces": 2.3213289554926573,
+        "pure_water_faces": 2.344313282292728
+      }
+    },
+    "water_away_from_side_wall": {
+      "count": 5277,
+      "total_pressure_work": -219674.50064598845,
+      "net_by_face_group": {
+        "pure_air_faces": 5369.5912093496445,
+        "mixed_faces": -24293.416465169343,
+        "pure_water_faces": -200750.6753901676
+      },
+      "max_impulse_by_face_group": {
+        "pure_air_faces": 1.009503067965444,
+        "mixed_faces": 0.37699344509661015,
+        "pure_water_faces": 0.39221632308154264
+      }
+    }
+  },
+  "pressure_work_reconstruction_max_error": 4.656612873077393e-10,
+  "single_state_stage_replacement": {
+    "independent": {
+      "p2g_u": {
+        "max": 0.0,
+        "different": 0
+      },
+      "p2g_v": {
+        "max": 8.881784197001252e-16,
+        "different": 477
+      },
+      "pos": {
+        "max": 0.0,
+        "different": 0
+      },
+      "vel": {
+        "max": 9.5367431640625e-07,
+        "different": 165
+      },
+      "mom": {
+        "max": 9.5367431640625e-07,
+        "different": 161
+      }
+    },
+    "shared_pressure": {
+      "p2g_u": {
+        "max": 0.0,
+        "different": 0
+      },
+      "p2g_v": {
+        "max": 8.881784197001252e-16,
+        "different": 477
+      },
+      "pos": {
+        "max": 0.0,
+        "different": 0
+      },
+      "vel": {
+        "max": 0.0,
+        "different": 0
+      },
+      "mom": {
+        "max": 0.0,
+        "different": 0
+      }
+    },
+    "shared_p2g_and_pressure": {
+      "p2g_u": {
+        "max": 0.0,
+        "different": 0
+      },
+      "p2g_v": {
+        "max": 8.881784197001252e-16,
+        "different": 477
+      },
+      "pos": {
+        "max": 0.0,
+        "different": 0
+      },
+      "vel": {
+        "max": 0.0,
+        "different": 0
+      },
+      "mom": {
+        "max": 0.0,
+        "different": 0
+      }
+    }
+  },
+  "legacy_control": {
+    "passed": true,
+    "bit_identical": [
+      "frame.0000.npy",
+      "vel.0000.npy",
+      "ph.0000.npy",
+      "rad.0000.npy",
+      "spr.0000.npy",
+      "esc.0000.npy",
+      "frame.0040.npy",
+      "vel.0040.npy",
+      "ph.0040.npy",
+      "rad.0040.npy",
+      "spr.0040.npy",
+      "esc.0040.npy"
+    ]
+  },
+  "controls": {
+    "traced_cpp": "phase_contract_20261023/plunge_pure_strict/bifrost",
+    "independent_python": "phase_contract_20261023/plunge_pure_strict/python",
+    "energy_state": "phase_contract_20261023/energy_replay/step_1280_phase_2 (different trajectory from strict sequence)"
+  },
+  "commits": {
+    "control_320": "49b52a023b53aa6fa7cce7c304c6cadadcfc7173",
+    "sequence": "608a9a8d02f1b90ed262169a4a947450ba603908",
+    "independent": "d3352cf7b41dca9e6210ea1fd9e23bcf14fd34a5",
+    "tag_intervention": "96aefdd73c8c3f58f605b007a22a7893f1449960",
+    "legacy_control": "96aefdd73c8c3f58f605b007a22a7893f1449960"
+  },
+  "trace_binary_sha256": "dc318db1c604d2dc0233a17675e0592ca3e23ae4c0949db74eb1fd767ed85ad2",
+  "limits": [
+    "Sharing pressure removes its independence; unchanged failed similarity gates remain failed.",
+    "This identifies an amplification mechanism, not all later spray emission behavior.",
+    "Particle pressure-work attribution is one common input; pure-air work is not automatically unphysical.",
+    "No algorithm/default/production state change; next work is interface transfer/advection/classification and boundary support."
+  ],
+  "trace_file_sha256": "2aabd796e8b58bc39b2b65a1c5f441e71aee838627c6ed1b7883853a23351d0c",
+  "local_output_bytes": 1994856725
+}

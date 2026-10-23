@@ -23,6 +23,16 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   advection velocity/extrapolation, RK3/local stepping, classification and
   volume correction remain distinct correspondence gaps; do not promote the
   experimental phase mode or claim the late spray issue is resolved.
+  A subsequent [every-step causal trace](phase-contract.md#2026-10-23-后续逐步定位分叉和增能来源)
+  finds that sharing only projected velocities makes all 2,400 steps of particle
+  positions/velocities, P2G and phase bit-identical. Independent solves first
+  differ by 4.19e-12 in grid velocity; at 2.525 s one cell crosses the phase
+  threshold differently. Changing only that label at fixed input changes the
+  next projected velocity by up to 0.7502 cells/s. A separate common-state
+  audit attributes 98.9% of the water particles' net pressure kinetic gain to
+  interpolation from pure-air faces, mostly near side walls. These isolate
+  amplification and transfer mechanisms; they are not a production fix or an
+  independent full-spray pass. Keep the original failed gates visible.
 
 - **Force-driven replacement scene (2026-10-20).** The approved one-hour budget covers a
   two-dimensional and coarse three-dimensional particle preview, with old
