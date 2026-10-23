@@ -183,12 +183,14 @@ def main():
     receipt = json.loads(receipt_path.read_text()) if receipt_path.exists() else {}
     for name, fn in (("bifrost",run_cpp),("python",run_python)):
         if a.phase in ("all",name):
+            start_commit = subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
             receipt[name] = fn(out/name,steps,dt,a.every,a.model,a.phase_law)
-            receipt[name]["commit"] = subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
+            receipt[name]["commit"] = start_commit
             receipt[name]["reference_sha256"] = hashlib.sha256((ROOT/"reference2d/pfflip2d.py").read_bytes()).hexdigest()
             receipt_path.write_text(json.dumps(receipt,indent=2))
     if a.phase in ("all","compare"):
-        metrics(out,steps,dt,a.every)
+        if not metrics(out,steps,dt,a.every)["bulk_gate_pass"]:
+            raise SystemExit("Independent bulk comparison failed; artifacts retained")
 
 
 if __name__=="__main__":
