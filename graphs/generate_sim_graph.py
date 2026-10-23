@@ -947,6 +947,16 @@ def build3d_fused():
 
     body["compoundNodes"].append({"nodeName": "p2g",
                                   "nodeType": "PFFlip::Solve::p2g_3d"})
+    # Experimental phase modes apply only to the fused uniform-grid path.
+    # Stock graphs retain their legacy phase semantics and do not expose this.
+    for n,t,d in (("phase_model","int","0"),("phase_alpha","float","1f")):
+        top["ports"].append(P(n,"input",t,d))
+        body["ports"].append(P(n,"input",t))
+        top["connections"].append({"source":"."+n,"target":"loop."+n})
+        body["connections"].append({"source":"."+n,"target":"p2g."+n})
+    body["connections"].append({"source":".phase_model","target":"step.phase_model"})
+    for n in ("rho_liquid","rho_air","rho0_face"):
+        body["connections"].append({"source":"."+n,"target":"p2g."+n})
     chans = [g2 + s for g2 in ("u", "v", "w", "u2", "v2", "w2")
              for s in chan_suffix]
     body["connections"] += (
@@ -977,6 +987,8 @@ def build_p2g_test():
              {"nodeName": "p2g", "nodeType": "PFFlip::Solve::p2g_3d"}]
     scalars = (("nx", "int", "2"), ("ny", "int", "2"), ("nz", "int", "1"),
                ("adapt", "int", "0"), ("st", "int", "0"),
+               ("phase_model","int","0"),("phase_alpha","float","1f"),
+               ("rho0_face","float","1f"),("rho_liquid","float","1000f"),("rho_air","float","1f"),
                ("eps_mean", "float", "0.000001f"), ("ws_epsilon", "float", "16f"))
     ports = [P(n, "input", t, d) for n, t, d in scalars]
     conns = [{"source": "." + n, "target": "p2g." + n} for n, _, _ in scalars]

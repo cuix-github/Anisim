@@ -202,6 +202,7 @@ void step_3d(int   nx,
              float drag_bubble,
              float buoyancy,
              float rho0_face,
+             int phase_model,
              int   st,
              int   st_seed,
              int   step_index,
@@ -329,6 +330,8 @@ void p2g_3d(int   nx,
             int   st,
             float eps_mean,
             float ws_epsilon,
+            int phase_model, float phase_alpha, float rho0_face,
+            float rho_liquid, float rho_air,
             const Amino::Array<Bifrost::Math::float3>& positions,
             const Amino::Array<float>& scale,
             const Amino::Array<float>& mass,
@@ -366,7 +369,8 @@ void p2g_3d(int   nx,
             Amino::Ptr<Amino::Array<float>>& w2_mom,
             Amino::Ptr<Amino::Array<float>>& w2_phase,
             Amino::Ptr<Amino::Array<float>>& w2_wt,
-            Amino::Ptr<Amino::Array<float>>& w2_ws)
+            Amino::Ptr<Amino::Array<float>>& w2_ws,
+            const Amino::RuntimeServices& services)
     AMINO_ANNOTATE("Amino::Node");
 
 // Dump policy: pass the write path through only every Nth substep (step 0

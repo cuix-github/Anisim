@@ -44,6 +44,36 @@
      "portDefault": "0"
     },
     {
+     "portName": "phase_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "phase_alpha",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "rho0_face",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "rho_liquid",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1000f"
+    },
+    {
+     "portName": "rho_air",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
      "portName": "eps_mean",
      "portDirection": "input",
      "portType": "float",
@@ -620,6 +650,26 @@
     {
      "source": ".st",
      "target": "p2g.st"
+    },
+    {
+     "source": ".phase_model",
+     "target": "p2g.phase_model"
+    },
+    {
+     "source": ".phase_alpha",
+     "target": "p2g.phase_alpha"
+    },
+    {
+     "source": ".rho0_face",
+     "target": "p2g.rho0_face"
+    },
+    {
+     "source": ".rho_liquid",
+     "target": "p2g.rho_liquid"
+    },
+    {
+     "source": ".rho_air",
+     "target": "p2g.rho_air"
     },
     {
      "source": ".eps_mean",

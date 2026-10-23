@@ -748,6 +748,18 @@
      "portDirection": "input",
      "portType": "int",
      "portDefault": "1"
+    },
+    {
+     "portName": "phase_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "phase_alpha",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
     }
    ],
    "compounds": [
@@ -1325,6 +1337,16 @@
        "portName": "dump_every",
        "portDirection": "input",
        "portType": "int"
+      },
+      {
+       "portName": "phase_model",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "phase_alpha",
+       "portDirection": "input",
+       "portType": "float"
       }
      ],
      "compounds": [],
@@ -2191,6 +2213,30 @@
       {
        "source": "dg_vel.path_out",
        "target": "w_vel.file_path"
+      },
+      {
+       "source": ".phase_model",
+       "target": "p2g.phase_model"
+      },
+      {
+       "source": ".phase_alpha",
+       "target": "p2g.phase_alpha"
+      },
+      {
+       "source": ".phase_model",
+       "target": "step.phase_model"
+      },
+      {
+       "source": ".rho_liquid",
+       "target": "p2g.rho_liquid"
+      },
+      {
+       "source": ".rho_air",
+       "target": "p2g.rho_air"
+      },
+      {
+       "source": ".rho0_face",
+       "target": "p2g.rho0_face"
       },
       {
        "source": ".nx",
@@ -3416,6 +3462,14 @@
     {
      "source": ".dump_every",
      "target": "loop.dump_every"
+    },
+    {
+     "source": ".phase_model",
+     "target": "loop.phase_model"
+    },
+    {
+     "source": ".phase_alpha",
+     "target": "loop.phase_alpha"
     }
    ],
    "values": [

@@ -39,6 +39,8 @@ namespace Solve {
 
 void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
             float ws_epsilon,
+            int phase_model, float phase_alpha, float rho0_face,
+            float rho_liquid, float rho_air,
             const Amino::Array<Bifrost::Math::float3>& positions,
             const Amino::Array<float>& scale,
             const Amino::Array<float>& mass,
@@ -76,11 +78,27 @@ void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
             Amino::Ptr<Amino::Array<float>>& w2_mom,
             Amino::Ptr<Amino::Array<float>>& w2_phase,
             Amino::Ptr<Amino::Array<float>>& w2_wt,
-            Amino::Ptr<Amino::Array<float>>& w2_ws) {
+            Amino::Ptr<Amino::Array<float>>& w2_ws,
+            const Amino::RuntimeServices& services) {
     const int NX = std::max(2, nx), NY = std::max(2, ny), NZ = std::max(1, nz);
     const bool stOn = st != 0;
     const bool adOn = adapt != 0;
     const int ntier = adOn ? 2 : 1;
+    // Explicit experimental contract. Legacy (0) is unchanged. Modes 1/2
+    // require uniform particles; ST/adaptive normalization is not yet gated.
+    const bool phaseOn = phase_model != 0;
+    if (phaseOn && (phase_model<1 || phase_model>2 || stOn || adOn ||
+        !std::isfinite(phase_alpha) || phase_alpha<=0 || !std::isfinite(rho0_face) || rho0_face<=0 ||
+        !std::isfinite(rho_liquid) || !std::isfinite(rho_air) || !(rho_liquid>rho_air && rho_air>0))) {
+        using namespace Amino::MessageLiterals;
+        services.logError("p2g_3d: invalid or unsupported phase contract"_amt);
+        std::fprintf(stderr,"step_3d: error: invalid or unsupported phase contract in p2g_3d\n");
+        for (auto* o : {&u_mass,&u_mom,&u_phase,&u_wt,&u_ws,&v_mass,&v_mom,&v_phase,&v_wt,&v_ws,
+                       &w_mass,&w_mom,&w_phase,&w_wt,&w_ws,&u2_mass,&u2_mom,&u2_phase,&u2_wt,&u2_ws,
+                       &v2_mass,&v2_mom,&v2_phase,&v2_wt,&v2_ws,&w2_mass,&w2_mom,&w2_phase,&w2_wt,&w2_ws})
+            *o=Amino::newClassPtr<Amino::Array<float>>();
+        return;
+    }
 
     // PFFLIP_PROFILE=1 prints scatter/pack wall times to stderr, like the
     // step node's PFPROF lines.
@@ -92,11 +110,12 @@ void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
     const Clock::time_point tBegin = Clock::now();
     Clock::time_point tScatter{};
 
-    const int dims[3][3] = {{NX + 1, NY, NZ}, {NX, NY + 1, NZ}, {NX, NY, NZ + 1}};
-    const double off[3][3] = {{0.0, 0.5, 0.5}, {0.5, 0.0, 0.5}, {0.5, 0.5, 0.0}};
-    size_t ng[3];
-    Acc acc[3][2];
-    for (int g = 0; g < 3; ++g) {
+    const int dims[4][3] = {{NX + 1, NY, NZ}, {NX, NY + 1, NZ}, {NX, NY, NZ + 1}, {NX,NY,NZ}};
+    const double off[4][3] = {{0.0, 0.5, 0.5}, {0.5, 0.0, 0.5}, {0.5, 0.5, 0.0}, {.5,.5,.5}};
+    const int ngrids=phase_model==2 ? 4 : 3;
+    size_t ng[4];
+    Acc acc[4][2];
+    for (int g = 0; g < ngrids; ++g) {
         ng[g] = static_cast<size_t>(dims[g][0]) * dims[g][1] * dims[g][2];
         for (int t = 0; t < ntier; ++t) acc[g][t].init(ng[g], stOn);
     }
@@ -126,7 +145,7 @@ void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
                 ? static_cast<double>(wt[i]) : 0.0;
             const double P[3] = {positions[i].x, positions[i].y, positions[i].z};
 
-            for (int g = 0; g < 3; ++g) {
+            for (int g = 0; g < ngrids; ++g) {
                 Acc& a = acc[g][tier];
                 double f[3];
                 int b[3];
@@ -156,6 +175,7 @@ void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
                                     dims[g][2] + kk;
                             a.K[idx] += w3;
                             a.m[idx] += w3 * mi;
+                            if (g==3) continue; // cell-centred mass is only for phase tagging
                             a.mom[idx] += w3 * q[g];
                             a.ph[idx] += w3 * phi;
                             if (stOn) a.wtv[idx] += w3 * wi;
@@ -169,6 +189,32 @@ void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
     if (prof) tScatter = Clock::now();
 
     const double em = eps_mean, ew = ws_epsilon;
+    auto phaseOf = [&](double raw) {
+        const double floor=std::log(static_cast<double>(rho_liquid)/rho_air)*rho_air*rho0_face;
+        return std::min(1.0,std::sqrt(std::max(raw-floor,0.0)/
+                   (static_cast<double>(phase_alpha)*rho0_face*rho_liquid)));
+    };
+    auto phaseChannel = [&](int axis) {
+        auto out=Amino::newMutablePtr<Amino::Array<float>>(ng[axis]);
+        auto cell=[&](int i,int j,int k) {
+            return phaseOf(acc[3][0].m[(static_cast<size_t>(i)*NY+j)*NZ+k])>=.5;
+        };
+        for (int i=0;i<dims[axis][0];++i)
+            for (int j=0;j<dims[axis][1];++j)
+                for (int k=0;k<dims[axis][2];++k) {
+                    const size_t c=(static_cast<size_t>(i)*dims[axis][1]+j)*dims[axis][2]+k;
+                    double ph=phaseOf(acc[axis][0].m[c]);
+                    const int q=axis==0?i:axis==1?j:k;
+                    const int n=axis==0?NX:axis==1?NY:NZ;
+                    if (phase_model==2 && q>0 && q<n) {
+                        const bool a=cell(i-(axis==0),j-(axis==1),k-(axis==2));
+                        const bool b=cell(i,j,k);
+                        if (a==b) ph=a?1.0:0.0;
+                    }
+                    (*out)[c]=static_cast<float>(ph);
+                }
+        return out.toImmutable();
+    };
     auto mean = [&](const Vec& A, const Vec& K) {
         auto out = Amino::newMutablePtr<Amino::Array<float>>(A.size());
         for (size_t c = 0; c < A.size(); ++c)
@@ -201,7 +247,7 @@ void p2g_3d(int nx, int ny, int nz, int adapt, int st, float eps_mean,
             const Acc& a = acc[g][t];
             *outs[t][g][0] = mean(a.m, a.K);
             *outs[t][g][1] = mean(a.mom, a.K);
-            *outs[t][g][2] = mean(a.ph, a.K);
+            *outs[t][g][2] = phaseOn ? phaseChannel(g) : mean(a.ph, a.K);
             *outs[t][g][3] = stOn ? mean(a.wtv, a.K) : empty();
             *outs[t][g][4] = adOn ? wsChan(a.K) : empty();
         }

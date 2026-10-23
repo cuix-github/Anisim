@@ -274,7 +274,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float rho_air, float alpha_liquid, float alpha_air, int max_iterations,
              float tolerance, int preconditioner, int pressure_solver,
              int adaptive_band, int adaptive_levels, int escape, float esc_phi,
-             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face,
+             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model,
              int st, int st_seed, int step_index,
              int adapt, float coarse_gain, float ws_epsilon,
              const Amino::Array<float>& scale_in,
@@ -348,10 +348,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const int NX = std::max(2, nx), NY = std::max(2, ny), NZ = std::max(1, nz);
     const double dt = dt_in;
     const size_t np = positions.size();
-    auto refuseSpray = [&]() {
+    auto refuseSpray = [&](bool report=true) {
         using namespace Amino::MessageLiterals;
-        services.logError("step_3d: invalid spray event configuration or intensity"_amt);
-        std::fprintf(stderr, "step_3d: error: invalid spray event configuration or intensity\n");
+        if (report) {
+            services.logError("step_3d: invalid spray event configuration or intensity"_amt);
+            std::fprintf(stderr, "step_3d: error: invalid spray event configuration or intensity\n");
+        }
         out_positions = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
         out_velocities = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
         out_pos_synced = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
@@ -405,6 +407,23 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nu = static_cast<size_t>(NX + 1) * NY * NZ;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
+    bool phaseObstacle=false;
+    if (phase_model!=0) for (size_t b=0;b<std::min(obstacles_min.size(),obstacles_max.size());++b) {
+        const auto& lo=obstacles_min[b]; const auto& hi=obstacles_max[b];
+        phaseObstacle |= hi.x>0 && lo.x<NX && hi.y>0 && lo.y<NY &&
+                         (NZ==1 || (hi.z>0 && lo.z<NZ));
+    }
+    if (phase_model!=0 && (phase_model<1 || phase_model>2 || st || adapt || solid_mode || phaseObstacle ||
+            piston_stroke>0 || zone_length>0 || external_forces || pressure_solver ||
+            u_phase.size()!=nu || v_phase.size()!=nv || w_phase.size()!=nw)) {
+        // The new phase field is currently gated only on the uniform, closed,
+        // unobstructed configuration. Do not silently reinterpret ST weights.
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: unsupported or missing explicit phase contract"_amt);
+        std::fprintf(stderr,"step_3d: error: unsupported or missing explicit phase contract\n");
+        refuseSpray(false);
+        return;
+    }
 
     // Generic external fields, independent of the scene recipe. Accelerations
     // are cells/s^2, multiplied by the measured liquid fraction. Drag is 1/s,
