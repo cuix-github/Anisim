@@ -567,11 +567,13 @@ Vec solve(const Hierarchy& h, Vec b, double tol, int maxIter, int& iterations, d
     }
     if (it == maxIter) it = maxIter - 1;   // the reference's for-loop count
     iterations = it;
-    relRes = std::sqrt(dot(r, r)) / r0;
     mean = 0.0;
     for (double v : x) mean += v;
     mean /= static_cast<double>(n);
     for (double& v : x) v -= mean;
+    op.matvec(x, q);
+    for (size_t c = 0; c < n; ++c) r[c] = b[c] - q[c];
+    relRes = std::sqrt(dot(r, r)) / r0;
     return x;
 }
 
@@ -759,6 +761,12 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
     const Vec b = rhsOf(D, op, vel, dt);
     const Vec p = solve(h, b, settings.tolerance, settings.maxIterations, res.iterations,
                         res.residual);
+    if (!std::isfinite(res.residual) || res.residual > settings.tolerance) {
+        res.converged = false;
+        res.failureStage = "adaptive main";
+        res.failureResidual = res.residual;
+        return res;
+    }
     lap(msSolve);
 
     // faces inside coarse cells keep u* until the local fills below
@@ -783,8 +791,13 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
         const double b2n = std::sqrt(dot(b2, b2));
         if (b2n > 0.0) {
             const double tol2 = std::min(1.0, settings.tolerance * bnorm / b2n);
-            double residual2 = 0.0;
-            q = solve(h2, b2, tol2, settings.maxIterations, res.cleanupIterations, residual2);
+            q = solve(h2, b2, tol2, settings.maxIterations, res.cleanupIterations, res.cleanupResidual);
+            if (!std::isfinite(res.cleanupResidual) || res.cleanupResidual > tol2) {
+                res.converged = false;
+                res.failureStage = "adaptive cleanup";
+                res.failureResidual = res.cleanupResidual;
+                return res;
+            }
             applyGradient(D, h2.ops[0], q, dt, out, beta);
         }
     }

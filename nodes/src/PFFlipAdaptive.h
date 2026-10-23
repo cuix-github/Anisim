@@ -31,9 +31,13 @@ struct Settings {
 };
 
 struct Result {
+    bool converged = true;     // both main and optional cleanup solve must pass
+    const char* failureStage = "";
+    double failureResidual = 0.0;
     int iterations = 0;        // the main solve's
     int cleanupIterations = 0; // Cleanup's second solve (0 for Naive)
-    double residual = 0.0;     // the main solve's relative residual at exit
+    double residual = 0.0;     // main solve's true relative residual at exit
+    double cleanupResidual = 0.0;
     size_t unknowns = 0;       // adaptive cells
     int levels = 0;            // leaf levels actually used (clamped to fit the grid)
     Vec pressure;              // per uniform cell: the covering adaptive cell's value

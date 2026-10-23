@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <random>
 #include <cmath>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 
@@ -348,12 +349,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const int NX = std::max(2, nx), NY = std::max(2, ny), NZ = std::max(1, nz);
     const double dt = dt_in;
     const size_t np = positions.size();
-    auto refuseSpray = [&](bool report=true) {
-        using namespace Amino::MessageLiterals;
-        if (report) {
-            services.logError("step_3d: invalid spray event configuration or intensity"_amt);
-            std::fprintf(stderr, "step_3d: error: invalid spray event configuration or intensity\n");
-        }
+    auto clearOutputs = [&]() {
         out_positions = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
         out_velocities = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
         out_pos_synced = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
@@ -365,6 +361,27 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         mask_coarse = Amino::newClassPtr<Amino::Array<bool>>();
         iterations_used=-1; final_residual=max_divergence_after=max_speed=0;
     };
+    auto refuseSpray = [&](bool report=true) {
+        using namespace Amino::MessageLiterals;
+        if (report) {
+            services.logError("step_3d: invalid spray event configuration or intensity"_amt);
+            std::fprintf(stderr, "step_3d: error: invalid spray event configuration or intensity\n");
+        }
+        clearOutputs();
+    };
+    auto refusePressure = [&](const char* stage, double residual) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: pressure did not meet its true-residual tolerance; no particle state produced"_amt);
+        std::fprintf(stderr, "step_3d: error: pressure %s failed; true residual=%.17g tolerance=%.17g; no particle state produced\n",
+                     stage, residual, static_cast<double>(tolerance));
+        clearOutputs();
+        iterations_used = -2;
+        final_residual = static_cast<float>(residual);
+    };
+    if (!std::isfinite(dt) || dt <= 0.0 || !std::isfinite(tolerance) || tolerance <= 0.0f || max_iterations < 0) {
+        refusePressure("configuration", std::numeric_limits<double>::infinity());
+        return;
+    }
     if (emit_model==2 || droplet_model==2) {
         bool valid=escape!=0 && droplet_model!=0 && std::isfinite(dt) && dt>0 &&
             std::isfinite(droplet_r_sigma) && droplet_r_sigma>=0 && droplet_r_sigma<=2 &&
@@ -946,6 +963,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             pressure_solver == 2 ? Adaptive::Junction::Cleanup : Adaptive::Junction::Naive;
         Adaptive::Result ar = Adaptive::project(NX, NY, NZ, dt, as, junction, liquid, u, v, w,
                                                 L.bu, L.bv, L.bw);
+        if (!ar.converged) {
+            refusePressure(ar.failureStage, ar.failureResidual);
+            return;
+        }
         p = std::move(ar.pressure);
         // both solves' iterations: the cost the port reports
         it = ar.iterations + ar.cleanupIterations;
@@ -1002,7 +1023,15 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             if (rz == 0.0) break;
         }
 
-        finalResidual = std::sqrt(rr2) / r0;
+        // Check the returned iterate, not the recursive residual from before
+        // its last update. The pressure/velocity arithmetic is otherwise intact.
+        applyA(F, p, q);
+        double trueR2 = 0.0;
+        for (size_t c = 0; c < ncell; ++c) {
+            const double e = rhs[c] - q[c];
+            trueR2 += e * e;
+        }
+        finalResidual = std::sqrt(trueR2) / r0;
         // Opt-in, single-step pressure audit. Preserve the actual doubles before
         // float32 output quantization: int32 dimensions, then bu/bv/bw, rhs, p,
         // and pre-projection u/v/w. The independent reader reassembles -D beta G
@@ -1018,6 +1047,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             } else {
                 std::fprintf(stderr, "step_3d: pressure audit dump failed: %s\n", path);
             }
+        }
+        if (!std::isfinite(finalResidual) || finalResidual > tolerance) {
+            refusePressure("uniform", finalResidual);
+            return;
         }
         lap(msSolve);
         // ---- velocity correction on interior faces, then walls.

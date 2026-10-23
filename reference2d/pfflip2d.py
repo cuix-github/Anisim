@@ -869,6 +869,8 @@ class Sim:
         return self.phase(self.mu), self.phase(self.mv)
 
     def project(self, dt, tol=1e-6, max_iter=4000):
+        if not np.isfinite([dt,tol]).all() or dt<=0 or tol<=0 or max_iter<0:
+            raise ValueError('invalid pressure timestep, tolerance or iteration limit')
         phi_u, phi_v = self._face_phase()
         rho_u = self.rho_g + (self.rho_l - self.rho_g) * phi_u
         rho_v = self.rho_g + (self.rho_l - self.rho_g) * phi_v
@@ -930,6 +932,10 @@ class Sim:
             d = z + (rz_new / rz) * d
             rz = rz_new
         self.iters = it
+
+        self.pressure_residual = float(np.linalg.norm(b-A(p))/r0)
+        if not np.isfinite(self.pressure_residual) or self.pressure_residual>tol:
+            raise RuntimeError(f'pressure did not converge: true residual {self.pressure_residual:.17g}, tolerance {tol:.17g}')
 
         self.u[1:-1, :] -= dt * bu[1:-1, :] * (p[1:, :] - p[:-1, :])
         self.v[:, 1:-1] -= dt * bv[:, 1:-1] * (p[:, 1:] - p[:, :-1])

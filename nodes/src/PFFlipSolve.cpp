@@ -2,6 +2,8 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
+#include <limits>
 #include <vector>
 
 // Mirrors reference2d/pfflip2d.py exactly; see the header. All grid math is
@@ -65,6 +67,21 @@ void step_2d(int nx, int ny, float dt_in, float gravity, float rho_liquid, float
     const size_t nu = static_cast<size_t>(NX + 1) * NY;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1);
     const size_t np = positions.size();
+    auto refusePressure = [&](double residual) {
+        out_positions = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        out_velocities = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        for (auto* o : {&out_mass, &out_mom_x, &out_mom_y, &out_u, &out_v, &pressure})
+            *o = Amino::newClassPtr<Amino::Array<float>>();
+        iterations_used = -2;
+        final_residual = static_cast<float>(residual);
+        max_divergence_after = max_speed = 0.0f;
+        std::fprintf(stderr, "step_2d: error: pressure failed; true residual=%.17g tolerance=%.17g; no particle state produced\n",
+                     residual, static_cast<double>(tolerance));
+    };
+    if (!std::isfinite(dt) || dt <= 0.0 || !std::isfinite(tolerance) || tolerance <= 0.0f || max_iterations < 0) {
+        refusePressure(std::numeric_limits<double>::infinity());
+        return;
+    }
 
     Grid2 u(NX + 1, NY), v(NX, NY + 1);
 
@@ -154,6 +171,18 @@ void step_2d(int nx, int ny, float dt_in, float gravity, float rho_liquid, float
         rz = rzNew;
     }
 
+    applyA(p, q);
+    double trueR2 = 0.0;
+    for (size_t k = 0; k < ncell; ++k) {
+        const double e = rhs.a[k] - q.a[k];
+        trueR2 += e * e;
+    }
+    const double trueResidual = std::sqrt(trueR2) / r0;
+    if (!std::isfinite(trueResidual) || trueResidual > tolerance) {
+        refusePressure(trueResidual);
+        return;
+    }
+
     // ---- velocity correction on interior faces, then walls.
     for (int i = 1; i <= NX - 1; ++i)
         for (int j = 0; j < NY; ++j)
@@ -234,7 +263,7 @@ void step_2d(int nx, int ny, float dt_in, float gravity, float rho_liquid, float
     out_v          = outV.toImmutable();
     pressure       = outP.toImmutable();
     iterations_used      = it;
-    final_residual       = static_cast<float>(std::sqrt(rr) / r0);
+    final_residual       = static_cast<float>(trueResidual);
     max_divergence_after = static_cast<float>(maxDiv);
     max_speed            = static_cast<float>(maxSpeed);
 }
