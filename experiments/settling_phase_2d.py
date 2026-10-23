@@ -29,11 +29,12 @@ def write(path, value):
 
 
 def config(s):
-    return dict(ESCAPE, **ports(E, D), phase_model=2, phase_alpha=1,
+    p = dict(ESCAPE, **ports(E, D), phase_model=2, phase_alpha=1,
                 rho0_face=s.rho0_face, tolerance=s.pressure_tolerance,
                 transport_model=0, alpha_liquid=s.alpha[1], alpha_air=s.alpha[0],
-                st=0, adapt=0, pressure_solver=0, escape=2,
-                droplet_model=2, emit_model=2)
+                st=0, adapt=0, pressure_solver=0)
+    p.update(escape=2, droplet_model=2, emit_model=2)
+    return p
 
 
 def run(out, s, steps, offset=0, state=None, every=EVERY):
