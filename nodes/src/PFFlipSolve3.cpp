@@ -1669,6 +1669,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             keepFilter(Vx); keepFilter(Vy); keepFilter(Vz);
             keepFilter(Tau); keepFilter(Wt); keepFilter(Scl); keepFilter(Ph01);
             keepFilter(Rad); keepFilter(Spray);
+            // The merge criterion belongs to the same particles as the state.
+            // Keeping old indices here let newly emitted spray shift which air
+            // particles merged, despite spray having zero transfer weight.
+            keepFilter(lf);
             {
                 size_t wr = 0;
                 for (size_t i = 0; i < drop.size(); ++i)
@@ -1688,6 +1692,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     Wt.push_back(wtKernel(tas[m2]) / wtNorm(1.0));
                     Scl.push_back(1.0); Ph01.push_back(phs[m2]); Esc.push_back(0);
                     Rad.push_back(0.0); Spray.push_back(0);
+                    lf.push_back(1.0); // split children stay fine for this step
                 }
             }
         }

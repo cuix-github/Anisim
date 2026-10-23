@@ -1103,6 +1103,8 @@ class Sim:
             self.tau = np.concatenate([self.tau[keep], np.repeat(self.tau[to_split], 4)])
             self.radius = np.concatenate([self.radius[keep], np.zeros(len(new_pos))])
             self.spray = np.concatenate([self.spray[keep], np.zeros(len(new_pos), bool)])
+            if len(self.escaped) == len(keep):
+                self.escaped = np.concatenate([self.escaped[keep], np.zeros(len(new_pos), bool)])
             self.xi = np.concatenate([self.xi[keep] if len(self.xi) == len(keep) else
                                       np.ones(keep.sum()), np.ones(len(new_pos))])
             lf = np.concatenate([lf[keep], np.full(len(new_pos), 1.0)])  # keep them fine this step
@@ -1136,6 +1138,8 @@ class Sim:
                 self.tau = np.concatenate([self.tau[keep], np.array(new_tau)])
                 self.radius = np.concatenate([self.radius[keep], np.zeros(len(new_p))])
                 self.spray = np.concatenate([self.spray[keep], np.zeros(len(new_p), bool)])
+                if len(self.escaped) == len(keep):
+                    self.escaped = np.concatenate([self.escaped[keep], np.zeros(len(new_p), bool)])
                 self.xi = np.concatenate([self.xi[keep] if len(self.xi) == len(keep) else
                                           np.ones(int(keep.sum())), np.ones(len(new_p))])
 
