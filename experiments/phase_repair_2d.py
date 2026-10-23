@@ -64,7 +64,7 @@ def cpp(out, s, steps, dt, every):
     if out.exists(): raise FileExistsError(out)
     config=dict(ESCAPE,**ports(E,D),phase_model=s.phase_model,phase_alpha=s.phase_alpha,
         rho0_face=s.rho0_face,tolerance=s.pressure_tolerance,transport_model=0,
-        alpha_liquid=s.alpha[1],alpha_air=s.alpha[0],st=0,adapt=0,adaptive_solve=0)
+        alpha_liquid=s.alpha[1],alpha_air=s.alpha[0],st=0,adapt=0,pressure_solver=0)
     config.update(escape=int(s.escape),droplet_model=2 if s.escape else 0,
                   emit_model=2 if s.emit else 0)
     p3=np.c_[s.pos,np.full(len(s.pos),.5)].astype(np.float32)
