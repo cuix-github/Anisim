@@ -32,7 +32,9 @@ def main():
     wsum=sum(works.values());expected=.5*m*(np.sum((vg+dv)**2,axis=1)-np.sum(vg**2,axis=1))
     assert np.allclose(wsum,expected,rtol=1e-10,atol=1e-7)
     result=dict(work_reconstruction_max_error=float(abs(wsum-expected).max()),groups={})
-    for label,mask in [('water',s.typ==1),('air',s.typ==0),('water_phi_05_09',(s.typ==1)&(z['phi']>=.5)&(z['phi']<.9))]:
+    near_wall=(s.pos[:,0]<3)|(s.pos[:,0]>s.nx-3)
+    for label,mask in [('water',s.typ==1),('air',s.typ==0),('water_phi_05_09',(s.typ==1)&(z['phi']>=.5)&(z['phi']<.9)),
+        ('water_within_3_cells_of_side_wall',(s.typ==1)&near_wall),('water_away_from_side_wall',(s.typ==1)&~near_wall)]:
         result['groups'][label]=dict(count=int(mask.sum()),total_pressure_work=float(expected[mask].sum()),
             net_by_face_group={n:float(v[mask].sum()) for n,v in works.items()},
             max_impulse_by_face_group={n:float(np.linalg.norm(v[mask],axis=1).max()) for n,v in impulses.items()})
@@ -62,7 +64,7 @@ def main():
     fig,axs=plt.subplots(1,2,figsize=(12,5))
     sel=s.typ==1;axs[0].scatter(s.pos[~sel,0],s.pos[~sel,1],s=.15,c='#cbd5e1')
     c=axs[0].scatter(s.pos[sel,0],s.pos[sel,1],s=2,c=works['pure_air_faces'][sel],cmap='coolwarm',vmin=-15000,vmax=15000)
-    axs[0].set(xlim=(10,54),ylim=(6,48),aspect='equal',title='3.2025 s: pressure work from pure-air faces\nWater particles; clipped color scale')
+    axs[0].set(xlim=(0,64),ylim=(0,80),aspect='equal',title='3.2025 s: pressure work from pure-air faces\nWater particles; clipped color scale')
     fig.colorbar(c,ax=axs[0],label='Particle kinetic work (Vp=1 units)')
     axs[1].plot([r['time'] for r in rows],[r['position_max'] for r in rows],label='Max position difference (cells)')
     axs[1].plot([r['time'] for r in rows],[r['cell_tags_different'] for r in rows],label='Different cell tags (count)')
