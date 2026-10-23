@@ -29,6 +29,12 @@ matching the phase law. Local contracts and pressure convergence pass, but
 long-time interface/transport behavior is not accepted. Experimental phase and
 escape options remain off in production; existing production caches are retained.
 
+The [paper correspondence and long-decay audit](docs/paper-correspondence-and-settling.md)
+separates verified local contracts, known differences from the papers, and the
+visual behavior of one frozen C++ plunge. Independent trajectories diverging is
+not by itself proof of a physical defect, and settling is not proof of complete
+paper reproduction.
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing

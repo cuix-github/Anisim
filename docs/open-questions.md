@@ -4,6 +4,20 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Narrowed paper-correspondence / decay question (2026-10-23).** The user
+  asks to separate visually unusual motion from actual paper discrepancies.
+  The [frozen C++ 240-second plunge](paper-correspondence-and-settling.md)
+  reproduces the prior 20 seconds and passes exact checkpoint continuation.
+  All 96,000 pressure solves meet the requested true-residual tolerance;
+  primary-water RMS falls from a sampled peak of 11.357 to .15094 cells/s.
+  Auxiliary spray mostly clears by 110.93 s, with a brief 16-particle event
+  at 220.2075 s that returns on the next step. Final spray is zero, and all
+  birth/death accounts close. However, the predeclared near-rest window fails
+  at 240 s; no complete settling or full-paper certification is claimed.
+  Prioritize documented differences (volume correction, escaped-particle
+  transfer/lifecycle, transport) instead of expanding every long-trajectory
+  mismatch into a new defect hypothesis. Production defaults stay unchanged.
+
 - **Matched phase / escape ladder (2026-10-23 follow-up).** The
   [20-second phase-repair study](phase-repair-ladder.md) explicitly selects the
   same Eq.7/pure-face contract in both independent implementations and supplies

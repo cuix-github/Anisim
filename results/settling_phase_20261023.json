@@ -1,0 +1,479 @@
+{
+  "job": {
+    "kind": "Frozen C++ long-decay plunge",
+    "commit": "5f355645ef26c7dc72e5fbe5ee52314bfd5c6b6e",
+    "binary_sha256": "a20846dce4ee4b27d0a95da1eebd61b793812a87feacd0feafbe715d69274d98",
+    "control": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\phase_repair_20261023\\phase_escape_full",
+    "nx": 64,
+    "ny": 80,
+    "dt": 0.0024999999441206455,
+    "chunk_steps": 8000,
+    "dump_every": 80,
+    "max_seconds": 240,
+    "ports": {
+      "escape": 2,
+      "esc_phi": "0.3",
+      "drag_droplet": "1",
+      "drag_bubble": "8",
+      "buoyancy": "2",
+      "droplet_model": 2,
+      "droplet_r_median": "0.0001",
+      "droplet_r_sigma": "0.7",
+      "droplet_evap_k": "0.000000001",
+      "droplet_r_min": "0.000001",
+      "metres_per_cell": "1",
+      "air_nu": "0.000015",
+      "spray_dt_max": "0.005",
+      "spray_cfl": "0.5",
+      "emit_grad_threshold": "2",
+      "emit_rate": "0.6",
+      "emit_max_per_cell": 128,
+      "emit_model": 2,
+      "emit_cloud_size": 16,
+      "emit_event_radius": "0.0003",
+      "emit_spread": "0.25",
+      "emit_velocity_spread": "0.1",
+      "emit_radius_max": "0.003",
+      "emit_max_active": 40000,
+      "emit_seed": 137,
+      "phase_model": 2,
+      "phase_alpha": 1,
+      "rho0_face": 3.1015625,
+      "tolerance": 9.999999974752427e-07,
+      "transport_model": 0,
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "st": 0,
+      "adapt": 0,
+      "pressure_solver": 0
+    },
+    "initial_seed": 1,
+    "emitter_seed": 137,
+    "omp_threads": 1,
+    "rest_criteria": {
+      "window_seconds": 10,
+      "all_water_rms_cells_s": 0.05,
+      "water_speed_p99_cells_s": 0.2,
+      "kinetic_fraction_of_peak": 0.0001,
+      "surface_temporal_range_cells": 0.25
+    },
+    "scope": "Uniform 2D experimental phase=2, escape=2; no additional damping, no solver edits",
+    "units": "Coordinates in cells; this fixture uses 1 metre per cell. Not production-ocean scale.",
+    "surface_proxy": "Water excluding escaped: height P95 in 2-cell-wide columns; not a mesh"
+  },
+  "status": "limit_reached_not_settled",
+  "simulation_seconds": 239.99999463558197,
+  "elapsed_seconds": 1424.053040199913,
+  "near_rest": {
+    "pass_near_rest": false,
+    "checks": {
+      "long_enough": true,
+      "all_water_rms": false,
+      "speed_p99": false,
+      "kinetic_fraction": false,
+      "surface_stationary": false
+    },
+    "window_start": 229.80249486351386,
+    "window_end": 239.80249463999644,
+    "max_water_rms": 0.20631801470908165,
+    "max_speed_p99": 0.6801356734508364,
+    "max_kinetic_fraction": 0.00032962300776439023,
+    "surface_max_temporal_range": 1.6303249359130874
+  },
+  "near_rest_including_final_checkpoint": {
+    "pass_near_rest": false,
+    "checks": {
+      "long_enough": true,
+      "all_water_rms": false,
+      "speed_p99": false,
+      "kinetic_fraction": false,
+      "surface_stationary": false
+    },
+    "window_start": 230.0024948590435,
+    "window_end": 239.99999463558197,
+    "max_water_rms": 0.2054173163203564,
+    "max_speed_p99": 0.6801356734508364,
+    "max_kinetic_fraction": 0.0003267512967171551,
+    "surface_max_temporal_range": 1.6303249359130874
+  },
+  "max_pressure_residual": 9.999830581364222e-07,
+  "max_particle_cfl": 0.6390759348869324,
+  "peak_water_rms": {
+    "time": 3.202499928418547,
+    "value": 11.35730378846019
+  },
+  "peak_kinetic": 387481001.42749006,
+  "max_primary_energy_ratio": 1.0358697087669555,
+  "final": {
+    "water_count": 6001,
+    "primary_count": 20473,
+    "spray": 0,
+    "water_rms": 0.15093817761553588,
+    "water_com": [
+      32.04534202519108,
+      10.959823482037782
+    ],
+    "height_p99": 21.54227638244629
+  },
+  "lifecycle": {
+    "events": 4446,
+    "requested": 71136,
+    "accepted": 64447,
+    "rejected_cap": 0,
+    "rejected_geometry": 6689,
+    "evaporated": 8486,
+    "reentered": 55961
+  },
+  "last_auxiliary_birth_time": 220.20749507797882,
+  "last_auxiliary_alive_time": 220.20749507797882,
+  "lifecycle_closes_every_step": true,
+  "caveats": [
+    "Near-rest criteria are observational, not a correctness theorem.",
+    "Surface proxy excludes escaped water, but speed and kinetic criteria include it.",
+    "Particle mechanical energy excludes lost primary mass and zero-mass auxiliary spray.",
+    "Air, water and spray use visibility markers, not physical particle radii."
+  ],
+  "original_20s_control": {
+    "pass_control": true,
+    "final_arrays": {
+      "final.npy": true,
+      "final_velocities.npy": true,
+      "final_mass.npy": true,
+      "final_momx.npy": true,
+      "final_momy.npy": true,
+      "final_momz.npy": true,
+      "final_tau.npy": true,
+      "final_wt.npy": true,
+      "final_wtph.npy": true,
+      "final_scale.npy": true,
+      "final_phase.npy": true,
+      "final_radius.npy": true,
+      "final_spray.npy": true
+    },
+    "sampled_arrays_compared": 600
+  },
+  "resume_gate": {
+    "pass_resume": true,
+    "final_arrays": {
+      "final.npy": true,
+      "final_velocities.npy": true,
+      "final_mass.npy": true,
+      "final_momx.npy": true,
+      "final_momy.npy": true,
+      "final_momz.npy": true,
+      "final_tau.npy": true,
+      "final_wt.npy": true,
+      "final_wtph.npy": true,
+      "final_scale.npy": true,
+      "final_phase.npy": true,
+      "final_radius.npy": true,
+      "final_spray.npy": true
+    }
+  },
+  "step_count": 96000,
+  "chunks": [
+    {
+      "directory": "chunk_00",
+      "offset": 0,
+      "steps": 8000,
+      "seconds": 130.1027203000849,
+      "max_pressure_residual": 9.999264420912368e-07,
+      "max_particle_cfl": 0.6390759348869324,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": false,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 9.802499780897051,
+        "window_end": 19.802499557379633,
+        "max_water_rms": 8.56096072115618,
+        "max_speed_p99": 33.271983601841406,
+        "max_kinetic_fraction": 0.5680020820172524,
+        "surface_max_temporal_range": 74.45459749698638
+      }
+    },
+    {
+      "directory": "chunk_01",
+      "offset": 8000,
+      "steps": 8000,
+      "seconds": 132.9405077000847,
+      "max_pressure_residual": 9.999490657719434e-07,
+      "max_particle_cfl": 0.17757491767406464,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 29.802499333862215,
+        "window_end": 39.8024991103448,
+        "max_water_rms": 3.213715732163063,
+        "max_speed_p99": 11.384192081126097,
+        "max_kinetic_fraction": 0.08002902395016624,
+        "surface_max_temporal_range": 25.796194458007815
+      }
+    },
+    {
+      "directory": "chunk_02",
+      "offset": 16000,
+      "steps": 8000,
+      "seconds": 119.09795530000702,
+      "max_pressure_residual": 9.998772156905034e-07,
+      "max_particle_cfl": 0.07504992187023163,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 49.80249888682738,
+        "window_end": 59.80249866330996,
+        "max_water_rms": 1.6495209673091689,
+        "max_speed_p99": 4.193957934333339,
+        "max_kinetic_fraction": 0.021080259608933213,
+        "surface_max_temporal_range": 10.031859970092771
+      }
+    },
+    {
+      "directory": "chunk_03",
+      "offset": 24000,
+      "steps": 8000,
+      "seconds": 116.81486269994639,
+      "max_pressure_residual": 9.995916343541467e-07,
+      "max_particle_cfl": 0.03900068625807762,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 69.80249843979254,
+        "window_end": 79.80249821627513,
+        "max_water_rms": 1.3509103086618748,
+        "max_speed_p99": 5.970414737536821,
+        "max_kinetic_fraction": 0.014138824570205587,
+        "surface_max_temporal_range": 7.690138053894046
+      }
+    },
+    {
+      "directory": "chunk_04",
+      "offset": 32000,
+      "steps": 8000,
+      "seconds": 116.33506630000193,
+      "max_pressure_residual": 9.9955104815308e-07,
+      "max_particle_cfl": 0.019971119239926338,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 89.80249799275771,
+        "window_end": 99.80249776924029,
+        "max_water_rms": 0.8796130077024409,
+        "max_speed_p99": 2.7734639149140485,
+        "max_kinetic_fraction": 0.005994370200055584,
+        "surface_max_temporal_range": 5.171265888214112
+      }
+    },
+    {
+      "directory": "chunk_05",
+      "offset": 40000,
+      "steps": 8000,
+      "seconds": 115.14714649994858,
+      "max_pressure_residual": 9.998468613048317e-07,
+      "max_particle_cfl": 0.01659253239631653,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 109.80249754572287,
+        "window_end": 119.80249732220545,
+        "max_water_rms": 0.47270879302904245,
+        "max_speed_p99": 1.1981401033300088,
+        "max_kinetic_fraction": 0.0017312015653816915,
+        "surface_max_temporal_range": 3.144358348846435
+      }
+    },
+    {
+      "directory": "chunk_06",
+      "offset": 48000,
+      "steps": 8000,
+      "seconds": 113.96259919996373,
+      "max_pressure_residual": 9.999830581364222e-07,
+      "max_particle_cfl": 0.015547050163149834,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 129.80249709868804,
+        "window_end": 139.80249687517062,
+        "max_water_rms": 0.5450716663802023,
+        "max_speed_p99": 2.3802725884799107,
+        "max_kinetic_fraction": 0.002301799488048851,
+        "surface_max_temporal_range": 3.3579468727111816
+      }
+    },
+    {
+      "directory": "chunk_07",
+      "offset": 56000,
+      "steps": 8000,
+      "seconds": 112.35508090001531,
+      "max_pressure_residual": 9.992475042963633e-07,
+      "max_particle_cfl": 0.0162422526627779,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 149.8024966516532,
+        "window_end": 159.80249642813578,
+        "max_water_rms": 0.3867608348943677,
+        "max_speed_p99": 1.6497957369466334,
+        "max_kinetic_fraction": 0.0011588981045704586,
+        "surface_max_temporal_range": 1.797320079803466
+      }
+    },
+    {
+      "directory": "chunk_08",
+      "offset": 64000,
+      "steps": 8000,
+      "seconds": 111.739773600013,
+      "max_pressure_residual": 9.996786047850037e-07,
+      "max_particle_cfl": 0.005584390833973885,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": true,
+          "surface_stationary": false
+        },
+        "window_start": 169.80249620461836,
+        "window_end": 179.80249598110095,
+        "max_water_rms": 0.10148829543921307,
+        "max_speed_p99": 0.30637332258083905,
+        "max_kinetic_fraction": 7.975816144965195e-05,
+        "surface_max_temporal_range": 0.788400363922122
+      }
+    },
+    {
+      "directory": "chunk_09",
+      "offset": 72000,
+      "steps": 8000,
+      "seconds": 112.0355145999929,
+      "max_pressure_residual": 9.999336043620133e-07,
+      "max_particle_cfl": 0.0061849006451666355,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 189.80249575758353,
+        "window_end": 199.8024955340661,
+        "max_water_rms": 0.16610435081235736,
+        "max_speed_p99": 0.5887322439473063,
+        "max_kinetic_fraction": 0.00021365114960237674,
+        "surface_max_temporal_range": 1.3983078002929688
+      }
+    },
+    {
+      "directory": "chunk_10",
+      "offset": 80000,
+      "steps": 8000,
+      "seconds": 111.89678849990014,
+      "max_pressure_residual": 9.997232837122283e-07,
+      "max_particle_cfl": 0.009924379177391529,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 209.8024953105487,
+        "window_end": 219.80249508703128,
+        "max_water_rms": 0.16388626815062168,
+        "max_speed_p99": 0.5653488119667232,
+        "max_kinetic_fraction": 0.00020798324491410567,
+        "surface_max_temporal_range": 1.0525646209716797
+      }
+    },
+    {
+      "directory": "chunk_11",
+      "offset": 88000,
+      "steps": 8000,
+      "seconds": 112.81332910002675,
+      "max_pressure_residual": 9.998382211051648e-07,
+      "max_particle_cfl": 0.01289281714707613,
+      "near_rest": {
+        "pass_near_rest": false,
+        "checks": {
+          "long_enough": true,
+          "all_water_rms": false,
+          "speed_p99": false,
+          "kinetic_fraction": false,
+          "surface_stationary": false
+        },
+        "window_start": 229.80249486351386,
+        "window_end": 239.80249463999644,
+        "max_water_rms": 0.20631801470908165,
+        "max_speed_p99": 0.6801356734508364,
+        "max_kinetic_fraction": 0.00032962300776439023,
+        "surface_max_temporal_range": 1.6303249359130874
+      }
+    }
+  ],
+  "primary_water_lost": 7,
+  "primary_water_lost_fraction": 0.0011651131824234355,
+  "final_kinetic_fraction": 0.00017641740188704486,
+  "late_auxiliary_event": {
+    "time": 220.20749507797882,
+    "accepted": 16,
+    "reentered_next_step": 16,
+    "step_duration": 0.0024999999441206455
+  },
+  "artifacts": {
+    "realtime": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\settling_phase_20261023_r2\\visuals\\cpp_settling_realtime.mp4",
+    "overview": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\settling_phase_20261023_r2\\visuals\\cpp_settling_4x.mp4",
+    "final": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\settling_phase_20261023_r2\\visuals\\final_240s.png",
+    "curves": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\settling_phase_20261023_r2\\visuals\\decay_curves.png"
+  }
+}
