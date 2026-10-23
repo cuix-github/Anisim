@@ -19,10 +19,10 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT / 'experiments'), str(ROOT / 'gates'),
                str(ROOT / 'reference2d'), str(ROOT / 'graphs')]
-from spray_events_2d import NX, NY, make_sim, run_cpp, save_py
+from spray_events_2d import NX, NY, D, E, ESCAPE, ports, mask, make_sim, run_cpp, save_py
 from phase_contract import PhaseContractSim
 from trace_phase_sequence import read_record, delta
-from loop3d import FINAL_STATE
+from loop3d import FINAL_STATE, run_bifrost3
 import spray_events
 
 
@@ -188,9 +188,30 @@ def run_reference(out, graph, mode, steps, dt, every, tol):
     print(json.dumps({k: v for k, v in result.items() if k != 'rows'}, indent=2), flush=True)
 
 
+def cpp_precision(out, steps, dt, every, tol):
+    """Change only pressure tolerance within the same C++ implementation."""
+    out.mkdir(parents=True, exist_ok=False)
+    (out / 'job.json').write_text(json.dumps(provenance('Original spray C++ tolerance intervention',
+        steps=steps, dt=dt, every=every, tolerance=float(np.float32(tol))), indent=2))
+    s = make_sim(2)
+    p3 = np.c_[s.pos, np.full(len(s.pos), .5)].astype(np.float32)
+    os.environ['PFFLIP_SPRAY_AUDIT'] = '1'
+    run_bifrost3('spray_precision', NX, NY, 1, lambda x,y,z: mask(x,y), steps, dt,
+        seed_fn=lambda *args: (p3, s.typ.copy()), fused=True,
+        extra_ports=dict(ESCAPE, **ports(E, D), rho0_face=s.rho0_face,
+                         tolerance=float(np.float32(tol))), dump_every=every, final_state=True,
+        dumps=('esc','ph','rad','spr','vel'), out_dir=str(out/'bifrost'),
+        log_prefix=str(out/'bifrost/bifcmd'))
+    records = [json.loads(line[len('SPRAY_EVENT '):]) for line in
+        (out/'bifrost/bifcmd.stderr.log').read_text().splitlines() if line.startswith('SPRAY_EVENT ')]
+    (out/'bifrost/ledger.json').write_text(json.dumps(records))
+    (out/'receipt.json').write_text(json.dumps(dict(accepted=sum(r['accepted'] for r in records),
+        alive=records[-1]['alive'], steps=len(records)), indent=2))
+
+
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument('action', choices=('verify', 'graph', 'python'))
+    p.add_argument('action', choices=('verify', 'graph', 'python', 'cpp_precision'))
     p.add_argument('--out', type=Path, required=True)
     p.add_argument('--control', type=Path)
     p.add_argument('--graph', type=Path)
@@ -213,6 +234,8 @@ def main():
         assert (out / 'stages.bin').stat().st_size == a.steps * (12 + 3*((NX+1)*NY+NX*(NY+1))*8)
         result = verify_graph(out / 'bifrost', a.control.resolve() / 'bifrost', a.steps, a.every)
         (out / 'receipt.json').write_text(json.dumps(result, indent=2)); print(json.dumps(result))
+    elif a.action == 'cpp_precision':
+        cpp_precision(out, a.steps, dt, a.every, a.tolerance)
     else:
         run_reference(out, a.graph.resolve(), a.mode, a.steps, dt, a.every, a.tolerance)
 
