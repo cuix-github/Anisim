@@ -1099,6 +1099,23 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     (fw(L.iw(i, j, k + 1)) - fw(L.iw(i, j, k)))));
 
     lap(msCorr);
+    // Opt-in serialized 2D stage trace. This is diagnostic input for stage
+    // replacement, NOT an independent validation. Append one fixed-size record
+    // per step: int32 NX,NY,NZ, followed by uStar,vStar,u,v,phiU,phiV doubles.
+    // The caller must choose a fresh file; production has no trace environment.
+    if (flatGrid && phase_model != 0 && !st && !adapt) {
+        if (const char* path = std::getenv("PFFLIP_FLAT_STAGE_TRACE")) {
+            if (FILE* fp = std::fopen(path, "ab")) {
+                const int32_t dims[3] = {NX, NY, NZ};
+                std::fwrite(dims, sizeof(int32_t), 3, fp);
+                for (const Vec* a : {&uStar, &vStar, &u, &v, &chP_u, &chP_v})
+                    std::fwrite(a->data(), sizeof(double), a->size(), fp);
+                std::fclose(fp);
+            } else {
+                std::fprintf(stderr, "step_3d: flat stage trace failed: %s\n", path);
+            }
+        }
+    }
     // ---- particle machinery. Sizes: with adapt on, particles carry a scale
     // (1 fine, 2 coarse); masses scale as scale^d (d = 2 flat, 3 otherwise) with a
     // calibrated coarse gain; the FLIP blend uses (1-alpha)/scale^2; deep-air fine
