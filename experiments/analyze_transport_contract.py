@@ -35,7 +35,7 @@ def main():
     fig,axes=plt.subplots(1,2,figsize=(12,4.2),layout='constrained')
     for name,label in labels:
         d=root/name;job=read(d/'job.json');rec=read(d/'receipt.json')
-        rows=read(d/'metrics.json')+[dict(time=6,**rec['final'])]
+        rows=read(d/'metrics.json')+[{**rec['final'],'time':6}]
         for ax,key,den in zip(axes,('energy','water_rms'),(job['initial']['energy'],1)):
             ax.plot([r['time'] for r in rows],[r[key]/den for r in rows],label=label)
     axes[0].set_ylabel('Particle mechanical energy / initial');axes[0].axhline(1,c='grey',ls=':')
@@ -64,7 +64,7 @@ def main():
     for (py,cp,label),col in zip(wide,('grey','#b47422','#2778b8','#36854a')):
         for ax,name in zip(axes,(py,cp)):
             job=read(root/py/'job.json');rec=read(root/name/'receipt.json')
-            rows=read(root/name/'metrics.json')+[dict(time=6,**rec['final'])]
+            rows=read(root/name/'metrics.json')+[{**rec['final'],'time':6}]
             ax.plot([r['time'] for r in rows],[r['energy']/job['initial']['energy'] for r in rows],c=col,label=label)
     for ax,title in zip(axes,('Independent NumPy','Actual Bifrost graph')):
         ax.set(title=title,xlabel='Simulation time (s)',ylabel='Particle mechanical energy / initial')
