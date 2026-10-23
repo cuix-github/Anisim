@@ -9,6 +9,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 from inspect_spray_events_2d import panel
+from spray_events_2d import make_sim
 
 
 def load(path, cpp, step=None):
@@ -31,7 +32,8 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument('--root', type=Path, required=True)
     p.add_argument('--original', type=Path, required=True)
-    a = p.parse_args(); root = a.root.resolve(); dest = root / 'analysis'
+    p.add_argument('--out', type=Path)
+    a = p.parse_args(); root = a.root.resolve(); dest = a.out.resolve() if a.out else root / 'analysis'
     dest.mkdir(exist_ok=False)
     arms = {
         'Original NumPy': (a.original/'python', False),
@@ -42,7 +44,13 @@ def main():
     }
     all_results = dict(scope='Original 20s, escape/emission/flight ON; phase 0 tag law in matched arms',
         timing='Some causal runs overlap. Recorded wall times are not performance benchmarks.', arms={})
-    fig, axs = plt.subplots(2, 1, figsize=(10, 8), sharex=True)
+    initial = make_sim()
+    def energy(state):
+        m = np.where(state['spr'],0.,np.where(state['typ']==1,1000.,1.))
+        return float(np.sum(m*(.5*np.sum(state['vel'].astype(float)**2,axis=1)-initial.g*state['pos'][:,1])))
+    e0 = energy(dict(spr=initial.spray,typ=initial.typ,vel=initial.vel,pos=initial.pos))
+    all_results['energy_scope'] = 'Numerical primary-particle kinetic + gravitational potential energy; auxiliary spray has zero transfer mass. Removed particles are excluded, so this is not a conservation proof.'
+    fig, axs = plt.subplots(3, 1, figsize=(10, 11), sharex=True)
     colours = ['#888888', '#c43c39', '#2b73bc', '#2d995d', '#a57423']
     for (label, (path, cpp)), color in zip(arms.items(), colours):
         ledger = json.loads((path/'ledger.json').read_text())
@@ -59,6 +67,11 @@ def main():
             water_rms=float(np.sqrt(np.mean(np.sum(fin['vel'][water].astype(float)**2, axis=1)))),
             air_rms=float(np.sqrt(np.mean(np.sum(fin['vel'][air].astype(float)**2, axis=1)))))
         all_results['arms'][label] = result
+        samples = [(j+1)/400 for j in range(0,8000,40)] + [20.]
+        energy_ratios = [energy(load(path,cpp,j))/e0 for j in range(0,8000,40)] + [energy(fin)/e0]
+        result['energy_ratio_peak_sampled'] = max(energy_ratios)
+        result['energy_ratio_final'] = energy_ratios[-1]
+        axs[2].plot(samples,energy_ratios,color=color,linestyle='--' if 'shared' in label else '-')
         stride = 40
         axs[0].plot((np.arange(8000)[::stride]+1)/400, [r['alive'] for r in ledger[::stride]],
                     label=label, color=color, linestyle='--' if 'shared' in label else '-')
@@ -84,9 +97,11 @@ def main():
     axs[0].set(ylabel='Alive auxiliary spray particles', title='Original 20-second scene: causal controls')
     axs[0].legend(fontsize=8); axs[0].grid(alpha=.2)
     axs[1].set(xlabel='Simulation time (s)', ylabel='Births / second (2 s windows)')
-    axs[1].grid(alpha=.2); fig.tight_layout(); fig.savefig(dest/'spray_counts.png', dpi=150); plt.close(fig)
+    axs[1].grid(alpha=.2)
+    axs[2].set(xlabel='Simulation time (s)',ylabel='Primary mechanical energy / initial')
+    axs[2].grid(alpha=.2); fig.tight_layout(); fig.savefig(dest/'spray_counts.png', dpi=150); plt.close(fig)
     # Actual cached 18.0025-second states, with the same marker rules as the movie.
-    from PIL import Image, ImageDraw
+    from PIL import Image
     titles = ['Original C++', 'NumPy, shared pressure', 'NumPy, matched independent', 'C++, tighter pressure']
     tiles = [panel(load(*arms[t], step=7200), t, 18.0025, scale=7) for t in titles]
     sheet = Image.new('RGB', (2*tiles[0].width, 2*tiles[0].height), (15,20,27))

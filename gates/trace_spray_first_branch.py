@@ -115,7 +115,7 @@ def main():
                 print(json.dumps(row,indent=2),flush=True)
                 return
             if (j+1)%400==0:
-                print(f'{j+1} steps, no discrete difference yet',flush=True)
+                print(f'{j+1} steps, no {"primary-fluid" if a.primary else "discrete"} branch difference yet',flush=True)
     raise RuntimeError('No branch found in requested range; do not infer its absence later')
 
 
