@@ -11,9 +11,12 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   two preconditioners and tighter tolerance; it does not find a loss of linear
   convergence. The default mass-derived versus tag-derived phase mismatch is
   significant. Full transfer/classification stability and phase fidelity remain
-  open. A capped-iteration negative control also exposes stale residual reporting
-  and no explicit refusal to advance an unconverged step; none of the original
-  8,000 steps reached the cap. Keep production blocked pending these checks.
+  open. A capped-iteration negative control exposed stale residual reporting
+  and missing refusal. The subsequent [pressure failure guard](pressure-replay-audit.md)
+  fixes both across uniform/adaptive and legacy 2D paths; nine successful
+  single-step cases and the 2,400-step strict plunge preserve their physical
+  outputs bit for bit. This does not fix the original video: none of its
+  8,000 steps reached the cap. Keep production blocked pending the physics checks.
   The [uniform phase-contract experiment](phase-contract.md) now implements
   explicit Eq.7 and pure-cell face modes in independent NumPy and fused P2G.
   Static/short-step and still-water gates pass; corrected momentum-port, tighter
