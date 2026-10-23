@@ -444,6 +444,54 @@
      "portDefault": "8"
     },
     {
+     "portName": "emit_cloud_size",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "16"
+    },
+    {
+     "portName": "emit_event_radius",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.0003f"
+    },
+    {
+     "portName": "emit_spread",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.25f"
+    },
+    {
+     "portName": "emit_velocity_spread",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.1f"
+    },
+    {
+     "portName": "emit_radius_max",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.003f"
+    },
+    {
+     "portName": "emit_max_active",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "200000"
+    },
+    {
+     "portName": "emit_seed",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "1"
+    },
+    {
+     "portName": "spray_dt_max",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.01f"
+    },
+    {
      "portName": "spray_cfl",
      "portDirection": "input",
      "portType": "float",
@@ -1107,6 +1155,46 @@
        "portName": "emit_max_per_cell",
        "portDirection": "input",
        "portType": "int"
+      },
+      {
+       "portName": "emit_cloud_size",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "emit_event_radius",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_spread",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_velocity_spread",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_radius_max",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_max_active",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "emit_seed",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "spray_dt_max",
+       "portDirection": "input",
+       "portType": "float"
       },
       {
        "portName": "spray_cfl",
@@ -1803,6 +1891,38 @@
       {
        "source": ".emit_max_per_cell",
        "target": "step.emit_max_per_cell"
+      },
+      {
+       "source": ".emit_cloud_size",
+       "target": "step.emit_cloud_size"
+      },
+      {
+       "source": ".emit_event_radius",
+       "target": "step.emit_event_radius"
+      },
+      {
+       "source": ".emit_spread",
+       "target": "step.emit_spread"
+      },
+      {
+       "source": ".emit_velocity_spread",
+       "target": "step.emit_velocity_spread"
+      },
+      {
+       "source": ".emit_radius_max",
+       "target": "step.emit_radius_max"
+      },
+      {
+       "source": ".emit_max_active",
+       "target": "step.emit_max_active"
+      },
+      {
+       "source": ".emit_seed",
+       "target": "step.emit_seed"
+      },
+      {
+       "source": ".spray_dt_max",
+       "target": "step.spray_dt_max"
       },
       {
        "source": ".spray_cfl",
@@ -2972,6 +3092,38 @@
     {
      "source": ".emit_max_per_cell",
      "target": "loop.emit_max_per_cell"
+    },
+    {
+     "source": ".emit_cloud_size",
+     "target": "loop.emit_cloud_size"
+    },
+    {
+     "source": ".emit_event_radius",
+     "target": "loop.emit_event_radius"
+    },
+    {
+     "source": ".emit_spread",
+     "target": "loop.emit_spread"
+    },
+    {
+     "source": ".emit_velocity_spread",
+     "target": "loop.emit_velocity_spread"
+    },
+    {
+     "source": ".emit_radius_max",
+     "target": "loop.emit_radius_max"
+    },
+    {
+     "source": ".emit_max_active",
+     "target": "loop.emit_max_active"
+    },
+    {
+     "source": ".emit_seed",
+     "target": "loop.emit_seed"
+    },
+    {
+     "source": ".spray_dt_max",
+     "target": "loop.spray_dt_max"
     },
     {
      "source": ".spray_cfl",

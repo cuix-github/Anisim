@@ -753,6 +753,10 @@ def build3d():
                      # integrator (spray_cfl 0 = the one implicit step); see step_3d
                      ("emit_model", "int", "0"), ("emit_grad_threshold", "float", "10f"),
                      ("emit_rate", "float", "0.05f"), ("emit_max_per_cell", "int", "8"),
+                     ("emit_cloud_size", "int", "16"), ("emit_event_radius", "float", "0.0003f"),
+                     ("emit_spread", "float", "0.25f"), ("emit_velocity_spread", "float", "0.1f"),
+                     ("emit_radius_max", "float", "0.003f"), ("emit_max_active", "int", "200000"),
+                     ("emit_seed", "int", "1"), ("spray_dt_max", "float", "0.01f"),
                      ("spray_cfl", "float", "0f"),
                      # the wave zone (zone_length 0 = none; see step_3d), cells and seconds
                      ("zone_length", "float", "0f"), ("zone_depth", "float", "0f"),

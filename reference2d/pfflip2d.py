@@ -19,6 +19,7 @@ import time
 
 import numpy as np
 from PIL import Image
+import spray_events
 
 # ------------------------------------------------------------------ simulation core
 
@@ -38,10 +39,10 @@ class Sim:
     # humid marine air), the radius below which a drop is deleted, the metres one
     # cell spans, and air's kinematic viscosity for the drag's Reynolds number.
     DROPLET_DEFAULTS = dict(r_median=1e-4, r_sigma=0.7, evap_k=1e-9, r_min=1e-6,
-                            metres_per_cell=1.0, air_nu=1.5e-5)
+                            metres_per_cell=1.0, air_nu=1.5e-5, integrator=1, dt_max=0.01)
     # spray emission: the gradient (1/s) above which an interface particle may emit,
     # the chance per unit excess gradient per second, the cap per cell per step
-    EMIT_DEFAULTS = dict(grad_threshold=10.0, rate=0.05, max_per_cell=8)
+    EMIT_DEFAULTS = dict(grad_threshold=10.0, rate=0.05, max_per_cell=8, **spray_events.DEFAULTS)
 
     def __init__(self, nx, ny, rho_l=1000.0, rho_g=1.0, alpha_l=0.97, alpha_g=0.9, g=-9.8,
                  escape=False, esc_phi=0.3, drag_droplet=1.0, drag_bubble=8.0, buoyancy=2.0,
@@ -96,6 +97,13 @@ class Sim:
             assert set(self.emit) == set(self.EMIT_DEFAULTS), self.emit
         self.spray = np.zeros(0, dtype=bool)
         self.n_emitted = 0
+        self.emission_stats = {}
+        if self.emit is not None and self.emit["model"] == 2:
+            spray_events.validate(self.emit, self.droplet)
+        if self.droplet is not None and self.droplet["integrator"] == 2:
+            if not (np.isfinite(self.droplet["dt_max"]) and self.droplet["dt_max"] > 0
+                    and np.isfinite(spray_cfl) and spray_cfl > 0):
+                raise ValueError("midpoint droplet flight requires positive dt_max and spray_cfl")
         # The droplets' own integrator (PF-FLIP Section 7: RK2 with locally adaptive
         # time stepping), OFF at 0: with spray_cfl > 0 a droplet's step is cut into
         # sub-steps that move it at most spray_cfl cells each; over a sub-step the
@@ -305,11 +313,21 @@ class Sim:
             if not act.any():
                 break
             vg = self.sample_velocity(np.clip(pos, 0.51, hi))
+            mid_carrier = D["integrator"] == 2
             speed = np.maximum(np.abs(vel).max(1), 1e-9)
+            if mid_carrier:
+                speed = np.maximum(speed, np.abs(vg).max(1))
             h = np.where(act, np.minimum(rem, self.spray_cfl / speed), 0.0)
+            if mid_carrier:
+                if not np.isfinite(D["dt_max"]) or D["dt_max"] <= 0:
+                    raise ValueError("droplet dt_max must be positive and finite")
+                h = np.minimum(h, D["dt_max"])
             # the rate depends on the slip, so it is taken at the sub-step's midpoint
             # (a half step at the starting rate finds it), then the whole step at it
             vmid = relax(vel, vg, rate(vel, vg), 0.5 * h)
+            if mid_carrier:
+                pmid = pos + 0.25 * h[:, None] * (vel + vmid)
+                vg = self.sample_velocity(np.clip(pmid, 0.51, hi))
             vnew = relax(vel, vg, rate(vmid, vg), h)
             pos = pos + 0.5 * h[:, None] * (vel + vnew)
             vel, rem = vnew, rem - h
@@ -336,6 +354,8 @@ class Sim:
         cand = ((self.typ == 1) & ~self.spray & ~self.escaped & (lf < 1.0 - self.esc_phi)
                 & (gp > E["grad_threshold"]))
         idx = np.flatnonzero(cand)
+        if E["model"] == 2:
+            return self._emit_clouds(dt, idx, c, gp)
         if len(idx) == 0:
             return 0
         prob = np.clip(E["rate"] * (gp[idx] - E["grad_threshold"]) * dt, 0.0, 1.0)
@@ -361,6 +381,59 @@ class Sim:
         self.radius = np.concatenate([self.radius, np.zeros(m)])
         self.spray = np.concatenate([self.spray, np.ones(m, dtype=bool)])
         self.escaped = np.concatenate([self.escaped, np.ones(m, dtype=bool)])
+        return m
+
+    def _emit_clouds(self, dt, idx, cells, gp):
+        E, D = self.emit, self.droplet
+        spray_events.validate(E, D, dt)
+        N, seed = int(E["cloud_size"]), int(E["seed"])
+        lam = E["rate"] * (gp[idx] - E["grad_threshold"]) * dt
+        events = spray_events.requested_events(lam, spray_events.keys(seed, self.nstep, idx))
+        stats = dict(candidates=len(idx), events=int(events.sum()), requested=int(events.sum())*N,
+                     accepted=0, rejected_cap=0, rejected_geometry=0, raw_r3=0.0, clipped_r3=0.0)
+        per_cell, points, velocities, radii = {}, [], [], []
+        # Include particles scheduled for removal this step in the resource budget;
+        # this conservative rule is identical in the node and reference.
+        room = max(0, int(E["max_active"]) - int(self.spray.sum()))
+        hi = np.array([self.nx-0.51, self.ny-0.51])
+        for pi, count in zip(idx, events):
+            cell = tuple(cells[pi])
+            for ev in range(int(count)):
+                available = min(room, int(E["max_per_cell"]) - per_cell.get(cell, 0))
+                if available <= 0:
+                    stats["rejected_cap"] += (int(count)-ev)*N
+                    break
+                r, dp, dv, raw = spray_events.cloud(seed, self.nstep, int(pi), ev, N,
+                    D["r_sigma"], E["event_radius"], D["r_min"], E["radius_max"])
+                p = self.pos[pi] + E["spread"]*dp
+                v = self.vel[pi] + E["velocity_spread"]*np.linalg.norm(self.vel[pi])*dv
+                good = ((p >= 0.51) & (p <= hi)).all(1)
+                if self.has_solids:
+                    good &= ~self._inside_solid(p)
+                # Rejection precedence is geometry first, budget second.
+                stats["rejected_geometry"] += int((~good).sum())
+                keep = np.flatnonzero(good)[:available]
+                m = len(keep)
+                stats["rejected_cap"] += int(good.sum()) - m
+                points.extend(p[keep]); velocities.extend(v[keep]); radii.extend(r[keep])
+                stats["raw_r3"] += float((raw[keep]**3).sum())
+                stats["clipped_r3"] += float((r[keep]**3).sum())
+                stats["accepted"] += m
+                per_cell[cell] = per_cell.get(cell, 0) + m
+                room -= m
+        m, n = len(radii), len(self.pos)
+        self.emission_stats = stats
+        if m:
+            self.pos = np.concatenate([self.pos, np.asarray(points)])
+            self.vel = np.concatenate([self.vel, np.asarray(velocities)])
+            self.typ = np.concatenate([self.typ, np.ones(m, dtype=self.typ.dtype)])
+            self.scale = np.concatenate([self.scale, np.ones(m)])
+            self.tau = np.concatenate([self.tau, np.zeros(m)])
+            if len(self.xi) == n:
+                self.xi = np.concatenate([self.xi, np.ones(m)])
+            self.radius = np.concatenate([self.radius, np.asarray(radii)])
+            self.spray = np.concatenate([self.spray, np.ones(m, bool)])
+            self.escaped = np.concatenate([self.escaped, np.ones(m, bool)])
         return m
 
     def _delete(self, keep):
@@ -954,6 +1027,8 @@ class Sim:
         gone = None
         if self.droplet is not None and esc is not None:
             gone = self._droplet_radii(drop, dt)
+            deaths = dict(evaporated=int((gone & self.spray & ~inside).sum()),
+                          reentered=int(inside.sum()))
             if inside.any():
                 gone = gone | inside
         fly = None
@@ -980,6 +1055,8 @@ class Sim:
         if self.emit is not None and esc is not None:
             m = self._emit(dt, lf)
             self.n_emitted = m
+            if self.emit["model"] == 2:
+                self.emission_stats.update(deaths, step=self.nstep)
             if m and gone is not None:
                 gone = np.concatenate([gone, np.zeros(m, bool)])
         if gone is not None and gone.any():
@@ -995,6 +1072,8 @@ class Sim:
                 if a is not None and len(a) == len(order):
                     setattr(self, name, a[order])
         self.t += dt
+        if self.emit is not None and self.emit["model"] == 2:
+            self.emission_stats["alive"] = int(self.spray.sum())
         self.nstep += 1
 
     def _liq_frac(self):

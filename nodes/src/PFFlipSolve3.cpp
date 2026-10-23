@@ -2,6 +2,7 @@
 #include "PFFlipAdaptive.h"
 #include "PFFlipScatter.h"
 #include "PFFlipSolids.h"
+#include "PFFlipSprayEvents.h"
 
 #include <algorithm>
 #include <chrono>
@@ -286,6 +287,9 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float droplet_evap_k, float droplet_r_min, float metres_per_cell,
              float air_nu, const Amino::Array<float>& radius_in,
              int emit_model, float emit_grad_threshold, float emit_rate, int emit_max_per_cell,
+             int emit_cloud_size, float emit_event_radius, float emit_spread,
+             float emit_velocity_spread, float emit_radius_max, int emit_max_active,
+             int emit_seed, float spray_dt_max,
              float spray_cfl, const Amino::Array<float>& spray_in,
              float zone_length, float zone_depth, float zone_ramp,
              const Amino::Array<float>& waves,
@@ -344,6 +348,40 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const int NX = std::max(2, nx), NY = std::max(2, ny), NZ = std::max(1, nz);
     const double dt = dt_in;
     const size_t np = positions.size();
+    auto refuseSpray = [&]() {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: invalid spray event configuration or intensity"_amt);
+        std::fprintf(stderr, "step_3d: error: invalid spray event configuration or intensity\n");
+        out_positions = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        out_velocities = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        out_pos_synced = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        for (auto* o : {&out_mass,&out_mom_x,&out_mom_y,&out_mom_z,&out_u,&out_v,&out_w,
+                       &pressure,&out_escaped,&tau_out,&scale_out,&radius_out,&spray_out,
+                       &out_phase_state,&out_wt,&out_wtph})
+            *o = Amino::newClassPtr<Amino::Array<float>>();
+        mask_fine = Amino::newClassPtr<Amino::Array<bool>>();
+        mask_coarse = Amino::newClassPtr<Amino::Array<bool>>();
+        iterations_used=-1; final_residual=max_divergence_after=max_speed=0;
+    };
+    if (emit_model==2 || droplet_model==2) {
+        bool valid=escape!=0 && droplet_model!=0 && std::isfinite(dt) && dt>0 &&
+            std::isfinite(droplet_r_sigma) && droplet_r_sigma>=0 && droplet_r_sigma<=2 &&
+            std::isfinite(droplet_r_min) && droplet_r_min>0 &&
+            std::isfinite(metres_per_cell) && metres_per_cell>0 &&
+            std::isfinite(air_nu) && air_nu>0 &&
+            std::isfinite(droplet_evap_k) && droplet_evap_k>=0;
+        if (droplet_model==2) valid &= std::isfinite(spray_dt_max) && spray_dt_max>0 &&
+                                      std::isfinite(spray_cfl) && spray_cfl>0;
+        if (emit_model==2) valid &= emit_cloud_size>=1 && emit_cloud_size<=256 &&
+            std::isfinite(emit_grad_threshold) && emit_grad_threshold>=0 &&
+            std::isfinite(emit_rate) && emit_rate>=0 && emit_rate<=1000 &&
+            std::isfinite(emit_event_radius) && emit_event_radius>0 &&
+            std::isfinite(emit_radius_max) && emit_radius_max>=droplet_r_min &&
+            std::isfinite(emit_spread) && emit_spread>=0 &&
+            std::isfinite(emit_velocity_spread) && emit_velocity_spread>=0 &&
+            emit_max_active>=0 && emit_max_active<=10000000 && emit_max_per_cell>=0 && emit_seed>=0;
+        if (!valid) { refuseSpray(); return; }
+    }
 
     // PFFLIP_PROFILE=1 prints per-phase wall times to stderr (spike 1); the
     // phase boundaries are the ---- section markers below.
@@ -1296,10 +1334,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         for (int it2 = 0; rem > 1e-12 && it2 < 1000000; ++it2) {
             const double cx = std::clamp(px, lo, hx), cy = std::clamp(py, lo, hy);
             const double cz = flat ? pz : std::clamp(pz, lo, hz);
-            const double gx = sU(u, cx, cy, cz), gy = sV(v, cx, cy, cz);
-            const double gz = flat ? 0.0 : sW(w, cx, cy, cz);
-            const double speed = std::max({std::fabs(vx), std::fabs(vy), std::fabs(vz), 1e-9});
-            const double h = std::min(rem, sprayCfl / speed);
+            double gx = sU(u, cx, cy, cz), gy = sV(v, cx, cy, cz);
+            double gz = flat ? 0.0 : sW(w, cx, cy, cz);
+            double speed = std::max({std::fabs(vx), std::fabs(vy), std::fabs(vz), 1e-9});
+            if (droplet_model==2) speed=std::max({speed,std::fabs(gx),std::fabs(gy),std::fabs(gz)});
+            double h = std::min(rem, sprayCfl / speed);
+            if (droplet_model==2) h=std::min(h,static_cast<double>(spray_dt_max));
             // the relaxation rate at a slip (the reference's rate)
             auto rate = [&](double ax, double ay, double az) {
                 const double rx = (gx - ax) * mpc, ry = (gy - ay) * mpc;
@@ -1323,6 +1363,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             // rate finds it, then the whole step at that rate
             double mx, my, mz, nx2, ny2, nz2;
             relax(rate(vx, vy, vz), 0.5 * h, mx, my, mz);
+            if (droplet_model==2) {
+                const double qx=std::clamp(px+0.25*h*(vx+mx),lo,hx);
+                const double qy=std::clamp(py+0.25*h*(vy+my),lo,hy);
+                const double qz=flat ? pz : std::clamp(pz+0.25*h*(vz+mz),lo,hz);
+                gx=sU(u,qx,qy,qz); gy=sV(v,qx,qy,qz); gz=flat ? 0 : sW(w,qx,qy,qz);
+            }
             relax(rate(mx, my, mz), h, nx2, ny2, nz2);
             px += 0.5 * h * (vx + nx2);
             py += 0.5 * h * (vy + ny2);
@@ -1426,6 +1472,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // the hash of (step_index, index), a massless spray particle at its position and
     // velocity, at most emit_max_per_cell a cell, in index order
     long long nEmitted = 0;
+    long long nCandidates=0,nEvents=0,nRequested=0,nCap=0,nGeometry=0;
+    double rawR3=0,clippedR3=0;
+    long long oldSpray=0;
+    if (emit_model==2) for (size_t i=0;i<np;++i) oldSpray+=Spray[i]!=0;
     if (emitOn && np > 0) {
         // the Frobenius norm of the Jacobian of the cell-centred velocity, per cell:
         // central differences inside, one-sided at the walls, a cell the unit
@@ -1475,6 +1525,51 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             const size_t cell = L.ic(ci, cj, ck);
             const double g = gradN[cell];
             if (g <= thr) continue;
+            if (emit_model==2) {
+                ++nCandidates;
+                const double lam=rate*(g-thr)*dt;
+                if (!std::isfinite(lam) || lam>1e6) { refuseSpray(); return; }
+                const auto key=SprayEvents::key(emit_seed,step_index,pi);
+                const int ne=static_cast<int>(std::floor(lam)) +
+                    (SprayEvents::uniform(key,0)<lam-std::floor(lam));
+                nEvents+=ne; nRequested+=static_cast<long long>(ne)*emit_cloud_size;
+                // Live budget includes deaths awaiting this step's compaction.
+                for (int ev=0; ev<ne; ++ev) {
+                    if (perCell[cell]>=emit_max_per_cell || oldSpray+nEmitted>=emit_max_active) {
+                        nCap+=static_cast<long long>(ne-ev)*emit_cloud_size; break;
+                    }
+                    const double speed=std::sqrt(Vx[pi]*Vx[pi]+Vy[pi]*Vy[pi]+Vz[pi]*Vz[pi]);
+                    for (int child=0; child<emit_cloud_size; ++child) {
+                        const auto k=SprayEvents::key(emit_seed,step_index,pi,ev,child);
+                        const auto dp=SprayEvents::ball(k,3,flat), dv=SprayEvents::ball(k,6,flat);
+                        const double x=Px[pi]+emit_spread*dp[0], y=Py[pi]+emit_spread*dp[1];
+                        const double z=flat ? Pz[pi] : Pz[pi]+emit_spread*dp[2];
+                        bool bad=x<lo||x>hx||y<lo||y>hy||(!flat&&(z<lo||z>hz));
+                        for (size_t b=0;b<nObs&&!bad;++b) {
+                            const auto& a=obstacles_min[b]; const auto& c=obstacles_max[b];
+                            bad=x>a.x&&x<c.x&&y>a.y&&y<c.y&&(flat||(z>a.z&&z<c.z));
+                        }
+                        if (lsOn && !bad) bad=(pistonOn ?
+                            Solids::phiValue(phiAll,NX,NY,NZ,flat,x,y,z) :
+                            Solids::phiValue(solid_phi,NX,NY,NZ,flat,x,y,z))<0;
+                        if (bad) { ++nGeometry; continue; }
+                        if (perCell[cell]>=emit_max_per_cell || oldSpray+nEmitted>=emit_max_active) {
+                            ++nCap; continue;
+                        }
+                        const double raw=SprayEvents::rawRadius(k,emit_cloud_size,droplet_r_sigma,emit_event_radius);
+                        const double r=std::clamp(raw,static_cast<double>(droplet_r_min),static_cast<double>(emit_radius_max));
+                        Px.push_back(x); Py.push_back(y); Pz.push_back(z);
+                        Vx.push_back(Vx[pi]+emit_velocity_spread*speed*dv[0]);
+                        Vy.push_back(Vy[pi]+emit_velocity_spread*speed*dv[1]);
+                        Vz.push_back(flat ? 0 : Vz[pi]+emit_velocity_spread*speed*dv[2]);
+                        Tau.push_back(0); Wt.push_back(stOn ? wtKernel(0)/wtNorm(1):1);
+                        Scl.push_back(1); Ph01.push_back(1); Esc.push_back(1);
+                        Rad.push_back(r); Spray.push_back(1); gone.push_back(0);
+                        ++perCell[cell]; ++nEmitted; rawR3+=raw*raw*raw; clippedR3+=r*r*r;
+                    }
+                }
+                continue;
+            }
             const double prob = std::clamp(rate * (g - thr) * dt, 0.0, 1.0);
             if (dropletUniform(step_index, static_cast<uint64_t>(pi)) >= prob) continue;
             int& cnt = perCell[cell];
@@ -1492,7 +1587,17 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             Rad.push_back(0.0); Spray.push_back(1);
             gone.push_back(0);
         }
-        nEmitted = static_cast<long long>(hits.size());
+        if (emit_model!=2) nEmitted = static_cast<long long>(hits.size());
+    }
+    if (emit_model==2 && std::getenv("PFFLIP_SPRAY_AUDIT")) {
+        long long evap=0,reentry=0,alive=0;
+        for (size_t i=0;i<np;++i) if (Spray[i]) {
+            if (insideF[i]) ++reentry;
+            else if (gone[i]) ++evap;
+            else ++alive;
+        }
+        std::fprintf(stderr,"SPRAY_EVENT {\"step\":%d,\"candidates\":%lld,\"events\":%lld,\"requested\":%lld,\"accepted\":%lld,\"rejected_cap\":%lld,\"rejected_geometry\":%lld,\"raw_r3\":%.17g,\"clipped_r3\":%.17g,\"evaporated\":%lld,\"reentered\":%lld,\"alive\":%lld}\n",
+            step_index,nCandidates,nEvents,nRequested,nEmitted,nCap,nGeometry,rawR3,clippedR3,evap,reentry,alive+nEmitted);
     }
     if (lsDebug && emitOn)
         std::fprintf(stderr, "step_3d: emitted %lld spray particles\n", nEmitted);
