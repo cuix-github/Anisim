@@ -14,6 +14,15 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   open. A capped-iteration negative control also exposes stale residual reporting
   and no explicit refusal to advance an unconverged step; none of the original
   8,000 steps reached the cap. Keep production blocked pending these checks.
+  The [uniform phase-contract experiment](phase-contract.md) now implements
+  explicit Eq.7 and pure-cell face modes in independent NumPy and fused P2G.
+  Static/short-step and still-water gates pass; corrected momentum-port, tighter
+  tolerance and half-step 6-second plunges still fail the height-distribution
+  comparison. Common-state audits reproduce particle-energy gains in both
+  implementations while each grid projection dissipates energy. Water-side
+  advection velocity/extrapolation, RK3/local stepping, classification and
+  volume correction remain distinct correspondence gaps; do not promote the
+  experimental phase mode or claim the late spray issue is resolved.
 
 - **Force-driven replacement scene (2026-10-20).** The approved one-hour budget covers a
   two-dimensional and coarse three-dimensional particle preview, with old

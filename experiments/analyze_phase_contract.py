@@ -34,7 +34,8 @@ def panel(a,name,t,scale=8):
     inside=(xy[:,0]>=0)&(xy[:,0]<w)&(xy[:,1]>=0)&(xy[:,1]<h)
     for typ,rgb in [(0,(208,215,225)),(1,(20,67,200))]:
         q=xy[inside&(a['typ']==typ)]
-        pix[h-1-q[:,1],q[:,0]]=rgb
+        for dx,dy in ((0,0),(1,0),(0,1),(1,1)):
+            pix[np.maximum(h-1-q[:,1]-dy,0),np.minimum(q[:,0]+dx,w-1)]=rgb
     im=Image.new('RGB',(w,h+72),(22,27,34));im.paste(Image.fromarray(pix),(0,72))
     d=ImageDraw.Draw(im);d.text((10,6),f'{name} | t={t:.3f}s',font=FONT,fill='white')
     d.text((10,36),'Blue: water | Grey: air | Escape / spray OFF',font=SMALL,fill=(190,200,211))
@@ -125,7 +126,7 @@ def main():
             t=(j+1)*job['dt'];panels=[panel(load(root/case,arm,j),label,t) for arm,label in zip(ARMS,('Independent NumPy','Actual Bifrost graph'))]
             im=Image.new('RGB',(panels[0].width*2+8,panels[0].height+42),(14,19,26))
             for n,pn in enumerate(panels):im.paste(pn,(n*(pn.width+8),0))
-            ImageDraw.Draw(im).text((10,im.height-32),'Diagnostic only: similarity/energy checks remain open. No rendering or spray.',font=SMALL,fill='white')
+            ImageDraw.Draw(im).text((10,im.height-32),'Diagnostic: gates remain open. Equal 2-pixel markers for visibility; not physical radii.',font=SMALL,fill='white')
             im.save(frames/f'{i:04d}.png')
             if i in (20,32,59):
                 im.save(dest/f'{case}_{t:.3f}s.png');selected.append(im)
