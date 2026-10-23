@@ -49,7 +49,7 @@ sigma=`droplet_r_sigma` is dimensionless. Before clipping,
 E[sum(r_i^3)] = R^3 because E[exp(3 sigma Z)] = exp(4.5 sigma^2).
 This is expected volume, not exact per-event conservation. Radii are clipped
 to [droplet_r_min, emit_radius_max]; the ledger reports both unclipped and
-clipped sums of r cubed. Rejected births lose their represented volume rather
+clipped sums of r cubed for accepted births. Rejected births lose their represented volume rather
 than increasing the weights/radii of survivors. The main water loses no mass
 in this auxiliary model; it is not a conservative atomization solver.
 
@@ -73,6 +73,10 @@ rate. `emit_max_active` limits live auxiliary droplets; the ledger records
 requests, accepted births and each rejection cause. Source traversal is ordered
 and deterministic, so saturated budgets can bias which sources survive. A
 visual preset is accepted only with this saturation visible and quantified.
+When a budget is already exhausted, remaining requests are counted as budget
+rejections without sampling positions. Within an attempted cloud, geometry
+rejection takes precedence over the remaining budget. This attribution rule
+is shared by both implementations.
 
 ## Flight and dimensional consistency
 
