@@ -16,10 +16,10 @@ from phase_contract import PhaseContractSim
 from loop3d import run_bifrost3
 
 
-def make(case,model,tol):
+def make(case,model,tol,alpha_l=.97,alpha_g=.9):
     nx,ny=(48,40) if case=='rest' else (64,80)
     s=PhaseContractSim(nx,ny,phase_model=model,g=float(np.float32(-9.8)),
-        alpha_l=float(np.float32(.97)),alpha_g=float(np.float32(.9)),pressure_tolerance=tol)
+        alpha_l=float(np.float32(alpha_l)),alpha_g=float(np.float32(alpha_g)),pressure_tolerance=tol)
     mask=(lambda x,y:y<12) if case=='rest' else (lambda x,y:(y<18)|((abs(x-32)<7)&(y>39)&(y<64)))
     s.seed(mask,seed=1);s.calibrate();s.rho0_face=float(np.float32(s.rho0_face))
     s.pos=s.pos.astype(np.float32).astype(float)
@@ -59,6 +59,7 @@ def run_cpp(out,s,steps,dt,every):
     run_bifrost3('phase_diagnostic',s.nx,s.ny,1,lambda x,y,z:y<1,steps,dt,
         seed_fn=lambda *a:(p3,s.typ.copy()),fused=True,final_state=True,
         extra_ports=dict(phase_model=s.phase_model,phase_alpha=s.phase_alpha,rho0_face=s.rho0_face,
+            alpha_liquid=s.alpha[1],alpha_air=s.alpha[0],
             escape=0,st=0,adapt=0,emit_model=0,tolerance=s.pressure_tolerance),
         dumps=('ph','vel'),dump_every=every,out_dir=str(out),log_prefix=str(out/'bifcmd'))
     records=[]
@@ -110,21 +111,24 @@ def main():
     p.add_argument('--case',choices=('rest','plunge'),required=True);p.add_argument('--model',type=int,choices=(1,2),required=True)
     p.add_argument('--seconds',type=float,default=6);p.add_argument('--dt',type=float,default=.0025)
     p.add_argument('--tolerance',type=float,default=1e-6);p.add_argument('--every',type=int,default=40)
+    p.add_argument('--alpha-liquid',type=float,default=.97);p.add_argument('--alpha-air',type=float,default=.9)
     a=p.parse_args();out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
     dirty=subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip();assert not dirty,dirty
     dt,tol=float(np.float32(a.dt)),float(np.float32(a.tolerance));steps=round(a.seconds/a.dt)
-    s=make(a.case,a.model,tol);initial=measures(s.pos,s.vel,s.typ)
+    s=make(a.case,a.model,tol,a.alpha_liquid,a.alpha_air);initial=measures(s.pos,s.vel,s.typ)
     job=dict(kind='Independent 2D phase comparison',case=a.case,phase_model=a.model,dt=dt,tolerance=tol,
         steps=steps,dump_every=a.every,nx=s.nx,ny=s.ny,initial=initial,
         commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         binary_sha256=hashlib.sha256((ROOT/'nodes/build/PFFlipSpike-1.0.0/lib/PFFlipSpikeOps.dll').read_bytes()).hexdigest(),
         physics='escape/ST/adapt/emission off; closed domain',command=sys.argv,
         independent_momentum_port=True,includes_actual_final_state=True,
+        alpha_liquid=s.alpha[1],alpha_air=s.alpha[0],
+        blend_damping_proxy=dict(liquid=(1-s.alpha[1])/dt,air=(1-s.alpha[0])/dt),
         thresholds=dict(tv=.05,com_cells=.2,height_p99_cells=1,rest_water_rms=.1,rest_com_drift=.1,rest_energy_ratio=1.005))
     (out/'job.json').write_text(json.dumps(job,indent=2))
     runtime={}
     for arm,fn in [('bifrost',run_cpp),('python',run_python)]:
-        runtime[arm]=fn(out/arm,make(a.case,a.model,tol),steps,dt,a.every)
+        runtime[arm]=fn(out/arm,make(a.case,a.model,tol,a.alpha_liquid,a.alpha_air),steps,dt,a.every)
         (out/'runtime.json').write_text(json.dumps(runtime,indent=2))
     result=compare(out,s,steps,a.every,initial,a.case);print(json.dumps(result,indent=2),flush=True)
     if not result['similarity_pass'] or (a.case=='rest' and not all(r['rest_pass'] for r in result['physics'].values())):
