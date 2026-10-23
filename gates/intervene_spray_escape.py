@@ -36,6 +36,7 @@ def main():
             s.xi = np.ones(len(s.pos)); s.escaped = np.zeros(len(s.pos), bool)
             s.nstep = report['step']; s.t = s.nstep*float(np.float32(.0025))
             projected = [z['post_u'].copy(),z['post_v'].copy()]
+            input_count = len(s.pos)
         original_splat, original_sample = s._splat, s._sample_faces
         air_fields = []; injections = []
         def splat(shape, frame, values):
@@ -56,7 +57,7 @@ def main():
         for name in ('pos','vel','radius','scale','tau'):
             setattr(s,name,getattr(s,name).astype(np.float32).astype(float))
         assert injections == ([index] if flipped else [])
-        assert len(s.pos) == len(z['pos']) + s.emission_stats['accepted'] - s.emission_stats['reentered'] - s.emission_stats['evaporated']
+        assert len(s.pos) == input_count + s.emission_stats['accepted'] - s.emission_stats['reentered'] - s.emission_stats['evaporated']
         results.append(s)
         np.savez_compressed(out/('flipped.npz' if flipped else 'control.npz'),pos=s.pos,vel=s.vel,
                             escaped=s.escaped,radius=s.radius,spray=s.spray)
