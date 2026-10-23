@@ -58,7 +58,7 @@ def prepare(source, out, step):
     return s, arrays, dest
 
 
-def call(source, out, step, label, preconditioner, tolerance, dump):
+def call(source, out, step, label, preconditioner, tolerance, dump, max_iterations=4000):
     s, arrays, indir = prepare(source, out, step)
     d = out/f'state_{step}'/label
     if d.exists():
@@ -74,7 +74,7 @@ def call(source, out, step, label, preconditioner, tolerance, dump):
               gravity=float(np.float32(-9.8)), alpha_liquid=float(np.float32(.97)),
               alpha_air=float(np.float32(.9)), rho_liquid=1000, rho_air=1,
               rho0_face=s.rho0_face, step_index=step+1, pressure_solver=0,
-              preconditioner=preconditioner, tolerance=tolerance, max_iterations=4000)
+              preconditioner=preconditioner, tolerance=tolerance, max_iterations=max_iterations)
     stats = run_node(str(indir), str(d), extra_arrays=('radius_in','spray_in'),
                      extra_outputs=('radius_out','spray_out'), **kw)
     (d/'stats.json').write_text(json.dumps(stats, indent=2))
@@ -145,7 +145,7 @@ def read_dump(path):
     return coeff, rhs, p, before
 
 
-def inspect(arrays, d, stats, dt):
+def inspect(arrays, d, stats, dt, suffix='audit'):
     coeff, rhs, p, before = read_dump(d/'pressure_double.bin')
     after = [v-dt*f for v,f in zip(before,flux(p,coeff))]
     r = rhs-operator(p,coeff)
@@ -172,7 +172,8 @@ def inspect(arrays, d, stats, dt):
         mom = arrays[name+'_mom'].reshape(shape).astype(float)
         v = np.divide(mom, mass, out=np.zeros_like(mass), where=mass>0)
         if axis==1:
-            v += float(np.float32(np.float32(-9.8)*np.float32(dt)))
+            # step_3d promotes dt_in to double before multiplying by gravity.
+            v += float(np.float32(-9.8))*float(np.float32(dt))
         v[tuple(sl)] = 0
         velocity_err.append(float(np.max(abs(v-before[axis]))))
     exported = [np.load(d/f'out_{n}.npy').reshape(v.shape) for n,v in zip(('u','v','w'),after)]
@@ -196,13 +197,13 @@ def inspect(arrays, d, stats, dt):
         and result['velocity_max_error_vs_independent']<2e-4
         and result['weighted_energy_after']<=result['weighted_energy_before']*(1+1e-10)
         and result['exported_velocity_roundtrip_exact'])
-    (d/'audit.json').write_text(json.dumps(result,indent=2))
+    (d/(suffix+'.json')).write_text(json.dumps(result,indent=2))
     return result
 
 
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--source',type=Path,required=True)
-    ap.add_argument('--out',type=Path,required=True);ap.add_argument('--stage',choices=('baseline','audit'),required=True)
+    ap.add_argument('--out',type=Path,required=True);ap.add_argument('--stage',choices=('baseline','audit','recheck'),required=True)
     a=ap.parse_args();source,out=a.source.resolve(),a.out.resolve();out.mkdir(parents=True,exist_ok=True)
     dll=ROOT/'nodes/build/PFFlipSpike-1.0.0/lib/PFFlipSpikeOps.dll'
     job=dict(kind='Existing 2D states: one-step pressure audits', source=str(source), command=sys.argv,
@@ -218,14 +219,22 @@ def main():
     for step in STEPS:
         rows={}
         for name,pre,tol in [('mg',1,1e-6),('jacobi',0,1e-6),('mg_tight',1,1e-10)]:
-            _,arrays,d,stats,dt=call(source,out,step,name,pre,tol,True)
-            rows[name]=inspect(arrays,d,stats,dt)
+            if a.stage=='recheck':
+                _,arrays,_=prepare(source,out,step)
+                d=out/f'state_{step}'/name
+                stats=json.loads((d/'stats.json').read_text())
+                dt=json.loads((d/'ports.json').read_text())['dt']
+            else:
+                _,arrays,d,stats,dt=call(source,out,step,name,pre,tol,True)
+            rows[name]=inspect(arrays,d,stats,dt,'audit_rechecked' if a.stage=='recheck' else 'audit')
             print(step,name,json.dumps(rows[name]),flush=True)
         if step==5600:
             control=out/f'state_{step}'/'control_unmodified'
-            rows['dump_does_not_change_outputs']=all(np.array_equal(np.load(f),np.load(out/f'state_{step}'/'mg'/f.name)) for f in control.glob('*.npy'))
+            files=list(control.glob('*.npy'))
+            assert files and {f.name for f in files} == {f.name for f in (out/f'state_{step}'/'mg').glob('*.npy')}
+            rows['dump_does_not_change_outputs']=all(np.array_equal(np.load(f),np.load(out/f'state_{step}'/'mg'/f.name)) for f in files)
         receipt[str(step)]=rows
-        (out/'receipt.json').write_text(json.dumps(receipt,indent=2))
+        (out/('receipt_rechecked.json' if a.stage=='recheck' else 'receipt.json')).write_text(json.dumps(receipt,indent=2))
     assert all(r['passed'] for rows in receipt.values() for r in rows.values() if isinstance(r,dict))
     assert receipt['5600']['dump_does_not_change_outputs']
 

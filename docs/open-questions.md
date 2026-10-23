@@ -4,6 +4,17 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **2D spray stability and phase contract (2026-10-23).** Independent NumPy and
+  Bifrost 20-second plunges fail the similarity gate, including a diagnostic with
+  matched phase definitions. The [pressure replay audit](pressure-replay-audit.md)
+  verifies the actual double-precision linear system in six cached states, with
+  two preconditioners and tighter tolerance; it does not find a loss of linear
+  convergence. The default mass-derived versus tag-derived phase mismatch is
+  significant. Full transfer/classification stability and phase fidelity remain
+  open. A capped-iteration negative control also exposes stale residual reporting
+  and no explicit refusal to advance an unconverged step; none of the original
+  8,000 steps reached the cap. Keep production blocked pending these checks.
+
 - **Force-driven replacement scene (2026-10-20).** The approved one-hour budget covers a
   two-dimensional and coarse three-dimensional particle preview, with old
   caches retained and no rendering. The [preview study](force-wave-preview.md)
