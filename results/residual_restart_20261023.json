@@ -1,0 +1,483 @@
+{
+  "before": {
+    "flow2d_jacobi": {
+      "1e-12": {
+        "iterations_used": 138.0,
+        "final_residual": 7.29858e-13,
+        "max_divergence_after": 1.23629e-12,
+        "max_speed": 2.37552,
+        "independent_true_residual": 7.298561679466061e-13,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": 144.0,
+        "final_residual": 9.55248e-14,
+        "max_divergence_after": 1.73084e-13,
+        "max_speed": 2.37552,
+        "independent_true_residual": 9.552489749812299e-14,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-14": {
+        "iterations_used": -2.0,
+        "final_residual": 5.04343e-14,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 5.043509749215328e-14,
+        "particle_output_written": false,
+        "particle_count": 0,
+        "restart_messages": 0
+      }
+    },
+    "flow3d_mg": {
+      "1e-12": {
+        "iterations_used": 20.0,
+        "final_residual": 3.36899e-13,
+        "max_divergence_after": 1.03979e-12,
+        "max_speed": 2.72136,
+        "independent_true_residual": 3.3689953308705297e-13,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": 21.0,
+        "final_residual": 6.67936e-14,
+        "max_divergence_after": 1.98334e-13,
+        "max_speed": 2.72136,
+        "independent_true_residual": 6.679360172308739e-14,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "restart_messages": 0
+      },
+      "1e-14": {
+        "iterations_used": -2.0,
+        "final_residual": 1.47873e-14,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 1.478774278285392e-14,
+        "particle_output_written": false,
+        "particle_count": 0,
+        "restart_messages": 0
+      }
+    },
+    "legacy2d": {
+      "1e-12": {
+        "iterations_used": 138.0,
+        "final_residual": 7.29401e-13,
+        "max_divergence_after": 1.23934e-12,
+        "max_speed": 2.37552,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": 144.0,
+        "final_residual": 9.29484e-14,
+        "max_divergence_after": 1.59928e-13,
+        "max_speed": 2.37552,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-14": {
+        "iterations_used": -2.0,
+        "final_residual": 5.30759e-14,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0,
+        "restart_messages": 0
+      }
+    },
+    "adaptive2d": {
+      "1e-12": {
+        "iterations_used": 24.0,
+        "final_residual": 9.94676e-13,
+        "max_divergence_after": 1.06204e-12,
+        "max_speed": 2.74313,
+        "particle_output_written": true,
+        "particle_count": 4096,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": -2.0,
+        "final_residual": 9.72117e-13,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0,
+        "restart_messages": 0
+      },
+      "1e-14": {
+        "iterations_used": -2.0,
+        "final_residual": 9.99054e-13,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0,
+        "restart_messages": 0
+      }
+    },
+    "observed_python": {
+      "steps_completed": 206,
+      "failure": {
+        "step": 206,
+        "message": "pressure did not converge: true residual 1.0000182014868704e-10, tolerance 1.000000013351432e-10",
+        "residual": 1.0000182014868704e-10
+      },
+      "restarts": []
+    }
+  },
+  "after": {
+    "flow2d_jacobi": {
+      "1e-12": {
+        "iterations_used": 138.0,
+        "final_residual": 7.29858e-13,
+        "max_divergence_after": 1.23629e-12,
+        "max_speed": 2.37552,
+        "independent_true_residual": 7.298561679466061e-13,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": 144.0,
+        "final_residual": 9.55248e-14,
+        "max_divergence_after": 1.73084e-13,
+        "max_speed": 2.37552,
+        "independent_true_residual": 9.552489749812299e-14,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-14": {
+        "iterations_used": 152.0,
+        "final_residual": 9.24363e-15,
+        "max_divergence_after": 2.06501e-14,
+        "max_speed": 2.37552,
+        "independent_true_residual": 9.243574849183925e-15,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 1
+      }
+    },
+    "flow3d_mg": {
+      "1e-12": {
+        "iterations_used": 20.0,
+        "final_residual": 3.36899e-13,
+        "max_divergence_after": 1.03979e-12,
+        "max_speed": 2.72136,
+        "independent_true_residual": 3.3689953308705297e-13,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": 21.0,
+        "final_residual": 6.67936e-14,
+        "max_divergence_after": 1.98334e-13,
+        "max_speed": 2.72136,
+        "independent_true_residual": 6.679360172308739e-14,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "restart_messages": 0
+      },
+      "1e-14": {
+        "iterations_used": 24.0,
+        "final_residual": 3.65118e-15,
+        "max_divergence_after": 1.02141e-14,
+        "max_speed": 2.72136,
+        "independent_true_residual": 3.6532766945996735e-15,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "restart_messages": 1
+      }
+    },
+    "legacy2d": {
+      "1e-12": {
+        "iterations_used": 138.0,
+        "final_residual": 7.29401e-13,
+        "max_divergence_after": 1.23934e-12,
+        "max_speed": 2.37552,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": 144.0,
+        "final_residual": 9.29484e-14,
+        "max_divergence_after": 1.59928e-13,
+        "max_speed": 2.37552,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 0
+      },
+      "1e-14": {
+        "iterations_used": 152.0,
+        "final_residual": 8.1107e-15,
+        "max_divergence_after": 1.4877e-14,
+        "max_speed": 2.37552,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "restart_messages": 1
+      }
+    },
+    "adaptive2d": {
+      "1e-12": {
+        "iterations_used": 24.0,
+        "final_residual": 9.94676e-13,
+        "max_divergence_after": 1.06204e-12,
+        "max_speed": 2.74313,
+        "particle_output_written": true,
+        "particle_count": 4096,
+        "restart_messages": 0
+      },
+      "1e-13": {
+        "iterations_used": -2.0,
+        "final_residual": 2.11367e-10,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0,
+        "restart_messages": 22
+      },
+      "1e-14": {
+        "iterations_used": -2.0,
+        "final_residual": 8.81303e-11,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0,
+        "restart_messages": 20
+      }
+    },
+    "observed_python": {
+      "steps_completed": 400,
+      "failure": null,
+      "restarts": [
+        {
+          "step": 206,
+          "count": 1,
+          "residual": 7.3492395299579e-11
+        }
+      ]
+    },
+    "cpp_recovered": [
+      {
+        "case": "flow2d_jacobi",
+        "tolerance": "1e-14",
+        "restarts": 1
+      },
+      {
+        "case": "flow3d_mg",
+        "tolerance": "1e-14",
+        "restarts": 1
+      },
+      {
+        "case": "legacy2d",
+        "tolerance": "1e-14",
+        "restarts": 1
+      }
+    ]
+  },
+  "regression": {
+    "rest2d": {
+      "converged": {
+        "iterations_used": 9.0,
+        "final_residual": 9.58933e-07,
+        "max_divergence_after": 3.39253e-07,
+        "max_speed": 0.192193,
+        "independent_true_residual": 9.589333846848528e-07,
+        "particle_output_written": true,
+        "particle_count": 2304,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 0.75876,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 0.7587595852909975,
+        "particle_output_written": false,
+        "particle_count": 0
+      }
+    },
+    "flow2d_jacobi": {
+      "converged": {
+        "iterations_used": 103.0,
+        "final_residual": 8.5019e-07,
+        "max_divergence_after": 1.47056e-06,
+        "max_speed": 2.37552,
+        "independent_true_residual": 8.501900649357125e-07,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 3.81696,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 3.816964726862217,
+        "particle_output_written": false,
+        "particle_count": 0
+      },
+      "last_allowed_iteration": {
+        "iterations_used": 103.0,
+        "final_residual": 8.5019e-07,
+        "max_divergence_after": 1.47056e-06,
+        "max_speed": 2.37552,
+        "independent_true_residual": 8.501900649357125e-07,
+        "particle_output_written": true,
+        "particle_count": 1920
+      }
+    },
+    "flow3d_mg": {
+      "converged": {
+        "iterations_used": 12.0,
+        "final_residual": 2.79046e-07,
+        "max_divergence_after": 9.68222e-07,
+        "max_speed": 2.72136,
+        "independent_true_residual": 2.7904586324243626e-07,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 1.07245,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 1.0724463498303745,
+        "particle_output_written": false,
+        "particle_count": 0
+      }
+    },
+    "flow3d_jacobi": {
+      "converged": {
+        "iterations_used": 92.0,
+        "final_residual": 6.85561e-07,
+        "max_divergence_after": 1.59422e-06,
+        "max_speed": 2.72136,
+        "independent_true_residual": 6.855605767874857e-07,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 1.35538,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 1.3553794177331526,
+        "particle_output_written": false,
+        "particle_count": 0
+      }
+    },
+    "cut3d": {
+      "converged": {
+        "iterations_used": 12.0,
+        "final_residual": 2.49515e-07,
+        "max_divergence_after": 7.71302e-07,
+        "max_speed": 3.13938,
+        "independent_true_residual": 2.495148661204922e-07,
+        "particle_output_written": true,
+        "particle_count": 24576,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 1.0365,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 1.0365022291378552,
+        "particle_output_written": false,
+        "particle_count": 0
+      }
+    },
+    "adaptive2d": {
+      "converged": {
+        "iterations_used": 15.0,
+        "final_residual": 2.70224e-07,
+        "max_divergence_after": 1.76818e-06,
+        "max_speed": 2.74313,
+        "particle_output_written": true,
+        "particle_count": 4096,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 0.93794,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0
+      }
+    },
+    "adaptive3d_cleanup": {
+      "converged": {
+        "iterations_used": 26.0,
+        "final_residual": 8.49685e-07,
+        "max_divergence_after": 1.43507e-06,
+        "max_speed": 3.40648,
+        "particle_output_written": true,
+        "particle_count": 73728,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 1.17924,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0
+      }
+    },
+    "zero_rhs": {
+      "converged": {
+        "iterations_used": 0.0,
+        "final_residual": 0.0,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 0.0,
+        "particle_output_written": true,
+        "particle_count": 576,
+        "bit_identical_output_arrays": 7
+      },
+      "capped": {
+        "iterations_used": 0.0,
+        "final_residual": 0.0,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "independent_true_residual": 0.0,
+        "particle_output_written": true,
+        "particle_count": 576,
+        "bit_identical_output_arrays": 7
+      }
+    },
+    "legacy2d": {
+      "converged": {
+        "iterations_used": 103.0,
+        "final_residual": 8.5019e-07,
+        "max_divergence_after": 1.47056e-06,
+        "max_speed": 2.37552,
+        "particle_output_written": true,
+        "particle_count": 1920,
+        "bit_identical_output_arrays": 5
+      },
+      "capped": {
+        "iterations_used": -2.0,
+        "final_residual": 3.81696,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": false,
+        "particle_count": 0
+      }
+    }
+  },
+  "scope": "Generic pressure candidate certification/restart; original spray problem remains open."
+}
