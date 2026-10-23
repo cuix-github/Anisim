@@ -565,7 +565,7 @@ Vec solve(const Hierarchy& h, Vec b, double tol, int maxIter, int& iterations, d
         rz = dot(r, z);
         if (rz == 0.0) break;
     }
-    if (it == maxIter) it = maxIter - 1;   // the reference's for-loop count
+    if (it == maxIter) it = std::max(0, maxIter - 1); // reference count; zero budget is not a failure code
     iterations = it;
     mean = 0.0;
     for (double v : x) mean += v;
@@ -765,6 +765,7 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
         res.converged = false;
         res.failureStage = "adaptive main";
         res.failureResidual = res.residual;
+        res.failureTolerance = settings.tolerance;
         return res;
     }
     lap(msSolve);
@@ -796,6 +797,7 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
                 res.converged = false;
                 res.failureStage = "adaptive cleanup";
                 res.failureResidual = res.cleanupResidual;
+                res.failureTolerance = tol2;
                 return res;
             }
             applyGradient(D, h2.ops[0], q, dt, out, beta);

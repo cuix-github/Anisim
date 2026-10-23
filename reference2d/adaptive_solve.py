@@ -253,6 +253,8 @@ class Operator:
         return out
 
     def solve(self, b, tol=1e-10, max_iter=20000):
+        if not np.isfinite(tol) or tol <= 0 or max_iter < 0:
+            raise ValueError('invalid adaptive pressure tolerance or iteration limit')
         # all-Neumann: null space is the constant vector, so project the
         # incompatible part out of b (A's row sums are zero, range _|_ 1)
         b = b - b.mean()
@@ -276,6 +278,9 @@ class Operator:
             d = z + (rz_new / max(rz, 1e-300)) * d
             rz = rz_new
         x -= x.mean()
+        self.residual = float(np.linalg.norm(b-self.matvec(x))/r0)
+        if not np.isfinite(self.residual) or self.residual > tol:
+            raise RuntimeError(f'adaptive pressure did not converge: true residual {self.residual:.17g}, tolerance {tol:.17g}')
         return x, it
 
 
@@ -333,6 +338,8 @@ class Multigrid:
         return self._smooth(op, x, b, 2)
 
     def solve(self, b, tol=1e-9, max_iter=2000):
+        if not np.isfinite(tol) or tol <= 0 or max_iter < 0:
+            raise ValueError('invalid adaptive pressure tolerance or iteration limit')
         op = self.ops[0]
         b = b - b.mean()
         x = np.zeros_like(b)
@@ -360,4 +367,7 @@ class Multigrid:
             if rz == 0.0:
                 break
         x -= x.mean()
+        self.residual = float(np.linalg.norm(b-op.matvec(x))/r0)
+        if not np.isfinite(self.residual) or self.residual > tol:
+            raise RuntimeError(f'adaptive pressure did not converge: true residual {self.residual:.17g}, tolerance {tol:.17g}')
         return x, it

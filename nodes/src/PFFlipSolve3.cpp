@@ -369,17 +369,17 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         }
         clearOutputs();
     };
-    auto refusePressure = [&](const char* stage, double residual) {
+    auto refusePressure = [&](const char* stage, double residual, double requestedTolerance) {
         using namespace Amino::MessageLiterals;
         services.logError("step_3d: pressure did not meet its true-residual tolerance; no particle state produced"_amt);
         std::fprintf(stderr, "step_3d: error: pressure %s failed; true residual=%.17g tolerance=%.17g; no particle state produced\n",
-                     stage, residual, static_cast<double>(tolerance));
+                     stage, residual, requestedTolerance);
         clearOutputs();
         iterations_used = -2;
         final_residual = static_cast<float>(residual);
     };
     if (!std::isfinite(dt) || dt <= 0.0 || !std::isfinite(tolerance) || tolerance <= 0.0f || max_iterations < 0) {
-        refusePressure("configuration", std::numeric_limits<double>::infinity());
+        refusePressure("configuration", std::numeric_limits<double>::infinity(), tolerance);
         return;
     }
     if (emit_model==2 || droplet_model==2) {
@@ -964,7 +964,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         Adaptive::Result ar = Adaptive::project(NX, NY, NZ, dt, as, junction, liquid, u, v, w,
                                                 L.bu, L.bv, L.bw);
         if (!ar.converged) {
-            refusePressure(ar.failureStage, ar.failureResidual);
+            refusePressure(ar.failureStage, ar.failureResidual, ar.failureTolerance);
             return;
         }
         p = std::move(ar.pressure);
@@ -1049,7 +1049,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             }
         }
         if (!std::isfinite(finalResidual) || finalResidual > tolerance) {
-            refusePressure("uniform", finalResidual);
+            refusePressure("uniform", finalResidual, tolerance);
             return;
         }
         lap(msSolve);
