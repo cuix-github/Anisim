@@ -32,8 +32,25 @@ def mask(x, y):
     return (y < 18) | ((abs(x-32) < 7) & (y > 39) & (y < 64))
 
 
-def make_sim(model=2):
-    s = Sim(NX, NY, alpha_l=float(np.float32(.97)), alpha_g=float(np.float32(.9)),
+class TagPhaseDiagnostic(Sim):
+    """Only for isolating the existing graph's weighted-tag pressure coefficient.
+
+    This is not Eq.7 and is not a replacement default for the reference.
+    No C++ projection or particle state is used to advance this reference.
+    """
+    def _face_phase(self):
+        assert not self.st and not self.adapt and not self.has_solids
+        valid = (~self.spray).astype(float)
+        fu,fv = self._face_frames()
+        du,nu = self._splat(self.u.shape,fu,[valid,valid*self.typ])
+        dv,nv = self._splat(self.v.shape,fv,[valid,valid*self.typ])
+        eps = float(np.float32(1e-6))
+        return np.clip(nu/(du+eps),0,1),np.clip(nv/(dv+eps),0,1)
+
+
+def make_sim(model=2, phase_law="mass"):
+    cls = Sim if phase_law=="mass" else TagPhaseDiagnostic
+    s = cls(NX, NY, alpha_l=float(np.float32(.97)), alpha_g=float(np.float32(.9)),
             g=float(np.float32(-9.8)), escape=True, esc_phi=float(np.float32(.3)),
             droplet=D, emit=dict(E, model=model), spray_cfl=.5)
     s.seed(mask, seed=1)
@@ -48,9 +65,9 @@ def save_py(path, s):
                         typ=s.typ, spr=s.spray, esc=s.escaped, rad=s.radius.astype(np.float32))
 
 
-def run_python(out, steps, dt, every, model):
+def run_python(out, steps, dt, every, model, phase_law="mass"):
     out.mkdir(parents=True)
-    s = make_sim(model)
+    s = make_sim(model, phase_law)
     records = []
     start = time.perf_counter()
     for j in range(steps):
@@ -75,7 +92,7 @@ def run_python(out, steps, dt, every, model):
                 emitted=sum(r["accepted"] for r in records), alive=int(s.spray.sum()))
 
 
-def run_cpp(out, steps, dt, every, model):
+def run_cpp(out, steps, dt, every, model, phase_law="mass"):
     if out.exists():
         raise FileExistsError("Preserve existing arm: " + str(out))
     s = make_sim(model)
@@ -99,7 +116,8 @@ def load_frame(out, arm, step):
     if arm=="python":
         with np.load(out/arm/f"frame.{step:04d}.npz") as a:
             return {k:a[k] for k in a.files}
-    d = out/arm
+    job = json.loads((out/"job.json").read_text())
+    d = Path(job["comparison_cpp_source"])/arm if job.get("comparison_cpp_source") else out/arm
     return dict(pos=np.load(d/f"frame.{step:04d}.npy")[:,:2],
                 vel=np.load(d/f"vel.{step:04d}.npy")[:,:2],
                 typ=np.load(d/f"ph.{step:04d}.npy")>.5,
@@ -138,6 +156,8 @@ def main():
     p.add_argument("--dt", type=float, default=.01)
     p.add_argument("--every", type=int, default=10)
     p.add_argument("--model", type=int, choices=(1,2), default=2)
+    p.add_argument("--phase-law", choices=("mass","tag"), default="mass")
+    p.add_argument("--bifrost-from", type=Path)
     p.add_argument("--phase", choices=("all","python","bifrost","compare"), default="all")
     a = p.parse_args(); out = a.out.resolve()
     dt, steps = float(np.float32(a.dt)), round(a.seconds/a.dt)
@@ -155,6 +175,7 @@ def main():
         job = dict(kind="2D spray validation", owner="codex", created="2026-10-23", commit=sha,
                    worktree=str(ROOT), dirty=dirty, reads="generated 2D seed only", nx=NX, ny=NY,
                    dt=dt, steps=steps, dump_every=a.every, droplet=D, emission=dict(E,model=a.model),
+                   phase_law=a.phase_law, comparison_cpp_source=str(a.bifrost_from.resolve()) if a.bifrost_from else None,
                    binary_sha256=hashlib.sha256(dll.read_bytes()).hexdigest(), command=sys.argv,
                    retention="small reproducible validation; existing 40s data untouched")
         job_path.write_text(json.dumps(job,indent=2), encoding="utf-8")
@@ -162,7 +183,7 @@ def main():
     receipt = json.loads(receipt_path.read_text()) if receipt_path.exists() else {}
     for name, fn in (("bifrost",run_cpp),("python",run_python)):
         if a.phase in ("all",name):
-            receipt[name] = fn(out/name,steps,dt,a.every,a.model)
+            receipt[name] = fn(out/name,steps,dt,a.every,a.model,a.phase_law)
             receipt[name]["commit"] = subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
             receipt[name]["reference_sha256"] = hashlib.sha256((ROOT/"reference2d/pfflip2d.py").read_bytes()).hexdigest()
             receipt_path.write_text(json.dumps(receipt,indent=2))
