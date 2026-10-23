@@ -27,10 +27,10 @@ NX, NY, DT = 160, 80, 0.02
 def channels(sim):
     """The node's input channels from a reference state: per-face weighted means."""
     m = sim.masses()
-    ones = np.ones(len(sim.pos))
+    ones = (~sim.spray).astype(float) if len(sim.spray) == len(sim.pos) else np.ones(len(sim.pos))
     fu, fv = sim._face_frames()
-    mu, pu, su, qu = sim._splat(sim.u.shape, fu, [m, m * sim.vel[:, 0], ones, sim.typ.astype(float)])
-    mv, pv, sv, qv = sim._splat(sim.v.shape, fv, [m, m * sim.vel[:, 1], ones, sim.typ.astype(float)])
+    mu, pu, su, qu = sim._splat(sim.u.shape, fu, [m, m * sim.vel[:, 0], ones, ones*sim.typ])
+    mv, pv, sv, qv = sim._splat(sim.v.shape, fv, [m, m * sim.vel[:, 1], ones, ones*sim.typ])
 
     def mean(num, den):
         return np.where(den > 0, num / np.maximum(den, 1e-300), 0.0)
