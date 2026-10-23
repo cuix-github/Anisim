@@ -53,7 +53,7 @@ class TransportContractSim(PhaseContractSim):
     def transport_fields(self):
         values=[self.u,self.v]
         if self.transport_model<2:return values
-        # An interior face touching a liquid cell has nonzero phi in mode 2.
+        # Seed from faces carrying nonzero liquid phase, including mixed faces.
         # Wall-normal samples stay exactly zero rather than being extrapolated.
         fields=[]
         for axis,(v,phi) in enumerate(zip(values,self._face_phase())):

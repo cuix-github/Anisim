@@ -955,6 +955,10 @@ def build3d_fused():
         top["connections"].append({"source":"."+n,"target":"loop."+n})
         body["connections"].append({"source":"."+n,"target":"p2g."+n})
     body["connections"].append({"source":".phase_model","target":"step.phase_model"})
+    top["ports"].append(P("transport_model","input","int","0"))
+    body["ports"].append(P("transport_model","input","int"))
+    top["connections"].append({"source":".transport_model","target":"loop.transport_model"})
+    body["connections"].append({"source":".transport_model","target":"step.transport_model"})
     for n in ("rho_liquid","rho_air","rho0_face"):
         body["connections"].append({"source":"."+n,"target":"p2g."+n})
     chans = [g2 + s for g2 in ("u", "v", "w", "u2", "v2", "w2")

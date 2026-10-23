@@ -760,6 +760,12 @@
      "portDirection": "input",
      "portType": "float",
      "portDefault": "1f"
+    },
+    {
+     "portName": "transport_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
     }
    ],
    "compounds": [
@@ -1347,6 +1353,11 @@
        "portName": "phase_alpha",
        "portDirection": "input",
        "portType": "float"
+      },
+      {
+       "portName": "transport_model",
+       "portDirection": "input",
+       "portType": "int"
       }
      ],
      "compounds": [],
@@ -2225,6 +2236,10 @@
       {
        "source": ".phase_model",
        "target": "step.phase_model"
+      },
+      {
+       "source": ".transport_model",
+       "target": "step.transport_model"
       },
       {
        "source": ".rho_liquid",
@@ -3470,6 +3485,10 @@
     {
      "source": ".phase_alpha",
      "target": "loop.phase_alpha"
+    },
+    {
+     "source": ".transport_model",
+     "target": "loop.transport_model"
     }
    ],
    "values": [

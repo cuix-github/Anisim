@@ -3,6 +3,7 @@
 #include "PFFlipScatter.h"
 #include "PFFlipSolids.h"
 #include "PFFlipSprayEvents.h"
+#include "PFFlipTransport.h"
 
 #include <algorithm>
 #include <chrono>
@@ -275,7 +276,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float rho_air, float alpha_liquid, float alpha_air, int max_iterations,
              float tolerance, int preconditioner, int pressure_solver,
              int adaptive_band, int adaptive_levels, int escape, float esc_phi,
-             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model,
+             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model,
              int st, int st_seed, int step_index,
              int adapt, float coarse_gain, float ws_epsilon,
              const Amino::Array<float>& scale_in,
@@ -424,6 +425,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nu = static_cast<size_t>(NX + 1) * NY * NZ;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
+    if (transport_model!=0 && (transport_model<1 || transport_model>3 || phase_model!=2 || NZ!=1 ||
+                               escape || st || adapt || emit_model || droplet_model)) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: transport experiment requires uniform 2D phase mode 2 without spray"_amt);
+        std::fprintf(stderr,"step_3d: error: unsupported experimental transport configuration\n");
+        clearOutputs(); return;
+    }
     bool phaseObstacle=false;
     if (phase_model!=0) for (size_t b=0;b<std::min(obstacles_min.size(),obstacles_max.size());++b) {
         const auto& lo=obstacles_min[b]; const auto& hi=obstacles_max[b];
@@ -1473,8 +1481,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         const char* e = std::getenv("PFFLIP_SOLID_DEBUG");
         return e && e[0] == '1';
     }();
-    long long lsPushed = 0;
-#pragma omp parallel for schedule(dynamic, 1024) reduction(+ : lsPushed)
+    Vec advU,advV;
+    if (transport_model>=2) {
+        advU=Transport::extend2(u,chP_u,NX+1,NY,0);
+        advV=Transport::extend2(v,chP_v,NX,NY+1,1);
+    }
+    long long lsPushed = 0, transportFailures=0;
+#pragma omp parallel for schedule(dynamic, 1024) reduction(+ : lsPushed, transportFailures)
     for (long long pi = 0; pi < lnp; ++pi) {
         double px = positions[pi].x, py = positions[pi].y, pz = positions[pi].z;
         double vx = nvx[pi], vy = nvy[pi], vz = nvz[pi];
@@ -1490,6 +1503,20 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         } else if (escFlag[pi]) {
             px += dtAct * vx; py += dtAct * vy;
             if (!flat) pz += dtAct * vz;
+        } else if (transport_model!=0) {
+            const Vec& au=liquid && transport_model>=2 ? advU : u;
+            const Vec& av=liquid && transport_model>=2 ? advV : v;
+            auto sample=[&](double x,double y) {
+                return std::array<double,2>{sU(au,x,y,pz),sV(av,x,y,pz)};
+            };
+            if (transport_model==1 || transport_model==3) {
+                if (!Transport::rk3(px,py,dtAct,sample)) ++transportFailures;
+            } else {
+                const auto k1=sample(px,py);
+                const auto k2=sample(std::max(px+.5*dtAct*k1[0],.51),
+                                     std::max(py+.5*dtAct*k1[1],.51));
+                px+=dtAct*k2[0];py+=dtAct*k2[1];
+            }
         } else if (stOn) {
             double rem = dtAct;
             for (int r = 0; rem > 1e-12 && r < 64; ++r) {
@@ -1546,6 +1573,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         Esc[pi] = escFlag[pi]; Rad[pi] = radNew[pi]; Spray[pi] = sprayF[pi];
     }
 
+    if (transportFailures) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: experimental transport failed; no particle state produced"_amt);
+        std::fprintf(stderr,"step_3d: error: experimental transport failed for %lld particles\n",transportFailures);
+        clearOutputs(); return;
+    }
     if (lsDebug)
         std::fprintf(stderr, "step_3d: level set %s; pushed %lld of %zu particles out\n",
                      lsOn ? "on" : "off", lsPushed, np);

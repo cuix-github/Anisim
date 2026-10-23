@@ -821,6 +821,12 @@
           "portDirection": "input",
           "portType": "float",
           "portDefault": "0.01f"
+        },
+        {
+          "portName": "transport_model",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
         }
       ],
       "compoundNodes": [
@@ -2073,6 +2079,10 @@
         {
           "source": ".spray_dt_max",
           "target": "step.spray_dt_max"
+        },
+        {
+          "source": ".transport_model",
+          "target": "step.transport_model"
         }
       ],
       "values": [
