@@ -48,12 +48,14 @@ def main():
             g=float(np.float32(-9.8)),alpha_l=float(np.float32(.97)),alpha_g=float(np.float32(.9)))
         s.seed(lambda x,y:(y<18)|((abs(x-56)<7)&(y>39)&(y<64)),seed=1)
         s.calibrate();s.rho0_face=float(np.float32(s.rho0_face));s.pos=s.pos.astype(np.float32).astype(float)
-    initial=measures(s.pos,s.vel,s.typ);rows=[];start=time.perf_counter()
+    initial=measures(s.pos,s.vel,s.typ);rows=[];restarts=[];start=time.perf_counter()
     job=dict(kind='Transport ablation',mode=a.mode,case=a.case,steps=steps,dt=dt,initial=initial,
         commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),analytic=analytic())
     (out/'job.json').write_text(json.dumps(job,indent=2))
     for j in range(steps):
         s.step(dt)
+        if getattr(s,'pressure_restarts',0):
+            restarts.append(dict(step=j,count=s.pressure_restarts,true_residual=s.pressure_residual))
         for n in ('pos','vel','radius','scale','tau'):setattr(s,n,getattr(s,n).astype(np.float32).astype(float))
         assert np.isfinite(s.pos).all() and np.isfinite(s.vel).all()
         if j%40==0:
@@ -71,7 +73,7 @@ def main():
     (out/'metrics.json').write_text(json.dumps(rows,indent=2))
     result=dict(wall_seconds=time.perf_counter()-start,final=final,
         max_sampled_energy_ratio=max([initial['energy'],final['energy']]+[r['energy'] for r in rows])/initial['energy'],
-        bit_identical_control=bool(a.control))
+        bit_identical_control=bool(a.control),pressure_restarts=restarts)
     (out/'receipt.json').write_text(json.dumps(result,indent=2));print(json.dumps(result),flush=True)
 
 

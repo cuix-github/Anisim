@@ -1,5 +1,6 @@
 """Independent full trajectories using the same unchanged similarity thresholds."""
 import argparse
+import hashlib
 import json
 from pathlib import Path
 import subprocess
@@ -28,6 +29,7 @@ def main():
     initial=measures(s.pos,s.vel,s.typ)
     (out/'job.json').write_text(json.dumps(dict(source=str(source),commit=subprocess.check_output(
         ['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),**{k:job[k] for k in ('mode','case','steps','dt')},
+        binary_sha256=hashlib.sha256((ROOT/'nodes/build/PFFlipSpike-1.0.0/lib/PFFlipSpikeOps.dll').read_bytes()).hexdigest(),
         thresholds=dict(tv=.05,com_cells=.2,height_p99_cells=1)),indent=2))
     d=out/'bifrost';cpp(s,d,job['steps'],job['dt'],40)
     stats=[];rows=[]
