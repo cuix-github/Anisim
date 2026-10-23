@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <limits>
 #include <vector>
 
@@ -157,7 +158,24 @@ void step_2d(int nx, int ny, float dt_in, float gravity, float rho_liquid, float
     for (it = 0; it < max_iterations; ++it) {
         rr = 0.0;
         for (size_t k = 0; k < ncell; ++k) rr += r.a[k] * r.a[k];
-        if (std::sqrt(rr) / r0 < tolerance) break;
+        if (std::sqrt(rr) / r0 < tolerance) {
+            applyA(p, q);
+            double actual2 = 0.0;
+            for (size_t k = 0; k < ncell; ++k) {
+                const double e = rhs.a[k] - q.a[k]; actual2 += e * e;
+            }
+            const double certified = std::sqrt(actual2) / r0;
+            if (!std::isfinite(certified) || certified <= tolerance) break;
+            rz = 0.0;
+            for (size_t k = 0; k < ncell; ++k) {
+                r.a[k] = rhs.a[k] - q.a[k];
+                z.a[k] = diagInv.a[k] * r.a[k];
+                rz += r.a[k] * z.a[k];
+            }
+            d = z;
+            if (std::getenv("PFFLIP_RESIDUAL_RESTART_TRACE"))
+                std::fprintf(stderr,"residual-restart: legacy2d iteration=%d true=%.17g tolerance=%.17g\n",it,certified,static_cast<double>(tolerance));
+        }
         applyA(d, q);
         double dq = 0.0;
         for (size_t k = 0; k < ncell; ++k) dq += d.a[k] * q.a[k];

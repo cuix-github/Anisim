@@ -548,7 +548,23 @@ Vec solve(const Hierarchy& h, Vec b, double tol, int maxIter, int& iterations, d
     const double r0 = std::max(std::sqrt(dot(r, r)), 1e-300);
     int it = 0;
     for (it = 0; it < maxIter; ++it) {
-        if (std::sqrt(dot(r, r)) / r0 < tol) break;
+        if (std::sqrt(dot(r, r)) / r0 < tol) {
+            // Certification includes the gauge normalization performed on return.
+            Vec candidate = x;
+            double xm = 0.0;
+            for (double v : candidate) xm += v;
+            xm /= static_cast<double>(n);
+            for (double& v : candidate) v -= xm;
+            op.matvec(candidate, q);
+            Vec actual(n);
+            for (size_t c = 0; c < n; ++c) actual[c] = b[c] - q[c];
+            const double certified = std::sqrt(dot(actual, actual)) / r0;
+            if (!std::isfinite(certified) || certified <= tol) break;
+            x.swap(candidate); r.swap(actual);
+            z = vcycle(h, 0, r); d = z; rz = dot(r, z);
+            if (std::getenv("PFFLIP_RESIDUAL_RESTART_TRACE"))
+                std::fprintf(stderr,"residual-restart: adaptive iteration=%d true=%.17g tolerance=%.17g\n",it,certified,tol);
+        }
         op.matvec(d, q);
         const double dq = dot(d, q);
         if (dq == 0.0) break;

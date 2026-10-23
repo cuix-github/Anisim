@@ -266,9 +266,19 @@ class Operator:
         rz = r @ z
         r0 = max(np.sqrt(r @ r), 1e-300)
         it = 0
+        self.residual_restarts = 0
         for it in range(max_iter):
             if np.sqrt(r @ r) / r0 < tol:
-                break
+                candidate = x - x.mean()  # certify the returned pressure gauge
+                actual = b - self.matvec(candidate)
+                certified = float(np.linalg.norm(actual) / r0)
+                if not np.isfinite(certified) or certified <= tol:
+                    break
+                x, r = candidate, actual
+                z = dinv * r
+                d = z.copy()
+                rz = r @ z
+                self.residual_restarts += 1
             q = self.matvec(d)
             a = rz / max(d @ q, 1e-300)
             x += a * d
@@ -349,9 +359,19 @@ class Multigrid:
         rz = r @ z
         r0 = max(np.sqrt(r @ r), 1e-300)
         it = 0
+        self.residual_restarts = 0
         for it in range(max_iter):
             if np.sqrt(r @ r) / r0 < tol:
-                break
+                candidate = x - x.mean()
+                actual = b - op.matvec(candidate)
+                certified = float(np.linalg.norm(actual) / r0)
+                if not np.isfinite(certified) or certified <= tol:
+                    break
+                x, r = candidate, actual
+                z = self._vcycle(0, r)
+                d = z.copy()
+                rz = r @ z
+                self.residual_restarts += 1
             q = op.matvec(d)
             dq = d @ q
             if dq == 0.0:

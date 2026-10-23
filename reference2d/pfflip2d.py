@@ -920,9 +920,20 @@ class Sim:
         rz = float((r * z).sum())
         r0 = np.sqrt(float((r * r).sum())) or 1.0
         it = 0
+        self.pressure_restarts = 0
         for it in range(max_iter):
             if np.sqrt(float((r * r).sum())) / r0 < tol:
-                break
+                actual = b - A(p)
+                certified = float(np.linalg.norm(actual) / r0)
+                if not np.isfinite(certified) or certified <= tol:
+                    break
+                # Recursive residuals accumulate rounding error. Continue from
+                # this iterate with b-Ap, within the original iteration budget.
+                r = actual
+                z = inv_diag * r
+                d = z.copy()
+                rz = float((r * z).sum())
+                self.pressure_restarts += 1
             q = A(d)
             a = rz / float((d * q).sum())
             p += a * d

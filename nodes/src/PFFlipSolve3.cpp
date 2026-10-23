@@ -1010,7 +1010,22 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         for (it = 0; it < max_iterations; ++it) {
             rr2 = 0.0;
             for (size_t c = 0; c < ncell; ++c) rr2 += r[c] * r[c];
-            if (std::sqrt(rr2) / r0 < tolerance) break;
+            if (std::sqrt(rr2) / r0 < tolerance) {
+                applyA(F, p, q);
+                double actual2 = 0.0;
+                for (size_t c = 0; c < ncell; ++c) {
+                    const double e = rhs[c] - q[c]; actual2 += e * e;
+                }
+                const double certified = std::sqrt(actual2) / r0;
+                if (!std::isfinite(certified) || certified <= tolerance) break;
+                for (size_t c = 0; c < ncell; ++c) r[c] = rhs[c] - q[c];
+                precond(r, z);
+                d = z;
+                rz = 0.0;
+                for (size_t c = 0; c < ncell; ++c) rz += r[c] * z[c];
+                if (std::getenv("PFFLIP_RESIDUAL_RESTART_TRACE"))
+                    std::fprintf(stderr,"residual-restart: uniform iteration=%d true=%.17g tolerance=%.17g\n",it,certified,static_cast<double>(tolerance));
+            }
             applyA(F, d, q);
             double dq = 0.0;
             for (size_t c = 0; c < ncell; ++c) dq += d[c] * q[c];
