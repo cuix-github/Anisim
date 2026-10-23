@@ -33,12 +33,25 @@ class PhaseContractSim(Sim):
         super().__init__(*args,**kw)
         if phase_model not in (1,2) or not np.isfinite(phase_alpha) or phase_alpha<=0:
             raise ValueError('phase model must be 1/2 with positive alpha')
+        if self.escape==2 and (phase_model!=2 or not np.isfinite(self.esc_phi) or not 0<self.esc_phi<.5):
+            raise ValueError('phase-based escape requires phase_model=2 and 0<esc_phi<0.5')
         if self.st or self.adapt or self.has_solids or self.zone is not None:
             raise ValueError('phase contract currently requires uniform, non-ST, unobstructed domain')
         self.phase_model,self.phase_alpha=phase_model,phase_alpha
         self.port_rounding,self.pressure_tolerance=port_rounding,pressure_tolerance
         self._contract_faces=None
         self._port_momentum=None
+
+    def escape_phase_samples(self):
+        """Explicit MAC interpolation choice for PF §3.4 (escape=2 only).
+
+        Average the bilinear interpolants of the two already compressed and
+        pure-face-adjusted phase grids. This is not a number-density estimate.
+        """
+        if self.phase_model != 2:
+            raise ValueError('phase-based escape requires phase_model=2')
+        return .5*(self._sample_faces(self._contract_faces[0],np.array([0.,.5]),self.pos)+
+                   self._sample_faces(self._contract_faces[1],np.array([.5,0.]),self.pos))
 
     def _round(self,a):
         return a.astype(np.float32).astype(float) if self.port_rounding else a

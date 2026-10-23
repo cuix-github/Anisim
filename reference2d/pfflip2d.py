@@ -59,6 +59,8 @@ class Sim:
         # it says liquid is a bubble (buoyancy + drag). Both skip the FLIP blend and the
         # grid advection until they rejoin their own phase.
         self.escape, self.esc_phi = escape, esc_phi
+        if escape==2 and not callable(getattr(self,'escape_phase_samples',None)):
+            raise ValueError('phase-based escape requires an explicit phase contract')
         self.drag_droplet, self.drag_bubble, self.buoyancy = drag_droplet, drag_bubble, buoyancy
         self.escaped = np.zeros(0, dtype=bool)
         # Droplet radii (PF-FLIP Section 7), OFF by default: with droplet=dict(...)
@@ -1032,13 +1034,23 @@ class Sim:
             frac_liq = 0.5 * (self._sample_faces(lu, np.array([0.0, 0.5]), self.pos) +
                               self._sample_faces(lv, np.array([0.5, 0.0]), self.pos))
             drop = (self.typ == 1) & (frac_air > thresh)
+            # Opt-in classification audit. esc_phi=.3 is the lower threshold
+            # (paper delta_phi=.2), NOT the paper's delta itself. Keep the
+            # legacy count rule byte-for-byte for escape=True / 1.
+            if self.escape == 2:
+                phase_at_particle = self.escape_phase_samples()
+                drop = (self.typ == 1) & (phase_at_particle < self.esc_phi)
             if self.zone is not None:
                 drop &= ~(self.pos[:, 0] < self.zone["length"])   # the zone's liquid is the zone's to move
             bub = (self.typ == 0) & (frac_liq > thresh)
+            if self.escape == 2:
+                bub = (self.typ == 0) & (phase_at_particle > 1.0-self.esc_phi)
             # emitted spray is a droplet whatever the test says, and falls back into
             # the water (deleted below) where the test would call it liquid
             drop = drop | self.spray
             inside = self.spray & (frac_liq > thresh)
+            if self.escape == 2:
+                inside = self.spray & (phase_at_particle > 1.0-self.esc_phi)
             esc = drop | bub
             self.escaped = esc
             lf = frac_liq / self.rho0_face

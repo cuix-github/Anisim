@@ -425,6 +425,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nu = static_cast<size_t>(NX + 1) * NY * NZ;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
+    if (escape==2 && (phase_model!=2 || NZ!=1 || !std::isfinite(esc_phi) || esc_phi<=0 || esc_phi>=.5f)) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: invalid phase-based escape configuration"_amt);
+        std::fprintf(stderr,"step_3d: error: phase-based escape requires uniform 2D phase_model=2 and 0<esc_phi<0.5\n");
+        clearOutputs();
+        return;
+    }
     if (transport_model!=0 && (transport_model<1 || transport_model>3 || phase_model!=2 || NZ!=1 ||
                                escape || st || adapt || emit_model || droplet_model)) {
         using namespace Amino::MessageLiterals;
@@ -1283,12 +1290,19 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 const double frac = sampleCnt(cntU[other], cntV[other], cntW[other],
                                               qx[pi], qy[pi], qz[pi]);
                 escFlag[pi] = frac > thresh ? 1 : 0;
+                // Experimental §3.4 classification. The existing esc_phi port
+                // denotes the lower cutoff (.3), i.e. .5 - paper delta_phi.
+                // MAC-face interpolation is an explicit implementation choice.
+                const double localPhase = escape==2 ? sampleCnt(chP_u, chP_v, chP_w,
+                    qx[pi], qy[pi], qz[pi]) : 0.0;
+                if (escape==2) escFlag[pi] = isLiq[pi] ? localPhase<esc_phi : localPhase>1.0-esc_phi;
                 // the wave zone's liquid is the zone's to move, never a droplet
                 if (zoneOn && isLiq[pi] && qx[pi] < zoneLen) escFlag[pi] = 0;
                 if (sprayF[pi]) {
                     escFlag[pi] = 1;
                     const double fl = sampleCnt(cntU[1], cntV[1], cntW[1], qx[pi], qy[pi], qz[pi]);
                     insideF[pi] = fl > thresh ? 1 : 0;
+                    if (escape==2) insideF[pi] = localPhase>1.0-esc_phi ? 1 : 0;
                 } else if (emitOn && isLiq[pi]) {
                     lfP[pi] = sampleCnt(cntU[1], cntV[1], cntW[1], qx[pi], qy[pi], qz[pi]) /
                               static_cast<double>(rho0_face);

@@ -21,8 +21,8 @@ from phase_contract import PhaseContractSim
 from loop3d import run_bifrost3
 
 
-def make(layer, model=2, tol=1e-6, dt=.0025):
-    escape = layer != 'base'
+def make(layer, model=2, tol=1e-6, dt=.0025, escape_rule=1):
+    escape = escape_rule if layer != 'base' else 0
     # Preserve the original FLIP weights at the original dt; when subdividing,
     # preserve the Eq.13 viscosity proxy, rather than silently doubling damping.
     ratio = dt/.0025
@@ -88,12 +88,13 @@ def main():
     p.add_argument('--model',type=int,choices=(1,2),default=2)
     p.add_argument('--seconds',type=float,default=20);p.add_argument('--dt',type=float,default=.0025)
     p.add_argument('--tolerance',type=float,default=1e-6);p.add_argument('--every',type=int,default=40)
+    p.add_argument('--escape-rule',type=int,choices=(1,2),default=1)
     a=p.parse_args()
     dirty=subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()
     if dirty: raise RuntimeError('Commit experiment first: '+dirty)
     out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
     dt=float(np.float32(a.dt));steps=round(a.seconds/a.dt)
-    s=make(a.layer,a.model,a.tolerance,a.dt)
+    s=make(a.layer,a.model,a.tolerance,a.dt,a.escape_rule)
     dll=ROOT/'nodes/build/PFFlipSpike-1.0.0/lib/PFFlipSpikeOps.dll'
     job=dict(kind='Independent uniform phase repair experiment',commit=subprocess.check_output(
         ['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),command=sys.argv,
@@ -104,13 +105,14 @@ def main():
         droplet=D if s.escape else None,emission=E if s.emit else None,escape=s.escape,
         esc_phi=s.esc_phi,transport_model=0,independent_momentum_port=True,
         thresholds=dict(tv=.15,com_cells=1,height_p99_cells=4),
-        scope='2D uniform; no ST/adapt/solids; existing escape law unchanged')
+        omp_num_threads=os.environ.get('OMP_NUM_THREADS','runtime default'),
+        scope='2D uniform; no ST/adapt/solids; escape=1 count law, escape=2 phase threshold only')
     (out/'job.json').write_text(json.dumps(job,indent=2))
     np.savez_compressed(out/'initial.npz',pos=s.pos,vel=s.vel,typ=s.typ,spr=s.spray,
                         esc=s.escaped,rad=s.radius)
     receipt={}
     for name,fn in [('bifrost',cpp),('python',py)]:
-        receipt[name]=fn(out/name,make(a.layer,a.model,a.tolerance,a.dt),steps,dt,a.every)
+        receipt[name]=fn(out/name,make(a.layer,a.model,a.tolerance,a.dt,a.escape_rule),steps,dt,a.every)
         (out/'runtime.json').write_text(json.dumps(receipt,indent=2))
     print(json.dumps(receipt,indent=2),flush=True)
 
