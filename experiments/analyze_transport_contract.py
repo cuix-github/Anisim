@@ -15,9 +15,11 @@ def main():
     p=argparse.ArgumentParser();p.add_argument('--root',required=True,type=Path)
     p.add_argument('--out',required=True,type=Path);a=p.parse_args()
     root=a.root.resolve();out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
-    result=dict(scope='Uniform 2D; escape/emission/ST/adapt off. Not full-spray or production acceptance.',runs={})
+    result=dict(scope='Uniform 2D; escape/emission/ST/adapt off. Not full-spray or production acceptance.',runs={},incomplete_runs=[])
     for d in sorted(root.iterdir()):
-        if not d.is_dir() or not (d/'receipt.json').exists() or not (d/'job.json').exists():continue
+        if not d.is_dir() or not (d/'job.json').exists():continue
+        if not (d/'receipt.json').exists():
+            result['incomplete_runs'].append(d.name);continue
         job,rec=read(d/'job.json'),read(d/'receipt.json')
         if 'mode' not in job:continue
         result['runs'][d.name]=dict(job=job,receipt={k:v for k,v in rec.items() if k!='comparison'})
@@ -55,6 +57,20 @@ def main():
     axes[0].set_ylabel('y (cells)')
     fig.suptitle('Actual 6 s states | blue: water, grey: air | escape / spray OFF\nTransport changes are modest; independent height-tail gate still fails')
     fig.savefig(out/'before_after.png',dpi=180);plt.close(fig)
+    # Generality check: show the wider tank and every ablation, including regressions.
+    wide=[('wide_control_r2','cpp_wide_control','Original'),('wide_rk3_only','cpp_wide_rk3_only','RK3 only'),
+          ('wide_extrap_only','cpp_wide_extrap_only','Extension only'),('wide_extrap_rk3_r2','cpp_wide_extrap_rk3','Extension + RK3')]
+    fig,axes=plt.subplots(1,2,figsize=(12,4.4),layout='constrained')
+    for (py,cp,label),col in zip(wide,('grey','#b47422','#2778b8','#36854a')):
+        for ax,name in zip(axes,(py,cp)):
+            job=read(root/py/'job.json');rec=read(root/name/'receipt.json')
+            rows=read(root/name/'metrics.json')+[dict(time=6,**rec['final'])]
+            ax.plot([r['time'] for r in rows],[r['energy']/job['initial']['energy'] for r in rows],c=col,label=label)
+    for ax,title in zip(axes,('Independent NumPy','Actual Bifrost graph')):
+        ax.set(title=title,xlabel='Simulation time (s)',ylabel='Particle mechanical energy / initial')
+        ax.set_ylim(.97,1.09);ax.grid(alpha=.2);ax.axhline(1,c='grey',ls=':')
+    axes[0].legend(fontsize=9);fig.suptitle('112 x 80 wider tank | one seed | no uniform benefit across transport choices')
+    fig.savefig(out/'wide_energy.png',dpi=160);plt.close(fig)
     print(json.dumps({n:dict(mode=r['job']['mode'],case=r['job']['case'],
         energy=r['receipt']['max_sampled_energy_ratio'],similarity=r['receipt'].get('similarity_pass'),
         rest=r.get('still_water_gate')) for n,r in result['runs'].items()},indent=2))
