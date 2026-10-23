@@ -23,6 +23,7 @@ from spray_events_2d import NX, NY, make_sim, run_cpp, save_py
 from phase_contract import PhaseContractSim
 from trace_phase_sequence import read_record, delta
 from loop3d import FINAL_STATE
+import spray_events
 
 
 class LegacyPortSim(PhaseContractSim):
@@ -49,6 +50,23 @@ class LegacyPortSim(PhaseContractSim):
             faces.append(self._round(np.clip(tag / denominator, 0, 1)))
         self._contract_faces = tuple(faces)
         self._enforce_walls()
+
+    def _emit(self, dt, lf):
+        self._audit_liquid_fraction = lf
+        return super()._emit(dt, lf)
+
+    def _emit_clouds(self, dt, idx, cells, gp):
+        # Read-only event provenance: requested events, not accepted children.
+        E = self.emit
+        lam = E['rate'] * (gp[idx] - E['grad_threshold']) * dt
+        events = spray_events.requested_events(lam,
+            spray_events.keys(int(E['seed']), self.nstep, idx))
+        self.source_events = [dict(source=int(i), events=int(n), x=float(self.pos[i, 0]),
+            y=float(self.pos[i, 1]), gradient=float(gp[i]),
+            liquid_fraction=float(self._audit_liquid_fraction[i]),
+            source_speed=float(np.linalg.norm(self.vel[i])))
+            for i, n in zip(idx, events) if n]
+        return super()._emit_clouds(dt, idx, cells, gp)
 
 
 def make_matched(tol=1e-6):
@@ -112,7 +130,7 @@ def run_reference(out, graph, mode, steps, dt, every, tol):
     (out / 'job.json').write_text(json.dumps(job, indent=2))
     s = make_matched(tol)
     p2g, project = s.p2g, s.project
-    rows, events = [], []
+    rows, events, sources = [], [], []
     cpp_events = json.loads((graph / 'bifrost/ledger.json').read_text())
     first_grid = None
     first_event = None
@@ -148,6 +166,7 @@ def run_reference(out, graph, mode, steps, dt, every, tol):
             ev = dict(s.emission_stats)
             ev.update(step=j, time=(j+1)*dt, primary=int((~s.spray).sum()))
             events.append(ev)
+            sources.extend(dict(step=j, **e) for e in s.source_events)
             keys = ('candidates', 'events', 'accepted', 'evaporated', 'reentered', 'alive')
             if first_event is None and any(ev[k] != cpp_events[j][k] for k in keys):
                 first_event = dict(step=j, python=ev, cpp=cpp_events[j])
@@ -164,6 +183,7 @@ def run_reference(out, graph, mode, steps, dt, every, tol):
         max_water_com_difference=max(r['water_com_difference'] for r in rows),
         max_water_height_p99_difference=max(r['water_height_p99_difference'] for r in rows))
     (out / 'ledger.json').write_text(json.dumps(events))
+    (out / 'source_events.json').write_text(json.dumps(sources))
     (out / 'receipt.json').write_text(json.dumps(result, indent=2))
     print(json.dumps({k: v for k, v in result.items() if k != 'rows'}, indent=2), flush=True)
 
