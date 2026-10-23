@@ -29,10 +29,10 @@ def load(d,arm,j):
 
 def panel(a,name,t,scale=8):
     w,h=64*scale,80*scale
-    pix=np.full((h,w,3),(14,19,26),np.uint8)
+    pix=np.full((h,w,3),(255,255,255),np.uint8)
     xy=np.rint(a['pos']*scale).astype(int)
     inside=(xy[:,0]>=0)&(xy[:,0]<w)&(xy[:,1]>=0)&(xy[:,1]<h)
-    for typ,rgb in [(0,(67,76,87)),(1,(51,139,241))]:
+    for typ,rgb in [(0,(208,215,225)),(1,(20,67,200))]:
         q=xy[inside&(a['typ']==typ)]
         pix[h-1-q[:,1],q[:,0]]=rgb
     im=Image.new('RGB',(w,h+72),(22,27,34));im.paste(Image.fromarray(pix),(0,72))
