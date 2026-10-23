@@ -20,8 +20,8 @@ from spray_events_2d import load_frame, NX, NY
 from loop3d import run_bifrost3
 
 
-def common(state,step,dt):
-    s=make('escape',2,1e-10)
+def common(state,step,dt,rule=1):
+    s=make('escape',2,1e-10,escape_rule=rule)
     s.pos=state['pos'].astype(float);s.vel=state['vel'].astype(float)
     s.typ=state['typ'].astype(np.int32);s.spray=state['spr'].copy()
     s.escaped=state['esc'].copy();s.radius=state['rad'].astype(float)
@@ -50,30 +50,32 @@ def classification(s):
     phi=sample(*s._face_phase())
     current=(s.typ==1)&~s.spray&(air>1-s.esc_phi)
     # Paper default delta_phi=.2: liquid candidate phi<.3, bubble phi>.7.
-    paper=(s.typ==1)&~s.spray&(phi<.3)
+    paper=(s.typ==1)&~s.spray&(phi<s.esc_phi)
     bubble=(s.typ==0)&(liquid>1-s.esc_phi)
-    paper_bubble=(s.typ==0)&(phi>.7)
+    paper_bubble=(s.typ==0)&(phi>1-s.esc_phi)
     row=dict(current_water_candidates=int(current.sum()),phase_water_candidates=int(paper.sum()),
         both=int((current&paper).sum()),count_only=int((current&~paper).sum()),
         phase_only=int((paper&~current).sum()),current_candidate_phi=distribution(phi[current]),
         count_threshold_margin=distribution(abs(air[(s.typ==1)&~s.spray]-(1-s.esc_phi))),
         current_bubbles=int(bubble.sum()),phase_bubbles=int(paper_bubble.sum()),
         bubble_disagreements=int((bubble!=paper_bubble).sum()))
-    return row,dict(phi=phi,air=air,liquid=liquid,current=current,paper=paper,bubble=bubble)
+    return row,dict(phi=phi,air=air,liquid=liquid,current=current,paper=paper,bubble=bubble,paper_bubble=paper_bubble)
 
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--source',type=Path,required=True)
-    p.add_argument('--out',type=Path,required=True);a=p.parse_args()
+    p.add_argument('--out',type=Path,required=True)
+    p.add_argument('--escape-rule',type=int,choices=(1,2),default=1);a=p.parse_args()
     assert not subprocess.check_output(['git','status','--porcelain'],cwd=ROOT,text=True).strip()
     out=a.out.resolve();out.mkdir(parents=True,exist_ok=False)
     job=json.loads((a.source/'job.json').read_text());dt=job['dt'];rows=[]
     (out/'job.json').write_text(json.dumps(dict(source=str(a.source.resolve()),
         commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         scope=__doc__,phase_sampling='average of bilinear interpolants on the two MAC face fields',
-        pressure_tolerance=float(np.float32(1e-10)),emission='off in common-state audit; existing spray retained'),indent=2))
+        pressure_tolerance=float(np.float32(1e-10)),escape_rule=a.escape_rule,
+        emission='off in common-state audit; existing spray retained'),indent=2))
     for j in (1280,3200,7200):
-        state=load_frame(a.source,'bifrost',j);s,arr=common(state,j+1,dt)
+        state=load_frame(a.source,'bifrost',j);s,arr=common(state,j+1,dt,a.escape_rule)
         report,fields=classification(s);n=len(s.pos)
         d=out/f'step_{j}';d.mkdir()
         np.savez_compressed(d/'classification.npz',pos=s.pos,typ=s.typ,spr=s.spray,**fields)
@@ -91,12 +93,13 @@ def main():
             capture['flight_after']=s.vel[drop].copy()
         s.g2p=watch_g2p;s._droplet_radii=watch_radii;s._droplet_fly=watch_flight
         s.step(dt)
-        assert np.array_equal(capture['skip'],fields['current']|fields['bubble']|state['spr'])
+        expected=(fields['current']|fields['bubble']) if a.escape_rule==1 else (fields['paper']|fields['paper_bubble'])
+        assert np.array_equal(capture['skip'],expected|state['spr'])
         assert not capture['velocity_changed_by_radius_assignment']
         run_bifrost3('escape_contract',NX,NY,1,lambda x,y,z:y<18,1,dt,
             init_arrays=arr,step_offset=j+1,fused=True,final_state=True,dumps=('ph','vel','rad','spr','esc'),
             extra_ports=dict(ESCAPE,**ports(dict(E,model=0),D),phase_model=2,phase_alpha=1.,
-                rho0_face=s.rho0_face,tolerance=float(np.float32(1e-10))),
+                rho0_face=s.rho0_face,tolerance=float(np.float32(1e-10)),escape=a.escape_rule),
             out_dir=str(d/'bifrost'),log_prefix=str(d/'bifcmd'))
         actual=dict(pos=np.load(d/'bifrost/final.npy')[:,:2],vel=np.load(d/'bifrost/final_velocities.npy')[:,:2],
             typ=np.load(d/'bifrost/final_phase.npy')>.5,rad=np.load(d/'bifrost/final_radius.npy'),
