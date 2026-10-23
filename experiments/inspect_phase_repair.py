@@ -58,7 +58,7 @@ def analyse(root):
     return result
 
 
-def movie(old,new,dest):
+def movie(old,new,dest,kind='phase'):
     job=json.loads((new/'job.json').read_text());oldjob=json.loads((old/'job.json').read_text())
     assert all(job[k]==oldjob[k] for k in ('nx','ny','steps','dt','dump_every'))
     dest.mkdir(parents=True,exist_ok=False)
@@ -67,6 +67,9 @@ def movie(old,new,dest):
     for i,j in enumerate(range(0,job['steps'],job['dump_every'])):
         t=(j+1)*job['dt']
         labels=['OLD NumPy: mass-only','OLD C++: tag mean','NEW NumPy: Eq.7 + pure faces','NEW C++: Eq.7 + pure faces']
+        if kind=='escape':
+            labels=['Count criterion | NumPy','Count criterion | C++',
+                    'Phase criterion | NumPy','Phase criterion | C++']
         arrays=[load_frame(r,a,j) for r in (old,new) for a in ('python','bifrost')]
         tiles=[panel(a,l,t) for a,l in zip(arrays,labels)]
         w,h=tiles[0].size
@@ -86,14 +89,15 @@ def movie(old,new,dest):
         subprocess.run(['ffmpeg','-hide_banner','-loglevel','error','-framerate',str(1/(job['dt']*job['dump_every'])),
             '-i',str(f/'frame.%04d.png'),'-c:v','libx264','-crf','18','-pix_fmt','yuv420p','-movflags','+faststart',str(dest/name)],check=True)
     (dest/'job.json').write_text(json.dumps(dict(kind='Read-only video',old=str(old),new=str(new),
-        marker_scale=8,markers='water/air 1px; escaped/spray 2px',images=images),indent=2))
+        comparison_kind=kind,marker_scale=8,markers='water/air 1px; escaped/spray 2px',images=images),indent=2))
 
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--run',required=True,type=Path)
-    p.add_argument('--old',type=Path);p.add_argument('--visuals',type=Path);a=p.parse_args()
+    p.add_argument('--old',type=Path);p.add_argument('--visuals',type=Path)
+    p.add_argument('--comparison-kind',choices=('phase','escape'),default='phase');a=p.parse_args()
     r=analyse(a.run.resolve());print(json.dumps({k:v for k,v in r.items() if k not in ('rows','job')},indent=2))
-    if a.old:movie(a.old.resolve(),a.run.resolve(),a.visuals.resolve())
+    if a.old:movie(a.old.resolve(),a.run.resolve(),a.visuals.resolve(),a.comparison_kind)
     if not r['similarity_pass']:raise SystemExit('Independent similarity gate failed; outputs retained')
 
 
