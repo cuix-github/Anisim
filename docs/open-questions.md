@@ -4,6 +4,20 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Original full-spray divergence attribution (2026-10-23 follow-up).**
+  The [original 20-second causal audit](original-spray-causality.md) returns to
+  escape/emission ON and the legacy tag phase, rather than extrapolating the
+  no-escape six-second results. The old C++ movie is reproduced bit for bit;
+  Python replaying only the projected grid velocity reproduces all 8,000 steps
+  of P2G/phase and event counts, plus every saved and final particle state.
+  Matched but independently solved pressure still diverges. The first primary
+  escape decision differs at 2.4675 s; switching just that decision on a common
+  state changes one particle's speed vector by 1.0704 cells/s. A 1e-10 C++
+  pressure run retains substantial late spray. Original-scene sampled total
+  mechanical energy declines, unlike the separate no-escape diagnostic's
+  overshoot. This locates an amplification mechanism, not a completed physics
+  fix; audit escape radius/mass/velocity/P2G/reentry together before promotion.
+
 - **2D spray stability and phase contract (2026-10-23).** Independent NumPy and
   Bifrost 20-second plunges fail the similarity gate, including a diagnostic with
   matched phase definitions. The [pressure replay audit](pressure-replay-audit.md)
