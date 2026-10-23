@@ -33,6 +33,9 @@ event count is floor(lambda) plus a Bernoulli draw with probability frac(lambda)
 Unlike a probability clamped to one, this has the correct expected count even
 when lambda exceeds one. It is stochastic rounding, **not a Poisson process**;
 variance and individual trajectories need not be timestep invariant.
+The rate is per eligible source particle, not per square metre of interface.
+It is therefore not yet resolution-invariant: increasing interface sampling
+changes total requests unless a separate source-area calibration is supplied.
 
 Each event requests N=`emit_cloud_size` independent droplets. An artist can
 change event rate (more represented spray water per second) independently of N
@@ -82,6 +85,9 @@ and limits flight substeps by both CFL and `spray_dt_max`. Stiff drag uses
 exponential relaxation, not an unstable explicit RK2 kick. Convergence in a
 spatially varying carrier is measured separately from uniform-wind relaxation.
 This does not imply second-order accuracy for the complete split flow solver.
+The drag law assumes spherical droplets and one-way coupling to the computed
+carrier. It does not model resolved atomization, liquid sheets tearing into
+droplets, droplet interactions, or feedback from the auxiliary spray to air.
 
 2D droplets still use spherical 3D drag/radius physics, moving in a planar
 carrier. Their visual surface density is not a quantitative prediction for 3D.
@@ -103,3 +109,25 @@ Show visible particles and the full impact/recovery sequence, not just an
 attractive still. A long-run disagreement is investigated, not excused as
 chaos without a common-state check. Known Python/Bifrost long-run differences
 in the repository remain relevant; this test must not conceal them.
+
+## Findings that block production acceptance
+
+The 2026-10-23 independent full-run test found that the default reference and
+the Bifrost graph do not use the same pressure phase field. The reference uses
+raw accumulated mass and Eq.7's square-root compression. The graph uses a
+kernel-weighted mean of the particle phase tags. The older lockstep gate
+overrides the reference phase with the graph inputs, so its passing result
+does not validate this part of an independent simulation.
+
+`experiments/spray_events_2d.py --phase-law tag` is an explicitly labelled
+diagnostic reference using the graph's current coefficient. It is not Eq.7,
+does not call C++ to advance particles, and does not change the solver defaults.
+Both the original and diagnostic runs are retained. See the dated results
+report for the measured differences and acceptance status.
+
+The auxiliary-spray coupling gate also exposed an existing C++ adaptive split
+bug: the liquid-fraction array used for the subsequent merge was not compacted
+with the split parents. Spray could consequently change which primary air
+particles merged. The criterion now follows its particles, and new split
+children remain fine for that step, as in the reference. The reference also
+keeps its diagnostic escape flags aligned when splitting or merging.
