@@ -32,7 +32,7 @@ def common(state,step,dt):
     z=np.zeros(n,np.float32);one=np.ones(n,np.float32);ph=s.typ.astype(np.float32)
     arr=dict(positions=np.c_[s.pos,np.full(n,.5)],velocities=np.c_[s.vel,z],
         particle_phase=ph,phase_st=ph,mass=m,momx=mom[:,0],momy=mom[:,1],momz=z,
-        tau=z,wt=one,wtph=ph,scale=one,radius=s.radius,spray=s.spray)
+        tau=z,wt=one,wtph=ph,scale=one,radius=s.radius.copy(),spray=s.spray.copy())
     return s,arr
 
 
