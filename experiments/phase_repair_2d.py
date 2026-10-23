@@ -61,6 +61,7 @@ def py(out, s, steps, dt, every):
 
 
 def cpp(out, s, steps, dt, every):
+    out=out.resolve()  # bifcmd NPY IO requires absolute paths, also for direct API use
     if out.exists(): raise FileExistsError(out)
     config=dict(ESCAPE,**ports(E,D),phase_model=s.phase_model,phase_alpha=s.phase_alpha,
         rho0_face=s.rho0_face,tolerance=s.pressure_tolerance,transport_model=0,
