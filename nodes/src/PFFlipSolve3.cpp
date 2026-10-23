@@ -984,6 +984,22 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         }
 
         finalResidual = std::sqrt(rr2) / r0;
+        // Opt-in, single-step pressure audit. Preserve the actual doubles before
+        // float32 output quantization: int32 dimensions, then bu/bv/bw, rhs, p,
+        // and pre-projection u/v/w. The independent reader reassembles -D beta G
+        // and checks b-Ap; this does not change the solve or its stopping rule.
+        // Caller must provide a distinct path per invocation (not a loop path).
+        if (const char* path = std::getenv("PFFLIP_PRESSURE_DUMP")) {
+            if (FILE* fp = std::fopen(path, "wb")) {
+                const int32_t dims[3] = {NX, NY, NZ};
+                std::fwrite(dims, sizeof(int32_t), 3, fp);
+                for (const Vec* a : {&F.bu, &F.bv, &F.bw, &rhs, &p, &u, &v, &w})
+                    std::fwrite(a->data(), sizeof(double), a->size(), fp);
+                std::fclose(fp);
+            } else {
+                std::fprintf(stderr, "step_3d: pressure audit dump failed: %s\n", path);
+            }
+        }
         lap(msSolve);
         // ---- velocity correction on interior faces, then walls.
         const Vec& cbu = lsCut ? betaU : F.bu;
