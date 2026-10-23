@@ -60,9 +60,9 @@ def run_python(out, steps, dt, every, model):
             setattr(s, name, getattr(s, name).astype(np.float32).astype(float))
         assert np.isfinite(s.pos).all() and np.isfinite(s.vel).all()
         speed = max(float(np.abs(s.u).max()), float(np.abs(s.v).max()))
-        rec = dict(step=j, time=(j+1)*dt, cfl=speed*dt, iterations=s.iters,
-                   primary=int((~s.spray).sum()), escaped=int((s.escaped & (s.typ==1) & ~s.spray).sum()),
-                   **(s.emission_stats if model==2 else dict(accepted=s.n_emitted, alive=int(s.spray.sum()))))
+        rec = dict(s.emission_stats if model==2 else dict(accepted=s.n_emitted, alive=int(s.spray.sum())))
+        rec.update(step=j, time=(j+1)*dt, cfl=speed*dt, iterations=s.iters,
+                   primary=int((~s.spray).sum()), escaped=int((s.escaped & (s.typ==1) & ~s.spray).sum()))
         records.append(rec)
         if j % every == 0:
             save_py(out/f"frame.{j:04d}.npz", s)
