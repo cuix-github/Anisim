@@ -479,5 +479,81 @@
       }
     }
   },
-  "scope": "Generic pressure candidate certification/restart; original spray problem remains open."
+  "scope": "Generic pressure candidate certification/restart; original spray problem remains open.",
+  "pressure_edges_after": {
+    "zero_adaptive_1": {
+      "iterations_used": 0.0,
+      "final_residual": 0.0,
+      "max_divergence_after": 0.0,
+      "max_speed": 0.0,
+      "particle_output_written": true,
+      "particle_count": 576
+    },
+    "zero_adaptive_2": {
+      "iterations_used": 0.0,
+      "final_residual": 0.0,
+      "max_divergence_after": 0.0,
+      "max_speed": 0.0,
+      "particle_output_written": true,
+      "particle_count": 576
+    },
+    "zero_tol": {
+      "refused": true,
+      "particle_count": 0
+    },
+    "negative_cap": {
+      "refused": true,
+      "particle_count": 0
+    },
+    "zero_cap_nonzero_rhs": {
+      "refused": true,
+      "particle_count": 0
+    },
+    "loop_refusal": "step_3d refused step 0 for pressure_failure: step_3d: error: pressure uniform failed; true residual=0.59594010350976212 tolerance=9.9999999747524271e-07; no particle state produced",
+    "negative_step_diagnostics": [
+      -2,
+      -2,
+      -2
+    ]
+  },
+  "pressure_reference_after": {
+    "uniform_cpp_max_face_error": {
+      "u": 1.1410071465434157e-07,
+      "v": 1.0961145724408539e-07
+    },
+    "uniform_capped_residual": 3.8169647268622233,
+    "uniform_capped_faces_unchanged": true,
+    "uniform_zero_budget_zero_rhs": true,
+    "jacobi": {
+      "residual": 5.74043079563414e-09,
+      "iterations": 58,
+      "capped_refused": true,
+      "bit_identical": true,
+      "zero_budget_zero_rhs": true
+    },
+    "mg": {
+      "residual": 2.317324951093543e-09,
+      "iterations": 13,
+      "capped_refused": true,
+      "bit_identical": true,
+      "zero_budget_zero_rhs": true
+    }
+  },
+  "legacy_after": {
+    "passed": true,
+    "bit_identical": [
+      "frame.0000.npy",
+      "vel.0000.npy",
+      "ph.0000.npy",
+      "rad.0000.npy",
+      "spr.0000.npy",
+      "esc.0000.npy",
+      "frame.0040.npy",
+      "vel.0040.npy",
+      "ph.0040.npy",
+      "rad.0040.npy",
+      "spr.0040.npy",
+      "esc.0040.npy"
+    ]
+  }
 }

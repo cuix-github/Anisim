@@ -3,7 +3,7 @@
 0: retained midpoint transport; 1: local RK3; 2: water extension + midpoint;
 3: water extension + local RK3. Pressure, G2P and phase tagging do not change.
 The paper does not specify the extension stencil: simultaneous nearest-layer
-averaging of face velocities adjacent to liquid is an explicit local choice.
+averaging from faces carrying nonzero liquid phase is an explicit local choice.
 """
 import numpy as np
 from phase_contract import PhaseContractSim

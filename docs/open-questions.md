@@ -36,6 +36,17 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
   interpolation from pure-air faces, mostly near side walls. These isolate
   amplification and transfer mechanisms; they are not a production fix or an
   independent full-spray pass. Keep the original failed gates visible.
+  The subsequent opt-in 2D transport ablations implement liquid velocity
+  extension and local RK3 in independent Python and the actual graph. Analytic,
+  local and six-second still-water checks pass, but narrow/wide plunge
+  height-tail comparisons still fail. The wide-tank energy results do not show
+  a consistent benefit, so neither experimental phase nor transport is promoted.
+  A naturally occurring near-threshold true-residual refusal led to bounded
+  residual restarts in both implementations; three generic C++ cases now reach
+  the same tolerance, while nine previously successful configurations remain
+  bit-identical and two extreme adaptive-tolerance cases still refuse. This
+  improves pressure stopping, not the original late-spray behavior. Evidence
+  and limits are in the linked phase/pressure audits.
 
 - **Force-driven replacement scene (2026-10-20).** The approved one-hour budget covers a
   two-dimensional and coarse three-dimensional particle preview, with old

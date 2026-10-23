@@ -1,0 +1,1125 @@
+{
+  "scope": "Uniform 2D; escape/emission/ST/adapt off. Not full-spray or production acceptance.",
+  "runs": {
+    "control": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 0,
+        "case": "plunge",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1119892137.1676464,
+          "count": 20480,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            31.999606166829846,
+            18.902973614396224
+          ],
+          "water_p99": 62.88725734710694
+        },
+        "commit": "8332dd351ce0cb27c456ba606ecdea1dd012d085",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 89.37780979997478,
+        "final": {
+          "energy": 1076050982.4499571,
+          "count": 20480,
+          "max_component": 18.770355224609375,
+          "water_rms": 5.203523650877585,
+          "air_rms": 8.910038751039457,
+          "water_com": [
+            31.990782328446045,
+            16.76508367545754
+          ],
+          "water_p99": 73.81768615722659
+        },
+        "max_sampled_energy_ratio": 1.0433935295311372,
+        "bit_identical_control": true
+      }
+    },
+    "cpp_control": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\control",
+        "commit": "f3ffe8ad28fba8936a0670fe56ea3e6be7198aa5",
+        "mode": 0,
+        "case": "plunge",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": false,
+        "worst": {
+          "tv": 0.020306258322237022,
+          "com_cells": 0.05941133201122284,
+          "height_p99_cells": 2.4644241333007812
+        },
+        "bit_identical_controls": [
+          "final.npy",
+          "final_mass.npy",
+          "final_momx.npy",
+          "final_momy.npy",
+          "final_momz.npy",
+          "final_phase.npy",
+          "final_radius.npy",
+          "final_scale.npy",
+          "final_spray.npy",
+          "final_tau.npy",
+          "final_velocities.npy",
+          "final_wt.npy",
+          "final_wtph.npy"
+        ],
+        "max_sampled_energy_ratio": 1.033825939042995,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 1072223382.2852364,
+          "count": 20480,
+          "max_component": 22.511825561523438,
+          "water_rms": 5.179355940883367,
+          "air_rms": 9.219229538273066,
+          "water_com": [
+            31.986017229008215,
+            16.71209376658525
+          ],
+          "water_p99": 72.63328437805177
+        }
+      }
+    },
+    "cpp_extrap_rk3": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\extrap_rk3",
+        "commit": "f3ffe8ad28fba8936a0670fe56ea3e6be7198aa5",
+        "mode": 3,
+        "case": "plunge",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": false,
+        "worst": {
+          "tv": 0.018142476697736352,
+          "com_cells": 0.034858150608094704,
+          "height_p99_cells": 2.393951416015625
+        },
+        "bit_identical_controls": [],
+        "max_sampled_energy_ratio": 1.0335243191134607,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 1059942263.0479909,
+          "count": 20480,
+          "max_component": 18.799070358276367,
+          "water_rms": 5.00798445270751,
+          "air_rms": 7.539918168564417,
+          "water_com": [
+            32.071547544073965,
+            16.59597429051777
+          ],
+          "water_p99": 70.63297317504885
+        }
+      }
+    },
+    "cpp_rest_control": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\rest_control",
+        "commit": "f2432516155a259931144f42f7a731194265d998",
+        "mode": 0,
+        "case": "rest",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "binary_sha256": "28ecac459b8a760e147955718f05e1f9ee0e9dea8bfdee2eec212611f1a85cad",
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": true,
+        "worst": {
+          "tv": 0.0,
+          "com_cells": 9.389902026957964e-06,
+          "height_p99_cells": 9.5367431640625e-07
+        },
+        "bit_identical_controls": [],
+        "max_sampled_energy_ratio": 1.0017207836496376,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 137010416.5645076,
+          "count": 7680,
+          "max_component": 0.02580147236585617,
+          "water_rms": 0.006733647621555438,
+          "air_rms": 0.005458303618480688,
+          "water_com": [
+            24.01876080933855,
+            6.007330011395323
+          ],
+          "water_p99": 11.787836971282958
+        }
+      },
+      "still_water_gate": {
+        "com_y_drift": 0.010256015572748467,
+        "passed": true,
+        "limits": {
+          "water_rms": 0.1,
+          "com_y_drift": 0.1,
+          "energy_ratio": 1.005
+        }
+      }
+    },
+    "cpp_rest_extrap_rk3": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\rest_extrap_rk3",
+        "commit": "f2432516155a259931144f42f7a731194265d998",
+        "mode": 3,
+        "case": "rest",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "binary_sha256": "28ecac459b8a760e147955718f05e1f9ee0e9dea8bfdee2eec212611f1a85cad",
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": true,
+        "worst": {
+          "tv": 0.0,
+          "com_cells": 1.1919803722974525e-05,
+          "height_p99_cells": 9.5367431640625e-07
+        },
+        "bit_identical_controls": [],
+        "max_sampled_energy_ratio": 1.0017207836496376,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 137010937.02630183,
+          "count": 7680,
+          "max_component": 0.024221977218985558,
+          "water_rms": 0.006722207910551776,
+          "air_rms": 0.005476436865805746,
+          "water_com": [
+            24.01859257251231,
+            6.00735305629981
+          ],
+          "water_p99": 11.789715843200684
+        }
+      },
+      "still_water_gate": {
+        "com_y_drift": 0.010279060477235369,
+        "passed": true,
+        "limits": {
+          "water_rms": 0.1,
+          "com_y_drift": 0.1,
+          "energy_ratio": 1.005
+        }
+      }
+    },
+    "cpp_wide_control": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\wide_control_r2",
+        "commit": "f2432516155a259931144f42f7a731194265d998",
+        "mode": 0,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "binary_sha256": "28ecac459b8a760e147955718f05e1f9ee0e9dea8bfdee2eec212611f1a85cad",
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": false,
+        "worst": {
+          "tv": 0.017223161453930685,
+          "com_cells": 0.03035661391913891,
+          "height_p99_cells": 2.1351280212402344
+        },
+        "bit_identical_controls": [],
+        "max_sampled_energy_ratio": 1.0567208774885304,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 1429231214.5114837,
+          "count": 35840,
+          "max_component": 61.03969955444336,
+          "water_rms": 4.557505287551637,
+          "air_rms": 13.449932424181805,
+          "water_com": [
+            56.003923753189866,
+            14.187220170627885
+          ],
+          "water_p99": 65.56781318664554
+        }
+      }
+    },
+    "cpp_wide_extrap_only": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\wide_extrap_only",
+        "commit": "d02eb189e0e52c3cc8bad9145bc2db0fc811b353",
+        "mode": 2,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "binary_sha256": "2218ea8da973f659215bcb9a10c89ea0d04aaca8f4f679959588ee0bcc8d43b0",
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": false,
+        "worst": {
+          "tv": 0.01796280642434489,
+          "com_cells": 0.047117576003074646,
+          "height_p99_cells": 1.6577911376953125
+        },
+        "bit_identical_controls": [],
+        "max_sampled_energy_ratio": 1.0703763133624107,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 1438987765.1744437,
+          "count": 35840,
+          "max_component": 40.799922943115234,
+          "water_rms": 4.543814517038683,
+          "air_rms": 12.991357194267572,
+          "water_com": [
+            55.95062701232788,
+            14.300680747688673
+          ],
+          "water_p99": 69.97910690307619
+        }
+      }
+    },
+    "cpp_wide_extrap_rk3": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\wide_extrap_rk3_r2",
+        "commit": "f2432516155a259931144f42f7a731194265d998",
+        "mode": 3,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "binary_sha256": "28ecac459b8a760e147955718f05e1f9ee0e9dea8bfdee2eec212611f1a85cad",
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": false,
+        "worst": {
+          "tv": 0.019336432797971263,
+          "com_cells": 0.07462064253069961,
+          "height_p99_cells": 4.313831329345703
+        },
+        "bit_identical_controls": [],
+        "max_sampled_energy_ratio": 1.0499749427874119,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 1426892071.1653636,
+          "count": 35840,
+          "max_component": 50.16875457763672,
+          "water_rms": 4.439789950579248,
+          "air_rms": 12.625679006896105,
+          "water_com": [
+            55.98429789276367,
+            14.21925865046976
+          ],
+          "water_p99": 67.4716766357431
+        }
+      }
+    },
+    "cpp_wide_rk3_only": {
+      "job": {
+        "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\transport_contract_20261023\\wide_rk3_only",
+        "commit": "d02eb189e0e52c3cc8bad9145bc2db0fc811b353",
+        "mode": 1,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "binary_sha256": "2218ea8da973f659215bcb9a10c89ea0d04aaca8f4f679959588ee0bcc8d43b0",
+        "thresholds": {
+          "tv": 0.05,
+          "com_cells": 0.2,
+          "height_p99_cells": 1
+        }
+      },
+      "receipt": {
+        "similarity_pass": false,
+        "worst": {
+          "tv": 0.013630600169061705,
+          "com_cells": 0.04025347414896751,
+          "height_p99_cells": 1.8893470764160156
+        },
+        "bit_identical_controls": [],
+        "max_sampled_energy_ratio": 1.0454768563332297,
+        "final": {
+          "step": 2399,
+          "time": 5.999999865889549,
+          "energy": 1418285988.1555412,
+          "count": 35840,
+          "max_component": 39.629241943359375,
+          "water_rms": 4.407801734927309,
+          "air_rms": 12.383084209670825,
+          "water_com": [
+            56.00101087117034,
+            14.141594862733871
+          ],
+          "water_p99": 63.49722839355489
+        }
+      }
+    },
+    "extrap_only": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 2,
+        "case": "plunge",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1119892137.1676464,
+          "count": 20480,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            31.999606166829846,
+            18.902973614396224
+          ],
+          "water_p99": 62.88725734710694
+        },
+        "commit": "8332dd351ce0cb27c456ba606ecdea1dd012d085",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 92.29705880000256,
+        "final": {
+          "energy": 1059486724.6013634,
+          "count": 20480,
+          "max_component": 23.299488067626953,
+          "water_rms": 5.084388325122874,
+          "air_rms": 9.456672446939285,
+          "water_com": [
+            32.18600984999089,
+            16.544929867409436
+          ],
+          "water_p99": 70.78096733093263
+        },
+        "max_sampled_energy_ratio": 1.0335201033394779,
+        "bit_identical_control": false
+      }
+    },
+    "extrap_rk3": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 3,
+        "case": "plunge",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1119892137.1676464,
+          "count": 20480,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            31.999606166829846,
+            18.902973614396224
+          ],
+          "water_p99": 62.88725734710694
+        },
+        "commit": "7487367f27907923f2d3410f3ae44a165319cb07",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 94.01243150001392,
+        "final": {
+          "energy": 1062173042.1477201,
+          "count": 20480,
+          "max_component": 21.192636489868164,
+          "water_rms": 5.03414957473318,
+          "air_rms": 7.796781066033217,
+          "water_com": [
+            32.09684147467507,
+            16.619990938314587
+          ],
+          "water_p99": 72.99738670349132
+        },
+        "max_sampled_energy_ratio": 1.0335243298457384,
+        "bit_identical_control": false
+      }
+    },
+    "rest_control": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 0,
+        "case": "rest",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 136779035.94567883,
+          "count": 7680,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            23.997126731251935,
+            5.997073995822575
+          ],
+          "water_p99": 11.823922405242918
+        },
+        "commit": "f2432516155a259931144f42f7a731194265d998",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 28.237545100040734,
+        "final": {
+          "energy": 137010416.68710068,
+          "count": 7680,
+          "max_component": 0.02580147236585617,
+          "water_rms": 0.0067336399014442895,
+          "air_rms": 0.005458296048759183,
+          "water_com": [
+            24.01876082830131,
+            6.007330016828039
+          ],
+          "water_p99": 11.787836971282958
+        },
+        "max_sampled_energy_ratio": 1.0017207836496376,
+        "bit_identical_control": false,
+        "pressure_restarts": []
+      },
+      "still_water_gate": {
+        "com_y_drift": 0.010256021005464078,
+        "passed": true,
+        "limits": {
+          "water_rms": 0.1,
+          "com_y_drift": 0.1,
+          "energy_ratio": 1.005
+        }
+      }
+    },
+    "rest_extrap_rk3": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 3,
+        "case": "rest",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 136779035.94567883,
+          "count": 7680,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            23.997126731251935,
+            5.997073995822575
+          ],
+          "water_p99": 11.823922405242918
+        },
+        "commit": "f2432516155a259931144f42f7a731194265d998",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 33.51302850001957,
+        "final": {
+          "energy": 137010937.22675198,
+          "count": 7680,
+          "max_component": 0.0242219939827919,
+          "water_rms": 0.0067222565536708976,
+          "air_rms": 0.005476457531002541,
+          "water_com": [
+            24.018592380375292,
+            6.007353065147375
+          ],
+          "water_p99": 11.789715843200684
+        },
+        "max_sampled_energy_ratio": 1.0017207836496376,
+        "bit_identical_control": false,
+        "pressure_restarts": []
+      },
+      "still_water_gate": {
+        "com_y_drift": 0.010279069324799828,
+        "passed": true,
+        "limits": {
+          "water_rms": 0.1,
+          "com_y_drift": 0.1,
+          "energy_ratio": 1.005
+        }
+      }
+    },
+    "rk3_only": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 1,
+        "case": "plunge",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1119892137.1676464,
+          "count": 20480,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            31.999606166829846,
+            18.902973614396224
+          ],
+          "water_p99": 62.88725734710694
+        },
+        "commit": "8332dd351ce0cb27c456ba606ecdea1dd012d085",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 90.88395679998212,
+        "final": {
+          "energy": 1072808319.6167209,
+          "count": 20480,
+          "max_component": 17.28988265991211,
+          "water_rms": 5.079816889005185,
+          "air_rms": 8.217252890156894,
+          "water_com": [
+            32.00242550121484,
+            16.77625638650316
+          ],
+          "water_p99": 74.33704322814943
+        },
+        "max_sampled_energy_ratio": 1.04029096320972,
+        "bit_identical_control": false
+      }
+    },
+    "wide_control": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 0,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1430391569.7091727,
+          "count": 35840,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            55.999438443475434,
+            15.286282691193724
+          ],
+          "water_p99": 62.25233402252198
+        },
+        "commit": "f3ffe8ad28fba8936a0670fe56ea3e6be7198aa5",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 145.98245819995645,
+        "final": {
+          "energy": 1418755424.0338676,
+          "count": 35840,
+          "max_component": 34.568328857421875,
+          "water_rms": 4.383847250404935,
+          "air_rms": 11.714790459378394,
+          "water_com": [
+            55.99237577767691,
+            14.159666221289694
+          ],
+          "water_p99": 65.56095932006836
+        },
+        "max_sampled_energy_ratio": 1.0336444368772448,
+        "bit_identical_control": false
+      }
+    },
+    "wide_control_r2": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 0,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1430391569.7091727,
+          "count": 35840,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            55.999438443475434,
+            15.286282691193724
+          ],
+          "water_p99": 62.25233402252198
+        },
+        "commit": "d743919df14ae38991dfad7430ff7110a6789ecc",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 145.23827900004108,
+        "final": {
+          "energy": 1418755424.0338676,
+          "count": 35840,
+          "max_component": 34.568328857421875,
+          "water_rms": 4.383847250404935,
+          "air_rms": 11.714790459378394,
+          "water_com": [
+            55.99237577767691,
+            14.159666221289694
+          ],
+          "water_p99": 65.56095932006836
+        },
+        "max_sampled_energy_ratio": 1.0336444368772448,
+        "bit_identical_control": true,
+        "pressure_restarts": []
+      }
+    },
+    "wide_extrap_only": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 2,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1430391569.7091727,
+          "count": 35840,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            55.999438443475434,
+            15.286282691193724
+          ],
+          "water_p99": 62.25233402252198
+        },
+        "commit": "d02eb189e0e52c3cc8bad9145bc2db0fc811b353",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 151.32533060002606,
+        "final": {
+          "energy": 1450941327.5350664,
+          "count": 35840,
+          "max_component": 52.848087310791016,
+          "water_rms": 4.7772471134742,
+          "air_rms": 12.971303532881942,
+          "water_com": [
+            55.99373441810514,
+            14.31862866154235
+          ],
+          "water_p99": 68.83103157043487
+        },
+        "max_sampled_energy_ratio": 1.057905151680348,
+        "bit_identical_control": false,
+        "pressure_restarts": []
+      }
+    },
+    "wide_extrap_rk3_r2": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 3,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1430391569.7091727,
+          "count": 35840,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            55.999438443475434,
+            15.286282691193724
+          ],
+          "water_p99": 62.25233402252198
+        },
+        "commit": "bbb3e3f82ddc4a1d79f9ed9af546fc516a45d8c1",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 163.52110210002866,
+        "final": {
+          "energy": 1426256018.0334644,
+          "count": 35840,
+          "max_component": 51.60340881347656,
+          "water_rms": 4.3638529443585306,
+          "air_rms": 13.253030882463456,
+          "water_com": [
+            55.91391315736311,
+            14.2440978858875
+          ],
+          "water_p99": 69.00538078308107
+        },
+        "max_sampled_energy_ratio": 1.0759733607899828,
+        "bit_identical_control": false,
+        "pressure_restarts": [
+          {
+            "step": 206,
+            "count": 1,
+            "true_residual": 7.3492395299579e-11
+          }
+        ]
+      }
+    },
+    "wide_rk3_only": {
+      "job": {
+        "kind": "Transport ablation",
+        "mode": 1,
+        "case": "wide",
+        "steps": 2400,
+        "dt": 0.0024999999441206455,
+        "initial": {
+          "energy": 1430391569.7091727,
+          "count": 35840,
+          "max_component": 0.0,
+          "water_rms": 0.0,
+          "air_rms": 0.0,
+          "water_com": [
+            55.999438443475434,
+            15.286282691193724
+          ],
+          "water_p99": 62.25233402252198
+        },
+        "commit": "d02eb189e0e52c3cc8bad9145bc2db0fc811b353",
+        "analytic": {
+          "rotation_errors": [
+            0.0053112273144923046,
+            0.0006661140275915227,
+            8.33189360324631e-05
+          ],
+          "constant_extension": true,
+          "constant_transport": true
+        }
+      },
+      "receipt": {
+        "wall_seconds": 157.15858370007481,
+        "final": {
+          "energy": 1431041594.813822,
+          "count": 35840,
+          "max_component": 53.25981140136719,
+          "water_rms": 4.616799260423492,
+          "air_rms": 12.698886862431161,
+          "water_com": [
+            55.999123891669115,
+            14.181792066672648
+          ],
+          "water_p99": 65.33114318847703
+        },
+        "max_sampled_energy_ratio": 1.0584855503870432,
+        "bit_identical_control": false,
+        "pressure_restarts": []
+      }
+    }
+  },
+  "incomplete_runs": [
+    "wide_extrap_rk3"
+  ],
+  "local_gate": {
+    "cpp_math": {
+      "rotation_errors": [
+        0.0053112273144923046,
+        0.0006661140275915227,
+        8.33189360324631e-05
+      ],
+      "passed": true
+    },
+    "python_math": {
+      "rotation_errors": [
+        0.0053112273144923046,
+        0.0006661140275915227,
+        8.33189360324631e-05
+      ],
+      "constant_extension": true,
+      "constant_transport": true
+    },
+    "local": {
+      "initial_1": {
+        "position_max": 0.0,
+        "velocity_max": 7.450580596923828e-09
+      },
+      "initial_2": {
+        "position_max": 0.0,
+        "velocity_max": 3.725290298461914e-09
+      },
+      "initial_3": {
+        "position_max": 0.0,
+        "velocity_max": 3.725290298461914e-09
+      },
+      "impact_1": {
+        "position_max": 0.0,
+        "velocity_max": 9.5367431640625e-07
+      },
+      "impact_2": {
+        "position_max": 0.0,
+        "velocity_max": 9.5367431640625e-07
+      },
+      "impact_3": {
+        "position_max": 0.0,
+        "velocity_max": 9.5367431640625e-07
+      },
+      "rest_1": {
+        "position_max": 0.0,
+        "velocity_max": 2.3283064365386963e-10
+      },
+      "rest_2": {
+        "position_max": 0.0,
+        "velocity_max": 1.1641532182693481e-10
+      },
+      "rest_3": {
+        "position_max": 0.0,
+        "velocity_max": 1.1641532182693481e-10
+      }
+    },
+    "refusals": 3
+  },
+  "common_state": {
+    "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\phase_causality_20261023\\control_320\\energy_fields.npz",
+    "transport": {
+      "0": {
+        "water_max_cells": 0.0,
+        "water_mean_cells": 0.0,
+        "air_max_cells": 0.0
+      },
+      "1": {
+        "water_max_cells": 0.0001967337780867321,
+        "water_mean_cells": 2.449997087121002e-07,
+        "air_max_cells": 0.0011813344088622557
+      },
+      "2": {
+        "water_max_cells": 0.04756922409195559,
+        "water_mean_cells": 8.152388014568951e-05,
+        "air_max_cells": 0.0
+      },
+      "3": {
+        "water_max_cells": 0.04756834755527376,
+        "water_mean_cells": 8.165267649641219e-05,
+        "air_max_cells": 0.0011813344088622557
+      }
+    },
+    "zero_flow_boundary_witness": {
+      "moved": 572,
+      "water_moved": 198,
+      "displacement_max_cells": 0.434072265624998,
+      "energy_fraction": 0.0002971155479836174,
+      "interpretation": "Seed-versus-clamp support mismatch; not proof of the cause of late spray."
+    }
+  },
+  "batches": [
+    [
+      {
+        "name": "wide_control_r2",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 145.46445550001226
+      },
+      {
+        "name": "wide_extrap_rk3_r2",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 163.75122830003966
+      },
+      {
+        "name": "rest_control",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 28.459132499992847
+      },
+      {
+        "name": "rest_extrap_rk3",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 33.731355100055225
+      },
+      {
+        "name": "cpp_wide_control",
+        "exit_code": 1,
+        "expected_similarity_failure": true,
+        "seconds": 23.071470999973826
+      },
+      {
+        "name": "cpp_wide_extrap_rk3",
+        "exit_code": 1,
+        "expected_similarity_failure": true,
+        "seconds": 23.618258300004527
+      },
+      {
+        "name": "cpp_rest_control",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 13.170018899952993
+      },
+      {
+        "name": "cpp_rest_extrap_rk3",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 13.290484500001185
+      },
+      {
+        "name": "legacy_after",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 4.7195275000995025
+      },
+      {
+        "name": "pressure_edges_after",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 24.091906400048174
+      },
+      {
+        "name": "pressure_reference_after",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 0.2642619999824092
+      }
+    ],
+    [
+      {
+        "name": "gate_final",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 51.48797409993131
+      },
+      {
+        "name": "wide_rk3_only",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 157.38896819995716
+      },
+      {
+        "name": "wide_extrap_only",
+        "exit_code": 0,
+        "expected_similarity_failure": false,
+        "seconds": 151.55181759991683
+      },
+      {
+        "name": "cpp_wide_rk3_only",
+        "exit_code": 1,
+        "expected_similarity_failure": true,
+        "seconds": 24.4413324999623
+      },
+      {
+        "name": "cpp_wide_extrap_only",
+        "exit_code": 1,
+        "expected_similarity_failure": true,
+        "seconds": 23.471294699935243
+      }
+    ]
+  ],
+  "legacy_regression": {
+    "passed": true,
+    "bit_identical": [
+      "frame.0000.npy",
+      "vel.0000.npy",
+      "ph.0000.npy",
+      "rad.0000.npy",
+      "spr.0000.npy",
+      "esc.0000.npy",
+      "frame.0040.npy",
+      "vel.0040.npy",
+      "ph.0040.npy",
+      "rad.0040.npy",
+      "spr.0040.npy",
+      "esc.0040.npy"
+    ]
+  }
+}
