@@ -37,8 +37,9 @@ inline Vec extend2(const Vec& values, const Vec& phase, int nx, int ny, int axis
 
 template<class Sample>
 bool rk3(double& x,double& y,double dt,const Sample& sample) {
+    if (!std::isfinite(x) || !std::isfinite(y) || !std::isfinite(dt) || dt<0) return false;
     double rem=dt; int advances=0;
-    while (rem>1e-12) {
+    while (rem>0) {
         const auto k1=sample(x,y);
         double h=std::min(rem,1.0/std::max({std::abs(k1[0]),std::abs(k1[1]),1e-30}));
         std::array<double,2> k2{},k3{}; bool accepted=false;

@@ -22,6 +22,14 @@ def analytic():
     vel=np.array([2.,-.3])
     moved=rk3_local(pos,2.,lambda p,ids:np.broadcast_to(vel,p.shape),cfl=.25)
     assert np.allclose(moved,pos+2*vel,rtol=0,atol=1e-13)
+    tiny=rk3_local(np.zeros((1,2)),1e-13,lambda p,ids:np.ones_like(p))
+    assert np.allclose(tiny,1e-13,rtol=0,atol=1e-28)
+    try:rk3_local(pos,-.1,lambda p,ids:np.ones_like(p))
+    except ValueError:pass
+    else:raise AssertionError('negative RK3 dt accepted')
+    try:rk3_local(pos,.1,lambda p,ids:np.full_like(p,np.nan))
+    except RuntimeError:pass
+    else:raise AssertionError('nonfinite RK3 velocity accepted')
     # Linear field rotates a point: trilinear grid sampling can represent it exactly.
     errors=[]
     for dt in (.4,.2,.1):

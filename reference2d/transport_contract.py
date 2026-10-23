@@ -25,14 +25,18 @@ def extend_faces(values, valid, layers=3):
 
 def rk3_local(pos,dt,sample,cfl=1.0):
     """Third-order Ralston RK, stage-velocity CFL checks, no discarded time."""
+    if not np.isfinite([dt,cfl]).all() or dt<0 or cfl<=0 or not np.isfinite(pos).all():
+        raise ValueError('invalid RK3 position, timestep or CFL')
     p=pos.copy(); remaining=np.full(len(p),dt); advances=0
-    while np.any(remaining>1e-12):
-        ids=np.flatnonzero(remaining>1e-12); q=p[ids]
+    while np.any(remaining>0):
+        ids=np.flatnonzero(remaining>0); q=p[ids]
         k1=sample(q,ids)
+        if not np.isfinite(k1).all():raise RuntimeError('nonfinite RK3 velocity')
         h=np.minimum(remaining[ids],cfl/np.maximum(np.max(abs(k1),axis=1),1e-30))
         for retry in range(32):
             k2=sample(q+.5*h[:,None]*k1,ids)
             k3=sample(q+.75*h[:,None]*k2,ids)
+            if not np.isfinite(k2).all() or not np.isfinite(k3).all():raise RuntimeError('nonfinite RK3 velocity')
             peak=np.maximum.reduce([np.max(abs(k),axis=1) for k in (k1,k2,k3)])
             bad=h*peak>cfl*(1+1e-12)
             if not np.any(bad):break

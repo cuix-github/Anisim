@@ -27,6 +27,11 @@ int main() {
         e[n++]=std::hypot(x-std::cos(2.),y-std::sin(2.));
     }
     if (e[0]/e[1]<6 || e[1]/e[2]<6) throw std::runtime_error("third order");
+    x=0;y=0;
+    if (!rk3(x,y,1e-13,[](double,double){return std::array<double,2>{1,1};}) ||
+        std::abs(x-1e-13)>1e-28 || std::abs(y-1e-13)>1e-28) throw std::runtime_error("tiny step discarded");
+    if (rk3(x,y,-.1,[](double,double){return std::array<double,2>{1,1};}))
+        throw std::runtime_error("negative step accepted");
     if (rk3(x,y,.1,[](double,double){return std::array<double,2>{std::numeric_limits<double>::quiet_NaN(),0};}))
         throw std::runtime_error("nonfinite accepted");
     std::cout.precision(17);
