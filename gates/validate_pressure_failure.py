@@ -51,7 +51,10 @@ def call(indir,out,ports,legacy=False,solid=False):
     if (out/'pressure_double.bin').exists():
         coeff,b,p,_=read_dump(out/'pressure_double.bin')
         stats['independent_true_residual']=float(np.linalg.norm(b-operator(p,coeff))/max(np.linalg.norm(b),1e-300))
-    stats['particle_count']=len(np.load(out/'out_positions.npy'))
+    positions=out/'out_positions.npy'
+    if not positions.exists():assert stats['iterations_used']<0,(out,stats)
+    stats['particle_output_written']=positions.exists()
+    stats['particle_count']=len(np.load(positions)) if positions.exists() else 0
     (out/'stats.json').write_text(json.dumps(stats,indent=2));(out/'ports.json').write_text(json.dumps(ports,indent=2))
     return stats,outputs
 
