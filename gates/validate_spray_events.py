@@ -43,6 +43,7 @@ def ports(e=E, d=D):
 
 
 def laws():
+    assert Sim(8,8,escape=True,droplet=D,emit=dict(model=0),spray_cfl=.5).emit is None
     n = 300000
     k = sampler.keys(137, 12, np.arange(n, dtype=np.uint64))
     counts = {}
@@ -86,7 +87,7 @@ def laws():
         except ValueError:
             continue
         raise AssertionError("invalid configuration accepted")
-    return dict(event_count=counts, temporal_expectation=temporal, radius=radius,
+    return dict(explicit_model_zero_disabled=True, event_count=counts, temporal_expectation=temporal, radius=radius,
                 geometry=geometry, invalid_rejected=len(bads))
 
 

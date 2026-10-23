@@ -92,7 +92,11 @@ class Sim:
         # breaker's interface gradients at 24 s: median 2, p90 9, p99 20 per second,
         # 10 selecting the lip). Needs droplet (so escape).
         self.emit = None if emit is None else dict(self.EMIT_DEFAULTS, **emit)
+        if self.emit is not None and self.emit["model"] == 0:
+            self.emit = None
         if self.emit is not None:
+            if self.emit["model"] not in (1, 2):
+                raise ValueError("spray emission model must be 0, 1 or 2")
             assert self.droplet is not None, "spray emission needs the droplet model"
             assert set(self.emit) == set(self.EMIT_DEFAULTS), self.emit
         self.spray = np.zeros(0, dtype=bool)
