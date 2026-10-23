@@ -104,6 +104,12 @@
           "portDefault": "0"
         },
         {
+          "portName": "phase_model",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
           "portName": "escape",
           "portDirection": "input",
           "portType": "int",
@@ -1151,6 +1157,10 @@
         {
           "source": ".adaptive_levels",
           "target": "step.adaptive_levels"
+        },
+        {
+          "source": ".phase_model",
+          "target": "step.phase_model"
         },
         {
           "source": ".escape",
