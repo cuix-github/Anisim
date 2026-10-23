@@ -83,15 +83,21 @@ def main():
             receipt['fields'][f'{model}_{case}']=dict(max_phase_error=err)
         s=sim(model=model);p3=np.c_[s.pos,np.full(len(s.pos),.5)].astype(np.float32)
         dt=float(np.float32(.0025));d=out/f'loop_{model}'
-        run_bifrost3('phase_one',s.nx,s.ny,1,lambda x,y,z:y<14.4,1,dt,
+        run_bifrost3('phase_one',s.nx,s.ny,1,lambda x,y,z:y<14.4,3,dt,
             seed_fn=lambda *a:(p3,s.typ.copy()),fused=True,extra_ports=dict(phase_model=model,
             phase_alpha=1.,rho0_face=s.rho0_face,escape=0),final_state=True,out_dir=str(d),
             log_prefix=str(d/'bifcmd'))
-        s.step(dt)
+        for _ in range(3):
+            s.step(dt)
+            s.pos=s.pos.astype(np.float32).astype(float)
+            s.vel=s.vel.astype(np.float32).astype(float)
         pos=np.load(d/'final.npy')[:,:2];vel=np.load(d/'final_velocities.npy')[:,:2]
         dp=float(abs(pos-s.pos).max());dv=float(abs(vel-s.vel).max())
         assert dp<4e-6 and dv<2e-5,(dp,dv)
-        receipt['steps'][str(model)]=dict(position_max=dp,velocity_max=dv)
+        momentum=np.stack([np.load(d/('final_mom'+k+'.npy')) for k in 'xy'],axis=1)
+        dm=float(abs(momentum-s._port_momentum).max())
+        assert dm<.005,dm
+        receipt['steps'][str(model)]=dict(steps=3,position_max=dp,velocity_max=dv,momentum_max=dm)
     # A graph may not silently apply the uniform calibration to adaptive/ST states.
     for name,kw in [('st',dict(st=1)),('adapt',dict(adapt=1)),('alpha',dict(phase_alpha=0))]:
         s=sim();p3=np.c_[s.pos,np.full(len(s.pos),.5)].astype(np.float32);d=out/('refuse_'+name)

@@ -38,6 +38,7 @@ class PhaseContractSim(Sim):
         self.phase_model,self.phase_alpha=phase_model,phase_alpha
         self.port_rounding,self.pressure_tolerance=port_rounding,pressure_tolerance
         self._contract_faces=None
+        self._port_momentum=None
 
     def _round(self,a):
         return a.astype(np.float32).astype(float) if self.port_rounding else a
@@ -49,7 +50,10 @@ class PhaseContractSim(Sim):
         valid=(~self.spray).astype(float)
         faces=[]
         for axis,name,shape,frame in zip(range(2),('u','v'),(self.u.shape,self.v.shape),self._face_frames()):
-            mom=self._round(m*self.vel[:,axis])
+            # Momentum is an independent loop-carried port: C++ exports
+            # float32(m * unrounded_velocity), not m * float32(velocity).
+            mom=(self._port_momentum[:,axis] if self._port_momentum is not None
+                 else self._round(m*self.vel[:,axis]))
             mass,momentum,support=self._splat(shape,frame,[m,mom,valid])
             setattr(self,'m'+name,mass)
             mm=self._round(mass/(support+float(np.float32(1e-6))))
@@ -72,3 +76,9 @@ class PhaseContractSim(Sim):
 
     def project(self,dt,tol=None,max_iter=4000):
         return super().project(dt,self.pressure_tolerance if tol is None else tol,max_iter)
+
+    def step(self,dt):
+        super().step(dt)
+        # Capture before the caller rounds the separately exported velocity.
+        # This also follows deletion/reordering and newly born spray (zero mass).
+        self._port_momentum=self._round(self.masses()[:,None]*self.vel)

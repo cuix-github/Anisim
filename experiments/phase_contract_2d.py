@@ -81,12 +81,22 @@ def compare(out,s,steps,every,initial,case):
         rows.append(dict(step=j,tv=float(.5*abs(hs[0]/hs[0].sum()-hs[1]/hs[1].sum()).sum()),
             com=float(np.linalg.norm(py.mean(0)-cpp.mean(0))),
             height_p99=float(abs(np.quantile(py[:,1],.99)-np.quantile(cpp[:,1],.99)))))
+    # Sparse dumps precede the actual final step. Include the saved final state
+    # in both physics and comparison checks instead of calling the last dump final.
+    with np.load(out/'python'/'final.npz') as a:
+        py=a['pos'][a['typ']==1]
+    d=out/'bifrost';cpp=np.load(d/'final.npy')[:,:2][np.load(d/'final_phase.npy')>.5]
+    hs=[np.histogram2d(p[:,0],p[:,1],bins=(s.nx//4,s.ny//4),range=((0,s.nx),(0,s.ny)))[0] for p in (py,cpp)]
+    rows.append(dict(step=steps-1,tv=float(.5*abs(hs[0]/hs[0].sum()-hs[1]/hs[1].sum()).sum()),
+        com=float(np.linalg.norm(py.mean(0)-cpp.mean(0))),
+        height_p99=float(abs(np.quantile(py[:,1],.99)-np.quantile(cpp[:,1],.99)))))
+    runtime=json.loads((out/'runtime.json').read_text())
     worst={k:max(r[k] for r in rows) for k in ('tv','com','height_p99')}
     result=dict(max_difference=worst,similarity_pass=worst['tv']<.05 and worst['com']<.2 and worst['height_p99']<1,
                 states=rows,physics={})
     for arm,rec in stats.items():
-        final=rec[-1]
-        energy=max(r['energy'] for r in rec)/initial['energy']
+        final=runtime[arm]['final']
+        energy=max([r['energy'] for r in rec]+[final['energy']])/initial['energy']
         drift=abs(final['water_com'][1]-initial['water_com'][1])
         result['physics'][arm]=dict(max_energy_ratio=energy,final_water_rms=final['water_rms'],
             final_air_rms=final['air_rms'],water_com_y_drift=drift,
@@ -109,6 +119,7 @@ def main():
         commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),
         binary_sha256=hashlib.sha256((ROOT/'nodes/build/PFFlipSpike-1.0.0/lib/PFFlipSpikeOps.dll').read_bytes()).hexdigest(),
         physics='escape/ST/adapt/emission off; closed domain',command=sys.argv,
+        independent_momentum_port=True,includes_actual_final_state=True,
         thresholds=dict(tv=.05,com_cells=.2,height_p99_cells=1,rest_water_rms=.1,rest_com_drift=.1,rest_energy_ratio=1.005))
     (out/'job.json').write_text(json.dumps(job,indent=2))
     runtime={}

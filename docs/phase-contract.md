@@ -32,6 +32,11 @@ computed from double raw accumulators before a float32 port conversion. The
 independent Python implementation rounds particle momentum and the same field
 boundaries to float32 explicitly when `port_rounding=True`. Disabling that switch
 is a separate precision experiment, never an unrecorded change to a comparison.
+Momentum is retained as its own loop state, rounded from the unrounded final
+particle velocity, just as the C++ output ports are. Recomputing it from the
+already-rounded velocity creates a second rounding and is not the same boundary.
+The first 6-second diagnostic arms predate this harness correction and remain
+retained as failed comparisons; they must not be presented as corrected runs.
 
 ST weights, adaptive particle volumes and kernel support, interior solid support,
 moving boundaries, forcing and adaptive pressure grids require separate contracts
