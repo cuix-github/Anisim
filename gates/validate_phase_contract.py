@@ -34,7 +34,9 @@ def run_p2g(out,s,model):
     r=subprocess.run(args,capture_output=True,text=True)
     (out/'stdout.log').write_text(r.stdout);(out/'stderr.log').write_text(r.stderr)
     assert r.returncode==0,(r.stdout[-1000:],r.stderr[-1000:])
-    return {k:np.load(out/(k+'.npy')) for k in CHANS}
+    actual={k:np.load(out/(k+'.npy')) for k in CHANS if (out/(k+'.npy')).exists()}
+    assert all(g+s in actual for g in ('u','v','w') for s in ('_mass','_mom','_phase'))
+    return actual
 
 
 def sim(nx=24,ny=32,model=2,case='mixed'):
