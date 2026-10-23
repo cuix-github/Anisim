@@ -1159,7 +1159,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // replacement, NOT an independent validation. Append one fixed-size record
     // per step: int32 NX,NY,NZ, followed by uStar,vStar,u,v,phiU,phiV doubles.
     // The caller must choose a fresh file; production has no trace environment.
-    if (flatGrid && phase_model != 0 && !st && !adapt) {
+    if (flatGrid && !st && !adapt) {
         if (const char* path = std::getenv("PFFLIP_FLAT_STAGE_TRACE")) {
             if (FILE* fp = std::fopen(path, "ab")) {
                 const int32_t dims[3] = {NX, NY, NZ};
