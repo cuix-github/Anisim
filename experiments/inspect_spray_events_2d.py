@@ -44,7 +44,8 @@ def main():
     frames=dest/"frames"; frames.mkdir(exist_ok=True)
     selected=[]; targets=[1.8,3.2,6.,14.]
     for i,j in enumerate(range(0,steps,every)):
-        left=panel(load_frame(root,"python",j),"Independent NumPy",(j+1)*dt)
+        label="NumPy (matched phase)" if job.get("phase_law")=="tag" else "NumPy (original phase)"
+        left=panel(load_frame(root,"python",j),label,(j+1)*dt)
         right=panel(load_frame(root,"bifrost",j),"Bifrost C++ graph",(j+1)*dt)
         im=Image.new("RGB",(left.width+right.width+8,left.height+64),(15,20,27))
         im.paste(left,(0,0)); im.paste(right,(left.width+8,0))
@@ -60,15 +61,16 @@ def main():
             im.save(dest/f"comparison_{(j+1)*dt:.2f}s.png")
             selected.append(im)
     fps=1/(dt*every)
+    video=dest/f"python_bifrost_{round(steps*dt)}s.mp4"
     subprocess.run(["ffmpeg","-hide_banner","-loglevel","error","-y","-framerate",str(fps),
         "-i",str(frames/"frame.%04d.png"),"-c:v","libx264","-crf","18","-pix_fmt","yuv420p",
-        "-movflags","+faststart",str(dest/"python_bifrost_20s.mp4")],check=True)
+        "-movflags","+faststart",str(video)],check=True)
     if selected:
         thumbs=[im.resize((774,578)) for im in selected]
         sheet=Image.new("RGB",(1548,578*((len(thumbs)+1)//2)),(15,20,27))
         for i,im in enumerate(thumbs): sheet.paste(im,((i%2)*774,(i//2)*578))
         sheet.save(dest/"comparison_sheet.png")
-    print(str(dest/"python_bifrost_20s.mp4"))
+    print(str(video))
 
 
 if __name__=="__main__": main()
