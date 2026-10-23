@@ -44,12 +44,13 @@ def fractions(s, pre, index):
 def main():
     p = argparse.ArgumentParser(); p.add_argument('--out', type=Path, required=True)
     p.add_argument('--graph', type=Path, required=True); p.add_argument('--steps', type=int, default=2400)
+    p.add_argument('--primary', action='store_true', help='Continue past passive-spray differences to first primary-fluid branch')
     a = p.parse_args(); out = a.out.resolve(); out.mkdir(parents=True, exist_ok=False)
     (out/'job.json').write_text(json.dumps(provenance('First branch in original full-spray scene',
-        graph=str(a.graph.resolve()), steps=a.steps), indent=2))
+        graph=str(a.graph.resolve()), steps=a.steps, primary_only=a.primary), indent=2))
     sims = [make_matched(), make_matched()]
     dt = float(np.float32(.0025)); start = time.perf_counter()
-    history = []
+    history = []; first_auxiliary = None
     with open(a.graph/'stages.bin', 'rb') as f:
         for j in range(a.steps):
             fields = read_record(f,64,80)
@@ -76,22 +77,26 @@ def main():
                     setattr(s,name,getattr(s,name).astype(np.float32).astype(float))
                 data['post_u'], data['post_v'] = s.u.copy(), s.v.copy()
                 stages.append(data)
-            assert pre[0]['pos'].shape == pre[1]['pos'].shape, 'Prior topology mismatch should have stopped trace'
-            skip_diff = np.flatnonzero(stages[0]['skip'] != stages[1]['skip'])
+            masks = [~b['spray'] for b in pre]
+            assert masks[0].sum() == masks[1].sum(), 'Primary topology differs before located branch'
+            skip_diff = np.flatnonzero(stages[0]['skip'][masks[0]] != stages[1]['skip'][masks[1]])
             candidate_diff = np.setxor1d(stages[0]['candidates'],stages[1]['candidates'])
             events_equal = all(sims[0].emission_stats[k] == sims[1].emission_stats[k] for k in
                                ('events','accepted','evaporated','reentered','alive'))
             row = dict(step=j,time=(j+1)*dt,
-                pre_position_max=float(abs(pre[0]['pos']-pre[1]['pos']).max()),
-                pre_velocity_max=float(abs(pre[0]['vel']-pre[1]['vel']).max()),
+                pre_position_max=float(abs(pre[0]['pos'][masks[0]]-pre[1]['pos'][masks[1]]).max()),
+                pre_velocity_max=float(abs(pre[0]['vel'][masks[0]]-pre[1]['vel'][masks[1]]).max()),
                 projected_velocity_max=max(float(abs(stages[0]['post_u']-stages[1]['post_u']).max()),
                     float(abs(stages[0]['post_v']-stages[1]['post_v']).max())),
                 skip_different=skip_diff.tolist(), candidate_different=candidate_diff.tolist(),
                 events_equal=events_equal)
+            if not events_equal and first_auxiliary is None:
+                first_auxiliary = dict(row, emission=[s.emission_stats.copy() for s in sims])
             if j%40 == 0:
                 history.append(row)
-            if len(skip_diff) or len(candidate_diff) or not events_equal:
-                inds = np.union1d(skip_diff,candidate_diff)
+            stop = bool(len(skip_diff) or (not a.primary and (len(candidate_diff) or not events_equal)))
+            if stop:
+                inds = skip_diff if a.primary else np.union1d(skip_diff,candidate_diff)
                 row['details'] = []
                 for i in inds[:20]:
                     row['details'].append(dict(index=int(i), values=[dict(
@@ -104,7 +109,8 @@ def main():
                     np.savez_compressed(out/f'first_pre_{k}.npz',**pre[k],
                         post_u=stages[k]['post_u'],post_v=stages[k]['post_v'],
                         cpp_pre_u=fields[0],cpp_pre_v=fields[1])
-                result = dict(first_branch=row,history=history,seconds=time.perf_counter()-start)
+                result = dict(first_branch=row,first_auxiliary=first_auxiliary,
+                              history=history,seconds=time.perf_counter()-start)
                 (out/'receipt.json').write_text(json.dumps(result,indent=2))
                 print(json.dumps(row,indent=2),flush=True)
                 return
