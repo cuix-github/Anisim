@@ -4,6 +4,21 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Matched phase / escape ladder (2026-10-23 follow-up).** The
+  [20-second phase-repair study](phase-repair-ladder.md) explicitly selects the
+  same Eq.7/pure-face contract in both independent implementations and supplies
+  old/new particle videos with identical display settings. All four full-length
+  ladder comparisons still fail the preset similarity gate, including escape
+  and emission OFF. Auxiliary spray does not perturb primary flow in the tested
+  configuration: 804 primary arrays per implementation are bit-identical with
+  emission on/off. A new default-off `escape=2` samples the phase field rather
+  than opposite-phase particle count; generic thresholds, common-state graph
+  checks and five-second still water pass. It changes late spray appearance but
+  does not fix independent long-time divergence. 1,213 old-path arrays remain
+  identical after the C++ patch. Keep production blocked; next audit the base
+  interface transfer/advection and pure-face switching, while retaining explicit
+  gaps in droplet P2G participation, bubbles and volume correction.
+
 - **Original full-spray divergence attribution (2026-10-23 follow-up).**
   The [original 20-second causal audit](original-spray-causality.md) returns to
   escape/emission ON and the legacy tag phase, rather than extrapolating the

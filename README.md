@@ -22,6 +22,13 @@ Why these papers, in three sentences. PF-FLIP fills the air with FLIP particles 
 
 The full record of every milestone, with its numbers, stands in [docs/history.md](docs/history.md). The settled decisions and their reversals are in [docs/decisions.md](docs/decisions.md), what is still open in [docs/open-questions.md](docs/open-questions.md), every chart and image with what it shows in [docs/evidence.md](docs/evidence.md), and the layout of the local run outputs in [docs/outputs.md](docs/outputs.md).
 
+The October 23 [phase and escape correspondence audit](docs/phase-repair-ladder.md)
+records an important qualification to the milestones: independent 20-second
+NumPy/Bifrost comparisons still fail their similarity gate after explicitly
+matching the phase law. Local contracts and pressure convergence pass, but
+long-time interface/transport behavior is not accepted. Experimental phase and
+escape options remain off in production; existing production caches are retained.
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing
