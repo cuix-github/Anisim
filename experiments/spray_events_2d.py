@@ -76,6 +76,8 @@ def run_python(out, steps, dt, every, model):
 
 
 def run_cpp(out, steps, dt, every, model):
+    if out.exists():
+        raise FileExistsError("Preserve existing arm: " + str(out))
     s = make_sim(model)
     p3 = np.c_[s.pos, np.full(len(s.pos), .5)].astype(np.float32)
     start = time.perf_counter()
@@ -139,6 +141,9 @@ def main():
     p.add_argument("--phase", choices=("all","python","bifrost","compare"), default="all")
     a = p.parse_args(); out = a.out.resolve()
     dt, steps = float(np.float32(a.dt)), round(a.seconds/a.dt)
+    dirty = subprocess.check_output(["git","status","--porcelain"],cwd=ROOT,text=True).strip()
+    if a.phase != "compare" and dirty:
+        raise RuntimeError("Commit intended experiment sources first: " + dirty)
     out.mkdir(parents=True, exist_ok=True)
     job_path = out/"job.json"
     if not job_path.exists():
@@ -158,6 +163,8 @@ def main():
     for name, fn in (("bifrost",run_cpp),("python",run_python)):
         if a.phase in ("all",name):
             receipt[name] = fn(out/name,steps,dt,a.every,a.model)
+            receipt[name]["commit"] = subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()
+            receipt[name]["reference_sha256"] = hashlib.sha256((ROOT/"reference2d/pfflip2d.py").read_bytes()).hexdigest()
             receipt_path.write_text(json.dumps(receipt,indent=2))
     if a.phase in ("all","compare"):
         metrics(out,steps,dt,a.every)
