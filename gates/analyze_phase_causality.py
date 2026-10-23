@@ -66,7 +66,8 @@ def main():
     fig.colorbar(c,ax=axs[0],label='Particle kinetic work (Vp=1 units)')
     axs[1].plot([r['time'] for r in rows],[r['position_max'] for r in rows],label='Max position difference (cells)')
     axs[1].plot([r['time'] for r in rows],[r['cell_tags_different'] for r in rows],label='Different cell tags (count)')
-    axs[1].set(yscale='symlog',linthresh=.001,xlabel='Time (s)',title='Independent trajectories: sampled every 0.1 s')
+    axs[1].set_yscale('symlog',linthresh=.001)
+    axs[1].set(xlabel='Time (s)',title='Independent trajectories: sampled every 0.1 s')
     axs[1].legend();fig.tight_layout();fig.savefig(out/'causality.png',dpi=160);plt.close(fig)
 
 
