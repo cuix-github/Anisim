@@ -38,7 +38,7 @@ def main():
         return load_final_state(d)
     try:
         for st,adapt in ((0,0),(1,0),(0,1),(1,1)):
-            sim=Sim(nx,ny,escape=True,droplet=D,st=bool(st),adapt=bool(adapt))
+            sim=Sim(nx,ny,escape=True,droplet=D,st=bool(st),adapt=bool(adapt),spray_cfl=.5)
             sim.seed(lambda x,y:y<14); sim.calibrate()
             pos=np.c_[sim.pos,np.full(len(sim.pos),.5)].astype(np.float32)
             typ=sim.typ.astype(np.float32); vel=np.zeros_like(pos)
