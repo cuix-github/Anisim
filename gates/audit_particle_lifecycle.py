@@ -32,22 +32,26 @@ def main():
             for axis,shape in [('u',(17,12)),('v',(16,13)),('w',(16,12,2))]:
                 for suffix,value in [('mass',1.),('mom',0.),('phase',phase)]:
                     np.save(ind/f'{axis}_{suffix}.npy',np.full(shape,value,np.float32).ravel())
-            np.save(ind/'positions.npy',np.array([[8.,6.,.5]],np.float32))
-            np.save(ind/'velocities.npy',np.zeros((1,3),np.float32))
-            np.save(ind/'particle_phase.npy',np.array([typ],np.float32))
+            # Keep one water sentinel: shipped write_Numpy rejects zero-length
+            # output arrays. Missing files are not evidence of successful deletion.
+            np.save(ind/'positions.npy',np.array([[8.,6.,.5],[12.,6.,.5]],np.float32))
+            np.save(ind/'velocities.npy',np.zeros((2,3),np.float32))
+            np.save(ind/'particle_phase.npy',np.array([typ,1],np.float32))
             stats=run_node(str(ind),str(d/'cpp'),nx=16,ny=12,nz=1,dt=.0025,gravity=0,
                 phase_model=2,escape=2,esc_phi=.3,rho0_face=3.1015625,buoyancy=0,
                 droplet_model=1,droplet_r_median=.0001,droplet_r_sigma=0.,droplet_evap_k=0.,
                 extra_outputs=('radius_out','out_phase_state'))
             pos=np.load(d/'cpp/out_positions.npy');esc=np.load(d/'cpp/out_escaped.npy')
             rad=np.load(d/'cpp/radius_out.npy')
+            labels=np.load(d/'cpp/out_phase_state.npy')
             r['cases'][name]=dict(input_phase=phase,particle_is_water=bool(typ),
                 remaining=len(pos),escaped=esc.tolist(),radii=rad.tolist(),
-                pressure_residual=stats['final_residual'])
-        assert r['cases']['water_control']['remaining']==1
-        assert r['cases']['escaped_drop']['remaining']==1 and r['cases']['escaped_drop']['radii'][0]>0
-        assert r['cases']['escaped_bubble']['remaining']==0, 'PF section 3.4 requires deleting escaped bubbles; actual node retains one'
-        assert r['cases']['escaped_bubble']['escaped']==[] and r['cases']['escaped_bubble']['radii']==[]
+                positions=pos.tolist(),labels=labels.tolist(),pressure_residual=stats['final_residual'])
+        assert r['cases']['water_control']['remaining']==2
+        assert r['cases']['escaped_drop']['remaining']==2 and all(r>0 for r in r['cases']['escaped_drop']['radii'])
+        b=r['cases']['escaped_bubble']
+        assert b['remaining']==1 and b['labels']==[1.], 'PF section 3.4 requires deleting the escaped bubble and preserving the water sentinel'
+        assert b['positions']==[[12.,6.,.5]] and b['escaped']==[0.] and b['radii']==[0.]
         r['passed']=True
     except BaseException as e:
         r['failure']=repr(e);raise
