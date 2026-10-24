@@ -1,0 +1,359 @@
+{
+  "date": "2026-10-21",
+  "technical_status": "passed",
+  "visual_target_met": false,
+  "new_successful_renders": 2,
+  "launch_failures_before_render": 1,
+  "simulation_runs": 0,
+  "remeshing_runs": 0,
+  "whitewater_generation_runs": 0,
+  "test_kind": "Integrated look candidates; not a one-variable causal experiment. The source control image is reused, not re-rendered.",
+  "source_run": "out/runs/force_rear_3d_035_render_20261021",
+  "source_scene_sha256": "bac42dec17de4a9aabb476e78c3c21d6032fd09741dd5106d79800f3c06436f8",
+  "view": {
+    "time_s": 24.9375,
+    "eye_m": [
+      190.0,
+      52.0,
+      128.0
+    ],
+    "target_m": [
+      88.0,
+      6.0,
+      34.0
+    ],
+    "horizontal_fov_deg": 42.0,
+    "distance_m": 146.13692209705252,
+    "resolution": [
+      1920,
+      1080
+    ],
+    "perspective": true,
+    "extent": "Full-domain reconstruction of the 180.25x72.1 m basin"
+  },
+  "arms": {
+    "A1": {
+      "water": {
+        "base": 0.0,
+        "metalness": 0.0,
+        "specular": 1.0,
+        "specularIOR": 1.3329999446868896,
+        "specularRoughness": 0.07999999821186066,
+        "transmission": 1.0,
+        "transmissionDepth": 40.0,
+        "transmissionColor": [
+          [
+            0.4000000059604645,
+            0.5400000214576721,
+            0.550000011920929
+          ]
+        ],
+        "transmissionScatter": [
+          [
+            0.017999999225139618,
+            0.02500000037252903,
+            0.024000000208616257
+          ]
+        ],
+        "transmissionScatterAnisotropy": 0.5,
+        "transmissionExtraRoughness": 0.0,
+        "thinWalled": false
+      },
+      "environment": {
+        "type": "analytic neutral overcast",
+        "resolution": [
+          2048,
+          1024
+        ],
+        "color_space": "linear ACEScg, read without conversion",
+        "radiance_min": 0.05824663213563114,
+        "radiance_max": 3.401510708281191,
+        "radiance_mean_rgb": [
+          0.8314364028034283,
+          0.8485794214192478,
+          0.8571509307256951
+        ],
+        "sha256": "ae26cae49af1c61f02ffc3c38bb49b3b339e699208c889e9381ee8b28f071d6d"
+      },
+      "sky": {
+        "intensity": 1.0,
+        "camera": 0.0
+      },
+      "sun": {
+        "rotate": [
+          [
+            -40.0,
+            160.0,
+            0.0
+          ]
+        ],
+        "visibility": true
+      },
+      "sunShape": {
+        "intensity": 1.0,
+        "color": [
+          [
+            1.0,
+            0.9850000143051147,
+            0.9599999785423279
+          ]
+        ]
+      },
+      "defaultArnoldRenderOptions": {
+        "AASamples": 4,
+        "GISpecularDepth": 3,
+        "GITransmissionDepth": 8,
+        "GITotalDepth": 10,
+        "GIVolumeDepth": 3,
+        "GIVolumeSamples": 2
+      },
+      "defaultColorMgtGlobals": {
+        "wsn": "ACEScg",
+        "vtn": "ACES 1.0 SDR-video (sRGB)"
+      },
+      "mist": {
+        "multiplier": 0.15,
+        "material_nodes": 63,
+        "positions_radii_and_other_parameters_unchanged": true,
+        "sha256": "c71b86db63135ed243cf855d9f518e14691ab368d09887e34eded9398e7ad9c5"
+      },
+      "local_run": "out/runs/ocean_fixed_camera_20261021/A1",
+      "provenance": {
+        "git_sha": "505244f8ba3113f27f72021b2025356576c9c4a2",
+        "instrument_sha256": "52a8047b572de30842c2877c2cef7dd76795619af80b7fcc2002213df343e363",
+        "source": "C:\\Users\\5d149\\source\\Anisim\\out\\runs\\force_rear_3d_035_render_20261021",
+        "source_scene_sha256": "bac42dec17de4a9aabb476e78c3c21d6032fd09741dd5106d79800f3c06436f8",
+        "operation": "integrated look candidate, not single-variable causal experiment"
+      },
+      "preparation": {
+        "status": "passed",
+        "camera_unchanged": true,
+        "geometry_unchanged": true,
+        "foam_file_unchanged": true,
+        "scene_sha256": "1be84a60686dde319718d128295d4404c30d4b92f3907266159e5a78f218d574"
+      },
+      "image_check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.460186892750757e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.5845210531755324,
+          "transmission": 0.27382653026426074,
+          "diffuse": 0.11234287771259571,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.02930953914392345,
+          "background": 0.0
+        },
+        "render_call_s": 666.4690515999682
+      },
+      "display_check": {
+        "png_matches_display_mean_abs_8bit": 0.1549586869855967,
+        "fraction_pixels_difference_over8": 0.0,
+        "dimensions": [
+          1920,
+          1080
+        ]
+      },
+      "process_s": 676.1405691999244,
+      "png_sha256": "75ad69acf874b7d9df658b02f045acca00ab18c35e5022947147d8258b02c864",
+      "exr_sha256": "5450f8ff932c0bbb57a730ea3077022057dbc182b6eb5957d57b9ead48fb4ca2",
+      "render_only_micro_normal": null,
+      "requested_config": {}
+    },
+    "B": {
+      "water": {
+        "base": 0.0,
+        "metalness": 0.0,
+        "specular": 1.0,
+        "specularIOR": 1.3329999446868896,
+        "specularRoughness": 0.06499999761581421,
+        "transmission": 1.0,
+        "transmissionDepth": 40.0,
+        "transmissionColor": [
+          [
+            0.2199999988079071,
+            0.41999998688697815,
+            0.44999998807907104
+          ]
+        ],
+        "transmissionScatter": [
+          [
+            0.006000000052154064,
+            0.009999999776482582,
+            0.010999999940395355
+          ]
+        ],
+        "transmissionScatterAnisotropy": 0.5,
+        "transmissionExtraRoughness": 0.0,
+        "thinWalled": false
+      },
+      "environment": {
+        "type": "analytic neutral overcast",
+        "resolution": [
+          2048,
+          1024
+        ],
+        "settings": {
+          "base": 0.2,
+          "zenith": 0.45,
+          "lobe_strength": 1.9,
+          "lobe_width": 0.08
+        },
+        "color_space": "linear ACEScg, read without conversion",
+        "radiance_min": 0.05824663213563114,
+        "radiance_max": 2.4632244431587296,
+        "radiance_mean_rgb": [
+          0.36752855591634703,
+          0.37510646428336786,
+          0.3788954184696411
+        ],
+        "sha256": "528a42459024b2e1effbf4398a0b7b3f035e9c3255909b22280bf018a279c450"
+      },
+      "sky": {
+        "intensity": 1.0,
+        "camera": 0.0
+      },
+      "sun": {
+        "rotate": [
+          [
+            -40.0,
+            160.0,
+            0.0
+          ]
+        ],
+        "visibility": true
+      },
+      "sunShape": {
+        "intensity": 2.0,
+        "color": [
+          [
+            1.0,
+            0.9850000143051147,
+            0.9599999785423279
+          ]
+        ]
+      },
+      "defaultArnoldRenderOptions": {
+        "AASamples": 4,
+        "GISpecularDepth": 3,
+        "GITransmissionDepth": 8,
+        "GITotalDepth": 10,
+        "GIVolumeDepth": 3,
+        "GIVolumeSamples": 2
+      },
+      "defaultColorMgtGlobals": {
+        "wsn": "ACEScg",
+        "vtn": "ACES 1.0 SDR-video (sRGB)"
+      },
+      "mist": {
+        "multiplier": 0.15,
+        "material_nodes": 63,
+        "positions_radii_and_other_parameters_unchanged": true,
+        "sha256": "c71b86db63135ed243cf855d9f518e14691ab368d09887e34eded9398e7ad9c5"
+      },
+      "local_run": "out/runs/ocean_fixed_camera_20261021/B",
+      "provenance": {
+        "git_sha": "54f82e85167dabc5314030608b7c186e442e13c2",
+        "instrument_sha256": "7f742a2c48695caeb7c7b6617dea18f8aaddff7eb78cf3662ef750d5cfcabe48",
+        "source": "C:\\Users\\5d149\\source\\Anisim\\out\\runs\\force_rear_3d_035_render_20261021",
+        "source_scene_sha256": "bac42dec17de4a9aabb476e78c3c21d6032fd09741dd5106d79800f3c06436f8",
+        "operation": "integrated look candidate, not single-variable causal experiment"
+      },
+      "preparation": {
+        "status": "passed",
+        "camera_unchanged": true,
+        "geometry_unchanged": true,
+        "foam_file_unchanged": true,
+        "scene_sha256": "52a4bfacdff01545f434d9c1cdfeb73ed445eff1cd7a80315d8d971c6299d5d1"
+      },
+      "image_check": {
+        "status": "passed",
+        "aov_closure_relative_l1": 8.502898488595777e-08,
+        "component_raw_rgb_share": {
+          "specular": 0.5742896166552943,
+          "transmission": 0.24989111251625812,
+          "diffuse": 0.1336514541682407,
+          "sss": 0.0,
+          "coat": 0.0,
+          "sheen": 0.0,
+          "emission": 0.0,
+          "volume": 0.04216781663550279,
+          "background": 0.0
+        },
+        "render_call_s": 586.5750070000067
+      },
+      "display_check": {
+        "png_matches_display_mean_abs_8bit": 0.1586521026234568,
+        "fraction_pixels_difference_over8": 0.0,
+        "dimensions": [
+          1920,
+          1080
+        ]
+      },
+      "process_s": 596.1445656000869,
+      "png_sha256": "81beba0abcf67b66ea21cdeaffbbe9f26b4f607ff738a19942b09f79dde7dd94",
+      "exr_sha256": "fe8f36f988f1a432d36e50f4bc879e88d36c2a93ba93990df20279769379b1bb",
+      "render_only_micro_normal": {
+        "scale_per_scene_unit": [
+          1.4,
+          0.7,
+          2.4
+        ],
+        "height_scene_units": 0.02,
+        "height_reference_m": 0.005,
+        "meaning": "Render-only shading normal detail; not simulated wave detail; does not alter the silhouette."
+      },
+      "requested_config": {
+        "water": {
+          "specularRoughness": 0.065,
+          "transmissionColor": [
+            0.22,
+            0.42,
+            0.45
+          ],
+          "transmissionScatter": [
+            0.006,
+            0.01,
+            0.011
+          ]
+        },
+        "environment": {
+          "base": 0.2,
+          "zenith": 0.45,
+          "lobe_strength": 1.9,
+          "lobe_width": 0.08
+        },
+        "sky_intensity": 1.0,
+        "sun_intensity": 2.0,
+        "mist_density_multiplier": 0.15,
+        "micro_normal": {
+          "scale_per_scene_unit": [
+            1.4,
+            0.7,
+            2.4
+          ],
+          "height_scene_units": 0.02,
+          "height_reference_m": 0.005,
+          "meaning": "Render-only shading normal detail; not simulated wave detail; does not alter the silhouette."
+        }
+      }
+    }
+  },
+  "exposure_diagnostic": {
+    "exposure_EV": 1.0,
+    "linear_multiplier_before_display": 2.0,
+    "source": "beauty.pfm extracted from optics.0001.exr denoised beauty",
+    "display": "ACES 1.0 SDR-video (sRGB)",
+    "new_render": false,
+    "local_or_selective_edit": false,
+    "purpose": "Global exposure diagnostic; not a third lighting configuration or new render."
+  },
+  "assessment": {
+    "A1": "Not selected: bright broad reflections make the water gray and flatten wave shape.",
+    "B": "Not selected as a validated preset: white beads are less prominent, but the water remains gray, smooth and insufficiently structured relative to the references. Global +1 EV exposure makes it easier to inspect but does not solve that appearance.",
+    "limits": "These two appearance trials do not establish the cache or hardware quality ceiling. Geometry was held fixed; B adds a shading-normal texture, not resolved simulation detail. Raw and denoised beauty show the same broad visual limitation."
+  },
+  "total_render_call_s": 1253.044058599975
+}
