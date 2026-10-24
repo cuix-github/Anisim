@@ -1,0 +1,986 @@
+{
+  "passed": true,
+  "scope": "Bubble deletion only; full droplet transfer and volume integration are not certified",
+  "before_job": {
+    "scope": "Generic isolated-air inclusions: actual graph, Python, legacy and restart.\n\nBefore/after modes explicitly distinguish recorded old behavior from the paper\nexpectation. No wave geometry, damping or emission threshold is tuned here.\n",
+    "commit": "a144e6441cff1c70ee951d68e591ded2e09a16f2",
+    "binary_sha256": "973766a7c0331032e11aa6f5152ed69f82885677f8c39430fe406523527990e8",
+    "mode": "baseline_old_behavior",
+    "expected_new": "two escaped air inclusions removed only for escape=2; all 766 water particles retained"
+  },
+  "after_job": {
+    "scope": "Generic isolated-air inclusions: actual graph, Python, legacy and restart.\n\nBefore/after modes explicitly distinguish recorded old behavior from the paper\nexpectation. No wave geometry, damping or emission threshold is tuned here.\n",
+    "commit": "b9c733387129962bb228849549a2fa1e61188c9f",
+    "binary_sha256": "bd67b0e0613bac92b5823a1e977f3dde8a0f47a2daf00a23e96c9450fd9287d0",
+    "mode": "paper_after",
+    "expected_new": "two escaped air inclusions removed only for escape=2; all 766 water particles retained"
+  },
+  "before": {
+    "passed": true,
+    "mode": "baseline_old_behavior",
+    "cases": {
+      "off": {
+        "remaining": 768,
+        "water": 766,
+        "air": 2,
+        "position_max": 0.0,
+        "velocity_max": 0.0
+      },
+      "legacy": {
+        "remaining": 768,
+        "water": 766,
+        "air": 2,
+        "position_max": 0.0,
+        "velocity_max": 0.0
+      },
+      "phase_plain": {
+        "remaining": 768,
+        "water": 766,
+        "air": 2,
+        "position_max": 0.0,
+        "velocity_max": 0.0
+      },
+      "phase_droplet": {
+        "remaining": 768,
+        "water": 766,
+        "air": 2,
+        "position_max": 0.0,
+        "velocity_max": 0.0
+      }
+    }
+  },
+  "after": {
+    "passed": true,
+    "mode": "paper_after",
+    "cases": {
+      "off": {
+        "remaining": 768,
+        "water": 766,
+        "air": 2,
+        "position_max": 0.0,
+        "velocity_max": 0.0,
+        "legacy_identical": {
+          "positions": true,
+          "velocities": true,
+          "mass": true,
+          "momx": true,
+          "momy": true,
+          "momz": true,
+          "tau": true,
+          "wt": true,
+          "wtph": true,
+          "scale": true,
+          "phase_st": true,
+          "radius": true,
+          "spray": true,
+          "particle_phase": true
+        }
+      },
+      "legacy": {
+        "remaining": 768,
+        "water": 766,
+        "air": 2,
+        "position_max": 0.0,
+        "velocity_max": 0.0,
+        "legacy_identical": {
+          "positions": true,
+          "velocities": true,
+          "mass": true,
+          "momx": true,
+          "momy": true,
+          "momz": true,
+          "tau": true,
+          "wt": true,
+          "wtph": true,
+          "scale": true,
+          "phase_st": true,
+          "radius": true,
+          "spray": true,
+          "particle_phase": true
+        }
+      },
+      "phase_plain": {
+        "remaining": 766,
+        "water": 766,
+        "air": 0,
+        "position_max": 0.0,
+        "velocity_max": 0.0
+      },
+      "phase_droplet": {
+        "remaining": 766,
+        "water": 766,
+        "air": 0,
+        "position_max": 0.0,
+        "velocity_max": 0.0
+      }
+    },
+    "resume_identical": {
+      "positions": true,
+      "velocities": true,
+      "mass": true,
+      "momx": true,
+      "momy": true,
+      "momz": true,
+      "tau": true,
+      "wt": true,
+      "wtph": true,
+      "scale": true,
+      "phase_st": true,
+      "radius": true,
+      "spray": true,
+      "particle_phase": true
+    }
+  },
+  "prescribed_field_after": {
+    "passed": true,
+    "cases": {
+      "water_control": {
+        "input_phase": 1.0,
+        "particle_is_water": true,
+        "remaining": 2,
+        "escaped": [
+          0.0,
+          0.0
+        ],
+        "radii": [
+          0.0,
+          0.0
+        ],
+        "positions": [
+          [
+            8.0,
+            6.0,
+            0.5
+          ],
+          [
+            12.0,
+            6.0,
+            0.5
+          ]
+        ],
+        "labels": [
+          1.0,
+          1.0
+        ],
+        "pressure_residual": 0.0
+      },
+      "escaped_drop": {
+        "input_phase": 0.0,
+        "particle_is_water": true,
+        "remaining": 2,
+        "escaped": [
+          1.0,
+          1.0
+        ],
+        "radii": [
+          9.999999747378752e-05,
+          9.999999747378752e-05
+        ],
+        "positions": [
+          [
+            8.0,
+            6.0,
+            0.5
+          ],
+          [
+            12.0,
+            6.0,
+            0.5
+          ]
+        ],
+        "labels": [
+          1.0,
+          1.0
+        ],
+        "pressure_residual": 0.0
+      },
+      "escaped_bubble": {
+        "input_phase": 1.0,
+        "particle_is_water": false,
+        "remaining": 1,
+        "escaped": [
+          0.0
+        ],
+        "radii": [
+          0.0
+        ],
+        "positions": [
+          [
+            12.0,
+            6.0,
+            0.5
+          ]
+        ],
+        "labels": [
+          1.0
+        ],
+        "pressure_residual": 0.0
+      }
+    }
+  },
+  "phase_thresholds": {
+    "passed": true,
+    "cases": [
+      {
+        "kind": "air",
+        "phase": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "expected_before_deletion": [
+          true,
+          false,
+          true,
+          false
+        ],
+        "expected_surviving": [
+          true,
+          false,
+          true,
+          false
+        ],
+        "deleted_air": 0,
+        "actual": [
+          true,
+          false,
+          true,
+          false
+        ]
+      },
+      {
+        "kind": "at_lower",
+        "phase": [
+          0.30000001192092896,
+          0.30000001192092896,
+          0.30000001192092896,
+          0.30000001192092896
+        ],
+        "expected_before_deletion": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "expected_surviving": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "deleted_air": 0,
+        "actual": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "kind": "above_lower",
+        "phase": [
+          0.30000004172325134,
+          0.30000004172325134,
+          0.30000004172325134,
+          0.30000004172325134
+        ],
+        "expected_before_deletion": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "expected_surviving": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "deleted_air": 0,
+        "actual": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "kind": "at_upper",
+        "phase": [
+          0.699999988079071,
+          0.699999988079071,
+          0.699999988079071,
+          0.699999988079071
+        ],
+        "expected_before_deletion": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "expected_surviving": [
+          false,
+          false,
+          false,
+          false
+        ],
+        "deleted_air": 0,
+        "actual": [
+          false,
+          false,
+          false,
+          false
+        ]
+      },
+      {
+        "kind": "above_upper",
+        "phase": [
+          0.7000000476837158,
+          0.7000000476837158,
+          0.7000000476837158,
+          0.7000000476837158
+        ],
+        "expected_before_deletion": [
+          false,
+          true,
+          false,
+          true
+        ],
+        "expected_surviving": [
+          false,
+          false
+        ],
+        "deleted_air": 2,
+        "actual": [
+          false,
+          false
+        ]
+      },
+      {
+        "kind": "water",
+        "phase": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "expected_before_deletion": [
+          false,
+          true,
+          false,
+          true
+        ],
+        "expected_surviving": [
+          false,
+          false
+        ],
+        "deleted_air": 2,
+        "actual": [
+          false,
+          false
+        ]
+      },
+      {
+        "kind": "linear",
+        "phase": [
+          0.25,
+          0.25,
+          0.75,
+          0.75
+        ],
+        "expected_before_deletion": [
+          true,
+          false,
+          false,
+          true
+        ],
+        "expected_surviving": [
+          true,
+          false,
+          false
+        ],
+        "deleted_air": 1,
+        "actual": [
+          true,
+          false,
+          false
+        ]
+      }
+    ],
+    "python_rejections": 4,
+    "cpp_rejections": 3,
+    "commit": "b9c733387129962bb228849549a2fa1e61188c9f"
+  },
+  "common_impact": [
+    {
+      "current_water_candidates": 40,
+      "phase_water_candidates": 13,
+      "both": 8,
+      "count_only": 32,
+      "phase_only": 5,
+      "current_candidate_phi": {
+        "count": 40,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.5472060932780736,
+          0.7961365709043556,
+          0.835384552850116
+        ]
+      },
+      "count_threshold_margin": {
+        "count": 6007,
+        "quantiles": [
+          0.0060699261272545435,
+          0.6412975190403747,
+          0.699999988079071,
+          0.699999988079071,
+          0.699999988079071
+        ]
+      },
+      "current_bubbles": 36,
+      "phase_bubbles": 68,
+      "bubble_disagreements": 34,
+      "step": 1280,
+      "time": 3.202499928418547,
+      "actual_graph_max_errors": {
+        "pos": 3.8142394771512045e-06,
+        "vel": 1.9051988786600305e-06,
+        "rad": 2.8058265238127544e-11,
+        "typ": 0.0,
+        "spr": 0.0,
+        "esc": 0.0
+      },
+      "input_primary": 20479,
+      "output_primary": 20411,
+      "retained_escaped_primary_mass": {
+        "count": 13,
+        "quantiles": [
+          1000.0,
+          1000.0,
+          1000.0,
+          1000.0,
+          1000.0
+        ]
+      },
+      "output_spray_mass": {
+        "count": 1379,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "newly_escaped_radii_metres": {
+        "count": 5,
+        "quantiles": [
+          3.907182098777825e-05,
+          3.920743039549158e-05,
+          0.00017838218868612688,
+          0.00043350375250221593,
+          0.0005940375905160116
+        ]
+      },
+      "radius_assignment_velocity_continuous": true,
+      "all_droplet_flight_velocity_change": {
+        "count": 1688,
+        "quantiles": [
+          0.0019602794013342992,
+          0.02498296497342114,
+          0.09603716250317698,
+          0.5085589132686055,
+          2.4284016695425508
+        ]
+      },
+      "evaporated_primary": 0
+    },
+    {
+      "current_water_candidates": 103,
+      "phase_water_candidates": 32,
+      "both": 19,
+      "count_only": 84,
+      "phase_only": 13,
+      "current_candidate_phi": {
+        "count": 103,
+        "quantiles": [
+          0.0,
+          0.0005211298836885811,
+          0.515307167493409,
+          0.757136600008898,
+          0.9444850759074306
+        ]
+      },
+      "count_threshold_margin": {
+        "count": 6000,
+        "quantiles": [
+          0.0029911494077697887,
+          0.6287966471745731,
+          0.699999988079071,
+          0.699999988079071,
+          1.059632332698207
+        ]
+      },
+      "current_bubbles": 25,
+      "phase_bubbles": 51,
+      "bubble_disagreements": 28,
+      "step": 3200,
+      "time": 8.002499821130186,
+      "actual_graph_max_errors": {
+        "pos": 3.8134241009402103e-06,
+        "vel": 9.532906588560763e-07,
+        "rad": 2.7265764949643834e-11,
+        "typ": 0.0,
+        "spr": 0.0,
+        "esc": 0.0
+      },
+      "input_primary": 20472,
+      "output_primary": 20421,
+      "retained_escaped_primary_mass": {
+        "count": 32,
+        "quantiles": [
+          1000.0,
+          1000.0,
+          1000.0,
+          1000.0,
+          1000.0
+        ]
+      },
+      "output_spray_mass": {
+        "count": 2724,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "newly_escaped_radii_metres": {
+        "count": 13,
+        "quantiles": [
+          2.2614266787288317e-05,
+          4.113301785325655e-05,
+          7.212688902587948e-05,
+          0.0001877056437683048,
+          0.00023805845156296207
+        ]
+      },
+      "radius_assignment_velocity_continuous": true,
+      "all_droplet_flight_velocity_change": {
+        "count": 3061,
+        "quantiles": [
+          0.00025448653443547667,
+          0.015465819401409652,
+          0.03212809663812106,
+          0.11964982096114185,
+          0.844030346458064
+        ]
+      },
+      "evaporated_primary": 0
+    },
+    {
+      "current_water_candidates": 275,
+      "phase_water_candidates": 86,
+      "both": 55,
+      "count_only": 220,
+      "phase_only": 31,
+      "current_candidate_phi": {
+        "count": 275,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.7258815623246011,
+          0.9838932646884421,
+          1.0
+        ]
+      },
+      "count_threshold_margin": {
+        "count": 5977,
+        "quantiles": [
+          0.0003360439752791988,
+          0.35385319613148924,
+          0.699999988079071,
+          0.699999988079071,
+          1.388554903966936
+        ]
+      },
+      "current_bubbles": 152,
+      "phase_bubbles": 410,
+      "bubble_disagreements": 268,
+      "step": 7200,
+      "time": 18.00249959761277,
+      "actual_graph_max_errors": {
+        "pos": 3.81349148881327e-06,
+        "vel": 1.9043838364041221e-06,
+        "rad": 5.246409817000197e-11,
+        "typ": 0.0,
+        "spr": 0.0,
+        "esc": 0.0
+      },
+      "input_primary": 20449,
+      "output_primary": 20039,
+      "retained_escaped_primary_mass": {
+        "count": 86,
+        "quantiles": [
+          1000.0,
+          1000.0,
+          1000.0,
+          1000.0,
+          1000.0
+        ]
+      },
+      "output_spray_mass": {
+        "count": 12761,
+        "quantiles": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "newly_escaped_radii_metres": {
+        "count": 32,
+        "quantiles": [
+          1.827554450864145e-05,
+          3.932021933869315e-05,
+          0.00010146449186940017,
+          0.00027875379533609925,
+          0.0004052278968333595
+        ]
+      },
+      "radius_assignment_velocity_continuous": true,
+      "all_droplet_flight_velocity_change": {
+        "count": 14101,
+        "quantiles": [
+          6.507457036882935e-05,
+          0.00980114641423083,
+          0.03570549313866831,
+          0.14686802774638913,
+          1.8412884754093113
+        ]
+      },
+      "evaporated_primary": 0
+    }
+  ],
+  "surviving_state": {
+    "passed": true,
+    "cases": [
+      {
+        "step": 1280,
+        "deleted_air": 68,
+        "identical_inputs": {
+          "positions": true,
+          "velocities": true,
+          "mass": true,
+          "momx": true,
+          "momy": true,
+          "momz": true,
+          "particle_phase": true,
+          "phase_st": true,
+          "tau": true,
+          "wt": true,
+          "wtph": true,
+          "scale": true,
+          "radius": true,
+          "spray": true
+        },
+        "unchanged_survivor_arrays": {
+          "final.npy": true,
+          "final_mass.npy": true,
+          "final_momx.npy": true,
+          "final_momy.npy": true,
+          "final_momz.npy": true,
+          "final_phase.npy": true,
+          "final_radius.npy": true,
+          "final_scale.npy": true,
+          "final_spray.npy": true,
+          "final_tau.npy": true,
+          "final_velocities.npy": true,
+          "final_wt.npy": true,
+          "final_wtph.npy": true
+        }
+      },
+      {
+        "step": 3200,
+        "deleted_air": 51,
+        "identical_inputs": {
+          "positions": true,
+          "velocities": true,
+          "mass": true,
+          "momx": true,
+          "momy": true,
+          "momz": true,
+          "particle_phase": true,
+          "phase_st": true,
+          "tau": true,
+          "wt": true,
+          "wtph": true,
+          "scale": true,
+          "radius": true,
+          "spray": true
+        },
+        "unchanged_survivor_arrays": {
+          "final.npy": true,
+          "final_mass.npy": true,
+          "final_momx.npy": true,
+          "final_momy.npy": true,
+          "final_momz.npy": true,
+          "final_phase.npy": true,
+          "final_radius.npy": true,
+          "final_scale.npy": true,
+          "final_spray.npy": true,
+          "final_tau.npy": true,
+          "final_velocities.npy": true,
+          "final_wt.npy": true,
+          "final_wtph.npy": true
+        }
+      },
+      {
+        "step": 7200,
+        "deleted_air": 410,
+        "identical_inputs": {
+          "positions": true,
+          "velocities": true,
+          "mass": true,
+          "momx": true,
+          "momy": true,
+          "momz": true,
+          "particle_phase": true,
+          "phase_st": true,
+          "tau": true,
+          "wt": true,
+          "wtph": true,
+          "scale": true,
+          "radius": true,
+          "spray": true
+        },
+        "unchanged_survivor_arrays": {
+          "final.npy": true,
+          "final_mass.npy": true,
+          "final_momx.npy": true,
+          "final_momy.npy": true,
+          "final_momz.npy": true,
+          "final_phase.npy": true,
+          "final_radius.npy": true,
+          "final_scale.npy": true,
+          "final_spray.npy": true,
+          "final_tau.npy": true,
+          "final_velocities.npy": true,
+          "final_wt.npy": true,
+          "final_wtph.npy": true
+        }
+      }
+    ]
+  },
+  "legacy_spray_output_arrays_identical": 63,
+  "legacy_spray_arrays": {
+    "boundary_out\\out_escaped.npy": true,
+    "boundary_out\\out_positions.npy": true,
+    "boundary_out\\out_u.npy": true,
+    "boundary_out\\out_v.npy": true,
+    "boundary_out\\out_velocities.npy": true,
+    "boundary_out\\out_w.npy": true,
+    "boundary_out\\pressure.npy": true,
+    "boundary_out\\radius_out.npy": true,
+    "boundary_out\\spray_out.npy": true,
+    "budget_out\\out_escaped.npy": true,
+    "budget_out\\out_positions.npy": true,
+    "budget_out\\out_u.npy": true,
+    "budget_out\\out_v.npy": true,
+    "budget_out\\out_velocities.npy": true,
+    "budget_out\\out_w.npy": true,
+    "budget_out\\pressure.npy": true,
+    "budget_out\\radius_out.npy": true,
+    "budget_out\\spray_out.npy": true,
+    "clouds_out\\out_escaped.npy": true,
+    "clouds_out\\out_positions.npy": true,
+    "clouds_out\\out_u.npy": true,
+    "clouds_out\\out_v.npy": true,
+    "clouds_out\\out_velocities.npy": true,
+    "clouds_out\\out_w.npy": true,
+    "clouds_out\\pressure.npy": true,
+    "clouds_out\\radius_out.npy": true,
+    "clouds_out\\spray_out.npy": true,
+    "lock_out\\out_escaped.npy": true,
+    "lock_out\\out_positions.npy": true,
+    "lock_out\\out_u.npy": true,
+    "lock_out\\out_v.npy": true,
+    "lock_out\\out_velocities.npy": true,
+    "lock_out\\out_w.npy": true,
+    "lock_out\\pressure.npy": true,
+    "lock_out\\radius_out.npy": true,
+    "lock_out\\spray_out.npy": true,
+    "no_room_out\\out_escaped.npy": true,
+    "no_room_out\\out_positions.npy": true,
+    "no_room_out\\out_u.npy": true,
+    "no_room_out\\out_v.npy": true,
+    "no_room_out\\out_velocities.npy": true,
+    "no_room_out\\out_w.npy": true,
+    "no_room_out\\pressure.npy": true,
+    "no_room_out\\radius_out.npy": true,
+    "no_room_out\\spray_out.npy": true,
+    "off_unset_out\\out_escaped.npy": true,
+    "off_unset_out\\out_positions.npy": true,
+    "off_unset_out\\out_u.npy": true,
+    "off_unset_out\\out_v.npy": true,
+    "off_unset_out\\out_velocities.npy": true,
+    "off_unset_out\\out_w.npy": true,
+    "off_unset_out\\pressure.npy": true,
+    "off_unset_out\\radius_out.npy": true,
+    "off_unset_out\\spray_out.npy": true,
+    "off_zero_out\\out_escaped.npy": true,
+    "off_zero_out\\out_positions.npy": true,
+    "off_zero_out\\out_u.npy": true,
+    "off_zero_out\\out_v.npy": true,
+    "off_zero_out\\out_velocities.npy": true,
+    "off_zero_out\\out_w.npy": true,
+    "off_zero_out\\pressure.npy": true,
+    "off_zero_out\\radius_out.npy": true,
+    "off_zero_out\\spray_out.npy": true
+  },
+  "spray_graph_after": {
+    "check": "graph",
+    "passed": true,
+    "graph": {
+      "legacy_off": {
+        "unset_identical": true,
+        "spray_all_zero": true,
+        "droplets": 60
+      },
+      "legacy_lockstep": {
+        "grid": 0.0001327546826505599,
+        "positions": 4.360726919117042e-06,
+        "velocities": 0.00011567376467877533,
+        "escape_mismatches": 0,
+        "spray_mismatches": 0,
+        "droplets": 60,
+        "radius_rel": 9.042107614327117e-08,
+        "spray": 26,
+        "count": 19206,
+        "emitted": 6,
+        "deleted": 0,
+        "iterations": 10.0
+      },
+      "clouds": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 363,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 323,
+          "count": 19503
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 303,
+          "rejected_cap": 0,
+          "rejected_geometry": 129,
+          "raw_r3": 4.2973373548681773e-10,
+          "clipped_r3": 4.2973373548681773e-10,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 323
+        }
+      },
+      "budget": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 67,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 27,
+          "count": 19207
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 7,
+          "rejected_cap": 417,
+          "rejected_geometry": 8,
+          "raw_r3": 2.665762145737817e-12,
+          "clipped_r3": 2.665762145737817e-12,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 27
+        }
+      },
+      "boundary": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 212,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 172,
+          "count": 19352
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 152,
+          "rejected_cap": 0,
+          "rejected_geometry": 280,
+          "raw_r3": 1.9548653878088015e-10,
+          "clipped_r3": 1.9548653878088015e-10,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 172
+        }
+      },
+      "no_room": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 60,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 20,
+          "count": 19200
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 0,
+          "rejected_cap": 432,
+          "rejected_geometry": 0,
+          "raw_r3": 0,
+          "clipped_r3": 0,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 20
+        }
+      },
+      "invalid_graph_refused": "step_3d refused its inputs: step_3d: error: invalid spray event configuration or intensity"
+    },
+    "seconds": 32.83159539999906
+  },
+  "unchanged_limits": [
+    "Original coarse geometry calibration fails",
+    "Final integrated impact/recovery and held-out scene blocked",
+    "No 3D acceptance or promotion",
+    "Old 40-second caches unchanged"
+  ]
+}

@@ -116,3 +116,29 @@ PF §3.5 指向这类修正，但没有明确给出两相密度采样、逃逸/�
 此修补只关闭明确的气泡条款，不会解决体积目标密度如何处理粒子删除。体积候选仍拒绝 escape 组合，防止把已经不成立的固定总粒子数契约悄悄推广。
 
 最小单气泡见证在删除后触发 shipped write_Numpy 对零长度数组的拒写，未把缺失文件当作删除通过。该次失败保留；后续固定相场见证加入一个可辨识的水粒子哨兵，要求它完整留下而气泡消失。严格同输入的修复前后比较另由已经预录的 768 粒子四臂场景承担，不将变更过输入的微型见证称作同输入前后对照。
+
+修补后的全部局部条款通过：四臂通用场景的 phase 两臂删除两个空气夹杂、766 个水粒子全部留下，Python/C++ 位置及速度相同；off/legacy 与修补前逐位相同。四步连续与两步+两步续跑的全部状态一致。七种相场阈值（含阈值邻域和线性场）及无效配置检查通过。在 3.2025、8.0025、18.0025 秒的三个共同撞击状态中，分别删除 68、51、410 个气泡；先验证每个输入数组相同，再对照删除掩码，所有存活粒子的 13 个最终状态数组与旧 C++ 逐位一致。新 Python/C++ 同输入的最大位置差 3.82e-6、速度差 1.91e-6。没有把这个单步证据描述成完整新长轨迹已经稳定。
+
+证据：[bubble_lifecycle_20261024.json](../results/bubble_lifecycle_20261024.json)。C++ 修补提交 `bda0fdf`，DLL SHA256 `bd67b0e0613bac92b5823a1e977f3dde8a0f47a2daf00a23e96c9450fd9287d0`。修补后旧喷雾 graph gate 仍通过，输出也与修补前逐位对照；没有重新跑旧 240 秒实验，原失败结论继续保留。
+
+## 本轮结束的验收状态与唯一前沿
+
+| 步骤 | 状态 | 剩余准入条件 |
+| --- | --- | --- |
+| 1 固定模型 | 已形成可追溯的论文/实现选择清单 | `c_div` 与液滴转移接口仍是明确待确认项，不能称为完整作者实现 |
+| 2 基础流动 | 数密度反馈+外推/RK3 的局部、静水、续跑子项通过；绝对几何体积未通过标定 | 选定与相转换一致的密度目标，并验证材料体积账；粗界面测量误差不冒充物理体积变化 |
+| 3 逃逸与辅助喷雾 | 多滴发射/阻力/蒸发生灭局部 gate 通过；明确的气泡删除差别已修复 | 逃逸主液滴仍保留完整数值转移质量，需关闭 P2G 参与/物理半径/回水权重之间的契约缺口 |
+| 4 固定完整物理组 | 受控子项通过；最终候选的长撞击恢复与留出场景 blocked | 上述两个相连接口定清后再运行唯一集成候选；不在不完整模型上重复烧长模拟 |
+| 5 三维 | 按 Xue 本轮要求延期 | 验收完成后再讨论，不启动粗 3D 或正式模拟 |
+
+没有宣称五步全部完成或全部通过。现在的阻塞是具体模型接口，已经与压力收敛、语言舍入和不明确的视觉好坏分离。后续不是继续挑选更好看的白点数量，也不是无限加跑静水。作者回答不是证明代码正确的替代；得到接口后，仍须走同输入、独立物理和完整场景的有限 gate。
+
+### 建议向 Bernhard 核实的具体问题（未发送）
+
+这次完整阅读 Losasso §3–5 后，局部反馈律已经清楚；缺少的是 PF 如何使用它。可把以下三问合成一封简短信，不必再次泛问“怎样保持体积”或索要完整代码。
+
+1. For the `c_div` term in PF-FLIP Eq. (8), which particle-density quantity do you target: a phase-independent kernel-weight sum, or a phase-dependent/volume-weighted quantity? Do you use Losasso's logarithmic relaxation with a time scale independent of the solver timestep, and which particles contribute after conversion to droplets or deletion of bubbles?
+2. In a closed-wall test, the requested divergence must have zero net integral. How do you handle this compatibility condition for the density correction: remove a constant mode, compensate in selected regions, or use boundary conditions that permit a net flux? How are empty or insufficiently sampled cells treated?
+3. When a primary FLIP particle is converted into Lagrangian droplets, is its FLIP mass/momentum contribution removed from P2G entirely? On reentry, how are FLIP sampling weight, radius and represented liquid volume restored, especially when one source produces several droplets?
+
+第三问中的完整数值转移质量与液滴的 SI 半径是两个量，本实现目前没有证明它们形成守恒的体积转换。不要把数值权重 1000 直接说成“1000 公斤”。这些问题只使用公开论文及本地实现的描述；不把私人邮件或 snippet 加入公开仓库。
