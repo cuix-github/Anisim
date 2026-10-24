@@ -4,6 +4,18 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Current cumulative visual replay (2026-10-24).** At the user's explicit
+  request, the original 64x80 plunge was replayed with the locally checked
+  candidate and extended to 240 seconds. The
+  [matched videos and history](current-plunge-visual.md) separate cumulative
+  changes from causal ablations. Controls, full-state restart, finite caches,
+  pressure residuals and spray accounting pass; all 6,008 primary water samples
+  remain. Late speed/kinetic criteria pass, but the fixed near-rest surface proxy
+  still fails (.3704 versus .25 cells). Evaporation differs from the old baseline
+  because the new primary-droplet contract requires it off. No solver edit,
+  threshold relaxation, production admission or geometry certificate follows.
+  Geometric calibration and the independent holdout remain the bounded next work.
+
 - **Finite sparse-density candidate locally accepted (2026-10-24).**
   [This bounded experiment](sparse-density-contract.md) adds `volume_model=1`,
   an opt-in finite form of the cited discrete density feedback. It passes all
