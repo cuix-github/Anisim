@@ -94,3 +94,53 @@ The area error budget must be resolved explicitly before the integrated suite.
 Stop downstream execution at a failed physical gate. At most two bounded
 diagnostics may clarify a failure; no second candidate, epsilon tuning, changed
 thresholds or automatic long run is introduced in this experiment.
+
+## Executed result
+
+The new mode passes the registered local and short-duration tests. The previous
+log candidate remains unchanged and still refuses the same zero-support input.
+This closes the zero-support *definition* failure for the finite candidate;
+it neither proves all wall sampling accurate nor explains the old long movie.
+The [compact evidence](../results/sparse_density_20261024.json) includes both
+versions' binary provenance, raw output locations, numerical comparisons and
+retained failures. Source at execution: `c4896f7`; new DLL SHA256:
+`0a95a61b71c30b669c82fd2ba0e47f09f7e2eb7b0af61439f4d1e7b06545e178`.
+
+| Check | Result |
+| --- | --- |
+| Old off and supported log controls | Both reproduce all 13 before-build final arrays bit for bit |
+| Prescribed-grid sparse input | Old log refuses; new graph divergence matches the independently computed finite target to 8.27e-7 /s; wall-normal velocity stays zero |
+| Three retained impact inputs | 2, 20 and 14 empty centres are accepted; max Python/C++ position error 7.63e-6 cells, velocity error 2.58e-5 cells/s, each below the frozen limit; primary water inventory unchanged |
+| Generic displaced sampling patch | Same-input Python/C++ comparison passes outside the impact demo |
+| Continuous vs split restart | All 13 state arrays exactly match |
+| One-second density relaxation | Centred log RMS .136297 → .0199414, 14.63% remaining; both implementations pass the <=80% criterion |
+| Six-second combined static case | Both implementations pass the existing motion, sampled energy, relative reconstructed-area and primary water-inventory checks |
+| Existing auxiliary spray graph regression | Off/unset, single-event reference, multi-drop clouds, caps, boundary rejection and invalid configuration checks pass on the new binary |
+
+The static case combines phase=2, transport=3, escape=2, one-way primary
+droplets and the new density correction; new auxiliary emission and primary
+evaporation are off. Its C++ final RMS is .0100640 cells/s, COM drift .0129167
+cells, sampled maximum energy ratio 1.00009806, and maximum relative change of
+the fixed reconstructed area .000990045 (0.0990%). Primary water count remains
+2304. Python gives closely matching metrics. This is not complete stillness or
+an absolute geometric-volume accuracy claim.
+
+For context, the retained supported-domain log control had RMS .00999206 and
+COM drift .0125331, so the finite candidate does not improve every metric.
+Its concrete gain is finite, verified behavior on the previously inadmissible
+sampling gaps, while retaining the short-run acceptance bounds.
+
+Local, density and static stages took 68.55, 8.84 and 75.54 seconds respectively,
+including startup and comparisons. Two harness mistakes were corrected without
+changing the formula or thresholds: the first before-build capture used relative
+paths rejected by Bifrost's file nodes; the first post-build launch used a stale
+generated fused graph lacking the new port. The corrected absolute-path capture
+and regenerated graph passed; all failed directories remain under
+`out/runs/sparse_density_20261024/`. The original DLL is retained in `before/`.
+
+The stopping decision is **local candidate accepted, full integrated acceptance
+not yet granted**. Do not keep investigating language differences, pressure
+tolerances or all wall algorithms to explain the old log refusal. The already
+listed geometric measurement calibration and frozen full 2D/holdout suite remain;
+neither is waived. No rendering, production simulation, cache deletion or 3D
+run occurred, and all new behavior is opt-in.

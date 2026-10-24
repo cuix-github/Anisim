@@ -1,0 +1,356 @@
+{
+  "date": "2026-10-24",
+  "candidate": "volume_model=1, volume_tau=.5; opt-in uniform 2D phase=2",
+  "local_acceptance_passed": true,
+  "full_integrated_acceptance": false,
+  "source_sha": "c4896f7dc2aad505119794f5d13a2e3ea5009ad4",
+  "binary_sha256": "0a95a61b71c30b669c82fd2ba0e47f09f7e2eb7b0af61439f4d1e7b06545e178",
+  "baseline": {
+    "source_sha": "e24e17c",
+    "binary_sha256": "fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b",
+    "OMP_NUM_THREADS": 1,
+    "failed_first_attempt": {
+      "directory": "before",
+      "cause": "relative output paths rejected by shipped NumPy file nodes"
+    },
+    "controls": [
+      "off: tau=0, 4 steps",
+      "log: tau=.5, 1 step"
+    ]
+  },
+  "local": {
+    "passed": true,
+    "stage": "local",
+    "source_sha": "c4896f7dc2aad505119794f5d13a2e3ea5009ad4",
+    "binary_sha256": "0a95a61b71c30b669c82fd2ba0e47f09f7e2eb7b0af61439f4d1e7b06545e178",
+    "scope": "One finite-density candidate, with failures retained and no long-run admission.",
+    "limits": {
+      "position": 8e-06,
+      "velocity": 5e-05,
+      "ode_relative": 0.01,
+      "rest_rms": 0.1,
+      "rest_com": 0.1,
+      "rest_energy_ratio": 1.005,
+      "relative_area": 0.02
+    },
+    "controls": {
+      "off": {
+        "final.npy": true,
+        "final_mass.npy": true,
+        "final_momx.npy": true,
+        "final_momy.npy": true,
+        "final_momz.npy": true,
+        "final_phase.npy": true,
+        "final_radius.npy": true,
+        "final_scale.npy": true,
+        "final_spray.npy": true,
+        "final_tau.npy": true,
+        "final_velocities.npy": true,
+        "final_wt.npy": true,
+        "final_wtph.npy": true
+      },
+      "log": {
+        "final.npy": true,
+        "final_mass.npy": true,
+        "final_momx.npy": true,
+        "final_momy.npy": true,
+        "final_momz.npy": true,
+        "final_phase.npy": true,
+        "final_radius.npy": true,
+        "final_scale.npy": true,
+        "final_spray.npy": true,
+        "final_tau.npy": true,
+        "final_velocities.npy": true,
+        "final_wt.npy": true,
+        "final_wtph.npy": true
+      }
+    },
+    "math": {
+      "target": [
+        -2.0,
+        -1.0,
+        0.0,
+        1.0,
+        2.0
+      ],
+      "near_reference_difference": 6.666666730378162e-13
+    },
+    "projection": {
+      "empty_centres": 1,
+      "max_target": 2.1684952922218947,
+      "divergence_target_max_error": 8.262355697698492e-07,
+      "pressure_residual": 9.01671e-07,
+      "legacy_refusal_retained": true,
+      "invalid_configuration_refusals": {
+        "invalid_model": "step_3d refused its inputs: step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray",
+        "negative_tau": "step_3d refused its inputs: step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray"
+      }
+    },
+    "common": [
+      {
+        "step": 1280,
+        "empty_centres": 2,
+        "position": 7.62939453125e-06,
+        "velocity": 1.1444091796875e-05,
+        "count": 21942,
+        "residual": 5.423073048405058e-07,
+        "water_inventory_unchanged": true
+      },
+      {
+        "step": 3200,
+        "empty_centres": 20,
+        "position": 7.62939453125e-06,
+        "velocity": 9.5367431640625e-06,
+        "count": 23203,
+        "residual": 8.252837346844899e-07,
+        "water_inventory_unchanged": true
+      },
+      {
+        "step": 7200,
+        "empty_centres": 14,
+        "position": 7.62939453125e-06,
+        "velocity": 2.574920654296875e-05,
+        "count": 33855,
+        "residual": 3.850779819458694e-07,
+        "water_inventory_unchanged": true
+      }
+    ],
+    "sparse_restart": {
+      "sparse": {
+        "position": 0.0,
+        "velocity": 4.76837158203125e-07,
+        "count": 768,
+        "residual": 6.210503329384665e-07
+      },
+      "restart": {
+        "positions": true,
+        "velocities": true,
+        "mass": true,
+        "momx": true,
+        "momy": true,
+        "momz": true,
+        "tau": true,
+        "wt": true,
+        "wtph": true,
+        "scale": true,
+        "phase_st": true,
+        "radius": true,
+        "spray": true,
+        "particle_phase": true
+      }
+    },
+    "seconds": 68.55070400005206
+  },
+  "density": {
+    "seconds": 8.842392200022005,
+    "initial_log_rms": 0.13629679222804317,
+    "final_log_rms": {
+      "python": 0.019941406463616425,
+      "bifrost": 0.019941401618802215
+    },
+    "remaining_error_ratio": {
+      "python": 0.14630869984270595,
+      "bifrost": 0.14630866429664408
+    },
+    "final_position_max": 1.9073486328125e-06,
+    "final_velocity_max": 1.3783574104309082e-06,
+    "pressure_residual": 9.95592245089938e-07
+  },
+  "rest": {
+    "seconds": 75.53802119998727,
+    "pressure_residual": 9.99961457637255e-07,
+    "finite": {
+      "bifrost": {
+        "final_rms": 0.0100640136166933,
+        "com_drift": 0.012916720893469834,
+        "sampled_energy_ratio": 1.0000980583765704,
+        "reconstructed_area_drift": 0.0009900450671407324,
+        "water_counts": [
+          2304
+        ]
+      },
+      "python": {
+        "final_rms": 0.010064107485862154,
+        "com_drift": 0.012916177021248984,
+        "sampled_energy_ratio": 1.000098058382432,
+        "reconstructed_area_drift": 0.0009900442769584794,
+        "water_counts": [
+          2304
+        ]
+      }
+    },
+    "retained_log_baseline": {
+      "bifrost": {
+        "final_rms": 0.009992057170150143,
+        "com_drift": 0.012533141483122408,
+        "sampled_energy_ratio": 1.000098471865826,
+        "reconstructed_area_drift": 0.0010774208866869417,
+        "water_counts": [
+          2304
+        ]
+      },
+      "python": {
+        "final_rms": 0.0099920035887444,
+        "com_drift": 0.012533030085870974,
+        "sampled_energy_ratio": 1.0000984718648478,
+        "reconstructed_area_drift": 0.001077418523314999,
+        "water_counts": [
+          2304
+        ]
+      }
+    }
+  },
+  "spray_graph_regression": {
+    "check": "graph",
+    "passed": true,
+    "graph": {
+      "legacy_off": {
+        "unset_identical": true,
+        "spray_all_zero": true,
+        "droplets": 60
+      },
+      "legacy_lockstep": {
+        "grid": 0.0001327546826505599,
+        "positions": 4.360726919117042e-06,
+        "velocities": 0.00011567376467877533,
+        "escape_mismatches": 0,
+        "spray_mismatches": 0,
+        "droplets": 60,
+        "radius_rel": 9.042107614327117e-08,
+        "spray": 26,
+        "count": 19206,
+        "emitted": 6,
+        "deleted": 0,
+        "iterations": 10.0
+      },
+      "clouds": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 363,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 323,
+          "count": 19503
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 303,
+          "rejected_cap": 0,
+          "rejected_geometry": 129,
+          "raw_r3": 4.2973373548681773e-10,
+          "clipped_r3": 4.2973373548681773e-10,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 323
+        }
+      },
+      "budget": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 67,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 27,
+          "count": 19207
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 7,
+          "rejected_cap": 417,
+          "rejected_geometry": 8,
+          "raw_r3": 2.665762145737817e-12,
+          "clipped_r3": 2.665762145737817e-12,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 27
+        }
+      },
+      "boundary": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 212,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 172,
+          "count": 19352
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 152,
+          "rejected_cap": 0,
+          "rejected_geometry": 280,
+          "raw_r3": 1.9548653878088015e-10,
+          "clipped_r3": 1.9548653878088015e-10,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 172
+        }
+      },
+      "no_room": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 60,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 20,
+          "count": 19200
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 0,
+          "rejected_cap": 432,
+          "rejected_geometry": 0,
+          "raw_r3": 0,
+          "clipped_r3": 0,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 20
+        }
+      },
+      "invalid_graph_refused": "step_3d refused its inputs: step_3d: error: invalid spray event configuration or intensity"
+    },
+    "seconds": 34.23322259995621
+  },
+  "unaccepted": [
+    "absolute geometric area calibration at coarse resolution",
+    "long impact recovery and holdout for the final candidate",
+    "3D/ST/adapt with the new density mode"
+  ],
+  "production_defaults_changed": false,
+  "production_cache_modified": false,
+  "harness_failures": [
+    {
+      "directory": "before",
+      "reason": "relative output paths, corrected before solver edits"
+    },
+    {
+      "directory": "local",
+      "reason": "generated fused graph stale, regenerated from updated tracked source"
+    }
+  ],
+  "raw_root": "out/runs/sparse_density_20261024"
+}
