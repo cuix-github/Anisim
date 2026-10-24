@@ -4,6 +4,7 @@
 #include "PFFlipSolids.h"
 #include "PFFlipSprayEvents.h"
 #include "PFFlipTransport.h"
+#include "PFFlipVolume.h"
 
 #include <algorithm>
 #include <chrono>
@@ -276,7 +277,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float rho_air, float alpha_liquid, float alpha_air, int max_iterations,
              float tolerance, int preconditioner, int pressure_solver,
              int adaptive_band, int adaptive_levels, int escape, float esc_phi,
-             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model,
+             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model, float volume_tau,
              int st, int st_seed, int step_index,
              int adapt, float coarse_gain, float ws_epsilon,
              const Amino::Array<float>& scale_in,
@@ -425,6 +426,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nu = static_cast<size_t>(NX + 1) * NY * NZ;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
+    if (!std::isfinite(volume_tau) || volume_tau<0 || (volume_tau>0 &&
+        (phase_model!=2 || NZ!=1 || escape || emit_model || droplet_model || st || adapt))) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: invalid experimental volume contract"_amt);
+        std::fprintf(stderr,"step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray\n");
+        clearOutputs(); return;
+    }
     if (escape==2 && (phase_model!=2 || NZ!=1 || !std::isfinite(esc_phi) || esc_phi<=0 || esc_phi>=.5f)) {
         using namespace Amino::MessageLiterals;
         services.logError("step_3d: invalid phase-based escape configuration"_amt);
@@ -928,6 +936,30 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                         (v[L.iv(i, j + 1, k)] - v[L.iv(i, j, k)]) +
                         (w[L.iw(i, j, k + 1)] - w[L.iw(i, j, k)])) / dt;
 
+    if (volume_tau>0) {
+        Vec count(L.nc(),0.), target;
+        bool validCount=np==size_t(4)*NX*NY;
+        for (size_t i=0;i<np;++i) {
+            validCount &= std::isfinite(positions[i].x) && std::isfinite(positions[i].y);
+            validCount &= !(i<radius_in.size() && radius_in[i]>0);
+            validCount &= !(i<spray_in.size() && spray_in[i]>.5f);
+        }
+        if (!validCount) {
+            using namespace Amino::MessageLiterals;
+            services.logError("step_3d: invalid particle population for volume contract"_amt);
+            std::fprintf(stderr,"step_3d: error: volume contract requires finite primary particles, four per initial cell, with no droplets\n");
+            clearOutputs(); return;
+        }
+        for (size_t i=0;i<np;++i)
+            Volume::deposit(count,NX,NY,positions[i].x,positions[i].y);
+        if (!Volume::target(count,Volume::reference(NX,NY),volume_tau,target)) {
+            using namespace Amino::MessageLiterals;
+            services.logError("step_3d: missing number-density support for volume contract"_amt);
+            std::fprintf(stderr,"step_3d: error: volume contract refuses empty/nonfinite particle support\n");
+            clearOutputs(); return;
+        }
+        for (size_t c=0;c<rhs.size();++c) rhs[c]+=target[c]/dt;
+    }
     lap(msAsm);
     const size_t ncell = L.nc();
     Vec p;

@@ -1,0 +1,259 @@
+{
+  "date": "2026-10-24",
+  "scope": "2D volume candidate local checks; integrated PF/spray fidelity NOT accepted",
+  "implementation_commit": "06d7783a7b4edf3ae86aa539e95fd22b0a559a10",
+  "binary_sha256": "c32096f3bed8fb44a4cbed3bd34db261e6ca636d207975d7f422c42aa9c78801",
+  "volume_checks_passed": true,
+  "production_accepted": false,
+  "missing_term_witness": {
+    "diagnostic_checks_passed": true,
+    "paper_fidelity_accepted": false,
+    "math": {
+      "tau_seconds": 0.5,
+      "density_ratio": [
+        0.8,
+        1.0,
+        1.2
+      ],
+      "c_div": [
+        0.44628710262841953,
+        0.0,
+        -0.3646431135879092
+      ],
+      "target_divergence": [
+        -0.44628710262841953,
+        -0.0,
+        0.3646431135879092
+      ],
+      "original_target_mean": -0.040821994520255096,
+      "incompatible_rhs_min_relative_residual": 0.10017301228660234,
+      "compatible_projection_residual": 1.1651741315258851e-14,
+      "target_divergence_max_error": 1.637578961322106e-14,
+      "qualification": "Mean removal demonstrates compatibility only; not an adopted PF closure"
+    },
+    "control": {
+      "particles": 2304,
+      "steps": 4,
+      "python_cpp_positions_bit_identical": true,
+      "max_velocity": 0.0,
+      "pressure_max_residual": 0.0,
+      "unchanged_number_density": true
+    },
+    "density_error": {
+      "particles": 2304,
+      "steps": 4,
+      "python_cpp_positions_bit_identical": true,
+      "max_velocity": 0.0,
+      "pressure_max_residual": 0.0,
+      "unchanged_number_density": true,
+      "relative_min": -0.2965889685535088,
+      "relative_max": 0.8064428796491104,
+      "relative_rms": 0.22427053857968648,
+      "interpretation": "Existing nonzero count-density error persists at zero velocity in both implementations"
+    }
+  },
+  "cases": {
+    "local": {
+      "steps": 1,
+      "tau": 0.5,
+      "final_position_max": 0.0,
+      "final_velocity_max": 7.152557373046875e-07,
+      "max_pressure_residual": 3.3639972230048443e-07,
+      "seconds": 5.628933800035156,
+      "python": {
+        "final": {
+          "energy": 99653.37018499017,
+          "rms": 0.41502056798072223,
+          "com": [
+            11.99999998918631,
+            6.011046288328038
+          ],
+          "density_log_rms": 0.1356744954245294
+        },
+        "com_drift": 0.0002129553921186791,
+        "density_rms_final_over_initial": 0.9954342520220683
+      },
+      "bifrost": {
+        "final": {
+          "energy": 99653.37249993079,
+          "rms": 0.41502057263531095,
+          "com": [
+            11.99999998918631,
+            6.011046288328038
+          ],
+          "density_log_rms": 0.1356744954245294
+        },
+        "com_drift": 0.0002129553921186791,
+        "density_rms_final_over_initial": 0.9954342520220683
+      }
+    },
+    "density": {
+      "steps": 400,
+      "tau": 0.5,
+      "final_position_max": 2.86102294921875e-06,
+      "final_velocity_max": 2.8908252716064453e-06,
+      "max_pressure_residual": 9.97602228380856e-07,
+      "seconds": 10.131434599985369,
+      "python": {
+        "final": {
+          "energy": 4164.133979144102,
+          "rms": 0.08490209951193212,
+          "com": [
+            11.99999951209045,
+            5.995420174207538
+          ],
+          "density_log_rms": 0.02136378634583955
+        },
+        "com_drift": 0.015413158735958157,
+        "density_rms_final_over_initial": 0.1567446012235931
+      },
+      "bifrost": {
+        "final": {
+          "energy": 4164.134482930634,
+          "rms": 0.08490210462262289,
+          "com": [
+            11.999999517005765,
+            5.995420195265776
+          ],
+          "density_log_rms": 0.021363793613907976
+        },
+        "com_drift": 0.015413137677567515,
+        "density_rms_final_over_initial": 0.1567446545489011
+      }
+    },
+    "rest_off": {
+      "steps": 2400,
+      "tau": 0.0,
+      "final_position_max": 7.62939453125e-06,
+      "final_velocity_max": 1.1865049600601196e-06,
+      "max_pressure_residual": 1.720393640880502e-07,
+      "seconds": 60.177955999970436,
+      "python": {
+        "final": {
+          "energy": 137010416.48971915,
+          "rms": 0.006733487381687051,
+          "com": [
+            24.018760428298265,
+            6.007330008187434
+          ],
+          "density_log_rms": 0.12390453897066171
+        },
+        "com_drift": 0.02160356436493093,
+        "density_rms_final_over_initial": 1.0015723348039733,
+        "max_energy_ratio": 1.0,
+        "sampled_peak_rms": 0.02588047219961894
+      },
+      "bifrost": {
+        "final": {
+          "energy": 137010416.5154654,
+          "rms": 0.006733502320033669,
+          "com": [
+            24.018760362536543,
+            6.007330009325718
+          ],
+          "density_log_rms": 0.12390455254863032
+        },
+        "com_drift": 0.021603498596044827,
+        "density_rms_final_over_initial": 1.001572444560386,
+        "max_energy_ratio": 1.0,
+        "sampled_peak_rms": 0.02588047121351242
+      }
+    },
+    "rest_on": {
+      "steps": 2400,
+      "tau": 0.5,
+      "final_position_max": 0.000179290771484375,
+      "final_velocity_max": 3.2042531529441476e-05,
+      "max_pressure_residual": 9.997318102250574e-07,
+      "seconds": 54.06669850007165,
+      "python": {
+        "final": {
+          "energy": 136885934.40232983,
+          "rms": 0.010474191167005964,
+          "com": [
+            23.988653706929956,
+            6.001834107252459
+          ],
+          "density_log_rms": 0.0015323498650638898
+        },
+        "com_drift": 0.010223350083180574,
+        "density_rms_final_over_initial": 0.012386626388658738,
+        "max_energy_ratio": 1.000098471796636,
+        "sampled_peak_rms": 0.14648546346987884
+      },
+      "bifrost": {
+        "final": {
+          "energy": 136885928.34602505,
+          "rms": 0.010474198634536825,
+          "com": [
+            23.988653579416376,
+            6.001833838902207
+          ],
+          "density_log_rms": 0.0015323965178193634
+        },
+        "com_drift": 0.0102236051017111,
+        "density_rms_final_over_initial": 0.012387003502440146,
+        "max_energy_ratio": 1.000098471797614,
+        "sampled_peak_rms": 0.14648546285500097
+      }
+    }
+  },
+  "legacy_zero_motion_arrays": 13,
+  "legacy_spray": {
+    "passed": true,
+    "bit_identical": [
+      "frame.0000.npy",
+      "vel.0000.npy",
+      "ph.0000.npy",
+      "rad.0000.npy",
+      "spr.0000.npy",
+      "esc.0000.npy",
+      "frame.0040.npy",
+      "vel.0040.npy",
+      "ph.0040.npy",
+      "rad.0040.npy",
+      "spr.0040.npy",
+      "esc.0040.npy"
+    ]
+  },
+  "refusal": {
+    "passed": true,
+    "cases": {
+      "negative": "step_3d refused step 0 for negative: step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray/transport experiments",
+      "phase": "step_3d refused step 0 for phase: step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray/transport experiments",
+      "escape": "step_3d refused step 0 for escape: step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray/transport experiments",
+      "3d": "step_3d refused step 0 for 3d: step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray/transport experiments",
+      "population": "step_3d refused step 0 for population: step_3d: error: volume contract requires finite primary particles, four per initial cell, with no droplets",
+      "empty_support": "step_3d refused step 0 for empty_support: step_3d: error: volume contract refuses empty/nonfinite particle support"
+    }
+  },
+  "sources": {
+    "PF": "https://ge.in.tum.de/download/Adaptive_Phase_Field_FLIP_preprint.pdf",
+    "Losasso": "https://jerrytalton.net/research/ltkf-tcspl-08/paper.pdf"
+  },
+  "artifacts": {
+    "run": "out\\runs\\volume_candidate_20261024",
+    "comparison": "out\\runs\\volume_candidate_20261024\\visuals\\comparison.png"
+  },
+  "limitations": [
+    "Default off; no new production cache",
+    "Closed uniform 2D, exactly four initial primary particles per cell; no escape, spray, ST, adapt, solids or transport combinations",
+    "Spatial reference near walls and mean removal are explicit implementation choices",
+    "Centered sampling-density relaxation is not a geometric liquid-volume conservation certificate",
+    "No claim that old chaotic spray was caused or fixed by this term",
+    "No final impact replay or coarse 3D until integrated upstream contracts pass"
+  ],
+  "standalone_spray_regression": {
+    "passed": true,
+    "cases": [
+      "legacy_off",
+      "legacy_lockstep",
+      "clouds",
+      "budget",
+      "boundary",
+      "no_room",
+      "invalid_graph_refused"
+    ],
+    "receipt": "out/runs/volume_candidate_20261024/standalone_spray_regression/receipt_graph.json"
+  }
+}

@@ -904,6 +904,11 @@ class Sim:
             div = (uw[1:, :] - uw[:-1, :]) + (vw[:, 1:] - vw[:, :-1])
             ba_u, ba_v = bu * wu, bv * wv
         b = -div / dt
+        # Default None leaves every legacy operation unchanged. The opt-in
+        # volume subclass supplies a compatible target, div(u_after)=target.
+        target_div = getattr(self, '_target_divergence', None)
+        if target_div is not None:
+            b = b + target_div / dt
 
         def A(p):
             gpu = np.zeros_like(self.u)

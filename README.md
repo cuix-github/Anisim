@@ -35,6 +35,12 @@ visual behavior of one frozen C++ plunge. Independent trajectories diverging is
 not by itself proof of a physical defect, and settling is not proof of complete
 paper reproduction.
 
+The [bounded verification route](docs/verification-route.md) fixes the next
+five gates and records an opt-in 2D density-relaxation candidate. Its local
+projection, density-relaxation and still-water checks pass; integration with
+escape, transport, ST/adapt and 3D remains unaccepted. Production defaults
+remain unchanged.
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing

@@ -1,0 +1,508 @@
+{
+  "job": {
+    "commit": "69f5c9eb72c72570cc83b7d922c441ffd8abea35",
+    "binary_sha256": "973766a7c0331032e11aa6f5152ed69f82885677f8c39430fe406523527990e8",
+    "thresholds": {
+      "local_position": 8e-06,
+      "local_velocity": 5e-05,
+      "rest_rms": 0.1,
+      "rest_com": 0.1,
+      "energy_ratio": 1.005,
+      "area_drift": 0.02,
+      "analytic_area_error": 1e-10,
+      "seeded_geometry_relative_error": 0.05
+    },
+    "dt": 0.0024999999441206455,
+    "scope": "Finite 2D base-layer gate; no spray, no production, no rendering.\n\nControl: reproduce the previous volume-only graph. One-variable arms then\ncompare transport-only to volume+transport. A failure stops this gate and is\nretained; downstream long-impact acceptance is not launched by this script.\n",
+    "geometry": "cell-centre phi=.5 piecewise-linear area; mean of both diagonals; boundary constant extension",
+    "ports": "phase=2; escape/emission/droplet/ST/adapt off; tau 0/.5; transport 0/3"
+  },
+  "overall_pass": false,
+  "mechanics_passed": true,
+  "calibration": {
+    "passed": false,
+    "rows": [
+      {
+        "kind": "analytic_plane",
+        "height": 7.3,
+        "measured": 1569.6,
+        "expected": 1569.6000000000001
+      },
+      {
+        "kind": "analytic_plane",
+        "height": 12.0,
+        "measured": 1344.0,
+        "expected": 1344.0
+      },
+      {
+        "kind": "analytic_plane",
+        "height": 20.6,
+        "measured": 931.1999999999999,
+        "expected": 931.1999999999999
+      },
+      {
+        "kind": "plane12",
+        "area": 580.4034795942985,
+        "diagonal_difference": 4.729372449219227e-09,
+        "expected": 576,
+        "relative_error": 0.007644929851212678
+      },
+      {
+        "kind": "plane20",
+        "area": 964.4034795942985,
+        "diagonal_difference": 4.7294861360569485e-09,
+        "expected": 960,
+        "relative_error": 0.004586957910727607
+      },
+      {
+        "kind": "disk8",
+        "area": 211.35277743668337,
+        "diagonal_difference": 0.0,
+        "expected": 201.06192982974676,
+        "relative_error": 0.05118247703904255
+      },
+      {
+        "kind": "disk12",
+        "area": 462.7256776874987,
+        "diagonal_difference": 1.1368683772161603e-13,
+        "expected": 452.3893421169302,
+        "relative_error": 0.02284831804878551
+      }
+    ]
+  },
+  "control": {
+    "final.npy": true,
+    "final_mass.npy": true,
+    "final_momx.npy": true,
+    "final_momy.npy": true,
+    "final_momz.npy": true,
+    "final_phase.npy": true,
+    "final_radius.npy": true,
+    "final_scale.npy": true,
+    "final_spray.npy": true,
+    "final_tau.npy": true,
+    "final_velocities.npy": true,
+    "final_wt.npy": true,
+    "final_wtph.npy": true
+  },
+  "resume": {
+    "final.npy": true,
+    "final_mass.npy": true,
+    "final_momx.npy": true,
+    "final_momy.npy": true,
+    "final_momz.npy": true,
+    "final_phase.npy": true,
+    "final_radius.npy": true,
+    "final_scale.npy": true,
+    "final_spray.npy": true,
+    "final_tau.npy": true,
+    "final_velocities.npy": true,
+    "final_wt.npy": true,
+    "final_wtph.npy": true
+  },
+  "cases": {
+    "local_density": {
+      "position_max": 4.76837158203125e-07,
+      "velocity_max": 7.152557373046875e-07,
+      "pressure_residual_max": 6.119187787589908e-07,
+      "seconds": 4.039775299956091,
+      "checks": null,
+      "metrics": {
+        "python": {
+          "final_rms": 0.4315101321780012,
+          "com_drift": 0.000628558504942547,
+          "area_drift": 9.276255373347198e-05,
+          "max_energy_ratio": null
+        },
+        "bifrost": {
+          "final_rms": 0.431510129550327,
+          "com_drift": 0.000628558504942547,
+          "area_drift": 9.276255310197712e-05,
+          "max_energy_ratio": null
+        }
+      }
+    },
+    "local_rest": {
+      "position_max": 3.814697265625e-06,
+      "velocity_max": 1.8030405044555664e-06,
+      "pressure_residual_max": 2.996737009652861e-07,
+      "seconds": 4.07255369995255,
+      "checks": null,
+      "metrics": {
+        "python": {
+          "final_rms": 0.1475904205087572,
+          "com_drift": 0.00010237092067459258,
+          "area_drift": 2.1874259061305246e-05,
+          "max_energy_ratio": 1.0001695186701334
+        },
+        "bifrost": {
+          "final_rms": 0.1475904180372155,
+          "com_drift": 0.00010237052907801043,
+          "area_drift": 2.1874259061305246e-05,
+          "max_energy_ratio": 1.0001695187402686
+        }
+      }
+    },
+    "transport_only": {
+      "position_max": 7.62939453125e-06,
+      "velocity_max": 4.5960769057273865e-07,
+      "pressure_residual_max": 1.7259540641134663e-07,
+      "seconds": 45.72568549995776,
+      "checks": {
+        "python": {
+          "rms": true,
+          "com": true,
+          "energy": true,
+          "area": true
+        },
+        "bifrost": {
+          "rms": true,
+          "com": true,
+          "energy": true,
+          "area": true
+        }
+      },
+      "metrics": {
+        "python": {
+          "final_rms": 0.006721589104900345,
+          "com_drift": 0.021434285578828708,
+          "area_drift": 0.0007818986627150526,
+          "max_energy_ratio": 1.0
+        },
+        "bifrost": {
+          "final_rms": 0.006721582773671863,
+          "com_drift": 0.021434300763908294,
+          "area_drift": 0.0007819007029040703,
+          "max_energy_ratio": 1.0
+        }
+      }
+    },
+    "combined": {
+      "position_max": 3.4332275390625e-05,
+      "velocity_max": 6.176444003358483e-06,
+      "pressure_residual_max": 9.997929737437516e-07,
+      "seconds": 48.929426399990916,
+      "checks": {
+        "python": {
+          "rms": true,
+          "com": true,
+          "energy": true,
+          "area": true
+        },
+        "bifrost": {
+          "rms": true,
+          "com": true,
+          "energy": true,
+          "area": true
+        }
+      },
+      "metrics": {
+        "python": {
+          "final_rms": 0.0099920035887444,
+          "com_drift": 0.012533030085870974,
+          "area_drift": 0.001077418523314999,
+          "max_energy_ratio": 1.0000984718648478
+        },
+        "bifrost": {
+          "final_rms": 0.009992057170150143,
+          "com_drift": 0.012533141483122408,
+          "area_drift": 0.0010774208866869417,
+          "max_energy_ratio": 1.000098471865826
+        }
+      }
+    }
+  },
+  "area_refinement": {
+    "passed": true,
+    "rows": [
+      {
+        "cell_size": 1.0,
+        "measured": 211.35277743668337,
+        "expected": 201.06192982974676,
+        "relative_error": 0.05118247703904255,
+        "diagonal_difference": 0.0
+      },
+      {
+        "cell_size": 0.5,
+        "measured": 206.43762606261225,
+        "expected": 201.06192982974676,
+        "relative_error": 0.02673651962565704,
+        "diagonal_difference": 0.0
+      },
+      {
+        "cell_size": 0.25,
+        "measured": 203.6845175881007,
+        "expected": 201.06192982974676,
+        "relative_error": 0.013043681419822706,
+        "diagonal_difference": 5.684341886080802e-14
+      }
+    ]
+  },
+  "lifecycle_before": {
+    "passed": false,
+    "cases": {
+      "water_control": {
+        "input_phase": 1.0,
+        "particle_is_water": true,
+        "remaining": 1,
+        "escaped": [
+          0.0
+        ],
+        "radii": [
+          0.0
+        ],
+        "pressure_residual": 0.0
+      },
+      "escaped_drop": {
+        "input_phase": 0.0,
+        "particle_is_water": true,
+        "remaining": 1,
+        "escaped": [
+          1.0
+        ],
+        "radii": [
+          9.999999747378752e-05
+        ],
+        "pressure_residual": 0.0
+      },
+      "escaped_bubble": {
+        "input_phase": 1.0,
+        "particle_is_water": false,
+        "remaining": 1,
+        "escaped": [
+          1.0
+        ],
+        "radii": [
+          0.0
+        ],
+        "pressure_residual": 0.0
+      }
+    },
+    "failure": "AssertionError('PF section 3.4 requires deleting escaped bubbles; actual node retains one')"
+  },
+  "spray": {
+    "check": "all",
+    "passed": true,
+    "laws": {
+      "explicit_model_zero_disabled": true,
+      "event_count": {
+        "0.05": {
+          "mean": 0.05056666666666667,
+          "target": 0.05,
+          "standard_error": 0.0003979112128771107
+        },
+        "0.5": {
+          "mean": 0.5004333333333333,
+          "target": 0.5,
+          "standard_error": 0.0009128709291752768
+        },
+        "1.2": {
+          "mean": 1.1995133333333334,
+          "target": 1.2,
+          "standard_error": 0.0007302967433402214
+        },
+        "5.75": {
+          "mean": 5.750693333333333,
+          "target": 5.75,
+          "standard_error": 0.0007905694150420948
+        }
+      },
+      "temporal_expectation": {
+        "1": 2.7983,
+        "4": 2.802033333333333,
+        "16": 2.811166666666667
+      },
+      "radius": {
+        "1": {
+          "expected_volume_ratio": 1.0055875618670898,
+          "standard_error": 0.003276530592459323
+        },
+        "8": {
+          "expected_volume_ratio": 1.0037969201822619,
+          "standard_error": 0.003276530592459323
+        },
+        "64": {
+          "expected_volume_ratio": 1.0039405409682085,
+          "standard_error": 0.003276530592459323
+        }
+      },
+      "geometry": {
+        "2": {
+          "mean_square_radius": 0.4998837148943646,
+          "target": 0.5
+        },
+        "3": {
+          "mean_square_radius": 0.600444367633002,
+          "target": 0.6
+        }
+      },
+      "invalid_rejected": 5
+    },
+    "flight": {
+      "nonuniform_errors": [
+        8.525529290739771e-05,
+        2.1305307996907824e-05,
+        5.3244092938915055e-06
+      ],
+      "refinement_ratios": [
+        4.001598705814127,
+        4.001440689646193
+      ],
+      "oracle_refinement_error": 3.109986006154273e-14,
+      "legacy_physics": {
+        "d2_law_rel": 5.37667398159468e-15,
+        "normal": {
+          "mean": -0.0021793610579496016,
+          "std": 0.9999480052252077,
+          "median_um": 99.8809036286663,
+          "ln_std": 0.6999635917373362
+        },
+        "stokes": {
+          "tau_ms": 5.925926075627411,
+          "max_err": 0.00833564782376428
+        },
+        "terminal": {
+          "v": 7.701023105069004,
+          "closed_form": 7.706746355884525,
+          "re": 1026.8031066150954
+        }
+      }
+    },
+    "graph": {
+      "legacy_off": {
+        "unset_identical": true,
+        "spray_all_zero": true,
+        "droplets": 60
+      },
+      "legacy_lockstep": {
+        "grid": 0.0001327546826505599,
+        "positions": 4.360726919117042e-06,
+        "velocities": 0.00011567376467877533,
+        "escape_mismatches": 0,
+        "spray_mismatches": 0,
+        "droplets": 60,
+        "radius_rel": 9.042107614327117e-08,
+        "spray": 26,
+        "count": 19206,
+        "emitted": 6,
+        "deleted": 0,
+        "iterations": 10.0
+      },
+      "clouds": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 363,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 323,
+          "count": 19503
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 303,
+          "rejected_cap": 0,
+          "rejected_geometry": 129,
+          "raw_r3": 4.2973373548681773e-10,
+          "clipped_r3": 4.2973373548681773e-10,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 323
+        }
+      },
+      "budget": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 67,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 27,
+          "count": 19207
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 7,
+          "rejected_cap": 417,
+          "rejected_geometry": 8,
+          "raw_r3": 2.665762145737817e-12,
+          "clipped_r3": 2.665762145737817e-12,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 27
+        }
+      },
+      "boundary": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 212,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 172,
+          "count": 19352
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 152,
+          "rejected_cap": 0,
+          "rejected_geometry": 280,
+          "raw_r3": 1.9548653878088015e-10,
+          "clipped_r3": 1.9548653878088015e-10,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 172
+        }
+      },
+      "no_room": {
+        "comparison": {
+          "grid": 0.0001327546826505599,
+          "positions": 4.360726919117042e-06,
+          "velocities": 0.00011567376467877533,
+          "escape_mismatches": 0,
+          "spray_mismatches": 0,
+          "droplets": 60,
+          "radius_rel": 9.042107636011175e-08,
+          "spray": 20,
+          "count": 19200
+        },
+        "accounting": {
+          "step": 7,
+          "candidates": 6,
+          "events": 27,
+          "requested": 432,
+          "accepted": 0,
+          "rejected_cap": 432,
+          "rejected_geometry": 0,
+          "raw_r3": 0,
+          "clipped_r3": 0,
+          "evaporated": 0,
+          "reentered": 0,
+          "alive": 20
+        }
+      },
+      "invalid_graph_refused": "step_3d refused its inputs: step_3d: error: invalid spray event configuration or intensity"
+    },
+    "seconds": 33.17461560002994
+  },
+  "source": {
+    "url": "https://jerrytalton.net/research/ltkf-tcspl-08/paper.pdf",
+    "sha256": "032c77689726a41b5f69016d9694625a3f46de9792bfab256300b28236ea15c8",
+    "reading": "Full main text sections 1-7, equations on page 3 visually checked; references checked, not all cited papers read"
+  }
+}
