@@ -4,6 +4,17 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Spray/carrier scope clarified (2026-10-24).** A bounded
+  [follow-up audit](spray-carrier-scope-audit.md) reproduces the old carrier
+  control and shows auxiliary and detached-primary droplets give identical
+  physical arrays while keeping initially stationary air still. Legacy airborne
+  primaries change their own carrier. Separately, all 36 empty-count observations
+  in three saved inputs lie within two cells of a wall; the 8-second input has
+  no current airborne stencil touching unsupported interior P2G faces despite
+  the density candidate refusing it. Flight/emission tests do not require that
+  candidate to pass first. The density candidate remains failed and base-flow
+  accuracy, long impact/holdout and 3D are not certified. No solver change.
+
 - **Independent interface closure (2026-10-24).** The latest
   [bounded experiment](independent-interface-closure.md) no longer depends on an
   author reply. An opt-in one-way primary-droplet contract passes independent
