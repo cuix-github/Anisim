@@ -1,0 +1,43 @@
+{
+  "scope": "One added liquid primary in stationary, uniformly seeded air; no projection or evolution",
+  "regular_kernel_sum": 3.1015625,
+  "examples": [
+    {
+      "position": "quarter",
+      "own_u_fraction": 0.9140773555639676,
+      "own_v_fraction": 0.9140773555639676,
+      "raw_sample_phi": 0.29732278090733866,
+      "pure_sample_phi": 0.0,
+      "escape_pure": true
+    },
+    {
+      "position": "cell_center",
+      "own_u_fraction": 0.9927018034082762,
+      "own_v_fraction": 0.9927018034082762,
+      "raw_sample_phi": 0.36071095887776844,
+      "pure_sample_phi": 0.36071095887776844,
+      "escape_pure": false
+    },
+    {
+      "position": "u_face_center",
+      "own_u_fraction": 0.9969080274461242,
+      "own_v_fraction": 0.9757882539488931,
+      "raw_sample_phi": 0.37402506348124953,
+      "pure_sample_phi": 0.0,
+      "escape_pure": true
+    },
+    {
+      "position": "grid_vertex",
+      "own_u_fraction": 0.9927018034082762,
+      "own_v_fraction": 0.9927018034082762,
+      "raw_sample_phi": 0.36071095887776844,
+      "pure_sample_phi": 0.0,
+      "escape_pure": true
+    }
+  ],
+  "scan_samples": 1681,
+  "escape_samples": 1304,
+  "escaped_own_component_fraction_min": 0.8391461702177652,
+  "escaped_own_component_fraction_max": 0.9853930027818825,
+  "density_global_normalization": "log(n/(c*n_ref))-mean(log(n/(c*n_ref))) equals log(n/n_ref)-mean(log(n/n_ref)) exactly algebraically"
+}

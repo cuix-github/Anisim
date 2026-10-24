@@ -47,7 +47,8 @@ lifecycle, exact restart, common-input execution without density feedback, and
 six-second static controls pass. The integrated candidate **fails** on empty
 air sampling support in retained impact states; its long recovery/holdout and
 3D admission remain withheld. A generic sub-cutoff primary-radius deletion is
-fixed only in the new mode. See the [receipt](results/interface_closure_20261024.json).
+fixed only in the new mode. See the [receipt](results/interface_closure_20261024.json)
+and the full [research derivation](docs/literature/pf-interface-closure-derivation.md).
 
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local

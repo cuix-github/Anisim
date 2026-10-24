@@ -6,6 +6,11 @@ it does not erase its failed geometry calibration or 240-second near-rest gate.
 No production simulation, rendering, data deletion or automatic PR merge is part
 of this work.
 
+The full [research derivation](literature/pf-interface-closure-derivation.md),
+[static analytical evidence](../results/interface_static_transfer_20261024.json)
+and [executed acceptance receipt](../results/interface_closure_20261024.json)
+are tracked in this repository. Large raw arrays and run logs remain local.
+
 ## Candidate frozen before its experiments
 
 `droplet_transfer_model=1` is an opt-in **one-way** approximation, restricted to
@@ -90,7 +95,8 @@ failed interface; it cannot adjust a threshold after seeing the result.
 
 Sources: [PF-FLIP](https://ge.in.tum.de/download/Adaptive_Phase_Field_FLIP_preprint.pdf),
 [Losasso et al. 2008](https://jerrytalton.net/research/ltkf-tcspl-08/paper.pdf).
-Detailed independent notes and derivations remain in this run's research folder.
+The full derivation is archived in the tracked research document above;
+working notes remain in this run's local research folder.
 
 ## First result and bounded diagnostic
 

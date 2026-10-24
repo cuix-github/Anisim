@@ -665,5 +665,7 @@
     "six-second static control is independent of the failed impact gate; passing it does not enable long runs",
     "original 240-second near-rest failure and geometric calibration failure remain unchanged"
   ],
-  "static_control_wall_seconds": 139.74376330000814
+  "static_control_wall_seconds": 139.74376330000814,
+  "research_report": "docs/literature/pf-interface-closure-derivation.md",
+  "static_transfer_evidence": "results/interface_static_transfer_20261024.json"
 }
