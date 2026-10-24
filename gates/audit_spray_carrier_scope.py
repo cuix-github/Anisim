@@ -15,7 +15,6 @@ import sys
 import time
 
 import numpy as np
-from scipy.spatial import cKDTree
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'gates'))
@@ -40,9 +39,10 @@ def support_audit():
         cells = np.argwhere(zero)
         assert cells.tolist() == expected['zero_coordinates'], 'retained support control differs'
         # Independent nearest-neighbour/kernel evaluation, not the splat stencil.
-        tree = cKDTree(s.pos[active])
+        active_points = s.pos[active]
+        active_masses = s.masses()[active]
         pts = cells + .5
-        distance, _ = tree.query(pts)
+        distance = np.array([np.sqrt(np.min(np.sum((active_points-p)**2, axis=1))) for p in pts])
         assert np.all(distance >= 1.), 'zero support despite a point inside the kernel'
         s.p2g()
         mu, mv = s.mu.copy(), s.mv.copy()
@@ -52,10 +52,9 @@ def support_audit():
                      ((i+.5, j), mv[i,j]), ((i+.5, j+1), mv[i,j+1])]
             checked = []
             for point, deposited in faces:
-                ids = tree.query_ball_point(point, 1.)
-                delta = s.pos[active][ids] - point
+                delta = active_points - point
                 weights = np.maximum(1.-np.sum(delta*delta, axis=1), 0.)**3
-                independent = float(weights @ s.masses()[active][ids])
+                independent = float(weights @ active_masses)
                 assert np.isclose(deposited, independent, rtol=2e-12, atol=2e-12)
                 checked.append(float(deposited))
             holes.append(dict(cell=[int(i),int(j)], nearest_active_distance=float(d),
