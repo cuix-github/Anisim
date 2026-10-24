@@ -833,6 +833,23 @@
           "portDirection": "input",
           "portType": "int",
           "portDefault": "0"
+        },
+        {
+          "portName": "droplet_transfer_model",
+          "portDirection": "input",
+          "portType": "int",
+          "portDefault": "0"
+        },
+        {
+          "portName": "path_out_mass",
+          "portDirection": "input",
+          "portType": "string",
+          "portDefault": ""
+        },
+        {
+          "portName": "ok_out_mass",
+          "portDirection": "output",
+          "portType": "bool"
         }
       ],
       "compoundNodes": [
@@ -1095,6 +1112,10 @@
         {
           "nodeName": "r_linear_drag_w",
           "nodeType": "File::NumPy::read_NumPy"
+        },
+        {
+          "nodeName": "w_out_mass",
+          "nodeType": "File::NumPy::write_NumPy"
         }
       ],
       "connections": [
@@ -2093,6 +2114,22 @@
         {
           "source": ".transport_model",
           "target": "step.transport_model"
+        },
+        {
+          "source": ".droplet_transfer_model",
+          "target": "step.droplet_transfer_model"
+        },
+        {
+          "source": ".path_out_mass",
+          "target": "w_out_mass.file_path"
+        },
+        {
+          "source": "step.out_mass",
+          "target": "w_out_mass.data"
+        },
+        {
+          "source": "w_out_mass.success",
+          "target": ".ok_out_mass"
         }
       ],
       "values": [
@@ -2261,6 +2298,16 @@
         },
         {
           "valueName": "w_spray_out.create_directories",
+          "valueType": "bool",
+          "value": "true"
+        },
+        {
+          "valueName": "w_out_mass.overwrite",
+          "valueType": "bool",
+          "value": "true"
+        },
+        {
+          "valueName": "w_out_mass.create_directories",
           "valueType": "bool",
           "value": "true"
         }

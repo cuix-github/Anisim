@@ -109,6 +109,16 @@ def run_bifrost3(tag, nx, ny, nz, mask, substeps, dt, rho_l=1000.0, rho_g=1.0,
         for k2 in ("velocities", "mass", "momx", "momy", "momz", "tau", "wt", "wtph",
                    "scale", "phase_st", "radius", "spray"):
             arrs[k2] = init_arrays[k2].astype(np.float32)
+    if (extra_ports or {}).get('droplet_transfer_model',0)==1:
+        if not fused:
+            raise ValueError('one-way primary transfer requires the fused graph')
+        inactive=(arrs['spray']>.5)|((typ==1)&(arrs['radius']>0))
+        expected=np.where(inactive,0.,np.where(typ==1,rho_l,rho_g)).astype(np.float32)
+        if (not np.isfinite(arrs['radius']).all() or (arrs['radius']<0).any()
+            or not np.all(arrs['scale']==1) or not np.all(arrs['wt']==1)
+            or not np.array_equal(arrs['mass'],expected)
+            or any(np.any(arrs[n][inactive]!=0) for n in ('momx','momy','momz'))):
+            raise ValueError('one-way primary checkpoint has inconsistent transfer weights or radius')
     for k, v in arrs.items():
         np.save(os.path.join(d, k + ".npy"), v)
     paths = {k: os.path.join(d, k + ".npy").replace("\\", "/") for k in arrs}

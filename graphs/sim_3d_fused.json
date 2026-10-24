@@ -772,6 +772,12 @@
      "portDirection": "input",
      "portType": "float",
      "portDefault": "0f"
+    },
+    {
+     "portName": "droplet_transfer_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
     }
    ],
    "compounds": [
@@ -1369,6 +1375,11 @@
        "portName": "volume_tau",
        "portDirection": "input",
        "portType": "float"
+      },
+      {
+       "portName": "droplet_transfer_model",
+       "portDirection": "input",
+       "portType": "int"
       }
      ],
      "compounds": [],
@@ -2255,6 +2266,10 @@
       {
        "source": ".volume_tau",
        "target": "step.volume_tau"
+      },
+      {
+       "source": ".droplet_transfer_model",
+       "target": "step.droplet_transfer_model"
       },
       {
        "source": ".rho_liquid",
@@ -3508,6 +3523,10 @@
     {
      "source": ".volume_tau",
      "target": "loop.volume_tau"
+    },
+    {
+     "source": ".droplet_transfer_model",
+     "target": "loop.droplet_transfer_model"
     }
    ],
    "values": [

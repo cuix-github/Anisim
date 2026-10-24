@@ -68,8 +68,15 @@ class TransportContractSim(PhaseContractSim):
 
     def advect(self,dt,ballistic=None,fly=None):
         if self.transport_model==0:return super().advect(dt,ballistic,fly)
-        if ballistic is not None or fly is not None or self.escape or self.st or self.adapt:
+        if self.st or self.adapt or ((ballistic is not None or fly is not None or self.escape)
+                                     and not self.droplet_transfer_model):
             raise ValueError('transport experiment requires no escape/ST/adapt')
+        if fly is not None and fly.any():
+            self._droplet_fly(fly,np.full(int(fly.sum()),float(dt)))
+        if ballistic is not None:
+            move=ballistic if fly is None else ballistic&~fly
+            self.pos[move]+=dt*self.vel[move]
+        active=np.arange(len(self.pos)) if ballistic is None else np.flatnonzero(~ballistic)
         fields=self.transport_fields()
         def sample(q,ids):
             raw=self.sample_velocity(q)
@@ -79,11 +86,10 @@ class TransportContractSim(PhaseContractSim):
                     raw[mask,axis]=self._sample_faces(fields[axis],np.array(off),q[mask])
             return raw
         if self.transport_model in (1,3):
-            self.pos=rk3_local(self.pos,dt,sample)
+            self.pos[active]=rk3_local(self.pos[active],dt,lambda q,ids:sample(q,active[ids]))
         else:
-            ids=np.arange(len(self.pos))
-            mid=self.pos+.5*dt*sample(self.pos,ids)
-            self.pos=self.pos+dt*sample(np.clip(mid,.51,None),ids)
+            mid=self.pos[active]+.5*dt*sample(self.pos[active],active)
+            self.pos[active]+=dt*sample(np.clip(mid,.51,None),active)
         for axis,hi in enumerate((self.nx-.51,self.ny-.51)):
             hit=(self.pos[:,axis]<.51)|(self.pos[:,axis]>hi)
             self.pos[:,axis]=np.clip(self.pos[:,axis],.51,hi);self.vel[hit,axis]=0

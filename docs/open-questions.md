@@ -4,6 +4,20 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Independent interface closure (2026-10-24).** The latest
+  [bounded experiment](independent-interface-closure.md) no longer depends on an
+  author reply. An opt-in one-way primary-droplet contract passes independent
+  stationary-air drag refinement, persistent conversion/reentry, exact restart,
+  three common impact inputs with density feedback off, and supported-domain
+  six-second static controls. A zero-evaporation sub-cutoff-radius parcel-loss
+  witness is repaired in that new mode; production defaults are unchanged.
+  Integration fails for a specific reason: the existing log sampling correction
+  cannot evaluate empty air cells, most of which already exist before primary
+  exclusion. The next question is the correction's admissible sparse-air domain
+  and source handling, not C++ versus Python arithmetic. Long impact/holdout and
+  3D remain withheld. [Evidence](../results/interface_closure_20261024.json).
+  Earlier suggestions below to ask the author are historical, not prerequisites.
+
 - **PF escaped-bubble discrepancy repaired (2026-10-24).** Opt-in `escape=2`
   now deletes classified air inclusions as PF section 3.4 specifies, with and
   without water-droplet integration. Before/after generic fixtures, exact

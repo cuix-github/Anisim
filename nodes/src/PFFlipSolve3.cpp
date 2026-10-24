@@ -277,7 +277,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float rho_air, float alpha_liquid, float alpha_air, int max_iterations,
              float tolerance, int preconditioner, int pressure_solver,
              int adaptive_band, int adaptive_levels, int escape, float esc_phi,
-             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model, float volume_tau,
+             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model, float volume_tau, int droplet_transfer_model,
              int st, int st_seed, int step_index,
              int adapt, float coarse_gain, float ws_epsilon,
              const Amino::Array<float>& scale_in,
@@ -426,8 +426,30 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nu = static_cast<size_t>(NX + 1) * NY * NZ;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
+    const bool detached = droplet_transfer_model==1;
+    if (droplet_transfer_model<0 || droplet_transfer_model>1 || (detached &&
+        (phase_model!=2 || NZ!=1 || escape!=2 || droplet_model<1 || droplet_model>2 ||
+         droplet_evap_k!=0 || st || adapt ||
+         !std::isfinite(droplet_r_median) || droplet_r_median<=0 ||
+         !std::isfinite(droplet_r_min) || droplet_r_min<=0 ||
+         !std::isfinite(droplet_r_sigma) || droplet_r_sigma<0 || droplet_r_sigma>2))) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: invalid one-way primary transfer contract"_amt);
+        std::fprintf(stderr,"step_3d: error: one-way primary transfer requires uniform 2D phase=2 escape=2 droplets and zero evaporation\n");
+        clearOutputs(); return;
+    }
+    if (detached) {
+        for (size_t i=0;i<radius_in.size();++i) {
+            if (!std::isfinite(radius_in[i]) || radius_in[i]<0) {
+                using namespace Amino::MessageLiterals;
+                services.logError("step_3d: invalid primary-transfer radius state"_amt);
+                std::fprintf(stderr,"step_3d: error: one-way primary radius must be finite and nonnegative\n");
+                clearOutputs(); return;
+            }
+        }
+    }
     if (!std::isfinite(volume_tau) || volume_tau<0 || (volume_tau>0 &&
-        (phase_model!=2 || NZ!=1 || escape || emit_model || droplet_model || st || adapt))) {
+        (phase_model!=2 || NZ!=1 || ((!detached) && (escape || emit_model || droplet_model)) || st || adapt))) {
         using namespace Amino::MessageLiterals;
         services.logError("step_3d: invalid experimental volume contract"_amt);
         std::fprintf(stderr,"step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray\n");
@@ -441,7 +463,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         return;
     }
     if (transport_model!=0 && (transport_model<1 || transport_model>3 || phase_model!=2 || NZ!=1 ||
-                               escape || st || adapt || emit_model || droplet_model)) {
+                               st || adapt || ((!detached) && (escape || emit_model || droplet_model)))) {
         using namespace Amino::MessageLiterals;
         services.logError("step_3d: transport experiment requires uniform 2D phase mode 2 without spray"_amt);
         std::fprintf(stderr,"step_3d: error: unsupported experimental transport configuration\n");
@@ -938,11 +960,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
 
     if (volume_tau>0) {
         Vec count(L.nc(),0.), target;
-        bool validCount=np==size_t(4)*NX*NY;
+        bool validCount=detached || np==size_t(4)*NX*NY;
         for (size_t i=0;i<np;++i) {
             validCount &= std::isfinite(positions[i].x) && std::isfinite(positions[i].y);
-            validCount &= !(i<radius_in.size() && radius_in[i]>0);
-            validCount &= !(i<spray_in.size() && spray_in[i]>.5f);
+            if (!detached) {
+                validCount &= !(i<radius_in.size() && radius_in[i]>0);
+                validCount &= !(i<spray_in.size() && spray_in[i]>.5f);
+            }
         }
         if (!validCount) {
             using namespace Amino::MessageLiterals;
@@ -950,8 +974,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             std::fprintf(stderr,"step_3d: error: volume contract requires finite primary particles, four per initial cell, with no droplets\n");
             clearOutputs(); return;
         }
-        for (size_t i=0;i<np;++i)
-            Volume::deposit(count,NX,NY,positions[i].x,positions[i].y);
+        for (size_t i=0;i<np;++i) {
+            const bool auxiliary=i<spray_in.size() && spray_in[i]>.5f;
+            const bool airborne=i<radius_in.size() && radius_in[i]>0 &&
+                i<particle_phase.size() && particle_phase[i]>.5f;
+            if (!detached || (!auxiliary && !airborne))
+                Volume::deposit(count,NX,NY,positions[i].x,positions[i].y);
+        }
         if (!Volume::target(count,Volume::reference(NX,NY),volume_tau,target)) {
             using namespace Amino::MessageLiterals;
             services.logError("step_3d: missing number-density support for volume contract"_amt);
@@ -1328,6 +1357,8 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 const double localPhase = escape==2 ? sampleCnt(chP_u, chP_v, chP_w,
                     qx[pi], qy[pi], qz[pi]) : 0.0;
                 if (escape==2) escFlag[pi] = isLiq[pi] ? localPhase<esc_phi : localPhase>1.0-esc_phi;
+                if (detached && isLiq[pi] && pi<radius_in.size() && radius_in[pi]>0)
+                    escFlag[pi] = localPhase<=1.0-esc_phi;
                 // the wave zone's liquid is the zone's to move, never a droplet
                 if (zoneOn && isLiq[pi] && qx[pi] < zoneLen) escFlag[pi] = 0;
                 if (sprayF[pi]) {
@@ -1393,6 +1424,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             if (r <= 0.0)
                 r = rmed * std::exp(rsig * dropletNormal(step_index, static_cast<uint64_t>(pi)));
             r = std::sqrt(std::max(r * r - evap, 0.0));
+            // A primary is a represented parcel, not one physical droplet.
+            // In the zero-evaporation one-way experiment, the aerodynamic
+            // radius cutoff must not silently delete its material inventory.
+            // Auxiliary spray and all legacy modes retain their deletion law.
+            if (detached && !sprayF[pi])
+                r = std::max(r, static_cast<double>(droplet_r_min));
             radNew[pi] = r;
             gone[pi] = r < static_cast<double>(droplet_r_min) ? 1 : 0;
             if (sprayF[pi] && insideF[pi]) gone[pi] = 1;
@@ -2068,7 +2105,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         (*outSync)[i] = {static_cast<float>(sx), static_cast<float>(sy),
                          static_cast<float>(sz)};
         const double rhoP = Ph01[i] >= 0.5 ? rl : rg;
-        const double mEff = Spray[i] ? 0.0 : rhoP * std::pow(Scl[i], dExp) *
+        const double mEff = (Spray[i] || (detached && Ph01[i]>=.5 && Rad[i]>0)) ? 0.0 : rhoP * std::pow(Scl[i], dExp) *
                             (Scl[i] > 1.5 ? coarse_gain : 1.0);
         const double wp = Wt[i];
         (*outM)[i] = static_cast<float>(wp * mEff);

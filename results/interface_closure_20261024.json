@@ -1,0 +1,671 @@
+{
+  "date": "2026-10-24",
+  "candidate": "opt-in uniform 2D phase=2 escape=2 droplet_transfer_model=1; evaporation=0",
+  "integrated_admission": "FAILED: positive-support density law cannot evaluate retained impact states",
+  "production_defaults_changed": false,
+  "production_cache_modified": false,
+  "rendered": false,
+  "three_dimensional_run": false,
+  "research_report_local": "out/runs/interface_closure_20261024/reports/PF FLIP 接口 独立 验证.md",
+  "primary_sources": [
+    "https://ge.in.tum.de/download/Adaptive_Phase_Field_FLIP_preprint.pdf",
+    "https://jerrytalton.net/research/ltkf-tcspl-08/paper.pdf"
+  ],
+  "provenance": {
+    "control": {
+      "commit": "eb4bcc35ae0e1f5bfca8f6865a0d06f8f52348df",
+      "binary_sha256": "bd67b0e0613bac92b5823a1e977f3dde8a0f47a2daf00a23e96c9450fd9287d0",
+      "scope": "four-step prior density witness replay, no numerical changes"
+    },
+    "local": {
+      "commit": "54c5d6c54f2ec2254c7b4ad789a2e89389d98af9",
+      "binary_sha256": "444a6dd7e180925b42507c4b07bfb0cae371d3fbd0b547b162a8a2ddfbd50cb4",
+      "command": [
+        "gates/validate_interface_closure.py",
+        "--out",
+        "out/runs/interface_closure_20261024/local",
+        "--stage",
+        "local"
+      ],
+      "thresholds": {
+        "position": 8e-06,
+        "velocity": 5e-05,
+        "ode_relative": 0.01,
+        "rest_rms": 0.1,
+        "rest_com": 0.1,
+        "rest_energy_ratio": 1.005,
+        "relative_area": 0.02
+      },
+      "scope": "Finite independent interface gates, frozen in independent-interface-closure.md.\n\nNo production inputs, rendering, or deletion. Default paths are checked before\nnew choices. Old coupling is a contrast, never judged against the one-way oracle.\n"
+    },
+    "local_after": {
+      "commit": "0d0f9fcb1ffdf15605cfb1daf18962521a943b6e",
+      "binary_sha256": "fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b",
+      "command": [
+        "gates/validate_interface_closure.py",
+        "--out",
+        "out/runs/interface_closure_20261024/local_after",
+        "--stage",
+        "local"
+      ],
+      "thresholds": {
+        "position": 8e-06,
+        "velocity": 5e-05,
+        "ode_relative": 0.01,
+        "rest_rms": 0.1,
+        "rest_com": 0.1,
+        "rest_energy_ratio": 1.005,
+        "relative_area": 0.02
+      },
+      "scope": "Finite independent interface gates, frozen in independent-interface-closure.md.\n\nNo production inputs, rendering, or deletion. Default paths are checked before\nnew choices. Old coupling is a contrast, never judged against the one-way oracle.\n"
+    },
+    "support_diagnostic": {
+      "commit": "1471733fb8f07e8d38e915e0551a3c4a63c9d65f",
+      "binary_sha256": "444a6dd7e180925b42507c4b07bfb0cae371d3fbd0b547b162a8a2ddfbd50cb4",
+      "command": [
+        "gates/diagnose_interface_support.py",
+        "out/runs/interface_closure_20261024/support_diagnostic"
+      ],
+      "scope": "One frozen diagnostic after the interface closure's positive-support refusal.\n\nDistinguish pre-existing sampling holes from detached-particle exclusion. Then\ndisable only density feedback in the three common-input execution checks. This\ndoes not qualify the failed integrated candidate or relax any numerical gate.\n"
+    },
+    "support_after": {
+      "commit": "0d0f9fcb1ffdf15605cfb1daf18962521a943b6e",
+      "binary_sha256": "fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b",
+      "command": [
+        "gates/diagnose_interface_support.py",
+        "out/runs/interface_closure_20261024/support_after"
+      ],
+      "scope": "One frozen diagnostic after the interface closure's positive-support refusal.\n\nDistinguish pre-existing sampling holes from detached-particle exclusion. Then\ndisable only density feedback in the three common-input execution checks. This\ndoes not qualify the failed integrated candidate or relax any numerical gate.\n"
+    },
+    "inventory_before": {
+      "commit": "7e344116e912ccc4df7f0822ce6a3e8bd24fc4d2",
+      "binary_sha256": "444a6dd7e180925b42507c4b07bfb0cae371d3fbd0b547b162a8a2ddfbd50cb4",
+      "before": true,
+      "scope": "Primary represented area must survive sub-cutoff radii when evaporation is off.\n\nPrescribed pure-air carrier with one water primary and one air sentinel. Existing\nand newly drawn sub-cutoff radii are both tested. Legacy deletion stays unchanged.\n"
+    },
+    "inventory_after": {
+      "commit": "0d0f9fcb1ffdf15605cfb1daf18962521a943b6e",
+      "binary_sha256": "fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b",
+      "before": false,
+      "scope": "Primary represented area must survive sub-cutoff radii when evaporation is off.\n\nPrescribed pure-air carrier with one water primary and one air sentinel. Existing\nand newly drawn sub-cutoff radii are both tested. Legacy deletion stays unchanged.\n"
+    },
+    "rest_after": {
+      "commit": "0d0f9fcb1ffdf15605cfb1daf18962521a943b6e",
+      "binary_sha256": "fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b",
+      "command": [
+        "gates/validate_interface_closure.py",
+        "--out",
+        "out/runs/interface_closure_20261024/rest_after",
+        "--stage",
+        "rest"
+      ],
+      "thresholds": {
+        "position": 8e-06,
+        "velocity": 5e-05,
+        "ode_relative": 0.01,
+        "rest_rms": 0.1,
+        "rest_com": 0.1,
+        "rest_energy_ratio": 1.005,
+        "relative_area": 0.02
+      },
+      "scope": "Finite independent interface gates, frozen in independent-interface-closure.md.\n\nNo production inputs, rendering, or deletion. Default paths are checked before\nnew choices. Old coupling is a contrast, never judged against the one-way oracle.\n"
+    },
+    "transport_regression": {
+      "commit": "0d0f9fcb1ffdf15605cfb1daf18962521a943b6e"
+    }
+  },
+  "local": {
+    "passed": false,
+    "legacy": {
+      "final.npy": true,
+      "final_mass.npy": true,
+      "final_momx.npy": true,
+      "final_momy.npy": true,
+      "final_momz.npy": true,
+      "final_phase.npy": true,
+      "final_radius.npy": true,
+      "final_scale.npy": true,
+      "final_spray.npy": true,
+      "final_tau.npy": true,
+      "final_velocities.npy": true,
+      "final_wt.npy": true,
+      "final_wtph.npy": true
+    },
+    "math": {
+      "target": [
+        -0.5079766132086717,
+        -0.4263326241681614,
+        0.1123332433990071,
+        0.821975993977826
+      ],
+      "sum": -1.1102230246251565e-16,
+      "projection_squared_cost": 0.015222382862524229,
+      "source_free_log_difference_ratio": 0.1353352832366127
+    },
+    "lifecycle": [
+      {
+        "phi": 0.2,
+        "previous_radius": 0.0,
+        "escaped": true,
+        "transfer": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phi": 0.5,
+        "previous_radius": 0.0,
+        "escaped": false,
+        "transfer": [
+          1000.0,
+          1000.0
+        ]
+      },
+      {
+        "phi": 0.5,
+        "previous_radius": 0.0001,
+        "escaped": true,
+        "transfer": [
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "phi": 0.8,
+        "previous_radius": 0.0001,
+        "escaped": false,
+        "transfer": [
+          1000.0,
+          1000.0
+        ]
+      }
+    ],
+    "flight": [
+      {
+        "mode": 0,
+        "dtmax": 0.001,
+        "position": 9.5367431640625e-07,
+        "velocity": 2.384185791015625e-07,
+        "count": 768,
+        "residual": 2.3280094296751486e-07,
+        "final_vx": 2.683783769607544
+      },
+      {
+        "mode": 1,
+        "dtmax": 0.002,
+        "position": 0.0,
+        "velocity": 0.0,
+        "count": 768,
+        "residual": 0.0,
+        "final_vx": 1.3236486911773682,
+        "reference_vx": 1.3236160063104447,
+        "relative_error": 2.4693617157511838e-05
+      },
+      {
+        "mode": 1,
+        "dtmax": 0.001,
+        "position": 0.0,
+        "velocity": 0.0,
+        "count": 768,
+        "residual": 0.0,
+        "final_vx": 1.3236243724822998,
+        "reference_vx": 1.3236160063104447,
+        "relative_error": 6.320694079908762e-06
+      },
+      {
+        "mode": 1,
+        "dtmax": 0.0005,
+        "position": 0.0,
+        "velocity": 0.0,
+        "count": 768,
+        "residual": 0.0,
+        "final_vx": 1.3236184120178223,
+        "reference_vx": 1.3236160063104447,
+        "relative_error": 1.817526658731694e-06
+      }
+    ],
+    "restart": {
+      "positions": true,
+      "velocities": true,
+      "mass": true,
+      "momx": true,
+      "momy": true,
+      "momz": true,
+      "tau": true,
+      "wt": true,
+      "wtph": true,
+      "scale": true,
+      "phase_st": true,
+      "radius": true,
+      "spray": true,
+      "particle_phase": true
+    },
+    "failure": "SystemExit('step_3d refused step 0 for interface_closure: step_3d: error: volume contract refuses empty/nonfinite particle support')",
+    "seconds": 56.448130999924615
+  },
+  "support_diagnostic": {
+    "passed": true,
+    "support": [
+      {
+        "step": 1280,
+        "primary": 20479,
+        "detached": 40,
+        "zero_before_exclusion": 2,
+        "zero_after_exclusion": 2,
+        "newly_empty": 0,
+        "empty_water_cells": 0,
+        "zero_coordinates": [
+          [
+            63,
+            34
+          ],
+          [
+            63,
+            50
+          ]
+        ],
+        "active_positive_min": 0.0006712030160485991
+      },
+      {
+        "step": 3200,
+        "primary": 20472,
+        "detached": 104,
+        "zero_before_exclusion": 20,
+        "zero_after_exclusion": 20,
+        "newly_empty": 0,
+        "empty_water_cells": 0,
+        "zero_coordinates": [
+          [
+            0,
+            11
+          ],
+          [
+            0,
+            12
+          ],
+          [
+            0,
+            13
+          ],
+          [
+            0,
+            14
+          ],
+          [
+            0,
+            79
+          ],
+          [
+            1,
+            11
+          ],
+          [
+            32,
+            79
+          ],
+          [
+            33,
+            78
+          ],
+          [
+            33,
+            79
+          ],
+          [
+            34,
+            79
+          ],
+          [
+            35,
+            78
+          ],
+          [
+            35,
+            79
+          ],
+          [
+            36,
+            79
+          ],
+          [
+            62,
+            10
+          ],
+          [
+            62,
+            11
+          ],
+          [
+            63,
+            10
+          ],
+          [
+            63,
+            11
+          ],
+          [
+            63,
+            12
+          ],
+          [
+            63,
+            13
+          ],
+          [
+            63,
+            14
+          ]
+        ],
+        "active_positive_min": 0.0005988278964014594
+      },
+      {
+        "step": 7200,
+        "primary": 20449,
+        "detached": 271,
+        "zero_before_exclusion": 13,
+        "zero_after_exclusion": 14,
+        "newly_empty": 1,
+        "empty_water_cells": 0,
+        "zero_coordinates": [
+          [
+            0,
+            20
+          ],
+          [
+            0,
+            36
+          ],
+          [
+            0,
+            58
+          ],
+          [
+            0,
+            59
+          ],
+          [
+            0,
+            79
+          ],
+          [
+            49,
+            79
+          ],
+          [
+            63,
+            10
+          ],
+          [
+            63,
+            11
+          ],
+          [
+            63,
+            50
+          ],
+          [
+            63,
+            51
+          ],
+          [
+            63,
+            57
+          ],
+          [
+            63,
+            67
+          ],
+          [
+            63,
+            68
+          ],
+          [
+            63,
+            79
+          ]
+        ],
+        "active_positive_min": 0.0002903285700896686
+      }
+    ],
+    "common": [
+      {
+        "step": 1280,
+        "position": 7.62939453125e-06,
+        "velocity": 7.62939453125e-06,
+        "count": 21942,
+        "residual": 3.158513379730721e-07,
+        "water": 6007
+      },
+      {
+        "step": 3200,
+        "position": 7.62939453125e-06,
+        "velocity": 7.62939453125e-06,
+        "count": 23203,
+        "residual": 2.566028740602633e-07,
+        "water": 6000
+      },
+      {
+        "step": 7200,
+        "position": 7.62939453125e-06,
+        "velocity": 2.47955322265625e-05,
+        "count": 33855,
+        "residual": 2.8243729843779874e-07,
+        "water": 5977
+      }
+    ],
+    "seconds": 12.664973399951123
+  },
+  "inventory_before": {
+    "passed": true,
+    "cases": [
+      {
+        "mode": 0,
+        "existing": false,
+        "remaining": 1,
+        "water_preserved": false,
+        "radius": [
+          0.0
+        ]
+      },
+      {
+        "mode": 0,
+        "existing": true,
+        "remaining": 1,
+        "water_preserved": false,
+        "radius": [
+          0.0
+        ]
+      },
+      {
+        "mode": 1,
+        "existing": false,
+        "remaining": 1,
+        "water_preserved": false,
+        "radius": [
+          0.0
+        ]
+      },
+      {
+        "mode": 1,
+        "existing": true,
+        "remaining": 1,
+        "water_preserved": false,
+        "radius": [
+          0.0
+        ]
+      }
+    ],
+    "seconds": 16.137062399997376
+  },
+  "inventory_after": {
+    "passed": true,
+    "cases": [
+      {
+        "mode": 0,
+        "existing": false,
+        "remaining": 1,
+        "water_preserved": false,
+        "radius": [
+          0.0
+        ]
+      },
+      {
+        "mode": 0,
+        "existing": true,
+        "remaining": 1,
+        "water_preserved": false,
+        "radius": [
+          0.0
+        ]
+      },
+      {
+        "mode": 1,
+        "existing": false,
+        "remaining": 2,
+        "water_preserved": true,
+        "radius": [
+          9.999999974752427e-07,
+          0.0
+        ]
+      },
+      {
+        "mode": 1,
+        "existing": true,
+        "remaining": 2,
+        "water_preserved": true,
+        "radius": [
+          9.999999974752427e-07,
+          0.0
+        ]
+      }
+    ],
+    "seconds": 16.17403470003046
+  },
+  "transport_regression": {
+    "cpp_math": {
+      "rotation_errors": [
+        0.0053112273144923046,
+        0.0006661140275915227,
+        8.33189360324631e-05
+      ],
+      "passed": true
+    },
+    "python_math": {
+      "rotation_errors": [
+        0.0053112273144923046,
+        0.0006661140275915227,
+        8.33189360324631e-05
+      ],
+      "constant_extension": true,
+      "constant_transport": true
+    },
+    "local": {
+      "initial_1": {
+        "position_max": 0.0,
+        "velocity_max": 7.450580596923828e-09
+      },
+      "initial_2": {
+        "position_max": 0.0,
+        "velocity_max": 3.725290298461914e-09
+      },
+      "initial_3": {
+        "position_max": 0.0,
+        "velocity_max": 3.725290298461914e-09
+      },
+      "impact_1": {
+        "position_max": 0.0,
+        "velocity_max": 9.5367431640625e-07
+      },
+      "impact_2": {
+        "position_max": 0.0,
+        "velocity_max": 9.5367431640625e-07
+      },
+      "impact_3": {
+        "position_max": 0.0,
+        "velocity_max": 9.5367431640625e-07
+      },
+      "rest_1": {
+        "position_max": 0.0,
+        "velocity_max": 2.3283064365386963e-10
+      },
+      "rest_2": {
+        "position_max": 0.0,
+        "velocity_max": 1.1641532182693481e-10
+      },
+      "rest_3": {
+        "position_max": 0.0,
+        "velocity_max": 1.1641532182693481e-10
+      }
+    },
+    "refusals": 3
+  },
+  "static_control": [
+    {
+      "tau": 0.0,
+      "max_reported_pressure_residual": 1.7259540641134663e-07,
+      "backends": {
+        "bifrost": {
+          "water_count_initial": 2304,
+          "water_count_final": 2304,
+          "all_sampled_water_counts_constant": true,
+          "final_rms": 0.006721582773671863,
+          "com_displacement": 0.021434300763908294,
+          "peak_mechanical_energy_ratio": 1.0,
+          "max_relative_reconstructed_area_drift": 0.0007819007029040703
+        },
+        "python": {
+          "water_count_initial": 2304,
+          "water_count_final": 2304,
+          "all_sampled_water_counts_constant": true,
+          "final_rms": 0.006721589104900345,
+          "com_displacement": 0.021434285578828708,
+          "peak_mechanical_energy_ratio": 1.0,
+          "max_relative_reconstructed_area_drift": 0.0007818986627150526
+        }
+      }
+    },
+    {
+      "tau": 0.5,
+      "max_reported_pressure_residual": 9.997929737437516e-07,
+      "backends": {
+        "bifrost": {
+          "water_count_initial": 2304,
+          "water_count_final": 2304,
+          "all_sampled_water_counts_constant": true,
+          "final_rms": 0.009992057170150143,
+          "com_displacement": 0.012533141483122408,
+          "peak_mechanical_energy_ratio": 1.000098471865826,
+          "max_relative_reconstructed_area_drift": 0.0010774208866869417
+        },
+        "python": {
+          "water_count_initial": 2304,
+          "water_count_final": 2304,
+          "all_sampled_water_counts_constant": true,
+          "final_rms": 0.0099920035887444,
+          "com_displacement": 0.012533030085870974,
+          "peak_mechanical_energy_ratio": 1.0000984718648478,
+          "max_relative_reconstructed_area_drift": 0.001077418523314999
+        }
+      }
+    }
+  ],
+  "not_run": [
+    "unsupported-cell model replacement",
+    "additional local deletion/return density forcing fixtures",
+    "new-mode emission-on integrated gate",
+    "complete impact recovery",
+    "independent falling-water holdout",
+    "3D/ST/adapt integration"
+  ],
+  "scope_limits": [
+    "one-way drag approximation, not exact two-way momentum conservation",
+    "relative sampling feedback, not absolute liquid volume conservation",
+    "all common-input comparisons explicitly reconstruct a consistent candidate momentum state; not exact historical continuation",
+    "common-state water counts differ between old input times; no claim the old trajectory conserved primary inventory",
+    "six-second static control is independent of the failed impact gate; passing it does not enable long runs",
+    "original 240-second near-rest failure and geometric calibration failure remain unchanged"
+  ],
+  "static_control_wall_seconds": 139.74376330000814,
+  "research_report": "docs/literature/pf-interface-closure-derivation.md",
+  "static_transfer_evidence": "results/interface_static_transfer_20261024.json"
+}
