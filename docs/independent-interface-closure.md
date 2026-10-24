@@ -124,3 +124,43 @@ After this correction, the local gates are repeated to qualify the changed
 binary. The six-second static case may run as an independent supported-domain
 control, not as admission past the failed impact-support gate. It cannot enable
 the long impact or holdout. All original numerical limits remain fixed.
+
+## Executed outcome: integrated candidate refused, no production promotion
+
+The corrected implementation is `0d0f9fc`; DLL SHA256 is
+`fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b`.
+The compact [evidence receipt](../results/interface_closure_20261024.json)
+includes source/binary provenance, thresholds, successful subgates, both radius
+witnesses, and the failing integrated run. All raw arrays and logs remain under
+`out/runs/interface_closure_20261024/`.
+
+| Question | Actual result | Scope of conclusion |
+| --- | --- | --- |
+| Does default mode change? | Thirteen retained final-state arrays are bit-identical; nine old transport cases, analytic RK3/extension and three configuration refusals pass. | The checked old paths remain unchanged; no new production default. |
+| Does one-way flight implement its specified drag? | At .05 s, 3 cells/s becomes 1.32362437 at max droplet step .001 s; independent RK4 gives 1.32361601. Halving .002/.001/.0005 s reduces relative errors to 2.469e-5/6.321e-6/1.818e-6. Python/C++ states coincide in these new-mode arms; carrier air stays exactly still. | Verifies the prescribed stationary-air one-way limit. |
+| Is the old coupling observably different? | Same radius, initial state and .001 s droplet step give 2.68378377 cells/s with full transfer. The primary remains airborne at radius 1e-4 throughout both arms. | Full transfer changes its own sampled carrier. This is not proof all two-way coupling is wrong or that this explains the old long movie. |
+| Is conversion/reentry internally consistent? | Phase .2/.5/.8 fixtures pass; positive radius persists in the mixed band; reentry restores transfer weight. 80 continuous steps equal 40+40 restart across every state array. An inconsistent old checkpoint refuses. | Supports the declared persistent state and transfer-weight contract. |
+| Can a primary disappear with zero evaporation? | Before correction, both carried and newly drawn sub-cutoff primary radii delete the water parcel. After correction both survive at `r_min`; old-mode controls still delete it. | Closes this concrete primary inventory defect only in the new mode. |
+| Do common impact states match? | With density feedback OFF, all three actual graph/Python cases pass: max position 7.6294e-6 cells, max velocity 2.4796e-5 cells/s. Each retains its input primary-water count. | Common-input execution agreement; these fixtures construct candidate transfer weights/momentum from the same state, not an exact continuation of old checkpoints. |
+| Does the combined density candidate work on these states? | FAIL: first state refuses zero support. Counts before/after exclusion are 2/2, 20/20, 13/14; all holes classify as air. | The fixed log law lacks an admissible empty-support model. This is an interface/domain failure, not a divergent pressure iteration. |
+| Is the short supported-domain static control stable? | Both tau=0 and .5 pass the six-second fixed limits in both backends. C++ final water RMS is .006722/.009992, COM shift .02143/.01253 cells, energy ratio 1/1.0000985, area drift .0782%/.1077%; all sampled water counts remain 2304. | Static supported states pass. This does not override the impact failure or certify absolute geometric volume. |
+
+The local run took 56.45 s, support diagnostic 12.66 s, inventory-after witness
+16.17 s, and static control 139.74 s including graph calls and independent Python.
+These are separate wall-clock receipts, not per-solver performance benchmarks.
+
+The prescribed local deletion/return density-response fixtures, new-mode
+emission-on integrated test, complete impact recovery and independent holdout
+have **not** been executed. Downstream admission stops at the failed support
+prerequisite. The old 240-second near-rest failure and coarse geometric
+calibration failure remain unchanged. No 3D, rendering, production-cache change
+or new author correspondence occurred.
+
+The next research question is now finite: how to define density feedback in
+under-sampled air without pretending that zero samples mean zero physical air,
+while keeping the closed-domain divergence constraint and a bounded energy
+response. Liquid-only feedback, a supported-domain correction, or conservative
+sampling maintenance are different models, not interchangeable tolerance fixes.
+Select and derive one before a new preregistered test. An epsilon floor, broader
+kernel or refreshed reference added just to make this case run would invalidate
+the current candidate's interpretation. An author reply is not a prerequisite.

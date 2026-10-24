@@ -41,6 +41,14 @@ projection, density-relaxation and still-water checks pass; integration with
 escape, transport, ST/adapt and 3D remains unaccepted. Production defaults
 remain unchanged.
 
+The [independent interface closure](docs/independent-interface-closure.md) adds
+an opt-in, uniform-2D one-way primary-droplet candidate. Controlled drag,
+lifecycle, exact restart, common-input execution without density feedback, and
+six-second static controls pass. The integrated candidate **fails** on empty
+air sampling support in retained impact states; its long recovery/holdout and
+3D admission remain withheld. A generic sub-cutoff primary-radius deletion is
+fixed only in the new mode. See the [receipt](results/interface_closure_20261024.json).
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing
