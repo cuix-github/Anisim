@@ -41,4 +41,25 @@ inline bool target(const Vec& n, const Vec& ref, double tau, Vec& divergence) {
     for (double& x : divergence) x-=mean;
     return true;
 }
+
+// Eq. (5) finite-difference alternative with a seconds-based relaxation time.
+// Local zero sampling is permitted; no epsilon or change to the legacy log law.
+inline bool targetFinite(const Vec& n, const Vec& ref, double tau, Vec& divergence) {
+    if (n.empty() || n.size()!=ref.size() || !std::isfinite(tau) || tau<=0) return false;
+    divergence.resize(n.size()); double mean=0; bool supported=false;
+    for (size_t i=0;i<n.size();++i) {
+        if (!std::isfinite(n[i]) || !std::isfinite(ref[i]) || n[i]<0 || ref[i]<=0) return false;
+        supported |= n[i]>0;
+        divergence[i]=(n[i]/ref[i]-1.)/tau;
+        if (!std::isfinite(divergence[i])) return false;
+        mean+=divergence[i];
+    }
+    if (!supported || !std::isfinite(mean)) return false;
+    mean/=double(n.size());
+    for (double& x : divergence) {
+        x-=mean;
+        if (!std::isfinite(x)) return false;
+    }
+    return true;
+}
 }}

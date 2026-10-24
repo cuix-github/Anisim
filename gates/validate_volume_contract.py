@@ -19,9 +19,9 @@ from audit_volume_contract import make as witness_make
 from loop3d import run_bifrost3
 
 
-def make(tau,case):
+def make(tau,case,model=0):
     nx,ny=(48,40) if case=='rest' else (24,24)
-    s=VolumeContractSim(nx,ny,volume_tau=tau,g=float(np.float32(-9.8)) if case=='rest' else 0,
+    s=VolumeContractSim(nx,ny,volume_tau=tau,volume_model=model,g=float(np.float32(-9.8)) if case=='rest' else 0,
         pressure_tolerance=float(np.float32(1e-6)),alpha_l=float(np.float32(.97)),alpha_g=float(np.float32(.9)))
     s.seed(lambda x,y:y<12,jitter=.35 if case=='rest' else 0,seed=1);s.calibrate()
     s.pos=np.maximum(.51,np.minimum([nx-.51,ny-.51],s.pos)).astype(np.float32).astype(float)
@@ -38,15 +38,15 @@ def measure(s):
         com=s.pos[liquid].mean(axis=0).tolist(),density_log_rms=float(np.sqrt(np.mean(log**2))))
 
 
-def run(out,tau,case,steps):
-    s=make(tau,case);initial=measure(s);dt=float(np.float32(.0025))
+def run(out,tau,case,steps,model=0):
+    s=make(tau,case,model);initial=measure(s);dt=float(np.float32(.0025))
     p3=np.c_[s.pos,np.full(len(s.pos),.5)].astype(np.float32)
     d=out/'bifrost';t=time.perf_counter()
     _,_,diag=run_bifrost3('volume_gate',s.nx,s.ny,1,lambda x,y,z:y<12,steps,dt,
         seed_fn=lambda *a:(p3,s.typ.copy()),fused=True,final_state=True,dump_every=40,
         dumps=('ph','vel'),out_dir=str(d),log_prefix=str(d/'bifcmd'),
         extra_ports=dict(gravity=s.g,phase_model=2,phase_alpha=1.,rho0_face=s.rho0_face,
-            escape=0,emit_model=0,droplet_model=0,transport_model=0,volume_tau=tau,st=0,adapt=0))
+            escape=0,emit_model=0,droplet_model=0,transport_model=0,volume_tau=tau,volume_model=model,st=0,adapt=0))
     assert np.isfinite(diag).all() and np.max(diag[:,1])<=float(np.float32(1e-6))
     history=[initial]
     for j in range(steps):
@@ -54,14 +54,14 @@ def run(out,tau,case,steps):
         s.pos=s.pos.astype(np.float32).astype(float);s.vel=s.vel.astype(np.float32).astype(float)
         if j%40==0:history.append(measure(s))
     history.append(measure(s))
-    b=make(tau,case);chistory=[initial]
+    b=make(tau,case,model);chistory=[initial]
     for j in range(0,steps,40):
         b.pos=np.load(d/f'frame.{j:04d}.npy')[:,:2].astype(float)
         b.vel=np.load(d/f'vel.{j:04d}.npy')[:,:2].astype(float)
         chistory.append(measure(b))
     b.pos=np.load(d/'final.npy')[:,:2].astype(float);b.vel=np.load(d/'final_velocities.npy')[:,:2].astype(float)
     chistory.append(measure(b))
-    row=dict(steps=steps,tau=tau,initial=initial,python=history,bifrost=chistory,
+    row=dict(steps=steps,tau=tau,volume_model=model,initial=initial,python=history,bifrost=chistory,
         final_position_max=float(np.max(abs(b.pos-s.pos))),final_velocity_max=float(np.max(abs(b.vel-s.vel))),
         max_pressure_residual=float(diag[:,1].max()),seconds=time.perf_counter()-t)
     (out/'receipt.json').write_text(json.dumps(row,indent=2));return row

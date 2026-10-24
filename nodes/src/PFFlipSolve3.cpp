@@ -277,7 +277,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float rho_air, float alpha_liquid, float alpha_air, int max_iterations,
              float tolerance, int preconditioner, int pressure_solver,
              int adaptive_band, int adaptive_levels, int escape, float esc_phi,
-             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model, float volume_tau, int droplet_transfer_model,
+             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model, float volume_tau, int volume_model, int droplet_transfer_model,
              int st, int st_seed, int step_index,
              int adapt, float coarse_gain, float ws_epsilon,
              const Amino::Array<float>& scale_in,
@@ -448,7 +448,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             }
         }
     }
-    if (!std::isfinite(volume_tau) || volume_tau<0 || (volume_tau>0 &&
+    if (volume_model<0 || volume_model>1 || !std::isfinite(volume_tau) || volume_tau<0 || ((volume_tau>0 || volume_model) &&
         (phase_model!=2 || NZ!=1 || ((!detached) && (escape || emit_model || droplet_model)) || st || adapt))) {
         using namespace Amino::MessageLiterals;
         services.logError("step_3d: invalid experimental volume contract"_amt);
@@ -981,7 +981,11 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             if (!detached || (!auxiliary && !airborne))
                 Volume::deposit(count,NX,NY,positions[i].x,positions[i].y);
         }
-        if (!Volume::target(count,Volume::reference(NX,NY),volume_tau,target)) {
+        const auto reference=Volume::reference(NX,NY);
+        const bool validTarget=volume_model==1
+            ? Volume::targetFinite(count,reference,volume_tau,target)
+            : Volume::target(count,reference,volume_tau,target);
+        if (!validTarget) {
             using namespace Amino::MessageLiterals;
             services.logError("step_3d: missing number-density support for volume contract"_amt);
             std::fprintf(stderr,"step_3d: error: volume contract refuses empty/nonfinite particle support\n");

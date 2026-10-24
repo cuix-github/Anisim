@@ -47,7 +47,7 @@ def config(s):
     p=ports(s.emit or E,s.droplet)
     p.update(gravity=s.g,phase_model=2,phase_alpha=1.,rho0_face=s.rho0_face,
         escape=2,esc_phi=s.esc_phi,droplet_model=2,emit_model=2 if s.emit else 0,
-        droplet_transfer_model=s.droplet_transfer_model,volume_tau=s.volume_tau,
+        droplet_transfer_model=s.droplet_transfer_model,volume_tau=s.volume_tau,volume_model=s.volume_model,
         transport_model=s.transport_model,spray_cfl=s.spray_cfl,st=0,adapt=0,
         alpha_liquid=s.alpha[1],alpha_air=s.alpha[0],tolerance=s.pressure_tolerance)
     return p
@@ -186,16 +186,18 @@ def measure(s):
         energy=float(np.sum(mass[primary]*(.5*np.sum(s.vel[primary]**2,axis=1)-s.g*s.pos[primary,1]))),
         area=area(particle_field(s))['area'])
 
-def rest(out):
+def rest(out,model=0,taus=(0.,.5)):
     rows=[]
-    for tau in (0.,.5):
+    for tau in taus:
         s=make(48,40,tau=tau,g=-9.8,transport=3)
+        s.volume_model=model
         s.seed(lambda x,y:y<12,jitter=.35,seed=1)
         s.pos=np.maximum(.51,np.minimum([47.49,39.49],s.pos)).astype(np.float32).astype(float)
         initial=measure(s);d=out/f'tau{tau}';a,res=cpp(s,d,2400,every=40)
         histories={}
         for backend in ('bifrost','python'):
             q=make(48,40,tau=tau,g=-9.8,transport=3)
+            q.volume_model=model
             q.seed(lambda x,y:y<12,jitter=.35,seed=1);q.pos=s.pos.copy()
             h=[initial]
             for j in range(2400):
@@ -213,11 +215,12 @@ def rest(out):
                         q.scale=np.ones(len(q.pos))
                     h.append(measure(q))
             histories[backend]=h
+            write(out/f'rest_tau{tau}_{backend}.json',h)
             assert all(x['water']==initial['water'] for x in h)
             assert h[-1]['rms']<=.1 and np.linalg.norm(np.array(h[-1]['com'])-initial['com'])<=.1
             assert max(x['energy'] for x in h)/initial['energy']<=1.005
             assert max(abs(x['area']/initial['area']-1) for x in h)<=.02
-        rows.append(dict(tau=tau,residual=res,history=histories))
+        rows.append(dict(tau=tau,volume_model=model,residual=res,history=histories))
         write(out/f'rest_tau{tau}.json',rows[-1])
     return rows
 
