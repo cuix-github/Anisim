@@ -25,14 +25,16 @@ class VolumeContractSim(TransportContractSim):
         super().__init__(*args,**kwargs)
         if not np.isfinite(volume_tau) or volume_tau<0:
             raise ValueError('invalid volume relaxation time')
-        if volume_tau and (self.phase_model!=2 or self.escape or self.droplet or self.emit):
+        if volume_tau and (self.phase_model!=2 or
+            ((self.escape or self.droplet or self.emit) and not self.droplet_transfer_model)):
             raise ValueError('volume contract requires phase 2 without escape/spray')
         self.volume_tau=volume_tau
         self._density_reference=None
 
     def number_density(self):
         q=self.pos-.5; b=np.floor(q+.5).astype(np.int64)
-        return self._splat((self.nx,self.ny),(b,q-b),[np.ones(len(self.pos))])[0]
+        active=(self.masses()>0).astype(float) if self.droplet_transfer_model else np.ones(len(self.pos))
+        return self._splat((self.nx,self.ny),(b,q-b),[active])[0]
 
     def density_reference(self):
         if self._density_reference is None:
@@ -45,8 +47,9 @@ class VolumeContractSim(TransportContractSim):
         return self._density_reference
 
     def project(self,dt,tol=None,max_iter=4000):
-        if self.volume_tau and (len(self.pos)!=4*self.nx*self.ny or self.spray.any()
-            or (self.radius>0).any() or not np.isfinite(self.pos).all()):
+        if self.volume_tau and (not np.isfinite(self.pos).all() or
+            (not self.droplet_transfer_model and (len(self.pos)!=4*self.nx*self.ny
+             or self.spray.any() or (self.radius>0).any()))):
             raise ValueError('volume contract requires finite primary particles, four per initial cell, with no droplets')
         self._target_divergence=(target_divergence(self.number_density(),self.density_reference(),self.volume_tau)
                                  if self.volume_tau else None)

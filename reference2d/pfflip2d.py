@@ -1045,6 +1045,11 @@ class Sim:
             if self.escape == 2:
                 phase_at_particle = self.escape_phase_samples()
                 drop = (self.typ == 1) & (phase_at_particle < self.esc_phi)
+                if getattr(self,'droplet_transfer_model',0):
+                    # Persistent radius is the airborne state; retain it through
+                    # the mixed band and restore transfer only inside liquid.
+                    drop=(self.typ==1)&np.where(self.radius>0,
+                        phase_at_particle<=1.-self.esc_phi,phase_at_particle<self.esc_phi)
             if self.zone is not None:
                 drop &= ~(self.pos[:, 0] < self.zone["length"])   # the zone's liquid is the zone's to move
             bub = (self.typ == 0) & (frac_liq > thresh)

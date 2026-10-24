@@ -963,6 +963,10 @@ def build3d_fused():
     body["ports"].append(P("volume_tau","input","float"))
     top["connections"].append({"source":".volume_tau","target":"loop.volume_tau"})
     body["connections"].append({"source":".volume_tau","target":"step.volume_tau"})
+    top["ports"].append(P("droplet_transfer_model","input","int","0"))
+    body["ports"].append(P("droplet_transfer_model","input","int"))
+    top["connections"].append({"source":".droplet_transfer_model","target":"loop.droplet_transfer_model"})
+    body["connections"].append({"source":".droplet_transfer_model","target":"step.droplet_transfer_model"})
     for n in ("rho_liquid","rho_air","rho0_face"):
         body["connections"].append({"source":"."+n,"target":"p2g."+n})
     chans = [g2 + s for g2 in ("u", "v", "w", "u2", "v2", "w2")
