@@ -60,6 +60,25 @@ def movie(path,images,fps):
     return n
 
 
+def plot_decay(dest,rows,oldrows):
+    fig,axs=plt.subplots(2,2,figsize=(13,8),layout='constrained')
+    for series,label in [(oldrows,'Previous phase/escape repair'),(rows,'Current candidate')]:
+        ts=[r['time'] for r in series];peak=max(r['water_kinetic'] for r in series)
+        for ax,key in [(axs[0,0],'water_rms'),(axs[0,1],'water_speed_p99')]:
+            ax.semilogy(ts,[r[key] if r[key]>0 else np.nan for r in series],label=label)
+        axs[1,0].plot(ts,[r['spray'] for r in series],label=label)
+        axs[1,1].semilogy(ts,[r['water_kinetic']/peak if r['water_kinetic']>0 else np.nan
+            for r in series],label=label)
+    axs[0,0].axhline(.05,color='grey',ls='--');axs[0,1].axhline(.2,color='grey',ls='--')
+    axs[1,1].axhline(1e-4,color='grey',ls='--')
+    axs[0,0].set_ylim(.005,20);axs[0,1].set_ylim(.005,150);axs[1,1].set_ylim(1e-7,2)
+    for ax,title in zip(axs.flat,['Primary water RMS speed (cells/s)','Primary water speed P99 (cells/s)',
+        'Living auxiliary spray (evaporation differs)','Kinetic energy / each run sampled peak']):
+        ax.set_title(title);ax.set_xlabel('Simulation time (s)');ax.grid(alpha=.2);ax.legend()
+    fig.suptitle('Same plunge, cumulative implementation changes; no retuned damping')
+    fig.savefig(dest/'decay_comparison.png',dpi=140);plt.close(fig)
+
+
 def main():
     ap=argparse.ArgumentParser();ap.add_argument('--run',type=Path,required=True);a=ap.parse_args()
     root=a.run.resolve();job=load(root/'job.json');progress=load(root/'progress.json')
@@ -99,20 +118,7 @@ def main():
     op=load(previous/'progress.json');index=len(progress['chunks'])-1
     bf=final_frame(previous/op['chunks'][index]['directory'])
     pair(bf,af,end,('Previous phase/escape repair','Current cumulative candidate')).save(dest/'final_comparison.png')
-    fig,axs=plt.subplots(2,2,figsize=(13,8),layout='constrained')
-    for series,label in [(oldrows,'Previous phase/escape repair'),(rows,'Current candidate')]:
-        ts=[r['time'] for r in series];peak=max(r['water_kinetic'] for r in series)
-        for ax,key in [(axs[0,0],'water_rms'),(axs[0,1],'water_speed_p99')]:
-            ax.semilogy(ts,[max(r[key],1e-8) for r in series],label=label)
-        axs[1,0].plot(ts,[r['spray'] for r in series],label=label)
-        axs[1,1].semilogy(ts,[max(r['water_kinetic']/peak,1e-9) for r in series],label=label)
-    axs[0,0].axhline(.05,color='grey',ls='--');axs[0,1].axhline(.2,color='grey',ls='--')
-    axs[1,1].axhline(1e-4,color='grey',ls='--')
-    for ax,title in zip(axs.flat,['Primary water RMS speed (cells/s)','Primary water speed P99 (cells/s)',
-        'Living auxiliary spray (evaporation differs)','Kinetic energy / each run sampled peak']):
-        ax.set_title(title);ax.set_xlabel('Simulation time (s)');ax.grid(alpha=.2);ax.legend()
-    fig.suptitle('Same plunge, cumulative implementation changes; no retuned damping')
-    fig.savefig(dest/'decay_comparison.png',dpi=140);plt.close(fig)
+    plot_decay(dest,rows,oldrows)
     write(dest/'job.json',dict(kind='Read-only matched cache visualization',source=str(root),
         frames=n,fps=fps,markers='Same original colors and pixel markers; NOT droplet radii',
         original=str(original),previous=str(previous),limits=job['caveats'],

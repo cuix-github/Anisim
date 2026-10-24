@@ -57,6 +57,12 @@ check, one-second density recovery, six-second static combination and restart.
 The old mode remains bit-identical. Absolute geometric calibration and full
 long-impact/holdout acceptance remain outstanding; production defaults stay off.
 
+The user-requested [cumulative visual replay](docs/current-plunge-visual.md)
+compares the original dark-background plunge against the current candidate and
+extends it to 240 seconds. Final water RMS falls to .02179 cells/s, but the
+unchanged near-rest test still fails its surface-height proxy (.3704 versus .25
+cells). This visual diagnostic does not replace full physical/holdout acceptance.
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing

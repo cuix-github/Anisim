@@ -1,0 +1,286 @@
+{
+  "job": {
+    "kind": "Cumulative candidate visual diagnostic; NOT physical certification",
+    "source_sha": "dc3f5c825db7d7314e76839e66fc178e5e23fcd8",
+    "binary_sha256": "0a95a61b71c30b669c82fd2ba0e47f09f7e2eb7b0af61439f4d1e7b06545e178",
+    "nx": 64,
+    "ny": 80,
+    "dt": 0.0024999999441206455,
+    "chunk_steps": 8000,
+    "dump_every": 80,
+    "max_seconds": 240,
+    "ports": {
+      "escape": 2,
+      "esc_phi": "0.3",
+      "drag_droplet": "1",
+      "drag_bubble": "8",
+      "buoyancy": "2",
+      "droplet_model": 2,
+      "droplet_r_median": "0.0001",
+      "droplet_r_sigma": "0.7",
+      "droplet_evap_k": 0.0,
+      "droplet_r_min": "0.000001",
+      "metres_per_cell": "1",
+      "air_nu": "0.000015",
+      "spray_dt_max": "0.005",
+      "spray_cfl": "0.5",
+      "emit_grad_threshold": "2",
+      "emit_rate": "0.6",
+      "emit_max_per_cell": 128,
+      "emit_model": 2,
+      "emit_cloud_size": 16,
+      "emit_event_radius": "0.0003",
+      "emit_spread": "0.25",
+      "emit_velocity_spread": "0.1",
+      "emit_radius_max": "0.003",
+      "emit_max_active": 40000,
+      "emit_seed": 137,
+      "phase_model": 2,
+      "phase_alpha": 1,
+      "rho0_face": 3.1015625,
+      "tolerance": 9.999999974752427e-07,
+      "transport_model": 3,
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "st": 0,
+      "adapt": 0,
+      "pressure_solver": 0,
+      "droplet_transfer_model": 1,
+      "volume_tau": 0.5,
+      "volume_model": 1
+    },
+    "initial_seed": 1,
+    "emitter_seed": 137,
+    "omp_threads": 1,
+    "rest_criteria": {
+      "window_seconds": 10,
+      "all_water_rms_cells_s": 0.05,
+      "water_speed_p99_cells_s": 0.2,
+      "kinetic_fraction_of_peak": 0.0001,
+      "surface_temporal_range_cells": 0.25
+    },
+    "initial_exactly_matches_old": true,
+    "old_long_run": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\settling_phase_20261023_r2",
+    "original_20s": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\spray_events_2d_20261023\\plunge_20s_dt0025",
+    "caveats": [
+      "Multiple documented model changes; not single-variable attribution.",
+      "Detached primary contract requires evaporation OFF; shared port disables auxiliary evaporation too.",
+      "Particle count/height proxy is not geometric volume certification.",
+      "Uniform 2D, ST/adapt OFF. Production defaults/caches untouched.",
+      "One cell = one metre in this diagnostic; marker size is not physical radius."
+    ]
+  },
+  "status": "limit_reached_not_settled",
+  "simulation_seconds": 239.99999463558197,
+  "elapsed_seconds": 1713.6999359999318,
+  "near_rest_including_final_checkpoint": {
+    "pass_near_rest": false,
+    "checks": {
+      "long_enough": true,
+      "all_water_rms": true,
+      "speed_p99": true,
+      "kinetic_fraction": true,
+      "surface_stationary": false
+    },
+    "window_start": 230.0024948590435,
+    "window_end": 239.99999463558197,
+    "max_water_rms": 0.02979530005645344,
+    "max_speed_p99": 0.07451041639117754,
+    "max_kinetic_fraction": 7.4354366455982296e-06,
+    "surface_max_temporal_range": 0.3704102516174288
+  },
+  "max_pressure_residual": 9.999979511121637e-07,
+  "max_particle_cfl": 0.8983473181724548,
+  "peak_water_rms": {
+    "time": 2.8024999373592436,
+    "value": 10.926838510708016
+  },
+  "max_primary_energy_ratio": 1.0086832127413905,
+  "final": {
+    "water_count": 6008,
+    "primary_count": 18789,
+    "spray": 354,
+    "water_rms": 0.021790509336407943,
+    "water_com": [
+      32.01295457079947,
+      12.82711947980162
+    ],
+    "height_p99": 25.257614135742188
+  },
+  "lifecycle": {
+    "events": 1973,
+    "requested": 31568,
+    "accepted": 21737,
+    "rejected_cap": 0,
+    "rejected_geometry": 9831,
+    "evaporated": 0,
+    "reentered": 21383
+  },
+  "lifecycle_closes_every_step": true,
+  "last_auxiliary_birth_time": 30.17249932559207,
+  "caveats": [
+    "Near-rest criteria are observational, not a correctness theorem.",
+    "Surface proxy excludes escaped water, but speed and kinetic criteria include it.",
+    "Particle mechanical energy excludes lost primary mass and zero-mass auxiliary spray.",
+    "Air, water and spray use visibility markers, not physical particle radii."
+  ],
+  "scope": "Cumulative C++ visual diagnostic; not full physical certification or a causal ablation",
+  "previous_same_time": {
+    "final": {
+      "water_count": 6001,
+      "primary_count": 20473,
+      "spray": 0,
+      "water_rms": 0.15093817761553588,
+      "water_com": [
+        32.04534202519108,
+        10.959823482037782
+      ],
+      "height_p99": 21.54227638244629
+    },
+    "near_rest_including_final_checkpoint": {
+      "pass_near_rest": false,
+      "checks": {
+        "long_enough": true,
+        "all_water_rms": false,
+        "speed_p99": false,
+        "kinetic_fraction": false,
+        "surface_stationary": false
+      },
+      "window_start": 230.0024948590435,
+      "window_end": 239.99999463558197,
+      "max_water_rms": 0.2054173163203564,
+      "max_speed_p99": 0.6801356734508364,
+      "max_kinetic_fraction": 0.0003267512967171551,
+      "surface_max_temporal_range": 1.6303249359130874
+    }
+  },
+  "legacy_controls": {
+    "off": {
+      "final.npy": true,
+      "final_mass.npy": true,
+      "final_momx.npy": true,
+      "final_momy.npy": true,
+      "final_momz.npy": true,
+      "final_phase.npy": true,
+      "final_radius.npy": true,
+      "final_scale.npy": true,
+      "final_spray.npy": true,
+      "final_tau.npy": true,
+      "final_velocities.npy": true,
+      "final_wt.npy": true,
+      "final_wtph.npy": true
+    },
+    "log": {
+      "final.npy": true,
+      "final_mass.npy": true,
+      "final_momx.npy": true,
+      "final_momy.npy": true,
+      "final_momz.npy": true,
+      "final_phase.npy": true,
+      "final_radius.npy": true,
+      "final_scale.npy": true,
+      "final_spray.npy": true,
+      "final_tau.npy": true,
+      "final_velocities.npy": true,
+      "final_wt.npy": true,
+      "final_wtph.npy": true
+    }
+  },
+  "restart": {
+    "pass_resume": true,
+    "final_arrays": {
+      "final.npy": true,
+      "final_velocities.npy": true,
+      "final_mass.npy": true,
+      "final_momx.npy": true,
+      "final_momy.npy": true,
+      "final_momz.npy": true,
+      "final_tau.npy": true,
+      "final_wt.npy": true,
+      "final_wtph.npy": true,
+      "final_scale.npy": true,
+      "final_phase.npy": true,
+      "final_radius.npy": true,
+      "final_spray.npy": true
+    }
+  },
+  "original_seed": {
+    "positions": true,
+    "velocities": true,
+    "phase": true,
+    "radius": true,
+    "spray": true
+  },
+  "source_run": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\current_plunge_20261024",
+  "primary_water_inventory": {
+    "initial": 6008,
+    "final": 6008,
+    "all_saved_states_unchanged": true
+  },
+  "first_20s": [
+    {
+      "source": "spray_events_2d_20261023/plunge_20s_dt0025/bifrost",
+      "accepted": 37752,
+      "reentered": 21819,
+      "evaporated": 5465,
+      "alive": 10468
+    },
+    {
+      "source": "settling_phase_20261023_r2/chunk_00",
+      "accepted": 52078,
+      "reentered": 43235,
+      "evaporated": 4068,
+      "alive": 4775
+    },
+    {
+      "source": "current_plunge_20261024/chunk_00",
+      "accepted": 20973,
+      "reentered": 19288,
+      "evaporated": 0,
+      "alive": 1685
+    }
+  ],
+  "cache_check": {
+    "finite_arrays": 7356,
+    "sampled_frames": 1200,
+    "positions_within_domain": true
+  },
+  "videos": {
+    "current_full_realtime.mp4": {
+      "codec_name": "h264",
+      "width": 1288,
+      "height": 966,
+      "r_frame_rate": "5/1",
+      "duration": "240.000000",
+      "nb_frames": "1200",
+      "full_decode_passed": true
+    },
+    "current_full_4x.mp4": {
+      "codec_name": "h264",
+      "width": 1288,
+      "height": 966,
+      "r_frame_rate": "20/1",
+      "duration": "60.000000",
+      "nb_frames": "1200",
+      "full_decode_passed": true
+    },
+    "original_vs_current_20s.mp4": {
+      "codec_name": "h264",
+      "width": 1288,
+      "height": 966,
+      "r_frame_rate": "5/1",
+      "duration": "20.000000",
+      "nb_frames": "100",
+      "full_decode_passed": true
+    },
+    "previous_vs_current_long.mp4": {
+      "codec_name": "h264",
+      "width": 1288,
+      "height": 966,
+      "r_frame_rate": "5/1",
+      "duration": "240.000000",
+      "nb_frames": "1200",
+      "full_decode_passed": true
+    }
+  }
+}
