@@ -91,3 +91,16 @@ failed interface; it cannot adjust a threshold after seeing the result.
 Sources: [PF-FLIP](https://ge.in.tum.de/download/Adaptive_Phase_Field_FLIP_preprint.pdf),
 [Losasso et al. 2008](https://jerrytalton.net/research/ltkf-tcspl-08/paper.pdf).
 Detailed independent notes and derivations remain in this run's research folder.
+
+## First result and bounded diagnostic
+
+The first local run at `54c5d6c` passes the thirteen-array legacy control,
+algebra, prescribed lifecycle, stationary-air flight refinement and exact restart.
+It refuses the first common impact input because sampling density is zero in
+some cells. The combined candidate has therefore **failed** its support gate.
+Before considering a different model, one diagnostic counts holes before/after
+primary exclusion at all three retained inputs, then checks the same candidate
+with only `volume_tau=0` at those inputs. The latter isolates lifecycle/transport;
+passing it cannot qualify the integrated density candidate. Empty cells are not
+floored, reseeded or given a new reference in this round. The long recovery and
+holdout are withheld because the prerequisite failed.
