@@ -427,10 +427,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
     if (!std::isfinite(volume_tau) || volume_tau<0 || (volume_tau>0 &&
-        (phase_model!=2 || NZ!=1 || escape || emit_model || droplet_model || st || adapt || transport_model))) {
+        (phase_model!=2 || NZ!=1 || escape || emit_model || droplet_model || st || adapt))) {
         using namespace Amino::MessageLiterals;
         services.logError("step_3d: invalid experimental volume contract"_amt);
-        std::fprintf(stderr,"step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray/transport experiments\n");
+        std::fprintf(stderr,"step_3d: error: volume contract requires closed uniform 2D phase=2 without escape/spray\n");
         clearOutputs(); return;
     }
     if (escape==2 && (phase_model!=2 || NZ!=1 || !std::isfinite(esc_phi) || esc_phi<=0 || esc_phi>=.5f)) {

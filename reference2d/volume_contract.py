@@ -7,6 +7,7 @@ These are explicit implementation choices, not claimed author tuning.
 """
 import numpy as np
 from phase_contract import PhaseContractSim
+from transport_contract import TransportContractSim
 
 
 def target_divergence(current, reference, tau):
@@ -19,7 +20,7 @@ def target_divergence(current, reference, tau):
     return d-d.mean()
 
 
-class VolumeContractSim(PhaseContractSim):
+class VolumeContractSim(TransportContractSim):
     def __init__(self,*args,volume_tau=0.,**kwargs):
         super().__init__(*args,**kwargs)
         if not np.isfinite(volume_tau) or volume_tau<0:
