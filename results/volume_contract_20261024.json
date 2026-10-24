@@ -140,7 +140,8 @@
         },
         "com_drift": 0.02160356436493093,
         "density_rms_final_over_initial": 1.0015723348039733,
-        "max_energy_ratio": 1.0
+        "max_energy_ratio": 1.0,
+        "sampled_peak_rms": 0.02588047219961894
       },
       "bifrost": {
         "final": {
@@ -154,7 +155,8 @@
         },
         "com_drift": 0.021603498596044827,
         "density_rms_final_over_initial": 1.001572444560386,
-        "max_energy_ratio": 1.0
+        "max_energy_ratio": 1.0,
+        "sampled_peak_rms": 0.02588047121351242
       }
     },
     "rest_on": {
@@ -176,7 +178,8 @@
         },
         "com_drift": 0.010223350083180574,
         "density_rms_final_over_initial": 0.012386626388658738,
-        "max_energy_ratio": 1.000098471796636
+        "max_energy_ratio": 1.000098471796636,
+        "sampled_peak_rms": 0.14648546346987884
       },
       "bifrost": {
         "final": {
@@ -190,7 +193,8 @@
         },
         "com_drift": 0.0102236051017111,
         "density_rms_final_over_initial": 0.012387003502440146,
-        "max_energy_ratio": 1.000098471797614
+        "max_energy_ratio": 1.000098471797614,
+        "sampled_peak_rms": 0.14648546285500097
       }
     }
   },
@@ -238,5 +242,18 @@
     "Centered sampling-density relaxation is not a geometric liquid-volume conservation certificate",
     "No claim that old chaotic spray was caused or fixed by this term",
     "No final impact replay or coarse 3D until integrated upstream contracts pass"
-  ]
+  ],
+  "standalone_spray_regression": {
+    "passed": true,
+    "cases": [
+      "legacy_off",
+      "legacy_lockstep",
+      "clouds",
+      "budget",
+      "boundary",
+      "no_room",
+      "invalid_graph_refused"
+    ],
+    "receipt": "out/runs/volume_candidate_20261024/standalone_spray_regression/receipt_graph.json"
+  }
 }
