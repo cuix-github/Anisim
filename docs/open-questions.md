@@ -4,6 +4,19 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Bounded verification / density relaxation (2026-10-24).** The agreed
+  [five-step route](verification-route.md) separates paper correspondence,
+  common-input execution and physical acceptance. A zero-gravity actual-graph
+  witness confirms that existing sampling-density errors persist without
+  correction. The new default-off `volume_tau` candidate follows the cited
+  log-density feedback, with explicit wall calibration and closed-domain
+  compatibility choices. Local Python/C++ checks, one-second controlled
+  relaxation, six-second still water and six refusal tests pass. Thirteen
+  zero-motion final arrays and twelve legacy spray arrays remain identical.
+  This is only a base-layer subgate: normalized count-density is not a liquid
+  geometric-volume certificate; escape/transport integration and the final
+  physical suite remain pending. Do not use this result to start coarse 3D.
+
 - **Narrowed paper-correspondence / decay question (2026-10-23).** The user
   asks to separate visually unusual motion from actual paper discrepancies.
   The [frozen C++ 240-second plunge](paper-correspondence-and-settling.md)
