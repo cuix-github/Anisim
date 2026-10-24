@@ -72,12 +72,13 @@ def tank(nx=120, ny=40, depth=20.0, wind=0.0, shear=0.0, seed=1, **kw):
     return sim
 
 
-def twin(state, ch, radius_in, spray_in, step_index, emit, cfl):
+def twin(state, ch, radius_in, spray_in, step_index, emit, cfl, droplet=None):
     """validate_level_set_node.twin_step on the node's inputs with the spray: the
     reference's step from the projection on, as Sim.step does it; `emit` the
     emission's constants or None. Returns the reference after the step and the
     particles deleted."""
-    ref = Sim(state.nx, state.ny, escape=True, droplet=D, emit=emit, spray_cfl=cfl)
+    ref = Sim(state.nx, state.ny, escape=True, droplet=D if droplet is None else droplet,
+              emit=emit, spray_cfl=cfl)
     arr = flat_inputs(state, ch)
     ref.pos = arr["positions"][:, :2].astype(float)
     ref.vel = arr["velocities"][:, :2].astype(float)

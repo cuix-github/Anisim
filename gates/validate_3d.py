@@ -13,6 +13,7 @@ Three tests, each against something already trusted:
 
 Run from gates:  ..\\.venv\\Scripts\\python.exe validate_3d.py
 """
+import json
 import os
 import subprocess
 import sys
@@ -45,6 +46,9 @@ def run_node(indir, outdir, extra_arrays=(), extra_outputs=(), **ports):
     for n in outs:
         args += ["--set-port", "path_" + n, os.path.join(outdir, n + ".npy").replace("\\", "/")]
     res = subprocess.run(args, capture_output=True, text=True)
+    for name, contents in (("stdout", res.stdout), ("stderr", res.stderr)):
+        with open(os.path.join(outdir, name + ".log"), "w", encoding="utf-8") as f:
+            f.write(contents)
     stats = {}
     for line in res.stdout.splitlines():
         if "Output port '" in line and "ok_" not in line:
@@ -52,6 +56,8 @@ def run_node(indir, outdir, extra_arrays=(), extra_outputs=(), **ports):
             stats[name] = float(line.rsplit(")", 1)[-1].strip())
     errors = []
     for line in res.stderr.splitlines():
+        if line.startswith("SPRAY_EVENT "):
+            stats.setdefault("spray_events", []).append(json.loads(line[len("SPRAY_EVENT "):]))
         # with PFFLIP_SOLID_DEBUG=1 the node reports its level-set push-out
         if line.startswith("step_3d: level set"):
             stats["solid_on"] = " on;" in line

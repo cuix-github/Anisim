@@ -1,0 +1,786 @@
+{
+  "cases": {
+    "rest_raw": {
+      "commit": "74f31a41e9c8a6e1ee661ed06132e5ebde965475",
+      "dt": 0.0024999999441206455,
+      "tolerance": 9.999999974752427e-07,
+      "max_difference": {
+        "tv": 0.0,
+        "com": 1.430511474609375e-06,
+        "height_p99": 9.5367431640625e-07
+      },
+      "similarity_pass": true,
+      "momentum_port_matched": false,
+      "physics": {
+        "python": {
+          "final": {
+            "energy": 136930888.07802534,
+            "count": 7680,
+            "max_component": 0.19041790068149567,
+            "water_rms": 0.06651454035773836,
+            "air_rms": 0.03924728000320084,
+            "water_com": [
+              23.999288276820963,
+              6.003584350588628
+            ],
+            "water_p99": 11.802461738586425
+          },
+          "peak_energy_ratio": 1.001720772680527,
+          "peak_air_rms": 0.03924728000320084,
+          "peak_particle_component": 0.25219234824180603,
+          "wall_seconds_including_startup_and_io": 23.280477999942377
+        },
+        "bifrost": {
+          "final": {
+            "energy": 136930887.9696089,
+            "count": 7680,
+            "max_component": 0.1904178261756897,
+            "water_rms": 0.06651450159107014,
+            "air_rms": 0.039247274736458095,
+            "water_com": [
+              23.99928824494903,
+              6.003584346061365
+            ],
+            "water_p99": 11.802460813522337
+          },
+          "peak_energy_ratio": 1.001720772680527,
+          "peak_air_rms": 0.039247274736458095,
+          "peak_particle_component": 0.25219234824180603,
+          "wall_seconds_including_startup_and_io": 15.515496900072321
+        }
+      },
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "cpp_all_step_diagnostics": {
+        "iterations_max": 9.0,
+        "reported_residual_max": 2.09763172165367e-07,
+        "divergence_max": 2.0588119653552894e-08,
+        "particle_component_max": 0.2524915635585785,
+        "finite": true
+      }
+    },
+    "rest_pure": {
+      "commit": "74f31a41e9c8a6e1ee661ed06132e5ebde965475",
+      "dt": 0.0024999999441206455,
+      "tolerance": 9.999999974752427e-07,
+      "max_difference": {
+        "tv": 0.0,
+        "com": 0.0,
+        "height_p99": 0.0
+      },
+      "similarity_pass": true,
+      "momentum_port_matched": false,
+      "physics": {
+        "python": {
+          "final": {
+            "energy": 137010595.64715815,
+            "count": 7680,
+            "max_component": 0.04918082058429718,
+            "water_rms": 0.009416205269686197,
+            "air_rms": 0.007973098537417112,
+            "water_com": [
+              24.019910124311636,
+              6.007335763864426
+            ],
+            "water_p99": 11.787580890655518
+          },
+          "peak_energy_ratio": 1.0017207836496376,
+          "peak_air_rms": 0.02182525236234568,
+          "peak_particle_component": 0.16513116657733917,
+          "wall_seconds_including_startup_and_io": 25.563141099992208
+        },
+        "bifrost": {
+          "final": {
+            "energy": 137010595.57260746,
+            "count": 7680,
+            "max_component": 0.049180641770362854,
+            "water_rms": 0.009416193561654074,
+            "air_rms": 0.00797308488627653,
+            "water_com": [
+              24.0199100997092,
+              6.007335760578927
+            ],
+            "water_p99": 11.787580890655518
+          },
+          "peak_energy_ratio": 1.0017207836496376,
+          "peak_air_rms": 0.021825252563410107,
+          "peak_particle_component": 0.16513116657733917,
+          "wall_seconds_including_startup_and_io": 15.143347000004724
+        }
+      },
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "cpp_all_step_diagnostics": {
+        "iterations_max": 8.0,
+        "reported_residual_max": 1.6982802719667234e-07,
+        "divergence_max": 4.668577080479963e-09,
+        "particle_component_max": 0.16513285040855408,
+        "finite": true
+      }
+    },
+    "plunge_raw": {
+      "commit": "74f31a41e9c8a6e1ee661ed06132e5ebde965475",
+      "dt": 0.0024999999441206455,
+      "tolerance": 9.999999974752427e-07,
+      "max_difference": {
+        "tv": 0.016311584553928088,
+        "com": 0.021697863936424255,
+        "height_p99": 1.768341064453125
+      },
+      "similarity_pass": false,
+      "momentum_port_matched": false,
+      "physics": {
+        "python": {
+          "final": {
+            "energy": 1025533436.3748336,
+            "count": 20480,
+            "max_component": 21.688480377197266,
+            "water_rms": 5.528207177456396,
+            "air_rms": 6.715075641161977,
+            "water_com": [
+              31.99342562420946,
+              15.732547308044253
+            ],
+            "water_p99": 68.24782821655275
+          },
+          "peak_energy_ratio": 1.000296739964014,
+          "peak_air_rms": 12.263834646867618,
+          "peak_particle_component": 163.3834991455078,
+          "wall_seconds_including_startup_and_io": 79.25536089995876
+        },
+        "bifrost": {
+          "final": {
+            "energy": 1024259764.6716439,
+            "count": 20480,
+            "max_component": 14.290050506591797,
+            "water_rms": 5.475240250884487,
+            "air_rms": 6.247332028727046,
+            "water_com": [
+              32.00464307825353,
+              15.7413770562204
+            ],
+            "water_p99": 66.54734840393071
+          },
+          "peak_energy_ratio": 1.0002967399640141,
+          "peak_air_rms": 12.263837016213364,
+          "peak_particle_component": 163.38987731933594,
+          "wall_seconds_including_startup_and_io": 25.383538800058886
+        }
+      },
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "cpp_all_step_diagnostics": {
+        "iterations_max": 28.0,
+        "reported_residual_max": 9.998032055591466e-07,
+        "divergence_max": 3.7797988625243306e-05,
+        "particle_component_max": 201.1405487060547,
+        "finite": true
+      }
+    },
+    "plunge_pure": {
+      "commit": "74f31a41e9c8a6e1ee661ed06132e5ebde965475",
+      "dt": 0.0024999999441206455,
+      "tolerance": 9.999999974752427e-07,
+      "max_difference": {
+        "tv": 0.021304926764314253,
+        "com": 0.06041780859231949,
+        "height_p99": 1.6403388977050781
+      },
+      "similarity_pass": false,
+      "momentum_port_matched": false,
+      "physics": {
+        "python": {
+          "final": {
+            "energy": 1073580095.2270619,
+            "count": 20480,
+            "max_component": 20.605030059814453,
+            "water_rms": 5.1932548148813105,
+            "air_rms": 8.382410504166153,
+            "water_com": [
+              32.04018894119682,
+              16.729607405798255
+            ],
+            "water_p99": 72.3041580200196
+          },
+          "peak_energy_ratio": 1.0336764668557987,
+          "peak_air_rms": 15.725740005440887,
+          "peak_particle_component": 294.6461181640625,
+          "wall_seconds_including_startup_and_io": 86.75220470002387
+        },
+        "bifrost": {
+          "final": {
+            "energy": 1070621678.1134456,
+            "count": 20480,
+            "max_component": 16.583660125732422,
+            "water_rms": 5.128229596676251,
+            "air_rms": 8.209552493297013,
+            "water_com": [
+              31.978928498774966,
+              16.713944755603723
+            ],
+            "water_p99": 72.78457984924322
+          },
+          "peak_energy_ratio": 1.0302290221572266,
+          "peak_air_rms": 15.716208470311473,
+          "peak_particle_component": 289.61224365234375,
+          "wall_seconds_including_startup_and_io": 24.431086900061928
+        }
+      },
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "cpp_all_step_diagnostics": {
+        "iterations_max": 19.0,
+        "reported_residual_max": 9.999264420912368e-07,
+        "divergence_max": 5.4336011089617386e-05,
+        "particle_component_max": 289.61224365234375,
+        "finite": true
+      }
+    },
+    "plunge_pure_momentum": {
+      "commit": "35421c489e60b502992f1e2236fe94e3586cc5b8",
+      "dt": 0.0024999999441206455,
+      "tolerance": 9.999999974752427e-07,
+      "max_difference": {
+        "tv": 0.022137150466045273,
+        "com": 0.05435921251773834,
+        "height_p99": 2.618724822998047
+      },
+      "similarity_pass": false,
+      "momentum_port_matched": true,
+      "physics": {
+        "python": {
+          "final": {
+            "energy": 1070255865.5337925,
+            "count": 20480,
+            "max_component": 16.149559020996094,
+            "water_rms": 5.0998466311019,
+            "air_rms": 7.284604896403386,
+            "water_com": [
+              31.93449867787596,
+              16.72443509128654
+            ],
+            "water_p99": 73.13121673583986
+          },
+          "peak_energy_ratio": 1.0271978606241554,
+          "peak_air_rms": 15.487530367255117,
+          "peak_particle_component": 294.1243896484375,
+          "wall_seconds_including_startup_and_io": 83.43966440006625
+        },
+        "bifrost": {
+          "final": {
+            "energy": 1070621678.1134456,
+            "count": 20480,
+            "max_component": 16.583660125732422,
+            "water_rms": 5.128229596676251,
+            "air_rms": 8.209552493297013,
+            "water_com": [
+              31.978928498774966,
+              16.713944755603723
+            ],
+            "water_p99": 72.78457984924322
+          },
+          "peak_energy_ratio": 1.0302290221572266,
+          "peak_air_rms": 15.716208470311473,
+          "peak_particle_component": 289.61224365234375,
+          "wall_seconds_including_startup_and_io": 22.089824700029567
+        }
+      },
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "cpp_all_step_diagnostics": {
+        "iterations_max": 19.0,
+        "reported_residual_max": 9.999264420912368e-07,
+        "divergence_max": 5.4336011089617386e-05,
+        "particle_component_max": 289.61224365234375,
+        "finite": true
+      }
+    },
+    "plunge_pure_strict": {
+      "commit": "35421c489e60b502992f1e2236fe94e3586cc5b8",
+      "dt": 0.0024999999441206455,
+      "tolerance": 1.000000013351432e-10,
+      "max_difference": {
+        "tv": 0.020306258322237022,
+        "com": 0.05941133201122284,
+        "height_p99": 2.4644241333007812
+      },
+      "similarity_pass": false,
+      "momentum_port_matched": true,
+      "physics": {
+        "python": {
+          "final": {
+            "energy": 1076050982.4499571,
+            "count": 20480,
+            "max_component": 18.770355224609375,
+            "water_rms": 5.203523650877585,
+            "air_rms": 8.910038751039457,
+            "water_com": [
+              31.990782328446045,
+              16.76508367545754
+            ],
+            "water_p99": 73.81768615722659
+          },
+          "peak_energy_ratio": 1.0433935295311372,
+          "peak_air_rms": 16.517239533877824,
+          "peak_particle_component": 294.6395263671875,
+          "wall_seconds_including_startup_and_io": 92.56969589996152
+        },
+        "bifrost": {
+          "final": {
+            "energy": 1072223382.2852364,
+            "count": 20480,
+            "max_component": 22.511825561523438,
+            "water_rms": 5.179355940883367,
+            "air_rms": 9.219229538273066,
+            "water_com": [
+              31.986017229008215,
+              16.71209376658525
+            ],
+            "water_p99": 72.63328437805177
+          },
+          "peak_energy_ratio": 1.033825939042995,
+          "peak_air_rms": 16.049967899031866,
+          "peak_particle_component": 294.5651550292969,
+          "wall_seconds_including_startup_and_io": 22.620416600024328
+        }
+      },
+      "alpha_liquid": 0.9700000286102295,
+      "alpha_air": 0.8999999761581421,
+      "cpp_all_step_diagnostics": {
+        "iterations_max": 23.0,
+        "reported_residual_max": 9.999802375038058e-11,
+        "divergence_max": 3.4539553439572046e-09,
+        "particle_component_max": 294.5651550292969,
+        "finite": true
+      }
+    },
+    "plunge_pure_halfstep": {
+      "commit": "ee4df9caef9467900261bd1d76ddf4f79e5159ba",
+      "dt": 0.0012499999720603228,
+      "tolerance": 1.000000013351432e-10,
+      "max_difference": {
+        "tv": 0.02896138482023969,
+        "com": 0.06879994844364211,
+        "height_p99": 2.9596023559570312
+      },
+      "similarity_pass": false,
+      "momentum_port_matched": true,
+      "physics": {
+        "python": {
+          "final": {
+            "energy": 1065934458.3353028,
+            "count": 20480,
+            "max_component": 21.66506576538086,
+            "water_rms": 5.148267525771508,
+            "air_rms": 9.728683884739514,
+            "water_com": [
+              31.95750747675624,
+              16.620498313150616
+            ],
+            "water_p99": 70.69905479431154
+          },
+          "peak_energy_ratio": 1.0475201535918262,
+          "peak_air_rms": 16.48346106958474,
+          "peak_particle_component": 256.611083984375,
+          "wall_seconds_including_startup_and_io": 182.7325254000025
+        },
+        "bifrost": {
+          "final": {
+            "energy": 1069677353.6012636,
+            "count": 20480,
+            "max_component": 21.96175193786621,
+            "water_rms": 5.159050501652108,
+            "air_rms": 9.928708904332545,
+            "water_com": [
+              31.995493437286303,
+              16.677871249566543
+            ],
+            "water_p99": 70.9974494171143
+          },
+          "peak_energy_ratio": 1.0770504433499206,
+          "peak_air_rms": 17.52648008852807,
+          "peak_particle_component": 303.16351318359375,
+          "wall_seconds_including_startup_and_io": 44.51673719997052
+        }
+      },
+      "alpha_liquid": 0.9850000143051147,
+      "alpha_air": 0.949999988079071,
+      "cpp_all_step_diagnostics": {
+        "iterations_max": 21.0,
+        "reported_residual_max": 9.991123900432441e-11,
+        "divergence_max": 3.965080708212554e-09,
+        "particle_component_max": 318.6866149902344,
+        "finite": true
+      }
+    }
+  },
+  "scope": "Uniform 2D, no escape/emission/ST/adaptivity; not production acceptance",
+  "time_refinement": {
+    "python": {
+      "tv": 0.045106524633821574,
+      "com": 0.1441013365983963,
+      "p99": 5.314922332763672
+    },
+    "bifrost": {
+      "tv": 0.04111185086551265,
+      "com": 0.08249354362487793,
+      "p99": 4.607177734375
+    },
+    "sampling_note": "Coarse dumps t=.0025+.1k; fine dumps t=.00125+.1k. Compare qualitative sensitivity, not a convergence order."
+  },
+  "static_gates": {
+    "algebra": {
+      "eq7": true,
+      "pure_face_truth_table": true,
+      "invalid_modes_refused": true
+    },
+    "fields": {
+      "1_air": {
+        "max_phase_error": 0.0
+      },
+      "1_water": {
+        "max_phase_error": 0.0
+      },
+      "1_mixed": {
+        "max_phase_error": 0.0
+      },
+      "2_air": {
+        "max_phase_error": 0.0
+      },
+      "2_water": {
+        "max_phase_error": 0.0
+      },
+      "2_mixed": {
+        "max_phase_error": 0.0
+      }
+    },
+    "steps": {
+      "1": {
+        "steps": 3,
+        "position_max": 0.0,
+        "velocity_max": 3.226159606128931e-08,
+        "momentum_max": 1.9073486328125e-06
+      },
+      "2": {
+        "steps": 3,
+        "position_max": 0.0,
+        "velocity_max": 3.345485311001539e-08,
+        "momentum_max": 2.9802322387695312e-06
+      }
+    },
+    "graph_rejections": 3
+  },
+  "legacy_p2g": {
+    "passed": true,
+    "exact_arrays": 165
+  },
+  "legacy_full_graph": {
+    "passed": true,
+    "bit_identical": [
+      "frame.0000.npy",
+      "vel.0000.npy",
+      "ph.0000.npy",
+      "rad.0000.npy",
+      "spr.0000.npy",
+      "esc.0000.npy",
+      "frame.0040.npy",
+      "vel.0040.npy",
+      "ph.0040.npy",
+      "rad.0040.npy",
+      "spr.0040.npy",
+      "esc.0040.npy"
+    ]
+  },
+  "energy_replay": [
+    {
+      "step": 1120,
+      "time": 2.8024999373592436,
+      "phase_model": 1,
+      "initial": {
+        "kinetic": 374469653.0049851,
+        "potential": 719116341.4777241
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 374444220.61870533,
+          "potential": 719116341.4777241
+        },
+        "after_advection": {
+          "kinetic": 374444000.68177044,
+          "potential": 719027420.4178972
+        }
+      },
+      "cpp": {
+        "kinetic": 374444000.8904567,
+        "potential": 719027420.485987
+      },
+      "grid_projection_kinetic_before": 98016213.58174977,
+      "grid_projection_kinetic_after": 98009101.07452199,
+      "true_residual": 8.532204687037746e-11,
+      "velocity_difference": 1.9006380895802977e-06,
+      "total_energy_relative_difference": 2.530903621292997e-10,
+      "cpp_total_energy_step_delta": -114573.10626554489
+    },
+    {
+      "step": 1120,
+      "time": 2.8024999373592436,
+      "phase_model": 2,
+      "initial": {
+        "kinetic": 374469653.0049851,
+        "potential": 719116341.4777241
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 374488843.0708358,
+          "potential": 719116341.4777241
+        },
+        "after_advection": {
+          "kinetic": 374487784.7024367,
+          "potential": 719027560.1839778
+        }
+      },
+      "cpp": {
+        "kinetic": 374487785.41556996,
+        "potential": 719027560.9265405
+      },
+      "grid_projection_kinetic_before": 101031913.37278435,
+      "grid_projection_kinetic_after": 101024909.45264456,
+      "true_residual": 7.331693181414952e-11,
+      "velocity_difference": 1.9038296343865113e-06,
+      "total_energy_relative_difference": 1.331121534915989e-09,
+      "cpp_total_energy_step_delta": -70648.14059877396
+    },
+    {
+      "step": 1200,
+      "time": 3.0024999328888953,
+      "phase_model": 1,
+      "initial": {
+        "kinetic": 367390984.9454577,
+        "potential": 722108490.1175045
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 367226871.2827647,
+          "potential": 722108490.1175045
+        },
+        "after_advection": {
+          "kinetic": 367226852.4263438,
+          "potential": 722278053.029868
+        }
+      },
+      "cpp": {
+        "kinetic": 367226851.8856167,
+        "potential": 722278053.0048144
+      },
+      "grid_projection_kinetic_before": 96143355.02686365,
+      "grid_projection_kinetic_after": 96133360.50304945,
+      "true_residual": 4.2673851927321643e-11,
+      "velocity_difference": 3.642725303620864e-06,
+      "total_energy_relative_difference": 5.193032696190525e-10,
+      "cpp_total_energy_step_delta": 5429.827469110489
+    },
+    {
+      "step": 1200,
+      "time": 3.0024999328888953,
+      "phase_model": 2,
+      "initial": {
+        "kinetic": 367390984.9454577,
+        "potential": 722108490.1175045
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 367335818.4065486,
+          "potential": 722108490.1175045
+        },
+        "after_advection": {
+          "kinetic": 367335798.5525136,
+          "potential": 722278204.9050926
+        }
+      },
+      "cpp": {
+        "kinetic": 367335798.78609216,
+        "potential": 722278205.0134647
+      },
+      "grid_projection_kinetic_before": 98617124.62338173,
+      "grid_projection_kinetic_after": 98609871.95143166,
+      "true_residual": 3.732810909358836e-11,
+      "velocity_difference": 3.7932968695031377e-06,
+      "total_energy_relative_difference": 3.138601021769011e-10,
+      "cpp_total_energy_step_delta": 114528.73659467697
+    },
+    {
+      "step": 1280,
+      "time": 3.202499928418547,
+      "phase_model": 1,
+      "initial": {
+        "kinetic": 366605571.3478202,
+        "potential": 745771253.5970113
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 364629036.9119799,
+          "potential": 745771253.5970113
+        },
+        "after_advection": {
+          "kinetic": 364628966.59910166,
+          "potential": 746188929.8474072
+        }
+      },
+      "cpp": {
+        "kinetic": 364628967.3140007,
+        "potential": 746188930.1190028
+      },
+      "grid_projection_kinetic_before": 98126286.3701016,
+      "grid_projection_kinetic_after": 98008165.93353882,
+      "true_residual": 1.6763725905912426e-11,
+      "velocity_difference": 6.506234939251954e-06,
+      "total_energy_relative_difference": 8.868348558206776e-10,
+      "cpp_total_energy_step_delta": -1558927.5118281841
+    },
+    {
+      "step": 1280,
+      "time": 3.202499928418547,
+      "phase_model": 2,
+      "initial": {
+        "kinetic": 366605571.3478202,
+        "potential": 745771253.5970113
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 368698354.0170206,
+          "potential": 745771253.5970113
+        },
+        "after_advection": {
+          "kinetic": 368698270.34232634,
+          "potential": 746189483.1319354
+        }
+      },
+      "cpp": {
+        "kinetic": 368698270.0019245,
+        "potential": 746189483.4406497
+      },
+      "grid_projection_kinetic_before": 98438040.38122298,
+      "grid_projection_kinetic_after": 98387732.0504496,
+      "true_residual": 6.031359619213059e-11,
+      "velocity_difference": 1.3027215175043239e-05,
+      "total_energy_relative_difference": 2.84862983317033e-11,
+      "cpp_total_energy_step_delta": 2510928.497742653
+    },
+    {
+      "step": 1360,
+      "time": 3.4024999239481986,
+      "phase_model": 1,
+      "initial": {
+        "kinetic": 366684288.04654044,
+        "potential": 787061093.3492503
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 365651730.0196233,
+          "potential": 787061093.3492503
+        },
+        "after_advection": {
+          "kinetic": 365649717.5687654,
+          "potential": 787646339.2853196
+        }
+      },
+      "cpp": {
+        "kinetic": 365649717.36030895,
+        "potential": 787646339.6749332
+      },
+      "grid_projection_kinetic_before": 108359802.30865183,
+      "grid_projection_kinetic_after": 108251008.25530607,
+      "true_residual": 6.42302103337424e-11,
+      "velocity_difference": 3.799678154337016e-06,
+      "total_energy_relative_difference": 1.5701654372164833e-10,
+      "cpp_total_energy_step_delta": -449324.36054873466
+    },
+    {
+      "step": 1360,
+      "time": 3.4024999239481986,
+      "phase_model": 2,
+      "initial": {
+        "kinetic": 366684288.04654044,
+        "potential": 787061093.3492503
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 365149378.90741664,
+          "potential": 787061093.3492503
+        },
+        "after_advection": {
+          "kinetic": 365146121.5492246,
+          "potential": 787646022.7684381
+        }
+      },
+      "cpp": {
+        "kinetic": 365146121.3809066,
+        "potential": 787646023.0383763
+      },
+      "grid_projection_kinetic_before": 109583956.7016782,
+      "grid_projection_kinetic_after": 109510378.52026144,
+      "true_residual": 7.689340514180552e-11,
+      "velocity_difference": 3.809498991813598e-06,
+      "total_energy_relative_difference": 8.807853009405192e-11,
+      "cpp_total_energy_step_delta": -953236.9765079021
+    },
+    {
+      "step": 1440,
+      "time": 3.60249991947785,
+      "phase_model": 1,
+      "initial": {
+        "kinetic": 285671188.21688414,
+        "potential": 835534254.2088381
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 284936258.0304381,
+          "potential": 835534254.2088381
+        },
+        "after_advection": {
+          "kinetic": 284935505.1442747,
+          "potential": 836152122.129745
+        }
+      },
+      "cpp": {
+        "kinetic": 284935505.23752624,
+        "potential": 836152122.0401362
+      },
+      "grid_projection_kinetic_before": 84877574.63373838,
+      "grid_projection_kinetic_after": 84864641.26111816,
+      "true_residual": 3.543432304303075e-11,
+      "velocity_difference": 3.1885576845525065e-06,
+      "total_energy_relative_difference": 3.2490008808837035e-12,
+      "cpp_total_energy_step_delta": -117815.14805960655
+    },
+    {
+      "step": 1440,
+      "time": 3.60249991947785,
+      "phase_model": 2,
+      "initial": {
+        "kinetic": 285671188.21688414,
+        "potential": 835534254.2088381
+      },
+      "python": {
+        "after_g2p": {
+          "kinetic": 284695065.88895774,
+          "potential": 835534254.2088381
+        },
+        "after_advection": {
+          "kinetic": 284694369.7859507,
+          "potential": 836152032.6436485
+        }
+      },
+      "cpp": {
+        "kinetic": 284694369.7420287,
+        "potential": 836152033.0877247
+      },
+      "grid_projection_kinetic_before": 82214687.41675223,
+      "grid_projection_kinetic_after": 82208326.30988866,
+      "true_residual": 7.006069764688924e-11,
+      "velocity_difference": 3.69743467842909e-06,
+      "total_energy_relative_difference": 3.5689633552241764e-10,
+      "cpp_total_energy_step_delta": -359039.5959687233
+    }
+  ]
+}

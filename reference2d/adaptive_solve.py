@@ -253,6 +253,8 @@ class Operator:
         return out
 
     def solve(self, b, tol=1e-10, max_iter=20000):
+        if not np.isfinite(tol) or tol <= 0 or max_iter < 0:
+            raise ValueError('invalid adaptive pressure tolerance or iteration limit')
         # all-Neumann: null space is the constant vector, so project the
         # incompatible part out of b (A's row sums are zero, range _|_ 1)
         b = b - b.mean()
@@ -264,9 +266,19 @@ class Operator:
         rz = r @ z
         r0 = max(np.sqrt(r @ r), 1e-300)
         it = 0
+        self.residual_restarts = 0
         for it in range(max_iter):
             if np.sqrt(r @ r) / r0 < tol:
-                break
+                candidate = x - x.mean()  # certify the returned pressure gauge
+                actual = b - self.matvec(candidate)
+                certified = float(np.linalg.norm(actual) / r0)
+                if not np.isfinite(certified) or certified <= tol:
+                    break
+                x, r = candidate, actual
+                z = dinv * r
+                d = z.copy()
+                rz = r @ z
+                self.residual_restarts += 1
             q = self.matvec(d)
             a = rz / max(d @ q, 1e-300)
             x += a * d
@@ -276,6 +288,9 @@ class Operator:
             d = z + (rz_new / max(rz, 1e-300)) * d
             rz = rz_new
         x -= x.mean()
+        self.residual = float(np.linalg.norm(b-self.matvec(x))/r0)
+        if not np.isfinite(self.residual) or self.residual > tol:
+            raise RuntimeError(f'adaptive pressure did not converge: true residual {self.residual:.17g}, tolerance {tol:.17g}')
         return x, it
 
 
@@ -333,6 +348,8 @@ class Multigrid:
         return self._smooth(op, x, b, 2)
 
     def solve(self, b, tol=1e-9, max_iter=2000):
+        if not np.isfinite(tol) or tol <= 0 or max_iter < 0:
+            raise ValueError('invalid adaptive pressure tolerance or iteration limit')
         op = self.ops[0]
         b = b - b.mean()
         x = np.zeros_like(b)
@@ -342,9 +359,19 @@ class Multigrid:
         rz = r @ z
         r0 = max(np.sqrt(r @ r), 1e-300)
         it = 0
+        self.residual_restarts = 0
         for it in range(max_iter):
             if np.sqrt(r @ r) / r0 < tol:
-                break
+                candidate = x - x.mean()
+                actual = b - op.matvec(candidate)
+                certified = float(np.linalg.norm(actual) / r0)
+                if not np.isfinite(certified) or certified <= tol:
+                    break
+                x, r = candidate, actual
+                z = self._vcycle(0, r)
+                d = z.copy()
+                rz = r @ z
+                self.residual_restarts += 1
             q = op.matvec(d)
             dq = d @ q
             if dq == 0.0:
@@ -360,4 +387,7 @@ class Multigrid:
             if rz == 0.0:
                 break
         x -= x.mean()
+        self.residual = float(np.linalg.norm(b-op.matvec(x))/r0)
+        if not np.isfinite(self.residual) or self.residual > tol:
+            raise RuntimeError(f'adaptive pressure did not converge: true residual {self.residual:.17g}, tolerance {tol:.17g}')
         return x, it

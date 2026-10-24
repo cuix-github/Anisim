@@ -1,0 +1,584 @@
+{
+  "before": {
+    "job": {
+      "kind": "Generic pressure failure contract",
+      "stage": "before",
+      "commit": "faeadb715326f939565179b09ce3b111e6b5458c",
+      "binary_sha256": "dc318db1c604d2dc0233a17675e0592ca3e23ae4c0949db74eb1fd767ed85ad2"
+    },
+    "receipt": {
+      "rest2d": {
+        "converged": {
+          "iterations_used": 9.0,
+          "final_residual": 9.58933e-07,
+          "max_divergence_after": 3.39253e-07,
+          "max_speed": 0.192193,
+          "independent_true_residual": 9.589333846848528e-07,
+          "particle_count": 2304
+        },
+        "capped": {
+          "iterations_used": 1.0,
+          "final_residual": 1.0,
+          "max_divergence_after": 0.237685,
+          "max_speed": 0.209417,
+          "independent_true_residual": 0.7587595852909975,
+          "particle_count": 2304
+        }
+      },
+      "flow2d_jacobi": {
+        "converged": {
+          "iterations_used": 103.0,
+          "final_residual": 8.5019e-07,
+          "max_divergence_after": 1.47056e-06,
+          "max_speed": 2.37552,
+          "independent_true_residual": 8.501900649357125e-07,
+          "particle_count": 1920
+        },
+        "capped": {
+          "iterations_used": 1.0,
+          "final_residual": 1.0,
+          "max_divergence_after": 8.677,
+          "max_speed": 7.84537,
+          "independent_true_residual": 3.816964726862217,
+          "particle_count": 1920
+        },
+        "last_allowed_iteration": {
+          "iterations_used": 103.0,
+          "final_residual": 1.04065e-06,
+          "max_divergence_after": 1.47056e-06,
+          "max_speed": 2.37552,
+          "independent_true_residual": 8.501900649357125e-07,
+          "particle_count": 1920
+        }
+      },
+      "flow3d_mg": {
+        "converged": {
+          "iterations_used": 12.0,
+          "final_residual": 2.79046e-07,
+          "max_divergence_after": 9.68222e-07,
+          "max_speed": 2.72136,
+          "independent_true_residual": 2.7904586324243626e-07,
+          "particle_count": 24576
+        },
+        "capped": {
+          "iterations_used": 1.0,
+          "final_residual": 1.0,
+          "max_divergence_after": 2.54146,
+          "max_speed": 2.80002,
+          "independent_true_residual": 1.0724463498303745,
+          "particle_count": 24576
+        }
+      },
+      "flow3d_jacobi": {
+        "converged": {
+          "iterations_used": 92.0,
+          "final_residual": 6.85561e-07,
+          "max_divergence_after": 1.59422e-06,
+          "max_speed": 2.72136,
+          "independent_true_residual": 6.855605767874857e-07,
+          "particle_count": 24576
+        },
+        "capped": {
+          "iterations_used": 1.0,
+          "final_residual": 1.0,
+          "max_divergence_after": 6.28639,
+          "max_speed": 5.60615,
+          "independent_true_residual": 1.3553794177331526,
+          "particle_count": 24576
+        }
+      },
+      "cut3d": {
+        "converged": {
+          "iterations_used": 12.0,
+          "final_residual": 2.49515e-07,
+          "max_divergence_after": 7.71302e-07,
+          "max_speed": 3.13938,
+          "independent_true_residual": 2.495148661204922e-07,
+          "particle_count": 24576
+        },
+        "capped": {
+          "iterations_used": 1.0,
+          "final_residual": 1.0,
+          "max_divergence_after": 2.81185,
+          "max_speed": 3.66939,
+          "independent_true_residual": 1.0365022291378552,
+          "particle_count": 24576
+        }
+      },
+      "adaptive2d": {
+        "converged": {
+          "iterations_used": 15.0,
+          "final_residual": 2.70223e-07,
+          "max_divergence_after": 1.76818e-06,
+          "max_speed": 2.74313,
+          "particle_count": 4096
+        },
+        "capped": {
+          "iterations_used": 0.0,
+          "final_residual": 0.93794,
+          "max_divergence_after": 1.28532,
+          "max_speed": 3.43274,
+          "particle_count": 4096
+        }
+      },
+      "adaptive3d_cleanup": {
+        "converged": {
+          "iterations_used": 26.0,
+          "final_residual": 8.49686e-07,
+          "max_divergence_after": 1.43507e-06,
+          "max_speed": 3.40648,
+          "particle_count": 73728
+        },
+        "capped": {
+          "iterations_used": 0.0,
+          "final_residual": 1.17924,
+          "max_divergence_after": 1.22495,
+          "max_speed": 3.22451,
+          "particle_count": 73728
+        }
+      },
+      "zero_rhs": {
+        "converged": {
+          "iterations_used": 0.0,
+          "final_residual": 0.0,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 0.0,
+          "particle_count": 576
+        },
+        "capped": {
+          "iterations_used": 0.0,
+          "final_residual": 0.0,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 0.0,
+          "particle_count": 576
+        }
+      },
+      "legacy2d": {
+        "converged": {
+          "iterations_used": 103.0,
+          "final_residual": 8.5019e-07,
+          "max_divergence_after": 1.47056e-06,
+          "max_speed": 2.37552,
+          "particle_count": 1920
+        },
+        "capped": {
+          "iterations_used": 1.0,
+          "final_residual": 1.0,
+          "max_divergence_after": 8.677,
+          "max_speed": 7.84537,
+          "particle_count": 1920
+        }
+      }
+    }
+  },
+  "after_final": {
+    "job": {
+      "kind": "Generic pressure failure contract",
+      "stage": "after",
+      "commit": "c74cdc5aa7531b330982ef76b36e07059f8a0ca1",
+      "binary_sha256": "b9360d06b7120e07673b1b8437c0e584721028a01a503f13521ed1c460573785"
+    },
+    "receipt": {
+      "rest2d": {
+        "converged": {
+          "iterations_used": 9.0,
+          "final_residual": 9.58933e-07,
+          "max_divergence_after": 3.39253e-07,
+          "max_speed": 0.192193,
+          "independent_true_residual": 9.589333846848528e-07,
+          "particle_output_written": true,
+          "particle_count": 2304,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 0.75876,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 0.7587595852909975,
+          "particle_output_written": false,
+          "particle_count": 0
+        }
+      },
+      "flow2d_jacobi": {
+        "converged": {
+          "iterations_used": 103.0,
+          "final_residual": 8.5019e-07,
+          "max_divergence_after": 1.47056e-06,
+          "max_speed": 2.37552,
+          "independent_true_residual": 8.501900649357125e-07,
+          "particle_output_written": true,
+          "particle_count": 1920,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 3.81696,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 3.816964726862217,
+          "particle_output_written": false,
+          "particle_count": 0
+        },
+        "last_allowed_iteration": {
+          "iterations_used": 103.0,
+          "final_residual": 8.5019e-07,
+          "max_divergence_after": 1.47056e-06,
+          "max_speed": 2.37552,
+          "independent_true_residual": 8.501900649357125e-07,
+          "particle_output_written": true,
+          "particle_count": 1920
+        }
+      },
+      "flow3d_mg": {
+        "converged": {
+          "iterations_used": 12.0,
+          "final_residual": 2.79046e-07,
+          "max_divergence_after": 9.68222e-07,
+          "max_speed": 2.72136,
+          "independent_true_residual": 2.7904586324243626e-07,
+          "particle_output_written": true,
+          "particle_count": 24576,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 1.07245,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 1.0724463498303745,
+          "particle_output_written": false,
+          "particle_count": 0
+        }
+      },
+      "flow3d_jacobi": {
+        "converged": {
+          "iterations_used": 92.0,
+          "final_residual": 6.85561e-07,
+          "max_divergence_after": 1.59422e-06,
+          "max_speed": 2.72136,
+          "independent_true_residual": 6.855605767874857e-07,
+          "particle_output_written": true,
+          "particle_count": 24576,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 1.35538,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 1.3553794177331526,
+          "particle_output_written": false,
+          "particle_count": 0
+        }
+      },
+      "cut3d": {
+        "converged": {
+          "iterations_used": 12.0,
+          "final_residual": 2.49515e-07,
+          "max_divergence_after": 7.71302e-07,
+          "max_speed": 3.13938,
+          "independent_true_residual": 2.495148661204922e-07,
+          "particle_output_written": true,
+          "particle_count": 24576,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 1.0365,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 1.0365022291378552,
+          "particle_output_written": false,
+          "particle_count": 0
+        }
+      },
+      "adaptive2d": {
+        "converged": {
+          "iterations_used": 15.0,
+          "final_residual": 2.70224e-07,
+          "max_divergence_after": 1.76818e-06,
+          "max_speed": 2.74313,
+          "particle_output_written": true,
+          "particle_count": 4096,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 0.93794,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "particle_output_written": false,
+          "particle_count": 0
+        }
+      },
+      "adaptive3d_cleanup": {
+        "converged": {
+          "iterations_used": 26.0,
+          "final_residual": 8.49685e-07,
+          "max_divergence_after": 1.43507e-06,
+          "max_speed": 3.40648,
+          "particle_output_written": true,
+          "particle_count": 73728,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 1.17924,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "particle_output_written": false,
+          "particle_count": 0
+        }
+      },
+      "zero_rhs": {
+        "converged": {
+          "iterations_used": 0.0,
+          "final_residual": 0.0,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 0.0,
+          "particle_output_written": true,
+          "particle_count": 576,
+          "bit_identical_output_arrays": 7
+        },
+        "capped": {
+          "iterations_used": 0.0,
+          "final_residual": 0.0,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "independent_true_residual": 0.0,
+          "particle_output_written": true,
+          "particle_count": 576,
+          "bit_identical_output_arrays": 7
+        }
+      },
+      "legacy2d": {
+        "converged": {
+          "iterations_used": 103.0,
+          "final_residual": 8.5019e-07,
+          "max_divergence_after": 1.47056e-06,
+          "max_speed": 2.37552,
+          "particle_output_written": true,
+          "particle_count": 1920,
+          "bit_identical_output_arrays": 5
+        },
+        "capped": {
+          "iterations_used": -2.0,
+          "final_residual": 3.81696,
+          "max_divergence_after": 0.0,
+          "max_speed": 0.0,
+          "particle_output_written": false,
+          "particle_count": 0
+        }
+      }
+    }
+  },
+  "reference_before": {
+    "job": {
+      "commit": "a5a57ebd42d2279a2929f369551d8f72f8472916",
+      "cpp": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\pressure_guard_20261023\\after_r2"
+    },
+    "receipt": {
+      "uniform_cpp_max_face_error": {
+        "u": 1.1410071465434157e-07,
+        "v": 1.0961145724408539e-07
+      },
+      "uniform_capped_residual": 3.8169647268622233,
+      "uniform_capped_faces_unchanged": true,
+      "uniform_zero_budget_zero_rhs": true,
+      "jacobi": {
+        "residual": 5.74043079563414e-09,
+        "iterations": 58,
+        "capped_refused": false,
+        "bit_identical": false,
+        "zero_budget_zero_rhs": true
+      },
+      "mg": {
+        "residual": 2.317324951093543e-09,
+        "iterations": 13,
+        "capped_refused": false,
+        "bit_identical": false,
+        "zero_budget_zero_rhs": true
+      }
+    }
+  },
+  "reference_after": {
+    "job": {
+      "commit": "8ee8326166530cc3a0e7919c43f8c32b73288669",
+      "cpp": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\pressure_guard_20261023\\after_r2"
+    },
+    "receipt": {
+      "uniform_cpp_max_face_error": {
+        "u": 1.1410071465434157e-07,
+        "v": 1.0961145724408539e-07
+      },
+      "uniform_capped_residual": 3.8169647268622233,
+      "uniform_capped_faces_unchanged": true,
+      "uniform_zero_budget_zero_rhs": true,
+      "jacobi": {
+        "residual": 5.74043079563414e-09,
+        "iterations": 58,
+        "capped_refused": true,
+        "bit_identical": true,
+        "zero_budget_zero_rhs": true
+      },
+      "mg": {
+        "residual": 2.317324951093543e-09,
+        "iterations": 13,
+        "capped_refused": true,
+        "bit_identical": true,
+        "zero_budget_zero_rhs": true
+      }
+    }
+  },
+  "edges": {
+    "job": {
+      "commit": "c74cdc5aa7531b330982ef76b36e07059f8a0ca1"
+    },
+    "receipt": {
+      "zero_adaptive_1": {
+        "iterations_used": 0.0,
+        "final_residual": 0.0,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": true,
+        "particle_count": 576
+      },
+      "zero_adaptive_2": {
+        "iterations_used": 0.0,
+        "final_residual": 0.0,
+        "max_divergence_after": 0.0,
+        "max_speed": 0.0,
+        "particle_output_written": true,
+        "particle_count": 576
+      },
+      "zero_tol": {
+        "refused": true,
+        "particle_count": 0
+      },
+      "negative_cap": {
+        "refused": true,
+        "particle_count": 0
+      },
+      "zero_cap_nonzero_rhs": {
+        "refused": true,
+        "particle_count": 0
+      },
+      "loop_refusal": "step_3d refused step 0 for pressure_failure: step_3d: error: pressure uniform failed; true residual=0.59594010350976212 tolerance=9.9999999747524271e-07; no particle state produced",
+      "negative_step_diagnostics": [
+        -2,
+        -2,
+        -2
+      ]
+    }
+  },
+  "legacy_multistep": {
+    "job": {
+      "kind": "Phase mode 0 full-graph compatibility",
+      "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\spray_events_2d_20261023\\plunge_20s_dt0025",
+      "commit": "67185acfb6e891c9156b347f2e4ba1ed4abb6d27"
+    },
+    "receipt": {
+      "passed": true,
+      "bit_identical": [
+        "frame.0000.npy",
+        "vel.0000.npy",
+        "ph.0000.npy",
+        "rad.0000.npy",
+        "spr.0000.npy",
+        "esc.0000.npy",
+        "frame.0040.npy",
+        "vel.0040.npy",
+        "ph.0040.npy",
+        "rad.0040.npy",
+        "spr.0040.npy",
+        "esc.0040.npy"
+      ]
+    }
+  },
+  "phase_gate": {
+    "job": {
+      "commit": "67185acfb6e891c9156b347f2e4ba1ed4abb6d27",
+      "kind": "phase contract static and one-step gates"
+    },
+    "receipt": {
+      "algebra": {
+        "eq7": true,
+        "pure_face_truth_table": true,
+        "invalid_modes_refused": true
+      },
+      "fields": {
+        "1_air": {
+          "max_phase_error": 0.0
+        },
+        "1_water": {
+          "max_phase_error": 0.0
+        },
+        "1_mixed": {
+          "max_phase_error": 0.0
+        },
+        "2_air": {
+          "max_phase_error": 0.0
+        },
+        "2_water": {
+          "max_phase_error": 0.0
+        },
+        "2_mixed": {
+          "max_phase_error": 0.0
+        }
+      },
+      "steps": {
+        "1": {
+          "steps": 3,
+          "position_max": 0.0,
+          "velocity_max": 3.226159606128931e-08,
+          "momentum_max": 1.9073486328125e-06
+        },
+        "2": {
+          "steps": 3,
+          "position_max": 0.0,
+          "velocity_max": 3.345485311001539e-08,
+          "momentum_max": 2.9802322387695312e-06
+        }
+      },
+      "graph_rejections": 3
+    }
+  },
+  "strict_multistep": {
+    "job": {
+      "kind": "Successful strict-pressure compatibility",
+      "source": "C:\\Users\\5d149\\source\\Anisim-spray-events-20261023\\out\\runs\\phase_contract_20261023\\plunge_pure_strict",
+      "commit": "c74cdc5aa7531b330982ef76b36e07059f8a0ca1",
+      "steps": 2400,
+      "dt": 0.0024999999441206455
+    },
+    "receipt": {
+      "passed": true,
+      "steps": 2400,
+      "bit_identical": [
+        "final.npy",
+        "final_mass.npy",
+        "final_momx.npy",
+        "final_momy.npy",
+        "final_momz.npy",
+        "final_phase.npy",
+        "final_radius.npy",
+        "final_scale.npy",
+        "final_spray.npy",
+        "final_tau.npy",
+        "final_velocities.npy",
+        "final_wt.npy",
+        "final_wtph.npy"
+      ]
+    }
+  },
+  "limitations": [
+    "This failure guard does not fix the independently divergent plunge or late spray.",
+    "Successful adaptive cleanup and failed main solve tested; cleanup-only failure not isolated.",
+    "Bifrost may finish its iterate compound after a refusal; the node produces no accepted particle state and the launcher rejects the whole chunk.",
+    "No timing or production performance claim; the final two validation jobs briefly overlapped."
+  ]
+}

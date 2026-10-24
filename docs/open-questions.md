@@ -4,6 +4,93 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Narrowed paper-correspondence / decay question (2026-10-23).** The user
+  asks to separate visually unusual motion from actual paper discrepancies.
+  The [frozen C++ 240-second plunge](paper-correspondence-and-settling.md)
+  reproduces the prior 20 seconds and passes exact checkpoint continuation.
+  All 96,000 pressure solves meet the requested true-residual tolerance;
+  primary-water RMS falls from a sampled peak of 11.357 to .15094 cells/s.
+  Auxiliary spray mostly clears by 110.93 s, with a brief 16-particle event
+  at 220.2075 s that returns on the next step. Final spray is zero, and all
+  birth/death accounts close. However, the predeclared near-rest window fails
+  at 240 s; no complete settling or full-paper certification is claimed.
+  Prioritize documented differences (volume correction, escaped-particle
+  transfer/lifecycle, transport) instead of expanding every long-trajectory
+  mismatch into a new defect hypothesis. Production defaults stay unchanged.
+
+- **Matched phase / escape ladder (2026-10-23 follow-up).** The
+  [20-second phase-repair study](phase-repair-ladder.md) explicitly selects the
+  same Eq.7/pure-face contract in both independent implementations and supplies
+  old/new particle videos with identical display settings. All four full-length
+  ladder comparisons still fail the preset similarity gate, including escape
+  and emission OFF. Auxiliary spray does not perturb primary flow in the tested
+  configuration: 804 primary arrays per implementation are bit-identical with
+  emission on/off. A new default-off `escape=2` samples the phase field rather
+  than opposite-phase particle count; generic thresholds, common-state graph
+  checks and five-second still water pass. It changes late spray appearance but
+  does not fix independent long-time divergence. 1,213 old-path arrays remain
+  identical after the C++ patch. Keep production blocked; next audit the base
+  interface transfer/advection and pure-face switching, while retaining explicit
+  gaps in droplet P2G participation, bubbles and volume correction.
+
+- **Original full-spray divergence attribution (2026-10-23 follow-up).**
+  The [original 20-second causal audit](original-spray-causality.md) returns to
+  escape/emission ON and the legacy tag phase, rather than extrapolating the
+  no-escape six-second results. The old C++ movie is reproduced bit for bit;
+  Python replaying only the projected grid velocity reproduces all 8,000 steps
+  of P2G/phase and event counts, plus every saved and final particle state.
+  Matched but independently solved pressure still diverges. The first primary
+  escape decision differs at 2.4675 s; switching just that decision on a common
+  state changes one particle's speed vector by 1.0704 cells/s. A 1e-10 C++
+  pressure run retains substantial late spray. Original-scene sampled total
+  mechanical energy declines, unlike the separate no-escape diagnostic's
+  overshoot. This locates an amplification mechanism, not a completed physics
+  fix; audit escape radius/mass/velocity/P2G/reentry together before promotion.
+
+- **2D spray stability and phase contract (2026-10-23).** Independent NumPy and
+  Bifrost 20-second plunges fail the similarity gate, including a diagnostic with
+  matched phase definitions. The [pressure replay audit](pressure-replay-audit.md)
+  verifies the actual double-precision linear system in six cached states, with
+  two preconditioners and tighter tolerance; it does not find a loss of linear
+  convergence. The default mass-derived versus tag-derived phase mismatch is
+  significant. Full transfer/classification stability and phase fidelity remain
+  open. A capped-iteration negative control exposed stale residual reporting
+  and missing refusal. The subsequent [pressure failure guard](pressure-replay-audit.md)
+  fixes both across uniform/adaptive and legacy 2D paths; nine successful
+  single-step cases and the 2,400-step strict plunge preserve their physical
+  outputs bit for bit. This does not fix the original video: none of its
+  8,000 steps reached the cap. Keep production blocked pending the physics checks.
+  The [uniform phase-contract experiment](phase-contract.md) now implements
+  explicit Eq.7 and pure-cell face modes in independent NumPy and fused P2G.
+  Static/short-step and still-water gates pass; corrected momentum-port, tighter
+  tolerance and half-step 6-second plunges still fail the height-distribution
+  comparison. Common-state audits reproduce particle-energy gains in both
+  implementations while each grid projection dissipates energy. Water-side
+  advection velocity/extrapolation, RK3/local stepping, classification and
+  volume correction remain distinct correspondence gaps; do not promote the
+  experimental phase mode or claim the late spray issue is resolved.
+  A subsequent [every-step causal trace](phase-contract.md#2026-10-23-后续逐步定位分叉和增能来源)
+  finds that sharing only projected velocities makes all 2,400 steps of particle
+  positions/velocities, P2G and phase bit-identical. Independent solves first
+  differ by 4.19e-12 in grid velocity; at 2.525 s one cell crosses the phase
+  threshold differently. Changing only that label at fixed input changes the
+  next projected velocity by up to 0.7502 cells/s. A separate common-state
+  audit attributes 98.9% of the water particles' net pressure kinetic gain to
+  interpolation from pure-air faces, mostly near side walls. These isolate
+  amplification and transfer mechanisms; they are not a production fix or an
+  independent full-spray pass. Keep the original failed gates visible.
+  The subsequent opt-in 2D transport ablations implement liquid velocity
+  extension and local RK3 in independent Python and the actual graph. Analytic,
+  local and six-second still-water checks pass, but narrow/wide plunge
+  height-tail comparisons still fail. The wide-tank energy results do not show
+  a consistent benefit, so neither experimental phase nor transport is promoted.
+  A naturally occurring near-threshold true-residual refusal led to bounded
+  residual restarts in both implementations; three generic C++ cases now reach
+  the same tolerance, while nine previously successful configurations remain
+  bit-identical and two extreme adaptive-tolerance cases still refuse. This
+  improves pressure stopping, not the original late-spray behavior. Evidence
+  and limits are in the linked phase/pressure audits.
+
 - **Force-driven replacement scene (2026-10-20).** The approved one-hour budget covers a
   two-dimensional and coarse three-dimensional particle preview, with old
   caches retained and no rendering. The [preview study](force-wave-preview.md)

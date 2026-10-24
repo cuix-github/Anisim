@@ -2,6 +2,8 @@
 #include "PFFlipAdaptive.h"
 #include "PFFlipScatter.h"
 #include "PFFlipSolids.h"
+#include "PFFlipSprayEvents.h"
+#include "PFFlipTransport.h"
 
 #include <algorithm>
 #include <chrono>
@@ -10,6 +12,7 @@
 #include <cstdlib>
 #include <random>
 #include <cmath>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 
@@ -273,7 +276,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float rho_air, float alpha_liquid, float alpha_air, int max_iterations,
              float tolerance, int preconditioner, int pressure_solver,
              int adaptive_band, int adaptive_levels, int escape, float esc_phi,
-             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face,
+             float drag_droplet, float drag_bubble, float buoyancy, float rho0_face, int phase_model, int transport_model,
              int st, int st_seed, int step_index,
              int adapt, float coarse_gain, float ws_epsilon,
              const Amino::Array<float>& scale_in,
@@ -286,6 +289,9 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
              float droplet_evap_k, float droplet_r_min, float metres_per_cell,
              float air_nu, const Amino::Array<float>& radius_in,
              int emit_model, float emit_grad_threshold, float emit_rate, int emit_max_per_cell,
+             int emit_cloud_size, float emit_event_radius, float emit_spread,
+             float emit_velocity_spread, float emit_radius_max, int emit_max_active,
+             int emit_seed, float spray_dt_max,
              float spray_cfl, const Amino::Array<float>& spray_in,
              float zone_length, float zone_depth, float zone_ramp,
              const Amino::Array<float>& waves,
@@ -344,6 +350,58 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const int NX = std::max(2, nx), NY = std::max(2, ny), NZ = std::max(1, nz);
     const double dt = dt_in;
     const size_t np = positions.size();
+    auto clearOutputs = [&]() {
+        out_positions = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        out_velocities = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        out_pos_synced = Amino::newClassPtr<Amino::Array<Bifrost::Math::float3>>();
+        for (auto* o : {&out_mass,&out_mom_x,&out_mom_y,&out_mom_z,&out_u,&out_v,&out_w,
+                       &pressure,&out_escaped,&tau_out,&scale_out,&radius_out,&spray_out,
+                       &out_phase_state,&out_wt,&out_wtph})
+            *o = Amino::newClassPtr<Amino::Array<float>>();
+        mask_fine = Amino::newClassPtr<Amino::Array<bool>>();
+        mask_coarse = Amino::newClassPtr<Amino::Array<bool>>();
+        iterations_used=-1; final_residual=max_divergence_after=max_speed=0;
+    };
+    auto refuseSpray = [&](bool report=true) {
+        using namespace Amino::MessageLiterals;
+        if (report) {
+            services.logError("step_3d: invalid spray event configuration or intensity"_amt);
+            std::fprintf(stderr, "step_3d: error: invalid spray event configuration or intensity\n");
+        }
+        clearOutputs();
+    };
+    auto refusePressure = [&](const char* stage, double residual, double requestedTolerance) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: pressure did not meet its true-residual tolerance; no particle state produced"_amt);
+        std::fprintf(stderr, "step_3d: error: pressure %s failed; true residual=%.17g tolerance=%.17g; no particle state produced\n",
+                     stage, residual, requestedTolerance);
+        clearOutputs();
+        iterations_used = -2;
+        final_residual = static_cast<float>(residual);
+    };
+    if (!std::isfinite(dt) || dt <= 0.0 || !std::isfinite(tolerance) || tolerance <= 0.0f || max_iterations < 0) {
+        refusePressure("configuration", std::numeric_limits<double>::infinity(), tolerance);
+        return;
+    }
+    if (emit_model==2 || droplet_model==2) {
+        bool valid=escape!=0 && droplet_model!=0 && std::isfinite(dt) && dt>0 &&
+            std::isfinite(droplet_r_sigma) && droplet_r_sigma>=0 && droplet_r_sigma<=2 &&
+            std::isfinite(droplet_r_min) && droplet_r_min>0 &&
+            std::isfinite(metres_per_cell) && metres_per_cell>0 &&
+            std::isfinite(air_nu) && air_nu>0 &&
+            std::isfinite(droplet_evap_k) && droplet_evap_k>=0;
+        if (droplet_model==2) valid &= std::isfinite(spray_dt_max) && spray_dt_max>0 &&
+                                      std::isfinite(spray_cfl) && spray_cfl>0;
+        if (emit_model==2) valid &= emit_cloud_size>=1 && emit_cloud_size<=256 &&
+            std::isfinite(emit_grad_threshold) && emit_grad_threshold>=0 &&
+            std::isfinite(emit_rate) && emit_rate>=0 && emit_rate<=1000 &&
+            std::isfinite(emit_event_radius) && emit_event_radius>0 &&
+            std::isfinite(emit_radius_max) && emit_radius_max>=droplet_r_min &&
+            std::isfinite(emit_spread) && emit_spread>=0 &&
+            std::isfinite(emit_velocity_spread) && emit_velocity_spread>=0 &&
+            emit_max_active>=0 && emit_max_active<=10000000 && emit_max_per_cell>=0 && emit_seed>=0;
+        if (!valid) { refuseSpray(); return; }
+    }
 
     // PFFLIP_PROFILE=1 prints per-phase wall times to stderr (spike 1); the
     // phase boundaries are the ---- section markers below.
@@ -367,6 +425,37 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const size_t nu = static_cast<size_t>(NX + 1) * NY * NZ;
     const size_t nv = static_cast<size_t>(NX) * (NY + 1) * NZ;
     const size_t nw = static_cast<size_t>(NX) * NY * (NZ + 1);
+    if (escape==2 && (phase_model!=2 || NZ!=1 || !std::isfinite(esc_phi) || esc_phi<=0 || esc_phi>=.5f)) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: invalid phase-based escape configuration"_amt);
+        std::fprintf(stderr,"step_3d: error: phase-based escape requires uniform 2D phase_model=2 and 0<esc_phi<0.5\n");
+        clearOutputs();
+        return;
+    }
+    if (transport_model!=0 && (transport_model<1 || transport_model>3 || phase_model!=2 || NZ!=1 ||
+                               escape || st || adapt || emit_model || droplet_model)) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: transport experiment requires uniform 2D phase mode 2 without spray"_amt);
+        std::fprintf(stderr,"step_3d: error: unsupported experimental transport configuration\n");
+        clearOutputs(); return;
+    }
+    bool phaseObstacle=false;
+    if (phase_model!=0) for (size_t b=0;b<std::min(obstacles_min.size(),obstacles_max.size());++b) {
+        const auto& lo=obstacles_min[b]; const auto& hi=obstacles_max[b];
+        phaseObstacle |= hi.x>0 && lo.x<NX && hi.y>0 && lo.y<NY &&
+                         (NZ==1 || (hi.z>0 && lo.z<NZ));
+    }
+    if (phase_model!=0 && (phase_model<1 || phase_model>2 || st || adapt || solid_mode || phaseObstacle ||
+            piston_stroke>0 || zone_length>0 || external_forces || pressure_solver ||
+            u_phase.size()!=nu || v_phase.size()!=nv || w_phase.size()!=nw)) {
+        // The new phase field is currently gated only on the uniform, closed,
+        // unobstructed configuration. Do not silently reinterpret ST weights.
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: unsupported or missing explicit phase contract"_amt);
+        std::fprintf(stderr,"step_3d: error: unsupported or missing explicit phase contract\n");
+        refuseSpray(false);
+        return;
+    }
 
     // Generic external fields, independent of the scene recipe. Accelerations
     // are cells/s^2, multiplied by the measured liquid fraction. Drag is 1/s,
@@ -889,6 +978,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             pressure_solver == 2 ? Adaptive::Junction::Cleanup : Adaptive::Junction::Naive;
         Adaptive::Result ar = Adaptive::project(NX, NY, NZ, dt, as, junction, liquid, u, v, w,
                                                 L.bu, L.bv, L.bw);
+        if (!ar.converged) {
+            refusePressure(ar.failureStage, ar.failureResidual, ar.failureTolerance);
+            return;
+        }
         p = std::move(ar.pressure);
         // both solves' iterations: the cost the port reports
         it = ar.iterations + ar.cleanupIterations;
@@ -924,7 +1017,22 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         for (it = 0; it < max_iterations; ++it) {
             rr2 = 0.0;
             for (size_t c = 0; c < ncell; ++c) rr2 += r[c] * r[c];
-            if (std::sqrt(rr2) / r0 < tolerance) break;
+            if (std::sqrt(rr2) / r0 < tolerance) {
+                applyA(F, p, q);
+                double actual2 = 0.0;
+                for (size_t c = 0; c < ncell; ++c) {
+                    const double e = rhs[c] - q[c]; actual2 += e * e;
+                }
+                const double certified = std::sqrt(actual2) / r0;
+                if (!std::isfinite(certified) || certified <= tolerance) break;
+                for (size_t c = 0; c < ncell; ++c) r[c] = rhs[c] - q[c];
+                precond(r, z);
+                d = z;
+                rz = 0.0;
+                for (size_t c = 0; c < ncell; ++c) rz += r[c] * z[c];
+                if (std::getenv("PFFLIP_RESIDUAL_RESTART_TRACE"))
+                    std::fprintf(stderr,"residual-restart: uniform iteration=%d true=%.17g tolerance=%.17g\n",it,certified,static_cast<double>(tolerance));
+            }
             applyA(F, d, q);
             double dq = 0.0;
             for (size_t c = 0; c < ncell; ++c) dq += d[c] * q[c];
@@ -945,7 +1053,35 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             if (rz == 0.0) break;
         }
 
-        finalResidual = std::sqrt(rr2) / r0;
+        // Check the returned iterate, not the recursive residual from before
+        // its last update. The pressure/velocity arithmetic is otherwise intact.
+        applyA(F, p, q);
+        double trueR2 = 0.0;
+        for (size_t c = 0; c < ncell; ++c) {
+            const double e = rhs[c] - q[c];
+            trueR2 += e * e;
+        }
+        finalResidual = std::sqrt(trueR2) / r0;
+        // Opt-in, single-step pressure audit. Preserve the actual doubles before
+        // float32 output quantization: int32 dimensions, then bu/bv/bw, rhs, p,
+        // and pre-projection u/v/w. The independent reader reassembles -D beta G
+        // and checks b-Ap; this does not change the solve or its stopping rule.
+        // Caller must provide a distinct path per invocation (not a loop path).
+        if (const char* path = std::getenv("PFFLIP_PRESSURE_DUMP")) {
+            if (FILE* fp = std::fopen(path, "wb")) {
+                const int32_t dims[3] = {NX, NY, NZ};
+                std::fwrite(dims, sizeof(int32_t), 3, fp);
+                for (const Vec* a : {&F.bu, &F.bv, &F.bw, &rhs, &p, &u, &v, &w})
+                    std::fwrite(a->data(), sizeof(double), a->size(), fp);
+                std::fclose(fp);
+            } else {
+                std::fprintf(stderr, "step_3d: pressure audit dump failed: %s\n", path);
+            }
+        }
+        if (!std::isfinite(finalResidual) || finalResidual > tolerance) {
+            refusePressure("uniform", finalResidual, tolerance);
+            return;
+        }
         lap(msSolve);
         // ---- velocity correction on interior faces, then walls.
         const Vec& cbu = lsCut ? betaU : F.bu;
@@ -1026,6 +1162,23 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     (fw(L.iw(i, j, k + 1)) - fw(L.iw(i, j, k)))));
 
     lap(msCorr);
+    // Opt-in serialized 2D stage trace. This is diagnostic input for stage
+    // replacement, NOT an independent validation. Append one fixed-size record
+    // per step: int32 NX,NY,NZ, followed by uStar,vStar,u,v,phiU,phiV doubles.
+    // The caller must choose a fresh file; production has no trace environment.
+    if (flatGrid && !st && !adapt) {
+        if (const char* path = std::getenv("PFFLIP_FLAT_STAGE_TRACE")) {
+            if (FILE* fp = std::fopen(path, "ab")) {
+                const int32_t dims[3] = {NX, NY, NZ};
+                std::fwrite(dims, sizeof(int32_t), 3, fp);
+                for (const Vec* a : {&uStar, &vStar, &u, &v, &chP_u, &chP_v})
+                    std::fwrite(a->data(), sizeof(double), a->size(), fp);
+                std::fclose(fp);
+            } else {
+                std::fprintf(stderr, "step_3d: flat stage trace failed: %s\n", path);
+            }
+        }
+    }
     // ---- particle machinery. Sizes: with adapt on, particles carry a scale
     // (1 fine, 2 coarse); masses scale as scale^d (d = 2 flat, 3 otherwise) with a
     // calibrated coarse gain; the FLIP blend uses (1-alpha)/scale^2; deep-air fine
@@ -1137,12 +1290,19 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                 const double frac = sampleCnt(cntU[other], cntV[other], cntW[other],
                                               qx[pi], qy[pi], qz[pi]);
                 escFlag[pi] = frac > thresh ? 1 : 0;
+                // Experimental §3.4 classification. The existing esc_phi port
+                // denotes the lower cutoff (.3), i.e. .5 - paper delta_phi.
+                // MAC-face interpolation is an explicit implementation choice.
+                const double localPhase = escape==2 ? sampleCnt(chP_u, chP_v, chP_w,
+                    qx[pi], qy[pi], qz[pi]) : 0.0;
+                if (escape==2) escFlag[pi] = isLiq[pi] ? localPhase<esc_phi : localPhase>1.0-esc_phi;
                 // the wave zone's liquid is the zone's to move, never a droplet
                 if (zoneOn && isLiq[pi] && qx[pi] < zoneLen) escFlag[pi] = 0;
                 if (sprayF[pi]) {
                     escFlag[pi] = 1;
                     const double fl = sampleCnt(cntU[1], cntV[1], cntW[1], qx[pi], qy[pi], qz[pi]);
                     insideF[pi] = fl > thresh ? 1 : 0;
+                    if (escape==2) insideF[pi] = localPhase>1.0-esc_phi ? 1 : 0;
                 } else if (emitOn && isLiq[pi]) {
                     lfP[pi] = sampleCnt(cntU[1], cntV[1], cntW[1], qx[pi], qy[pi], qz[pi]) /
                               static_cast<double>(rho0_face);
@@ -1296,10 +1456,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         for (int it2 = 0; rem > 1e-12 && it2 < 1000000; ++it2) {
             const double cx = std::clamp(px, lo, hx), cy = std::clamp(py, lo, hy);
             const double cz = flat ? pz : std::clamp(pz, lo, hz);
-            const double gx = sU(u, cx, cy, cz), gy = sV(v, cx, cy, cz);
-            const double gz = flat ? 0.0 : sW(w, cx, cy, cz);
-            const double speed = std::max({std::fabs(vx), std::fabs(vy), std::fabs(vz), 1e-9});
-            const double h = std::min(rem, sprayCfl / speed);
+            double gx = sU(u, cx, cy, cz), gy = sV(v, cx, cy, cz);
+            double gz = flat ? 0.0 : sW(w, cx, cy, cz);
+            double speed = std::max({std::fabs(vx), std::fabs(vy), std::fabs(vz), 1e-9});
+            if (droplet_model==2) speed=std::max({speed,std::fabs(gx),std::fabs(gy),std::fabs(gz)});
+            double h = std::min(rem, sprayCfl / speed);
+            if (droplet_model==2) h=std::min(h,static_cast<double>(spray_dt_max));
             // the relaxation rate at a slip (the reference's rate)
             auto rate = [&](double ax, double ay, double az) {
                 const double rx = (gx - ax) * mpc, ry = (gy - ay) * mpc;
@@ -1323,6 +1485,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             // rate finds it, then the whole step at that rate
             double mx, my, mz, nx2, ny2, nz2;
             relax(rate(vx, vy, vz), 0.5 * h, mx, my, mz);
+            if (droplet_model==2) {
+                const double qx=std::clamp(px+0.25*h*(vx+mx),lo,hx);
+                const double qy=std::clamp(py+0.25*h*(vy+my),lo,hy);
+                const double qz=flat ? pz : std::clamp(pz+0.25*h*(vz+mz),lo,hz);
+                gx=sU(u,qx,qy,qz); gy=sV(v,qx,qy,qz); gz=flat ? 0 : sW(w,qx,qy,qz);
+            }
             relax(rate(mx, my, mz), h, nx2, ny2, nz2);
             px += 0.5 * h * (vx + nx2);
             py += 0.5 * h * (vy + ny2);
@@ -1342,8 +1510,13 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         const char* e = std::getenv("PFFLIP_SOLID_DEBUG");
         return e && e[0] == '1';
     }();
-    long long lsPushed = 0;
-#pragma omp parallel for schedule(dynamic, 1024) reduction(+ : lsPushed)
+    Vec advU,advV;
+    if (transport_model>=2) {
+        advU=Transport::extend2(u,chP_u,NX+1,NY,0);
+        advV=Transport::extend2(v,chP_v,NX,NY+1,1);
+    }
+    long long lsPushed = 0, transportFailures=0;
+#pragma omp parallel for schedule(dynamic, 1024) reduction(+ : lsPushed, transportFailures)
     for (long long pi = 0; pi < lnp; ++pi) {
         double px = positions[pi].x, py = positions[pi].y, pz = positions[pi].z;
         double vx = nvx[pi], vy = nvy[pi], vz = nvz[pi];
@@ -1359,6 +1532,20 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         } else if (escFlag[pi]) {
             px += dtAct * vx; py += dtAct * vy;
             if (!flat) pz += dtAct * vz;
+        } else if (transport_model!=0) {
+            const Vec& au=liquid && transport_model>=2 ? advU : u;
+            const Vec& av=liquid && transport_model>=2 ? advV : v;
+            auto sample=[&](double x,double y) {
+                return std::array<double,2>{sU(au,x,y,pz),sV(av,x,y,pz)};
+            };
+            if (transport_model==1 || transport_model==3) {
+                if (!Transport::rk3(px,py,dtAct,sample)) ++transportFailures;
+            } else {
+                const auto k1=sample(px,py);
+                const auto k2=sample(std::max(px+.5*dtAct*k1[0],.51),
+                                     std::max(py+.5*dtAct*k1[1],.51));
+                px+=dtAct*k2[0];py+=dtAct*k2[1];
+            }
         } else if (stOn) {
             double rem = dtAct;
             for (int r = 0; rem > 1e-12 && r < 64; ++r) {
@@ -1415,6 +1602,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
         Esc[pi] = escFlag[pi]; Rad[pi] = radNew[pi]; Spray[pi] = sprayF[pi];
     }
 
+    if (transportFailures) {
+        using namespace Amino::MessageLiterals;
+        services.logError("step_3d: experimental transport failed; no particle state produced"_amt);
+        std::fprintf(stderr,"step_3d: error: experimental transport failed for %lld particles\n",transportFailures);
+        clearOutputs(); return;
+    }
     if (lsDebug)
         std::fprintf(stderr, "step_3d: level set %s; pushed %lld of %zu particles out\n",
                      lsOn ? "on" : "off", lsPushed, np);
@@ -1426,6 +1619,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     // the hash of (step_index, index), a massless spray particle at its position and
     // velocity, at most emit_max_per_cell a cell, in index order
     long long nEmitted = 0;
+    long long nCandidates=0,nEvents=0,nRequested=0,nCap=0,nGeometry=0;
+    double rawR3=0,clippedR3=0;
+    long long oldSpray=0;
+    if (emit_model==2) for (size_t i=0;i<np;++i) oldSpray+=Spray[i]!=0;
     if (emitOn && np > 0) {
         // the Frobenius norm of the Jacobian of the cell-centred velocity, per cell:
         // central differences inside, one-sided at the walls, a cell the unit
@@ -1475,6 +1672,51 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             const size_t cell = L.ic(ci, cj, ck);
             const double g = gradN[cell];
             if (g <= thr) continue;
+            if (emit_model==2) {
+                ++nCandidates;
+                const double lam=rate*(g-thr)*dt;
+                if (!std::isfinite(lam) || lam>1e6) { refuseSpray(); return; }
+                const auto key=SprayEvents::key(emit_seed,step_index,pi);
+                const int ne=static_cast<int>(std::floor(lam)) +
+                    (SprayEvents::uniform(key,0)<lam-std::floor(lam));
+                nEvents+=ne; nRequested+=static_cast<long long>(ne)*emit_cloud_size;
+                // Live budget includes deaths awaiting this step's compaction.
+                for (int ev=0; ev<ne; ++ev) {
+                    if (perCell[cell]>=emit_max_per_cell || oldSpray+nEmitted>=emit_max_active) {
+                        nCap+=static_cast<long long>(ne-ev)*emit_cloud_size; break;
+                    }
+                    const double speed=std::sqrt(Vx[pi]*Vx[pi]+Vy[pi]*Vy[pi]+Vz[pi]*Vz[pi]);
+                    for (int child=0; child<emit_cloud_size; ++child) {
+                        const auto k=SprayEvents::key(emit_seed,step_index,pi,ev,child);
+                        const auto dp=SprayEvents::ball(k,3,flat), dv=SprayEvents::ball(k,6,flat);
+                        const double x=Px[pi]+emit_spread*dp[0], y=Py[pi]+emit_spread*dp[1];
+                        const double z=flat ? Pz[pi] : Pz[pi]+emit_spread*dp[2];
+                        bool bad=x<lo||x>hx||y<lo||y>hy||(!flat&&(z<lo||z>hz));
+                        for (size_t b=0;b<nObs&&!bad;++b) {
+                            const auto& a=obstacles_min[b]; const auto& c=obstacles_max[b];
+                            bad=x>a.x&&x<c.x&&y>a.y&&y<c.y&&(flat||(z>a.z&&z<c.z));
+                        }
+                        if (lsOn && !bad) bad=(pistonOn ?
+                            Solids::phiValue(phiAll,NX,NY,NZ,flat,x,y,z) :
+                            Solids::phiValue(solid_phi,NX,NY,NZ,flat,x,y,z))<0;
+                        if (bad) { ++nGeometry; continue; }
+                        if (perCell[cell]>=emit_max_per_cell || oldSpray+nEmitted>=emit_max_active) {
+                            ++nCap; continue;
+                        }
+                        const double raw=SprayEvents::rawRadius(k,emit_cloud_size,droplet_r_sigma,emit_event_radius);
+                        const double r=std::clamp(raw,static_cast<double>(droplet_r_min),static_cast<double>(emit_radius_max));
+                        Px.push_back(x); Py.push_back(y); Pz.push_back(z);
+                        Vx.push_back(Vx[pi]+emit_velocity_spread*speed*dv[0]);
+                        Vy.push_back(Vy[pi]+emit_velocity_spread*speed*dv[1]);
+                        Vz.push_back(flat ? 0 : Vz[pi]+emit_velocity_spread*speed*dv[2]);
+                        Tau.push_back(0); Wt.push_back(stOn ? wtKernel(0)/wtNorm(1):1);
+                        Scl.push_back(1); Ph01.push_back(1); Esc.push_back(1);
+                        Rad.push_back(r); Spray.push_back(1); gone.push_back(0);
+                        ++perCell[cell]; ++nEmitted; rawR3+=raw*raw*raw; clippedR3+=r*r*r;
+                    }
+                }
+                continue;
+            }
             const double prob = std::clamp(rate * (g - thr) * dt, 0.0, 1.0);
             if (dropletUniform(step_index, static_cast<uint64_t>(pi)) >= prob) continue;
             int& cnt = perCell[cell];
@@ -1492,7 +1734,17 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             Rad.push_back(0.0); Spray.push_back(1);
             gone.push_back(0);
         }
-        nEmitted = static_cast<long long>(hits.size());
+        if (emit_model!=2) nEmitted = static_cast<long long>(hits.size());
+    }
+    if (emit_model==2 && std::getenv("PFFLIP_SPRAY_AUDIT")) {
+        long long evap=0,reentry=0,alive=0;
+        for (size_t i=0;i<np;++i) if (Spray[i]) {
+            if (insideF[i]) ++reentry;
+            else if (gone[i]) ++evap;
+            else ++alive;
+        }
+        std::fprintf(stderr,"SPRAY_EVENT {\"step\":%d,\"candidates\":%lld,\"events\":%lld,\"requested\":%lld,\"accepted\":%lld,\"rejected_cap\":%lld,\"rejected_geometry\":%lld,\"raw_r3\":%.17g,\"clipped_r3\":%.17g,\"evaporated\":%lld,\"reentered\":%lld,\"alive\":%lld}\n",
+            step_index,nCandidates,nEvents,nRequested,nEmitted,nCap,nGeometry,rawR3,clippedR3,evap,reentry,alive+nEmitted);
     }
     if (lsDebug && emitOn)
         std::fprintf(stderr, "step_3d: emitted %lld spray particles\n", nEmitted);
@@ -1564,6 +1816,10 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             keepFilter(Vx); keepFilter(Vy); keepFilter(Vz);
             keepFilter(Tau); keepFilter(Wt); keepFilter(Scl); keepFilter(Ph01);
             keepFilter(Rad); keepFilter(Spray);
+            // The merge criterion belongs to the same particles as the state.
+            // Keeping old indices here let newly emitted spray shift which air
+            // particles merged, despite spray having zero transfer weight.
+            keepFilter(lf);
             {
                 size_t wr = 0;
                 for (size_t i = 0; i < drop.size(); ++i)
@@ -1583,6 +1839,7 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
                     Wt.push_back(wtKernel(tas[m2]) / wtNorm(1.0));
                     Scl.push_back(1.0); Ph01.push_back(phs[m2]); Esc.push_back(0);
                     Rad.push_back(0.0); Spray.push_back(0);
+                    lf.push_back(1.0); // split children stay fine for this step
                 }
             }
         }

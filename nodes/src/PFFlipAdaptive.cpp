@@ -548,7 +548,23 @@ Vec solve(const Hierarchy& h, Vec b, double tol, int maxIter, int& iterations, d
     const double r0 = std::max(std::sqrt(dot(r, r)), 1e-300);
     int it = 0;
     for (it = 0; it < maxIter; ++it) {
-        if (std::sqrt(dot(r, r)) / r0 < tol) break;
+        if (std::sqrt(dot(r, r)) / r0 < tol) {
+            // Certification includes the gauge normalization performed on return.
+            Vec candidate = x;
+            double xm = 0.0;
+            for (double v : candidate) xm += v;
+            xm /= static_cast<double>(n);
+            for (double& v : candidate) v -= xm;
+            op.matvec(candidate, q);
+            Vec actual(n);
+            for (size_t c = 0; c < n; ++c) actual[c] = b[c] - q[c];
+            const double certified = std::sqrt(dot(actual, actual)) / r0;
+            if (!std::isfinite(certified) || certified <= tol) break;
+            x.swap(candidate); r.swap(actual);
+            z = vcycle(h, 0, r); d = z; rz = dot(r, z);
+            if (std::getenv("PFFLIP_RESIDUAL_RESTART_TRACE"))
+                std::fprintf(stderr,"residual-restart: adaptive iteration=%d true=%.17g tolerance=%.17g\n",it,certified,tol);
+        }
         op.matvec(d, q);
         const double dq = dot(d, q);
         if (dq == 0.0) break;
@@ -565,13 +581,15 @@ Vec solve(const Hierarchy& h, Vec b, double tol, int maxIter, int& iterations, d
         rz = dot(r, z);
         if (rz == 0.0) break;
     }
-    if (it == maxIter) it = maxIter - 1;   // the reference's for-loop count
+    if (it == maxIter) it = std::max(0, maxIter - 1); // reference count; zero budget is not a failure code
     iterations = it;
-    relRes = std::sqrt(dot(r, r)) / r0;
     mean = 0.0;
     for (double v : x) mean += v;
     mean /= static_cast<double>(n);
     for (double& v : x) v -= mean;
+    op.matvec(x, q);
+    for (size_t c = 0; c < n; ++c) r[c] = b[c] - q[c];
+    relRes = std::sqrt(dot(r, r)) / r0;
     return x;
 }
 
@@ -759,6 +777,13 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
     const Vec b = rhsOf(D, op, vel, dt);
     const Vec p = solve(h, b, settings.tolerance, settings.maxIterations, res.iterations,
                         res.residual);
+    if (!std::isfinite(res.residual) || res.residual > settings.tolerance) {
+        res.converged = false;
+        res.failureStage = "adaptive main";
+        res.failureResidual = res.residual;
+        res.failureTolerance = settings.tolerance;
+        return res;
+    }
     lap(msSolve);
 
     // faces inside coarse cells keep u* until the local fills below
@@ -783,8 +808,14 @@ Result project(int nx, int ny, int nz, double dt, const Settings& settings, Junc
         const double b2n = std::sqrt(dot(b2, b2));
         if (b2n > 0.0) {
             const double tol2 = std::min(1.0, settings.tolerance * bnorm / b2n);
-            double residual2 = 0.0;
-            q = solve(h2, b2, tol2, settings.maxIterations, res.cleanupIterations, residual2);
+            q = solve(h2, b2, tol2, settings.maxIterations, res.cleanupIterations, res.cleanupResidual);
+            if (!std::isfinite(res.cleanupResidual) || res.cleanupResidual > tol2) {
+                res.converged = false;
+                res.failureStage = "adaptive cleanup";
+                res.failureResidual = res.cleanupResidual;
+                res.failureTolerance = tol2;
+                return res;
+            }
             applyGradient(D, h2.ops[0], q, dt, out, beta);
         }
     }

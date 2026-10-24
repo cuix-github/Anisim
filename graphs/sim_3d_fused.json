@@ -444,6 +444,54 @@
      "portDefault": "8"
     },
     {
+     "portName": "emit_cloud_size",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "16"
+    },
+    {
+     "portName": "emit_event_radius",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.0003f"
+    },
+    {
+     "portName": "emit_spread",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.25f"
+    },
+    {
+     "portName": "emit_velocity_spread",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.1f"
+    },
+    {
+     "portName": "emit_radius_max",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.003f"
+    },
+    {
+     "portName": "emit_max_active",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "200000"
+    },
+    {
+     "portName": "emit_seed",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "1"
+    },
+    {
+     "portName": "spray_dt_max",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "0.01f"
+    },
+    {
      "portName": "spray_cfl",
      "portDirection": "input",
      "portType": "float",
@@ -700,6 +748,24 @@
      "portDirection": "input",
      "portType": "int",
      "portDefault": "1"
+    },
+    {
+     "portName": "phase_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
+     "portName": "phase_alpha",
+     "portDirection": "input",
+     "portType": "float",
+     "portDefault": "1f"
+    },
+    {
+     "portName": "transport_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
     }
    ],
    "compounds": [
@@ -1109,6 +1175,46 @@
        "portType": "int"
       },
       {
+       "portName": "emit_cloud_size",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "emit_event_radius",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_spread",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_velocity_spread",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_radius_max",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "emit_max_active",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "emit_seed",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "spray_dt_max",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
        "portName": "spray_cfl",
        "portDirection": "input",
        "portType": "float"
@@ -1235,6 +1341,21 @@
       },
       {
        "portName": "dump_every",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "phase_model",
+       "portDirection": "input",
+       "portType": "int"
+      },
+      {
+       "portName": "phase_alpha",
+       "portDirection": "input",
+       "portType": "float"
+      },
+      {
+       "portName": "transport_model",
        "portDirection": "input",
        "portType": "int"
       }
@@ -1805,6 +1926,38 @@
        "target": "step.emit_max_per_cell"
       },
       {
+       "source": ".emit_cloud_size",
+       "target": "step.emit_cloud_size"
+      },
+      {
+       "source": ".emit_event_radius",
+       "target": "step.emit_event_radius"
+      },
+      {
+       "source": ".emit_spread",
+       "target": "step.emit_spread"
+      },
+      {
+       "source": ".emit_velocity_spread",
+       "target": "step.emit_velocity_spread"
+      },
+      {
+       "source": ".emit_radius_max",
+       "target": "step.emit_radius_max"
+      },
+      {
+       "source": ".emit_max_active",
+       "target": "step.emit_max_active"
+      },
+      {
+       "source": ".emit_seed",
+       "target": "step.emit_seed"
+      },
+      {
+       "source": ".spray_dt_max",
+       "target": "step.spray_dt_max"
+      },
+      {
        "source": ".spray_cfl",
        "target": "step.spray_cfl"
       },
@@ -2071,6 +2224,34 @@
       {
        "source": "dg_vel.path_out",
        "target": "w_vel.file_path"
+      },
+      {
+       "source": ".phase_model",
+       "target": "p2g.phase_model"
+      },
+      {
+       "source": ".phase_alpha",
+       "target": "p2g.phase_alpha"
+      },
+      {
+       "source": ".phase_model",
+       "target": "step.phase_model"
+      },
+      {
+       "source": ".transport_model",
+       "target": "step.transport_model"
+      },
+      {
+       "source": ".rho_liquid",
+       "target": "p2g.rho_liquid"
+      },
+      {
+       "source": ".rho_air",
+       "target": "p2g.rho_air"
+      },
+      {
+       "source": ".rho0_face",
+       "target": "p2g.rho0_face"
       },
       {
        "source": ".nx",
@@ -2974,6 +3155,38 @@
      "target": "loop.emit_max_per_cell"
     },
     {
+     "source": ".emit_cloud_size",
+     "target": "loop.emit_cloud_size"
+    },
+    {
+     "source": ".emit_event_radius",
+     "target": "loop.emit_event_radius"
+    },
+    {
+     "source": ".emit_spread",
+     "target": "loop.emit_spread"
+    },
+    {
+     "source": ".emit_velocity_spread",
+     "target": "loop.emit_velocity_spread"
+    },
+    {
+     "source": ".emit_radius_max",
+     "target": "loop.emit_radius_max"
+    },
+    {
+     "source": ".emit_max_active",
+     "target": "loop.emit_max_active"
+    },
+    {
+     "source": ".emit_seed",
+     "target": "loop.emit_seed"
+    },
+    {
+     "source": ".spray_dt_max",
+     "target": "loop.spray_dt_max"
+    },
+    {
      "source": ".spray_cfl",
      "target": "loop.spray_cfl"
     },
@@ -3264,6 +3477,18 @@
     {
      "source": ".dump_every",
      "target": "loop.dump_every"
+    },
+    {
+     "source": ".phase_model",
+     "target": "loop.phase_model"
+    },
+    {
+     "source": ".phase_alpha",
+     "target": "loop.phase_alpha"
+    },
+    {
+     "source": ".transport_model",
+     "target": "loop.transport_model"
     }
    ],
    "values": [
