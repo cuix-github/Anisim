@@ -59,7 +59,7 @@ def cpp(s,out,steps,state=None,offset=0):
     assert not out.exists()
     p=dict(gravity=s.g,phase_model=2,phase_alpha=1.,rho0_face=s.rho0_face,
         tolerance=s.pressure_tolerance,alpha_liquid=s.alpha[1],alpha_air=s.alpha[0],
-        volume_tau=s.volume_tau,transport_model=s.transport_model,
+        volume_tau=s.volume_tau,volume_model=s.volume_model,transport_model=s.transport_model,
         escape=0,emit_model=0,droplet_model=0,st=0,adapt=0)
     _,_,diag=run_bifrost3('base_combination',s.nx,s.ny,1,lambda x,y,z:y<12,
         steps,DT,init_arrays=arrays(s) if state is None else state,step_offset=offset,

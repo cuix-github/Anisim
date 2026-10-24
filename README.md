@@ -50,6 +50,13 @@ air sampling support in retained impact states; its long recovery/holdout and
 fixed only in the new mode. See the [receipt](results/interface_closure_20261024.json)
 and the full [research derivation](docs/literature/pf-interface-closure-derivation.md).
 
+The subsequent [finite sparse-density candidate](docs/sparse-density-contract.md)
+handles those empty counts without a logarithm or epsilon floor. Its opt-in
+uniform-2D mode passes the retained impact-input comparisons, independent target
+check, one-second density recovery, six-second static combination and restart.
+The old mode remains bit-identical. Absolute geometric calibration and full
+long-impact/holdout acceptance remain outstanding; production defaults stay off.
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing

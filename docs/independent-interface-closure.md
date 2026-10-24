@@ -1,5 +1,10 @@
 # Independent PF interface closure
 
+Later result: the [finite sparse-density alternative](sparse-density-contract.md)
+passes local, retained-impact and short static gates without changing this old
+log mode. The historical failure below remains valid for the log candidate;
+absolute geometric and full long-suite acceptance are still outstanding.
+
 2026-10-24. Xue authorized deriving and testing an explicit implementation rather
 than waiting for unpublished author details. This supplements the bounded route;
 it does not erase its failed geometry calibration or 240-second near-rest gate.

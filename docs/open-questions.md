@@ -4,6 +4,17 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Finite sparse-density candidate locally accepted (2026-10-24).**
+  [This bounded experiment](sparse-density-contract.md) adds `volume_model=1`,
+  an opt-in finite form of the cited discrete density feedback. It passes all
+  three previously rejected impact inputs, independent divergence checks,
+  generic sparse support, exact restart, one-second density relaxation and
+  six-second static combination. Existing off/log outputs remain bit-identical;
+  auxiliary spray graph regression passes. The old log candidate's failure is
+  not erased. The remaining work is the already-listed geometric measurement
+  calibration and final full 2D/holdout acceptance, not further diagnosis of
+  why log(0) refuses. No production or 3D admission.
+
 - **Independent interface closure (2026-10-24).** The latest
   [bounded experiment](independent-interface-closure.md) no longer depends on an
   author reply. An opt-in one-way primary-droplet contract passes independent
