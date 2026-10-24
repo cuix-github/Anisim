@@ -12,8 +12,6 @@ import subprocess
 import sys
 
 import numpy as np
-from scipy.sparse import diags, eye, kron
-from scipy.sparse.linalg import spsolve
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path[:0] = [str(ROOT/'reference2d'), str(ROOT/'graphs')]
@@ -33,8 +31,8 @@ def math_contract():
     nx, ny = 12, 10
     def negative_lap(n):
         diagonal = np.full(n, 2.); diagonal[[0, -1]] = 1
-        return diags([-np.ones(n-1), diagonal, -np.ones(n-1)], [-1, 0, 1], format='csr')
-    A = kron(negative_lap(nx), eye(ny)) + kron(eye(nx), negative_lap(ny))
+        return np.diag(diagonal)-np.diag(np.ones(n-1),-1)-np.diag(np.ones(n-1),1)
+    A = np.kron(negative_lap(nx), np.eye(ny)) + np.kron(np.eye(nx), negative_lap(ny))
     assert np.max(abs(A@np.ones(nx*ny))) == 0
     # Equal-volume +/-20% density deviations conserve mean density, but the
     # log target does NOT have zero mean: this is the concrete compatibility trap.
@@ -48,7 +46,7 @@ def math_contract():
     assert lower_bound > 1e-6
     compatible = rhs-rhs.mean()
     p = np.zeros(len(rhs))
-    p[1:] = spsolve(A.tocsr()[1:, 1:], compatible[1:])
+    p[1:] = np.linalg.solve(A[1:, 1:], compatible[1:])
     residual = np.linalg.norm(A@p-compatible)/np.linalg.norm(compatible)
     assert residual < 1e-11
     pp = p.reshape(nx, ny)
