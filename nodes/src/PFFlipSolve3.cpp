@@ -1370,6 +1370,16 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const bool dropOn = droplet_model != 0;
     std::vector<double> radNew(np, 0.0);
     std::vector<char> gone(np, 0);
+    // PF-FLIP section 3.4: escaped air particles are deleted, not advanced as
+    // buoyant bubbles. Apply only to the opt-in paper classification contract.
+    // Filtering below carries every loop-state array through the same mask;
+    // legacy escape=1 retains its already validated bubble behavior.
+    if (escape==2) {
+        for (size_t i=0;i<np;++i) {
+            const bool liquid=i<particle_phase.size() && particle_phase[i]>=.5f;
+            if (!liquid && escFlag[i]) gone[i]=1;
+        }
+    }
     if (dropOn) {
         const double rmed = droplet_r_median, rsig = droplet_r_sigma;
         const double evap = 0.25 * static_cast<double>(droplet_evap_k) * dt;
@@ -1781,9 +1791,9 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     if (lsDebug && emitOn)
         std::fprintf(stderr, "step_3d: emitted %lld spray particles\n", nEmitted);
 
-    if (dropOn) {
-        // droplets evaporated below droplet_r_min leave the simulation here, before
-        // the adaptive merge and split see the particle set
+    if (dropOn || escape==2) {
+        // Evaporated droplets and phase-contract escaped bubbles leave here.
+        // Bubble deletion also applies when the optional droplet model is off.
         bool any = false;
         for (size_t i = 0; i < gone.size(); ++i) if (gone[i]) { any = true; break; }
         if (any) {

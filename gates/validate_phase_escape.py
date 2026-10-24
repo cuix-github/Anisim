@@ -39,8 +39,11 @@ def main():
         stats=run_node(str(ind),str(d/'cpp'),nx=nx,ny=ny,nz=1,dt=.0025,gravity=0,
             phase_model=2,escape=2,esc_phi=cutoff,rho0_face=3.1015625,buoyancy=0)
         actual=np.load(d/'cpp/out_escaped.npy')>.5
-        assert np.array_equal(actual,expected),(kind,actual,expected)
-        rows.append(dict(kind=kind,phase=ph.tolist(),expected=expected.tolist(),actual=actual.tolist()))
+        keep=~((s.typ==0)&expected)  # section 3.4 deletes escaped air, not water
+        assert np.array_equal(actual,expected[keep]),(kind,actual,expected[keep])
+        assert np.array_equal(np.load(d/'cpp/out_positions.npy')[:,:2],s.pos[keep])
+        rows.append(dict(kind=kind,phase=ph.tolist(),expected_before_deletion=expected.tolist(),
+            expected_surviving=expected[keep].tolist(),deleted_air=int((~keep).sum()),actual=actual.tolist()))
     for kw in (dict(phase_model=1),dict(esc_phi=0),dict(esc_phi=.5)):
         try:PhaseContractSim(8,8,escape=2,**kw)
         except ValueError:pass

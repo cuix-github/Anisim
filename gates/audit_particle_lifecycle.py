@@ -1,8 +1,8 @@
 """Prescribed-field lifecycle witness against PF-FLIP section 3.4.
 
-This is an acceptance gate, expected to FAIL on the known retained-bubble
-implementation. Its negative result must not be interpreted as a pressure
-failure, nor hidden by changing the paper expectation.
+The retained-bubble implementation failed this gate; that before result is
+preserved. Its negative result was not a pressure failure. The expectation of
+deleting escaped air particles is unchanged after the implementation repair.
 """
 import argparse
 import hashlib
@@ -46,8 +46,8 @@ def main():
                 pressure_residual=stats['final_residual'])
         assert r['cases']['water_control']['remaining']==1
         assert r['cases']['escaped_drop']['remaining']==1 and r['cases']['escaped_drop']['radii'][0]>0
-        assert r['cases']['escaped_bubble']['escaped']==[1.], 'witness did not classify the bubble'
         assert r['cases']['escaped_bubble']['remaining']==0, 'PF section 3.4 requires deleting escaped bubbles; actual node retains one'
+        assert r['cases']['escaped_bubble']['escaped']==[] and r['cases']['escaped_bubble']['radii']==[]
         r['passed']=True
     except BaseException as e:
         r['failure']=repr(e);raise
