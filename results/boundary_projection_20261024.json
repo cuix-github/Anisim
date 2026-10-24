@@ -1,0 +1,72 @@
+{
+  "passed": true,
+  "scope": "Finite separation of sampling gaps, pressure projection and density feedback.\n\nThis prescribes tiny single-phase grid channels, deliberately bypassing P2G.\nIt is NOT an end-to-end boundary or long-flow certificate. Five fixed arms,\none unchanged legacy control, no solver changes and no parameter search.\n",
+  "source_sha": "515f64e886c4789540423e50042f7f618ffe6172",
+  "binary_sha256": "fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b",
+  "limits": {
+    "velocity": 5e-05,
+    "divergence": 5e-05,
+    "pressure_relative": 1e-06
+  },
+  "arms": [
+    {
+      "name": "regular_tau0",
+      "pressure_relative": 8.04565e-07,
+      "independent_projection_max_error": 3.725290305400808e-09,
+      "max_divergence": 3.725290298461914e-09,
+      "manufactured_flow_max_error": 3.725290298461914e-09,
+      "selected_v_face": -0.263671875,
+      "wall_normal_max": 0.0
+    },
+    {
+      "name": "regular_tau05",
+      "pressure_relative": 8.04565e-07,
+      "independent_projection_max_error": 3.725290305400808e-09,
+      "max_divergence": 3.725290298461914e-09,
+      "manufactured_flow_max_error": 3.725290298461914e-09,
+      "selected_v_face": -0.263671875,
+      "wall_normal_max": 0.0
+    },
+    {
+      "name": "centre_gap_tau0",
+      "pressure_relative": 8.04565e-07,
+      "independent_projection_max_error": 3.725290305400808e-09,
+      "max_divergence": 3.725290298461914e-09,
+      "manufactured_flow_max_error": 3.725290298461914e-09,
+      "selected_v_face": -0.263671875,
+      "wall_normal_max": 0.0
+    },
+    {
+      "name": "centre_gap_tau05",
+      "expected_density_refusal": "step_3d refused its inputs: step_3d: error: volume contract refuses empty/nonfinite particle support"
+    },
+    {
+      "name": "missing_face_tau0",
+      "pressure_relative": 8.28958e-07,
+      "independent_projection_max_error": 4.8942587371758606e-08,
+      "max_divergence": 7.275957614183426e-08,
+      "manufactured_flow_max_error": 0.0948089063167572,
+      "selected_v_face": -0.1688629686832428,
+      "wall_normal_max": 0.0
+    }
+  ],
+  "legacy_control_bit_identical": true,
+  "fixture": {
+    "nx": 16,
+    "ny": 12,
+    "dt": 0.00390625,
+    "particles": 768,
+    "relocated_particles": 10,
+    "centre_gap": [
+      0,
+      6
+    ],
+    "missing_v_face": [
+      0,
+      6
+    ],
+    "prescribed_channels_bypass_p2g": true
+  },
+  "same_grid_with_changed_centre_sampling": true,
+  "seconds": 25.292847299948335
+}

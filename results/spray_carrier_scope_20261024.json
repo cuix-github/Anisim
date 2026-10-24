@@ -1,0 +1,710 @@
+{
+  "scope": "Separate droplet/carrier feedback from cell-centred density support.\n\nStatic mode only reads retained 2D states. Flight mode runs three 0.05-second\nactual-graph fixtures, first reproducing the retained legacy control exactly.\nNo solver edits, production runs, rendering, epsilon floors or new admission\nthresholds. Numerical tolerances are those of validate_interface_closure.\n",
+  "source_sha": "ff1ac4c0bd3e5b1e5f06617720922a6a24897c71",
+  "binary_sha256": "fb1eacf574587b391187887150a717506bf5d7f5fc0c6ed92a3d33efd61dc07b",
+  "command": [
+    "gates/audit_spray_carrier_scope.py",
+    "--flight",
+    "--out",
+    "out/runs/spray_carrier_scope_20261024/audit_r2"
+  ],
+  "passed": true,
+  "support": [
+    {
+      "step": 1280,
+      "retained_control": true,
+      "active_count": 20439,
+      "auxiliary_count": 1675,
+      "centre_holes": 2,
+      "holes_with_all_four_faces_supported": 0,
+      "holes_with_any_face_supported": 2,
+      "holes_in_boundary_cell": 2,
+      "holes_within_two_cell_boundary_band": 2,
+      "unsupported_interior_u_faces": 0,
+      "unsupported_interior_v_faces": 2,
+      "airborne_particles": 1715,
+      "airborne_sampling_any_unsupported_preprojection_face": 114,
+      "holes": [
+        {
+          "cell": [
+            63,
+            34
+          ],
+          "nearest_active_distance": 1.1021963231978749,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.28353685000573486,
+            0.0,
+            0.16307152670127367,
+            0.0
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            50
+          ],
+          "nearest_active_distance": 1.0128817974656572,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            1.5256543755798158,
+            0.0,
+            0.0,
+            0.045982567606631275
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        }
+      ]
+    },
+    {
+      "step": 3200,
+      "retained_control": true,
+      "active_count": 20368,
+      "auxiliary_count": 3029,
+      "centre_holes": 20,
+      "holes_with_all_four_faces_supported": 0,
+      "holes_with_any_face_supported": 9,
+      "holes_in_boundary_cell": 15,
+      "holes_within_two_cell_boundary_band": 20,
+      "unsupported_interior_u_faces": 16,
+      "unsupported_interior_v_faces": 18,
+      "airborne_particles": 3133,
+      "airborne_sampling_any_unsupported_preprojection_face": 0,
+      "holes": [
+        {
+          "cell": [
+            0,
+            11
+          ],
+          "nearest_active_distance": 1.1490307541554186,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            323.7075671580348,
+            0.0
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            12
+          ],
+          "nearest_active_distance": 1.7462625592754675,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            13
+          ],
+          "nearest_active_distance": 1.595289417416922,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            14
+          ],
+          "nearest_active_distance": 1.351082332473672,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            60.44833196170684,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            79
+          ],
+          "nearest_active_distance": 1.4707014151532956,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            1,
+            11
+          ],
+          "nearest_active_distance": 1.2629067949013284,
+          "boundary_ring": 1,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            57.4176694105222,
+            0.0
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            32,
+            79
+          ],
+          "nearest_active_distance": 1.597688018905158,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            33,
+            78
+          ],
+          "nearest_active_distance": 1.1441358629322962,
+          "boundary_ring": 1,
+          "face_transfer_mass": [
+            0.021586529259930213,
+            0.0,
+            0.05209061924462391,
+            0.0
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            33,
+            79
+          ],
+          "nearest_active_distance": 1.996543552010422,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            34,
+            79
+          ],
+          "nearest_active_distance": 1.872755763791297,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            35,
+            78
+          ],
+          "nearest_active_distance": 1.0381904719218462,
+          "boundary_ring": 1,
+          "face_transfer_mass": [
+            0.0554247759771187,
+            0.014434841578430344,
+            0.3699341273773554,
+            0.0
+          ],
+          "positive_faces": 3,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            35,
+            79
+          ],
+          "nearest_active_distance": 1.8640943107730767,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            36,
+            79
+          ],
+          "nearest_active_distance": 1.0204396059090115,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.37384467111125796,
+            0.1871520748089866,
+            0.0
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            62,
+            10
+          ],
+          "nearest_active_distance": 1.132602592720789,
+          "boundary_ring": 1,
+          "face_transfer_mass": [
+            0.22502352547141688,
+            0.0,
+            1036.4956292186055,
+            0.0
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            62,
+            11
+          ],
+          "nearest_active_distance": 1.4778707822023296,
+          "boundary_ring": 1,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            10
+          ],
+          "nearest_active_distance": 1.054420974036607,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            1002.5752811178872,
+            0.0
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            11
+          ],
+          "nearest_active_distance": 2.0341852399099634,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            12
+          ],
+          "nearest_active_distance": 1.8560614722486646,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            13
+          ],
+          "nearest_active_distance": 1.5831227451967855,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            14
+          ],
+          "nearest_active_distance": 1.4513503458201542,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.48905592015701566,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        }
+      ]
+    },
+    {
+      "step": 7200,
+      "retained_control": true,
+      "active_count": 20178,
+      "auxiliary_count": 14015,
+      "centre_holes": 14,
+      "holes_with_all_four_faces_supported": 0,
+      "holes_with_any_face_supported": 10,
+      "holes_in_boundary_cell": 14,
+      "holes_within_two_cell_boundary_band": 14,
+      "unsupported_interior_u_faces": 8,
+      "unsupported_interior_v_faces": 15,
+      "airborne_particles": 14286,
+      "airborne_sampling_any_unsupported_preprojection_face": 84,
+      "holes": [
+        {
+          "cell": [
+            0,
+            20
+          ],
+          "nearest_active_distance": 1.0019616316251474,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            465.63063364625657,
+            272.57400345387725,
+            143.7784901208403
+          ],
+          "positive_faces": 3,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            36
+          ],
+          "nearest_active_distance": 1.145091275882513,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.1934993721997912,
+            0.0,
+            0.20429270534751776
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            58
+          ],
+          "nearest_active_distance": 1.5973289709598124,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            59
+          ],
+          "nearest_active_distance": 1.4644843516318955,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.00033572005516526707,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            0,
+            79
+          ],
+          "nearest_active_distance": 1.4260293030795401,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            49,
+            79
+          ],
+          "nearest_active_distance": 1.1082808784338847,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0002136857487278756,
+            0.8787254700308684,
+            0.0
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            10
+          ],
+          "nearest_active_distance": 1.0472905427910493,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            55.92951981821384,
+            0.0,
+            388.8042802743255,
+            0.0
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            11
+          ],
+          "nearest_active_distance": 1.7749564525054855,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            50
+          ],
+          "nearest_active_distance": 1.345798260366266,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.02382347025885213,
+            0.0,
+            0.002072343766796795,
+            0.0
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            51
+          ],
+          "nearest_active_distance": 1.187740983994348,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.30604096508426476
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            57
+          ],
+          "nearest_active_distance": 1.0014512044593575,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.63526247767489,
+            0.0,
+            0.02819412330036936,
+            0.16187303297412134
+          ],
+          "positive_faces": 3,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            67
+          ],
+          "nearest_active_distance": 1.0098686023154226,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.40519843334431205,
+            0.0
+          ],
+          "positive_faces": 1,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            68
+          ],
+          "nearest_active_distance": 1.0162104936729839,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.8165559731396594,
+            0.0,
+            0.0,
+            0.40070307865332055
+          ],
+          "positive_faces": 2,
+          "phase": 0.0
+        },
+        {
+          "cell": [
+            63,
+            79
+          ],
+          "nearest_active_distance": 1.5755239449739107,
+          "boundary_ring": 0,
+          "face_transfer_mass": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "positive_faces": 0,
+          "phase": 0.0
+        }
+      ]
+    }
+  ],
+  "flight": {
+    "legacy_control_bit_identical": true,
+    "steps": 20,
+    "simulated_seconds": 0.04999999888241291,
+    "auxiliary_comparison": "restore known stable-primary-then-auxiliary permutation; emission disabled",
+    "arms": [
+      {
+        "arm": "legacy_primary",
+        "initial_preprojection_carrier_sample": [
+          2.744910208477415,
+          0.0
+        ],
+        "final_drop_vx": 2.683783769607544,
+        "pressure_residual": 2.3280094296751486e-07,
+        "max_air_speed": 1.707542896270752,
+        "execution": {
+          "position": 9.5367431640625e-07,
+          "velocity": 2.384185791015625e-07,
+          "count": 768
+        }
+      },
+      {
+        "arm": "auxiliary",
+        "initial_preprojection_carrier_sample": [
+          0.0,
+          0.0
+        ],
+        "final_drop_vx": 1.3236243724822998,
+        "pressure_residual": 0.0,
+        "max_air_speed": 0.0,
+        "execution": {
+          "position": 0.0,
+          "velocity": 0.0,
+          "count": 768
+        }
+      },
+      {
+        "arm": "detached_primary",
+        "initial_preprojection_carrier_sample": [
+          0.0,
+          0.0
+        ],
+        "final_drop_vx": 1.3236243724822998,
+        "pressure_residual": 0.0,
+        "max_air_speed": 0.0,
+        "execution": {
+          "position": 0.0,
+          "velocity": 0.0,
+          "count": 768
+        }
+      }
+    ],
+    "auxiliary_vs_detached_physical_arrays_identical": {
+      "positions": true,
+      "velocities": true,
+      "mass": true,
+      "momx": true,
+      "momy": true,
+      "momz": true,
+      "tau": true,
+      "wt": true,
+      "wtph": true,
+      "scale": true,
+      "phase_st": true,
+      "radius": true,
+      "particle_phase": true
+    }
+  },
+  "seconds": 12.636174399987794
+}

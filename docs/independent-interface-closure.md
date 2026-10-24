@@ -1,5 +1,10 @@
 # Independent PF interface closure
 
+Follow-up: the [spray/carrier scope audit](spray-carrier-scope-audit.md) separates
+the successful controlled one-way flight contract from the failed positive-count
+density candidate. It localizes retained sampling holes to the boundary band;
+it does not erase any failed integrated or long-time gate below.
+
 2026-10-24. Xue authorized deriving and testing an explicit implementation rather
 than waiting for unpublished author details. This supplements the bounded route;
 it does not erase its failed geometry calibration or 240-second near-rest gate.

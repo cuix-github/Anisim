@@ -50,6 +50,17 @@ air sampling support in retained impact states; its long recovery/holdout and
 fixed only in the new mode. See the [receipt](results/interface_closure_20261024.json)
 and the full [research derivation](docs/literature/pf-interface-closure-derivation.md).
 
+The subsequent [spray/carrier audit](docs/spray-carrier-scope-audit.md) separates
+those outcomes: auxiliary and detached-primary droplets pass the same controlled
+one-way flight check, while the density-correction candidate fails on boundary
+sampling gaps. It adds evidence and clarifies validation dependencies without
+changing the solver or admitting production/3D runs.
+
+The latest [finite acceptance decision](docs/acceptance-convergence-20261024.md)
+uses manufactured flow to distinguish missing particle counts, missing velocity
+samples and pressure-solve errors. It rejects the current density candidate for
+the retained impact inputs and fixes the remaining work and stopping conditions.
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing
