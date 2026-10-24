@@ -1069,6 +1069,10 @@ class Sim:
                           reentered=int(inside.sum()))
             if inside.any():
                 gone = gone | inside
+        if self.escape == 2:
+            # PF section 3.4 deletes escaped air inclusions. This is independent
+            # of whether the optional water-droplet flight model is enabled.
+            gone = bub.copy() if gone is None else gone | bub
         fly = None
         if esc is not None and esc.any():
             vg = self.sample_velocity(self.pos)

@@ -4,6 +4,20 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **PF escaped-bubble discrepancy repaired (2026-10-24).** Opt-in `escape=2`
+  now deletes classified air inclusions as PF section 3.4 specifies, with and
+  without water-droplet integration. Before/after generic fixtures, exact
+  restart, seven phase fields and three common impact states pass. In those
+  impact states, removing exactly 68/51/410 air particles leaves every one of
+  the thirteen survivor-state arrays bit-identical to the previous C++ output;
+  legacy escape paths and spray outputs remain unchanged. See
+  [evidence](../results/bubble_lifecycle_20261024.json). This closes only the
+  bubble clause: primary-droplet transfer/reentry and `c_div` after particle
+  conversion/deletion remain unresolved. The final integrated physical suite
+  is blocked on those interfaces, and 3D is deferred. Precise, unsent author
+  questions and the five-step status are at the end of
+  [verification-route.md](verification-route.md).
+
 - **Acceptance closure / Losasso reread (2026-10-24).** The full main text of
   Losasso 2008 clarifies the log-density feedback's dense/diffuse and coupling
   scope; it does not specify the missing PF two-phase lifecycle/closed-boundary
