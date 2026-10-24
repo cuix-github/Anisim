@@ -90,3 +90,9 @@ One folder per job.
 The simulator was born inside Aniso under `sim/` and moved here on 2026-10-11 so each repository has one job. Every Aniso commit that touched the simulator came along with its author, date and message; each carries an `Aniso-commit:` trailer naming its original hash, and references like `Aniso#38` point at the pull requests where the work was reviewed. The interface between the two repositories is the per-frame particle cache: positions, velocities, phase, escape flags and particle scale as `.npy` arrays.
 
 Papers: [PF-FLIP](https://ge.in.tum.de/?p=3691) (preprint, video on that page) and [ST-FLIP](https://ge.in.tum.de/?p=4006).
+
+The [literature library](references/README.md) groups the core papers and the
+spray, droplet and surface-reconstruction sources cited in PF-FLIP Section 7.
+The [October 22 audit](docs/literature/spray-adaptivity-audit.md) separates the
+paper's multiresolution spray method from implemented adaptivity, the production
+settings and what the existing cache can support.

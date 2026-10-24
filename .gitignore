@@ -3,6 +3,9 @@
 build/
 out/
 
+# Local reading copies; commit source metadata and notes, not third-party PDFs.
+/references/papers/
+
 # Simulation footage stays local: videos are rendered into results/ folders by
 # the demos and gates but never committed (rule set 2026-10-13).
 *.mp4
