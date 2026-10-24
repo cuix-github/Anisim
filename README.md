@@ -56,6 +56,11 @@ one-way flight check, while the density-correction candidate fails on boundary
 sampling gaps. It adds evidence and clarifies validation dependencies without
 changing the solver or admitting production/3D runs.
 
+The latest [finite acceptance decision](docs/acceptance-convergence-20261024.md)
+uses manufactured flow to distinguish missing particle counts, missing velocity
+samples and pressure-solve errors. It rejects the current density candidate for
+the retained impact inputs and fixes the remaining work and stopping conditions.
+
 For the current breaker images, start with [rendering navigation](docs/rendering/README.md),
 the [validated setups](maya/presets/README.md) and the local
 [media gallery](out/gallery/index.html). The gallery is generated from existing

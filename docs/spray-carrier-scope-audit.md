@@ -1,5 +1,10 @@
 # Spray carrier feedback and density support are separate contracts
 
+Follow-up: [finite acceptance decision](acceptance-convergence-20261024.md)
+isolates pressure from centre/face support with manufactured flow and defines
+the stopping point for this investigation. It does not certify real P2G or
+attribute the old long-time motion to boundary sampling.
+
 2026-10-24. This bounded follow-up separates two issues previously combined in
 the interface-closure admission gate. It uses the unchanged solver binary from
 that experiment, retained impact inputs, and three tiny actual Bifrost graph

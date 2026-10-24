@@ -4,6 +4,16 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Finite boundary/projection decision (2026-10-24).** The latest
+  [closure record](acceptance-convergence-20261024.md) separates zero centre
+  counts from missing face velocities using manufactured closed-wall flow.
+  Actual C++ projection matches an independent dense solve; it cannot recover
+  all information deliberately removed from a velocity face. The positive-count
+  density candidate is inapplicable to the retained impact states. This does
+  not identify the cause of the old long movie's motion or certify real P2G
+  boundaries. One base candidate, existing local gates, then one frozen long
+  suite are the remaining route; no solver changes or 3D admission this round.
+
 - **Spray/carrier scope clarified (2026-10-24).** A bounded
   [follow-up audit](spray-carrier-scope-audit.md) reproduces the old carrier
   control and shows auxiliary and detached-primary droplets give identical
