@@ -104,3 +104,23 @@ with only `volume_tau=0` at those inputs. The latter isolates lifecycle/transpor
 passing it cannot qualify the integrated density candidate. Empty cells are not
 floored, reseeded or given a new reference in this round. The long recovery and
 holdout are withheld because the prerequisite failed.
+
+The diagnostic finds 2/20/13 pre-existing empty cells at the three impact inputs,
+and 2/20/14 after detached-primary exclusion. All are classified air. Thus the
+first refusal is not caused by the new mask; the fixed positive-support law
+already has an unsupported-domain problem. All three one-step common-state
+checks pass with density feedback off. No zero-support policy is added here.
+
+A separate lifecycle witness exposes a concrete material-loss bug in the new
+candidate: both a newly drawn radius and a carried radius below `r_min` delete
+a primary even when evaporation is zero. The correction clamps only these
+new-mode primary aerodynamic radii to `r_min`; the represented parcel remains.
+It is an explicit cutoff choice, not an inference of physical droplet volume.
+Auxiliary droplets and model 0 retain their deletion behavior. Finite positive
+radius parameters and finite nonnegative carried radii are required. The same
+prescribed fixture is retained before/after, including the old-mode controls.
+
+After this correction, the local gates are repeated to qualify the changed
+binary. The six-second static case may run as an independent supported-domain
+control, not as admission past the failed impact-support gate. It cannot enable
+the long impact or holdout. All original numerical limits remain fixed.

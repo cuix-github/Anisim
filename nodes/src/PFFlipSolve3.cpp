@@ -429,11 +429,24 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
     const bool detached = droplet_transfer_model==1;
     if (droplet_transfer_model<0 || droplet_transfer_model>1 || (detached &&
         (phase_model!=2 || NZ!=1 || escape!=2 || droplet_model<1 || droplet_model>2 ||
-         droplet_evap_k!=0 || st || adapt))) {
+         droplet_evap_k!=0 || st || adapt ||
+         !std::isfinite(droplet_r_median) || droplet_r_median<=0 ||
+         !std::isfinite(droplet_r_min) || droplet_r_min<=0 ||
+         !std::isfinite(droplet_r_sigma) || droplet_r_sigma<0 || droplet_r_sigma>2))) {
         using namespace Amino::MessageLiterals;
         services.logError("step_3d: invalid one-way primary transfer contract"_amt);
         std::fprintf(stderr,"step_3d: error: one-way primary transfer requires uniform 2D phase=2 escape=2 droplets and zero evaporation\n");
         clearOutputs(); return;
+    }
+    if (detached) {
+        for (size_t i=0;i<radius_in.size();++i) {
+            if (!std::isfinite(radius_in[i]) || radius_in[i]<0) {
+                using namespace Amino::MessageLiterals;
+                services.logError("step_3d: invalid primary-transfer radius state"_amt);
+                std::fprintf(stderr,"step_3d: error: one-way primary radius must be finite and nonnegative\n");
+                clearOutputs(); return;
+            }
+        }
     }
     if (!std::isfinite(volume_tau) || volume_tau<0 || (volume_tau>0 &&
         (phase_model!=2 || NZ!=1 || ((!detached) && (escape || emit_model || droplet_model)) || st || adapt))) {
@@ -1411,6 +1424,12 @@ void step_3d(int nx, int ny, int nz, float dt_in, float gravity, float rho_liqui
             if (r <= 0.0)
                 r = rmed * std::exp(rsig * dropletNormal(step_index, static_cast<uint64_t>(pi)));
             r = std::sqrt(std::max(r * r - evap, 0.0));
+            // A primary is a represented parcel, not one physical droplet.
+            // In the zero-evaporation one-way experiment, the aerodynamic
+            // radius cutoff must not silently delete its material inventory.
+            // Auxiliary spray and all legacy modes retain their deletion law.
+            if (detached && !sprayF[pi])
+                r = std::max(r, static_cast<double>(droplet_r_min));
             radNew[pi] = r;
             gone[pi] = r < static_cast<double>(droplet_r_min) ? 1 : 0;
             if (sprayF[pi] && insideF[pi]) gone[pi] = 1;

@@ -270,6 +270,9 @@ class Sim:
             r[idx] = D["r_median"] * np.exp(D["r_sigma"] * self.droplet_normal(self.nstep, idx))
         if drop.any():
             r[drop] = np.sqrt(np.maximum(r[drop] ** 2 - 0.25 * D["evap_k"] * dt, 0.0))
+        if getattr(self,'droplet_transfer_model',0):
+            primary=drop & ~self.spray
+            r[primary]=np.maximum(r[primary],D["r_min"])
         return drop & (r < D["r_min"])
 
     def _droplet_drag(self, d, vg, dt):

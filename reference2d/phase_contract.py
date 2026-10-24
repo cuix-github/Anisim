@@ -35,6 +35,11 @@ class PhaseContractSim(Sim):
             (phase_model!=2 or self.escape!=2 or self.droplet is None or self.droplet['evap_k']!=0)):
             raise ValueError('one-way primary transfer requires phase=2, escape=2, droplets and zero evaporation')
         self.droplet_transfer_model=droplet_transfer_model
+        if droplet_transfer_model:
+            d=self.droplet
+            if (not np.isfinite([d['r_median'],d['r_min'],d['r_sigma']]).all()
+                or d['r_median']<=0 or d['r_min']<=0 or not 0<=d['r_sigma']<=2):
+                raise ValueError('invalid one-way primary radius parameters')
         if phase_model not in (1,2) or not np.isfinite(phase_alpha) or phase_alpha<=0:
             raise ValueError('phase model must be 1/2 with positive alpha')
         if self.escape==2 and (phase_model!=2 or not np.isfinite(self.esc_phi) or not 0<self.esc_phi<.5):
@@ -63,6 +68,8 @@ class PhaseContractSim(Sim):
     def masses(self):
         m=super().masses()
         if getattr(self,'droplet_transfer_model',0):
+            if not np.isfinite(self.radius).all() or (self.radius<0).any():
+                raise ValueError('one-way primary radius must be finite and nonnegative')
             m=np.where((self.typ==1)&(self.radius>0),0.,m)
         return m
 
