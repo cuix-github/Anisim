@@ -774,6 +774,12 @@
      "portDefault": "0f"
     },
     {
+     "portName": "volume_model",
+     "portDirection": "input",
+     "portType": "int",
+     "portDefault": "0"
+    },
+    {
      "portName": "droplet_transfer_model",
      "portDirection": "input",
      "portType": "int",
@@ -1375,6 +1381,11 @@
        "portName": "volume_tau",
        "portDirection": "input",
        "portType": "float"
+      },
+      {
+       "portName": "volume_model",
+       "portDirection": "input",
+       "portType": "int"
       },
       {
        "portName": "droplet_transfer_model",
@@ -2266,6 +2277,10 @@
       {
        "source": ".volume_tau",
        "target": "step.volume_tau"
+      },
+      {
+       "source": ".volume_model",
+       "target": "step.volume_model"
       },
       {
        "source": ".droplet_transfer_model",
@@ -3523,6 +3538,10 @@
     {
      "source": ".volume_tau",
      "target": "loop.volume_tau"
+    },
+    {
+     "source": ".volume_model",
+     "target": "loop.volume_model"
     },
     {
      "source": ".droplet_transfer_model",
