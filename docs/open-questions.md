@@ -4,6 +4,19 @@ Kept current; the answered ones stay at the bottom with their answer and date, b
 
 ## Open
 
+- **Acceptance closure / Losasso reread (2026-10-24).** The full main text of
+  Losasso 2008 clarifies the log-density feedback's dense/diffuse and coupling
+  scope; it does not specify the missing PF two-phase lifecycle/closed-boundary
+  choices. The opt-in volume+transport combination passes local graph/Python,
+  exact restart and six-second static-motion subgates. Its independent coarse
+  geometric calibration fails (5.118% circle-area error); errors decrease to
+  2.674% and 1.304% under spatial refinement, identifying a reconstruction
+  accuracy limit rather than a quadrature error. No full volume certificate is
+  claimed. The actual-node bubble witness fails PF section 3.4: a classified
+  escaped air particle remains alive. Evidence is in
+  [acceptance_base_20261024.json](../results/acceptance_base_20261024.json)
+  and [the bounded route](verification-route.md). Coarse 3D is deferred.
+
 - **Bounded verification / density relaxation (2026-10-24).** The agreed
   [five-step route](verification-route.md) separates paper correspondence,
   common-input execution and physical acceptance. A zero-gravity actual-graph
