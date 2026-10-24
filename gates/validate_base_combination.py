@@ -52,8 +52,7 @@ def calibration():
         s.pos=np.maximum(.51,np.minimum([nx-.51,ny-.51],s.pos)).astype(np.float32).astype(float)
         a=geometry(s);err=abs(a['area']/expected-1)
         rows.append(dict(kind=name,**a,expected=expected,relative_error=err))
-        assert err<=LIMITS['seeded_geometry_relative_error'],rows[-1]
-    return rows
+    return dict(passed=all(r.get('relative_error',0)<=LIMITS['seeded_geometry_relative_error'] for r in rows),rows=rows)
 
 
 def cpp(s,out,steps,state=None,offset=0):
@@ -135,6 +134,10 @@ def main():
                 checks[backend]={k:bool(v) for k,v in checks[backend].items()}
             row['checks']=checks;write(out/'receipt.json',r)
             assert all(all(v.values()) for v in checks.values()),(name,checks)
+        # A failed geometric calibration does not invalidate independent code
+        # and static-motion checks, but still blocks the overall volume gate.
+        r['mechanics_passed']=True
+        assert r['calibration']['passed'], 'geometry calibration failed; mechanical subgates do not certify volume'
         r['passed']=True
     except BaseException as e:
         r['failure']=repr(e);raise
