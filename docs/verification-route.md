@@ -51,3 +51,11 @@
 另独立检查 Losasso 对数修正的符号与秒单位，并用解析闭壁场检验均值兼容性。直接代入不相容 c_div 的失败必须保留；移除常数分量仅用于展示一种可解的数学投影，不宣称这就是 PF 作者对两相的处理。
 
 来源：PF-FLIP https://ge.in.tum.de/download/Adaptive_Phase_Field_FLIP_preprint.pdf ，Losasso et al. https://jerrytalton.net/research/ltkf-tcspl-08/paper.pdf 。当前完整对应性表见 [paper-correspondence-and-settling.md](paper-correspondence-and-settling.md)，保留所有旧结论。
+
+## 首个体积候选，运行前冻结
+
+`volume_tau=0` 完全保留旧路径；候选为 .5 秒。只允许 uniform 2D、phase=2、escape/emission/transport/ST/adapt 关闭。对全部主水/空气粒子做 Eq.6 cell-centre 数密度 splat；以每格四粒子的规则格点、按相同 .51 格边界限制后的密度作为目标。它修正的是粒子采样密度，不把水空气 1000 倍物理质量差当作压缩误差。
+
+目标散度为 `d=log(n/n_ref)/tau - mean(log(n/n_ref)/tau)`，对应 `c_div=-d`；对本代码的负 Laplacian，RHS 增加 `d/dt`。减均值是满足当前封闭 Neumann 边界的最小二乘常数投影，是明确的实现选择。全域统一的密度倍率被这个投影消去，因此这不是全局绝对体积守恒的证明。目标密度的墙边标定也是实现选择；不是作者的公开离散公式。零或非有限密度拒绝，不偷偷加 epsilon 维持运行。
+
+本轮仅验收局部同输入、受控密度松弛、静水。先复现上一二进制的 13 个最终数组；同输入单步位置误差 <4e-6、速度 <2e-5；1 秒后中心化 log 密度误差 RMS 至少下降 20%；6 秒静水门槛沿用上表。初始化在两臂都先移入合法边界，避免把边界修正的差别归因于体积选项。空支持和不支持组合必须拒绝。未完成这些检查，不运行新的长撞击，更不推广生产默认值。
