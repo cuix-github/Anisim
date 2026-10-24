@@ -95,6 +95,13 @@ def flight_audit(out):
         s.p2g()
         initial_sample = s.sample_velocity(s.pos[[i]])[0].tolist()
         a, residual = cpp(s, out/name, 20)
+        if auxiliary:
+            # With emission disabled, C++ still stably puts auxiliary particles
+            # last; Python preserves input order. Restore the KNOWN identity
+            # permutation before comparing. No spatial nearest-match or fitting.
+            order = np.r_[np.flatnonzero(~s.spray), np.flatnonzero(s.spray)]
+            inverse = np.argsort(order)
+            a = {k:v[inverse] for k,v in a.items()}
         if name == 'legacy_primary':
             old = load_final_state(str(ROOT / 'out/runs/interface_closure_20261024/local_after/flight/m0_h0.001'))
             assert a.keys() == old.keys()
@@ -110,10 +117,12 @@ def flight_audit(out):
             assert a['mass'][i] == 0 and a['radius'][i] > 0
         actual[name] = a
         rows.append(row)
+        write(out/'flight_progress.json', rows)
     b, c = actual['auxiliary'], actual['detached_primary']
     checks = {k:bool(np.array_equal(b[k],c[k])) for k in b if k != 'spray'}
     assert all(checks.values()), checks
     return dict(legacy_control_bit_identical=True, steps=20, simulated_seconds=20*DT,
+                auxiliary_comparison='restore known stable-primary-then-auxiliary permutation; emission disabled',
                 arms=rows, auxiliary_vs_detached_physical_arrays_identical=checks)
 
 
